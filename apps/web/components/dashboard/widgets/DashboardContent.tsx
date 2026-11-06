@@ -372,7 +372,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
       {/* Header with customize button */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
             Welcome back{displayName ? `, ${displayName}` : ""}
             {profile?.major_name && profile?.degree_level && (
@@ -391,7 +391,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
       {fetchError && (
         <div
           role="alert"
-          className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
         >
           <div className="text-sm text-amber-900 dark:text-amber-100">
             <strong>Couldn&apos;t load your dashboard data.</strong>{' '}

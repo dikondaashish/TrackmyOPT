@@ -23,12 +23,12 @@ export function PublicOptToolPageIntro({
       aria-labelledby="public-opt-tool-heading"
       className="mx-auto max-w-6xl px-4 pb-1 pt-6 sm:px-6"
     >
-      <p className="mb-2 text-sm font-medium text-blue-700 dark:text-blue-300">
+      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
         Free F-1 student planning tool
       </p>
       <h1
         id="public-opt-tool-heading"
-        className="max-w-3xl text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl"
+        className="max-w-3xl text-3xl font-bold text-slate-950 dark:text-white sm:text-4xl"
       >
         {title}
       </h1>
@@ -36,7 +36,7 @@ export function PublicOptToolPageIntro({
         {description}
       </p>
 
-      <details className="mt-4 rounded-xl border border-border bg-muted/30 px-4 py-2">
+      <details className="mt-4 rounded-xl border border-border bg-muted px-4 py-2">
         <summary className="flex min-h-11 cursor-pointer items-center font-medium focus-visible:ring-2">
           Before you start · guidance and limitations
         </summary>

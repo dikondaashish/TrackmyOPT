@@ -91,12 +91,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">
-                        OPT Compliance
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />7 min read
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />OPT Compliance · 7 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     OPT Unemployment Days Calculator: How to Check & Track Your Remaining Days
@@ -107,7 +102,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: September 1, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     You get <strong>90 calendar days</strong> of unemployment on initial OPT (150 total with STEM OPT). Check your official count in the{" "}
@@ -136,7 +131,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                         { label: "Combined max", value: "150 days", sub: "Across full OPT + STEM period" },
                     ].map((item) => (
                         <div key={item.label} className="text-center p-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">{item.label}</p>
+                            <p className="text-xs font-semibold text-gray-500 mb-1">{item.label}</p>
                             <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{item.value}</p>
                             <p className="text-xs text-gray-500 mt-1">{item.sub}</p>
                         </div>
@@ -183,7 +178,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                     For post-completion OPT, unemployment generally begins on your <strong>OPT authorization start date</strong> printed on the EAD — even if the physical card arrives late. Gaps without qualifying employment count from that date forward.
                 </p>
-                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
+                <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
                     <p className="text-amber-800 dark:text-amber-200 text-sm">
                         <strong>Common trap:</strong> Waiting for your EAD while your OPT start date has already passed. Those days still count. See{" "}
@@ -198,9 +193,8 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
             <section className="mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Counts (and Doesn&apos;t Count) as Employment</h2>
                 <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-xl border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10">
-                        <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                            <CheckCircle2 className="w-5 h-5 text-green-600" /> Stops the clock
+                    <div className="p-5 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950">
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-3">Stops the clock
                         </h3>
                         <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 list-disc pl-4">
                             <li>Paid job related to your degree (20+ hrs/week)</li>
@@ -209,7 +203,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                             <li>Volunteer work (initial OPT only; not STEM)</li>
                         </ul>
                     </div>
-                    <div className="p-5 rounded-xl border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10">
+                    <div className="p-5 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5 text-red-600" /> Still counts as unemployed
                         </h3>
@@ -261,7 +255,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                 </div>
             </section>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/laid-off-on-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Laid Off on OPT: What to Do Next</Link>

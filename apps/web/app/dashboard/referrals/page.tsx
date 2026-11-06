@@ -104,7 +104,7 @@ export default function ReferralStatsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Referral Stats</h1>
+        <h1 className="text-2xl font-bold">Referral Stats</h1>
         <p className="text-sm text-muted-foreground mt-1">
           View referral performance for codes owned by {ownerEmail || "your account"}.
         </p>
@@ -183,7 +183,7 @@ export default function ReferralStatsPage() {
                     <div className="font-semibold">{row.code}</div>
                     <div className="text-xs text-muted-foreground truncate">{row.name || "Referral code"}</div>
                   </div>
-                  <span className={`shrink-0 px-2 py-1 rounded-full text-xs ${row.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                  <span className={`shrink-0 px-2 py-0.5 rounded-md text-xs font-medium ${row.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
                     {row.is_active ? "Active" : "Inactive"}
                   </span>
                 </div>
@@ -231,7 +231,7 @@ export default function ReferralStatsPage() {
 
       <div className="hidden md:block rounded-xl border bg-card overflow-x-auto shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-muted/40">
+          <thead className="bg-muted">
             <tr>
               <th className="text-left px-4 py-3 font-medium">Code</th>
               <th className="text-left px-4 py-3 font-medium">Link</th>

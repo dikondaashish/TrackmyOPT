@@ -133,10 +133,10 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
-        <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
+        <div className="bg-white dark:bg-card rounded-xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
               <CheckCircle2 className="w-7 h-7 text-green-600 dark:text-green-400" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Password Reset Successful!</h1>
@@ -153,8 +153,8 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
-      <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
+      <div className="bg-white dark:bg-card rounded-xl shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">Reset Your Password</h1>
           <p className="text-gray-600 dark:text-muted-foreground">

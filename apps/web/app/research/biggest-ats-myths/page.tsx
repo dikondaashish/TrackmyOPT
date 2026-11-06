@@ -42,7 +42,7 @@ export default function BiggestAtsMythsPage() {
         between stages. There is no secret &quot;reject everyone below rank 500&quot; button.
       </p>
       <p>
-        The <em>only</em> automatic no we see reliably is a knockout question the employer set up:
+        The <strong>only</strong> automatic no we see reliably is a knockout question the employer set up:
         work authorization, location, security clearance, license, &quot;are you willing to relocate,&quot;
         that sort of thing. On OPT, the sponsorship question is the big one. Answer it wrong and
         you are out before anyone reads your bullets — but that is <strong>your answer</strong>, not
@@ -87,8 +87,8 @@ export default function BiggestAtsMythsPage() {
       </p>
       <p>
         Yes, TrackMyOPT has resume tooling. We will be straight with you: treat any match number as a
-        starting point, not a grade. We are working on making ours explain <em>which</em> words are
-        missing and <em>why</em>, not just flashing green/red. Tuning a resume until it &quot;beats&quot;
+        starting point, not a grade. We are working on making ours explain <strong>which</strong> words are
+        missing and <strong>why</strong>, not just flashing green/red. Tuning a resume until it &quot;beats&quot;
         a fake score is how you end up with keyword soup.
       </p>
 

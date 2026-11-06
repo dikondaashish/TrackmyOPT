@@ -10,11 +10,9 @@ import {
     Eye,
     FileSearch,
     Globe,
-    Languages,
     RefreshCw,
     Search,
     Shield,
-    Zap,
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
@@ -29,7 +27,7 @@ import { CASE_STATUS_ALERT_DISCLAIMER } from "@/lib/legal/legal-config";
 
 function CaseStatusCard() {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <FileSearch className="w-5 h-5 text-emerald-600" />
@@ -39,14 +37,14 @@ function CaseStatusCard() {
             </div>
             <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-zinc-700 mb-4">
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Receipt Number</p>
-                <p className="text-gray-900 dark:text-white font-mono font-semibold tracking-wide">IOE-0912-3456-7890</p>
+                <p className="text-gray-900 dark:text-white font-mono font-semibold">IOE-0912-3456-7890</p>
             </div>
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-5 text-white mb-4">
+            <div className="bg-emerald-500 rounded-xl p-5 text-white mb-4">
                 <p className="text-sm opacity-80 mb-1">Current Status</p>
                 <p className="text-xl font-bold">Card Was Produced</p>
                 <p className="text-sm opacity-80 mt-1">Your EAD card is on its way!</p>
             </div>
-            <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl px-4 py-3 border border-emerald-200 dark:border-emerald-800 mb-4">
+            <div className="bg-emerald-50 dark:bg-emerald-900 rounded-xl px-4 py-3 border border-emerald-200 dark:border-emerald-800 mb-4">
                 <p className="text-xs text-emerald-700 dark:text-emerald-300 mb-1 font-medium">Decision window · similar cases</p>
                 <p className="text-gray-900 dark:text-white font-semibold">Day 94 of wait · typical 78–112 days</p>
             </div>
@@ -68,21 +66,21 @@ function CaseStatusCard() {
 
 const howItWorks = [
     {
-        step: "01",
+        step: "1",
         icon: <Search className="w-6 h-6" />,
         title: "See your decision window",
         description: "Enter your receipt date — instantly compare against similar OPT cases. No account needed for the first look.",
         color: "emerald",
     },
     {
-        step: "02",
+        step: "2",
         icon: <RefreshCw className="w-6 h-6" />,
         title: "Add your receipt for live status",
         description: "Free: refresh USCIS anytime. Pro: daily auto-checks via USCIS Case Status API access so you stop refreshing manually.",
         color: "teal",
     },
     {
-        step: "03",
+        step: "3",
         icon: <Bell className="w-6 h-6" />,
         title: "Get alerts when it moves (Pro)",
         description: "When we detect a status change, Pro users get email plus browser push with plain-English next steps (timing may vary).",
@@ -143,7 +141,7 @@ const faqItems = [
 export default function CaseStatusPage() {
     return (
         <>
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <FeatureServiceSchema
                 name="USCIS Case Status Tracker"
                 description="Stop refreshing USCIS. See your OPT decision window from similar cases, track live status, and get Pro alerts when it changes. Free first look — no account required."
@@ -151,7 +149,6 @@ export default function CaseStatusPage() {
                 faqItems={faqItems}
             />
             <FeatureHero
-                badge="Stop refreshing USCIS"
                 headline="Know where your case stands — and your decision window"
                 subheadline="Free: see your decision window and refresh status anytime. Pro: daily auto-checks and email alerts when USCIS moves — using Case Status API access. Always verify with official notices."
                 ctaText="Track my case free"
@@ -160,18 +157,14 @@ export default function CaseStatusPage() {
                     text: "See my decision window",
                     href: "/tools/opt-decision-window",
                 }}
-                gradient="from-emerald-600 to-teal-600"
+                gradient="bg-emerald-600"
                 visual={<CaseStatusCard />}
             />
 
             {/* How It Works */}
-            <section className="py-24 relative overflow-hidden bg-white/50 dark:bg-zinc-900/30">
+            <section className="py-24 relative overflow-hidden bg-white dark:bg-zinc-950">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
-                            <Zap className="w-4 h-4" />
-                            How It Works
-                        </div>
                         <H2>Three Steps to Peace of Mind</H2>
                         <Lead>Decision window first. Live status next. Alerts when you want them.</Lead>
                     </div>
@@ -184,10 +177,10 @@ export default function CaseStatusPage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.15 }}
-                                className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-8 shadow-sm hover:shadow-lg transition-shadow"
+                                className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8"
                             >
-                                <div className="text-5xl font-black text-emerald-100 dark:text-emerald-900/40 absolute top-4 right-6">{item.step}</div>
-                                <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+                                <div className="text-5xl font-bold text-emerald-100 dark:text-emerald-900 absolute top-4 right-6">{item.step}</div>
+                                <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
                                     {item.icon}
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{item.title}</h3>
@@ -199,7 +192,7 @@ export default function CaseStatusPage() {
             </section>
 
             {/* Plain English Explanations */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -207,10 +200,6 @@ export default function CaseStatusPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-sm font-medium mb-4">
-                                <Languages className="w-4 h-4" />
-                                Plain English
-                            </div>
                             <H2 className="mb-6">USCIS Jargon, Translated</H2>
                             <P className="mb-8">
                                 USCIS status messages read like they were written by robots. We translate
@@ -235,11 +224,11 @@ export default function CaseStatusPage() {
                             {jargonTranslations.map((item, i) => (
                                 <div
                                     key={i}
-                                    className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 shadow-sm"
+                                    className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5"
                                 >
                                     <div className="flex items-start gap-3 mb-3">
                                         <Globe className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-mono leading-snug">{item.uscis}</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-snug">{item.uscis}</p>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <Eye className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
@@ -274,14 +263,14 @@ export default function CaseStatusPage() {
                 accentColor="emerald"
             />
 
-            <section className="border-y border-blue-100 bg-blue-50/70 px-4 py-10 dark:border-blue-950 dark:bg-blue-950/20 sm:px-6 lg:px-8">
+            <section className="border-y border-blue-100 bg-blue-50 px-4 py-10 dark:border-blue-950 dark:bg-blue-950 sm:px-6 lg:px-8">
                 <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-5 md:flex-row md:items-center">
                     <div className="flex items-start gap-4">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
                             <Building2 className="h-5 w-5" aria-hidden="true" />
                         </div>
                         <div>
-                            <p className="text-sm font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+                            <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                                 Planning a STEM OPT role?
                             </p>
                             <h2 className="mt-1 text-2xl font-bold text-gray-950 dark:text-white">
@@ -294,7 +283,7 @@ export default function CaseStatusPage() {
                     </div>
                     <Link
                         href="/e-verify-employer-search"
-                        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
                     >
                         Search E-Verify
                         <ArrowRight className="h-4 w-4" aria-hidden="true" />

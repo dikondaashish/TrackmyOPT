@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Clock, ExternalLink, Loader2, Newspaper } from "lucide-react";
+import { AlertCircle, Clock, ExternalLink, Loader2, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
@@ -24,7 +24,7 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 const formatDate = (iso: string) => dateFormat.format(new Date(iso));
 
 const FOCUS_RING =
-  "rounded-md outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900";
+  "rounded-md outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900";
 
 async function fetchPosts(): Promise<AutoPost[] | "hidden" | "error"> {
   try {
@@ -90,7 +90,7 @@ export function AutoBlogPostsCard() {
         <Newspaper className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden />
         Automatic blog posts
       </h3>
-      <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <p className="font-medium text-gray-900 dark:text-gray-100">OPT &amp; STEM OPT policy news</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -144,13 +144,10 @@ export function AutoBlogPostsDialog({
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent
-        className="max-w-2xl rounded-2xl border-gray-200 bg-white p-0 shadow-2xl outline-none focus:outline-none max-md:max-w-[calc(100vw-1.5rem)] dark:border-gray-800 dark:bg-gray-900"
+        className="max-w-2xl rounded-xl border-gray-200 bg-white p-0 shadow-2xl outline-none focus:outline-none max-md:max-w-[calc(100vw-1.5rem)] dark:border-gray-800 dark:bg-gray-900"
         onClose={onClose}
       >
         <div className="flex items-start gap-4 border-b border-gray-200 px-6 pb-5 pt-6 pr-14 dark:border-gray-800">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-            <Newspaper className="h-5 w-5" aria-hidden />
-          </div>
           <div className="min-w-0">
             <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Automatic blog posts
@@ -161,14 +158,14 @@ export function AutoBlogPostsDialog({
             </DialogDescription>
             {published > 0 && (
               <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium">
-                <span className="rounded-full bg-gray-100 px-2.5 py-1 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                   {published} published
                 </span>
                 <span
                   className={
                     pending > 0
-                      ? "rounded-full bg-amber-50 px-2.5 py-1 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200"
-                      : "rounded-full bg-green-50 px-2.5 py-1 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+                      ? "rounded-md bg-amber-50 px-2 py-0.5 text-amber-800 dark:bg-amber-950 dark:text-amber-200"
+                      : "rounded-md bg-green-50 px-2 py-0.5 text-green-800 dark:bg-green-950 dark:text-green-200"
                   }
                 >
                   {pending > 0 ? `${pending} need review` : "All reviewed"}
@@ -211,13 +208,11 @@ export function AutoBlogPostsDialog({
                       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
                         <span>Published {formatDate(post.publishedAt)}</span>
                         {post.reviewedAt ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 font-medium text-green-800 dark:bg-green-900/30 dark:text-green-200">
-                            <CheckCircle2 className="h-3 w-3" aria-hidden />
+                          <span className="rounded-md bg-green-50 px-2 py-0.5 font-medium text-green-800 dark:bg-green-950 dark:text-green-200">
                             Reviewed {formatDate(post.reviewedAt)}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
-                            <Clock className="h-3 w-3" aria-hidden />
+                          <span className="rounded-md bg-amber-50 px-2 py-0.5 font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
                             Needs review
                           </span>
                         )}
@@ -255,7 +250,7 @@ export function AutoBlogPostsDialog({
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-3 rounded-b-2xl border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-900/60">
+        <div className="flex items-center justify-between gap-3 rounded-b-xl border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
           <a
             href="/blog"
             target="_blank"

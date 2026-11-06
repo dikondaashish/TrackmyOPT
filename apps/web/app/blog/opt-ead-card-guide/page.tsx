@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, CreditCard, BookOpen } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, CreditCard } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
@@ -36,8 +36,7 @@ export default function OPTEADArticle() {
             </nav>
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">OPT Basics</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />9 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />OPT Basics · 9 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">OPT EAD Card 2026: How to Apply, Track & What to Do If Delayed</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">Your EAD card is the physical proof of your work authorization. Here's every step from application to receiving it.</p>
@@ -48,15 +47,15 @@ export default function OPTEADArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The OPT EAD card (Form I-766) is your Employment Authorization Document that proves you can work in the US on OPT. You apply using Form I-765 with a $410 filing fee, and processing currently takes 2 to 5 months.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway</h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">The EAD card (Form I-766) is your <strong>Employment Authorization Document</strong> — the card that proves you can work in the US on OPT. You apply using <strong>Form I-765</strong>, the filing fee is <strong>$410</strong>, and current processing takes <strong>2-5 months</strong>. You cannot work until you have the physical card.</p>
             </div>
 
@@ -95,7 +94,7 @@ export default function OPTEADArticle() {
                             { step: "Wait for approval & card delivery", detail: "USCIS processes and mails your EAD card. Current processing: 2-5 months.", time: "2-5 months" },
                         ].map((item, i) => (
                             <div key={i} className="flex gap-4 items-start">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold">{i + 1}</div>
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold">{i + 1}</div>
                                 <div className="flex-1 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                     <div className="flex items-center justify-between"><h3 className="font-semibold text-gray-900 dark:text-white">{item.step}</h3><span className="text-xs text-blue-600 dark:text-blue-400 font-medium">{item.time}</span></div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p>
@@ -132,7 +131,7 @@ export default function OPTEADArticle() {
                             "Ask your DSO to escalate through the SEVP Response Center",
                             "Contact your member of Congress for a Congressional inquiry",
                         ].map((tip, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                            <div key={i} className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-950 rounded-lg">
                                 <span className="text-amber-600 font-bold text-sm">{i + 1}.</span>
                                 <p className="text-sm text-amber-800 dark:text-amber-200">{tip}</p>
                             </div>
@@ -157,7 +156,7 @@ export default function OPTEADArticle() {
                 </section>
             </div>
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Processing Time 2026</Link>
@@ -172,7 +171,7 @@ export default function OPTEADArticle() {
             </div>
 
             <AuthorBio />
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Application in Real-Time</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT Free lets you refresh case status anytime. Pro adds daily auto-checks and alerts you when your EAD is approved.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Track My EAD <ArrowRight className="w-4 h-4" /></Link>

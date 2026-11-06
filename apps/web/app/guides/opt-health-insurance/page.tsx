@@ -5,14 +5,10 @@ import {
     Heart,
     Shield,
     DollarSign,
-    Clock,
     AlertTriangle,
     CheckCircle2,
     ArrowRight,
     Building,
-    Calendar,
-    MapPin,
-    FileText,
     ExternalLink,
     BookOpen,
 } from "lucide-react";
@@ -188,16 +184,11 @@ export default function OPTHealthInsurancePillarGuide() {
 
             {/* Hero */}
             <header className="mb-12">
-                <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-xs font-semibold">
-                        <Heart className="w-3 h-3" />
-                        Pillar Guide
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        25 min read
-                    </span>
-                </div>
+                <p className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Pillar Guide</span>
+                    <span aria-hidden>·</span>
+                    <span>25 min read</span>
+                </p>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     OPT Health Insurance Guide 2026: Everything You Need to Know
                 </h1>
@@ -212,9 +203,9 @@ export default function OPTHealthInsurancePillarGuide() {
             </header>
 
             {/* Key Takeaway */}
-            <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-rose-900 dark:text-rose-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-rose-50 dark:bg-rose-950 border border-rose-200 dark:border-rose-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-rose-900 dark:text-rose-100 mb-3">
+                    
                     Key Takeaway
                 </h2>
                 <p className="text-rose-800 dark:text-rose-200 font-medium leading-relaxed">
@@ -223,9 +214,9 @@ export default function OPTHealthInsurancePillarGuide() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gray-500" />
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    
                     In This Guide
                 </h2>
                 <nav className="grid sm:grid-cols-2 gap-2">
@@ -242,8 +233,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 1: Why Health Insurance Is Critical */}
                 <section id="why-critical" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Heart className="w-7 h-7 text-rose-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Why Health Insurance Is Critical on OPT
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -258,7 +249,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         ].map((item) => {
                             const Icon = item.icon;
                             return (
-                                <div key={item.label} className="bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800 p-4 text-center">
+                                <div key={item.label} className="bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800 p-4 text-center">
                                     <Icon className="w-5 h-5 text-red-500 mx-auto mb-2" />
                                     <p className="text-2xl font-black text-red-700 dark:text-red-300">{item.cost}</p>
                                     <p className="text-xs text-red-600 dark:text-red-400 mt-1">{item.label}</p>
@@ -271,7 +262,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         There is <strong>no federal legal requirement</strong> to carry health insurance (the individual mandate penalty has been $0 since 2019). However, some states — including California, Massachusetts, New Jersey, Rhode Island, and DC — still impose their own penalties for being uninsured. Beyond legal requirements, the financial risk of going without coverage in the US is extreme. A single unexpected medical event can result in debt that takes years to pay off and can damage your credit score.
                     </p>
 
-                    <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800 mb-4">
+                    <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800 mb-4">
                         <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                         <div>
                             <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">The Good News</h3>
@@ -284,8 +275,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 2: Understanding Your Coverage Options */}
                 <section id="coverage-options" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Shield className="w-7 h-7 text-blue-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Understanding Your Coverage Options
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -319,7 +310,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         </table>
                     </div>
 
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-xl">
+                    <div className="bg-blue-50 dark:bg-blue-950 border-l-4 border-blue-500 p-4 rounded-r-xl">
                         <p className="text-blue-900 dark:text-blue-100 text-sm">
                             <strong>Not sure where to start?</strong> If you have employer coverage available, start there — it&apos;s typically the best value. Otherwise, the ACA marketplace is your most comprehensive option. Use <Link href="/dashboard/opt-health-insurance-finder" className="underline font-medium">TrackMyOPT&apos;s Health Insurance Finder</Link> to get personalized recommendations.
                         </p>
@@ -328,8 +319,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 3: ACA Marketplace Plans */}
                 <section id="aca-marketplace" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Shield className="w-7 h-7 text-emerald-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         ACA Marketplace Plans: Complete Enrollment Guide
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -369,7 +360,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-sm font-bold flex-shrink-0">{i + 1}</div>
+                                    <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-sm font-bold flex-shrink-0">{i + 1}</div>
                                     {item.step}
                                 </h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 ml-9">{item.detail}</p>
@@ -405,7 +396,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         </table>
                     </div>
 
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-emerald-500 p-4 rounded-r-xl">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border-l-4 border-emerald-500 p-4 rounded-r-xl">
                         <p className="text-emerald-900 dark:text-emerald-100 font-semibold">
                             &quot;F-1 students on valid OPT are considered lawfully present and can purchase ACA marketplace plans. The 60-day SEP after losing university coverage is your best window to enroll.&quot;
                         </p>
@@ -417,8 +408,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 4: Employer Health Insurance */}
                 <section id="employer-insurance" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Building className="w-7 h-7 text-indigo-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Employer Health Insurance
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -447,7 +438,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         ))}
                     </div>
 
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-800 dark:text-amber-200 text-sm flex items-start gap-2">
                             <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <span><strong>COBRA When Leaving:</strong> If you leave your job, you have 60 days to elect COBRA continuation coverage. This lets you keep the same plan for up to 18 months, but you pay the full premium (employer + employee share) plus a 2% admin fee.</span>
@@ -457,8 +448,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 5: COBRA */}
                 <section id="cobra" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Clock className="w-7 h-7 text-orange-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         COBRA: Extending University Coverage
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -479,7 +470,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         ))}
                     </div>
 
-                    <div className="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-xl">
+                    <div className="bg-orange-50 dark:bg-orange-950 border-l-4 border-orange-500 p-4 rounded-r-xl">
                         <p className="text-orange-900 dark:text-orange-100 text-sm">
                             <strong>COBRA vs. Marketplace:</strong> In most cases, an ACA marketplace plan is cheaper and offers comparable coverage. COBRA only makes sense if you&apos;re mid-treatment with a specific provider, have already met your deductible, or need coverage for a very short gap (1–2 months).
                         </p>
@@ -488,8 +479,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 6: Short-Term Health Insurance */}
                 <section id="short-term" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Calendar className="w-7 h-7 text-purple-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Short-Term Health Insurance
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -497,7 +488,7 @@ export default function OPTHealthInsurancePillarGuide() {
                     </p>
 
                     <div className="grid md:grid-cols-2 gap-4 mb-6">
-                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4" />
                                 When Short-Term Works
@@ -509,7 +500,7 @@ export default function OPTHealthInsurancePillarGuide() {
                                 <li>• You need coverage starting immediately (next-day enrollment)</li>
                             </ul>
                         </div>
-                        <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
+                        <div className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
                             <h3 className="font-semibold text-red-900 dark:text-red-100 mb-2 flex items-center gap-2">
                                 <AlertTriangle className="w-4 h-4" />
                                 Key Limitations
@@ -532,8 +523,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 7: Catastrophic Health Plans */}
                 <section id="catastrophic" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <DollarSign className="w-7 h-7 text-teal-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Catastrophic Health Plans
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -556,7 +547,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         ))}
                     </div>
 
-                    <div className="bg-teal-50 dark:bg-teal-900/20 border-l-4 border-teal-500 p-4 rounded-r-xl">
+                    <div className="bg-teal-50 dark:bg-teal-950 border-l-4 border-teal-500 p-4 rounded-r-xl">
                         <p className="text-teal-900 dark:text-teal-100 text-sm">
                             <strong>Think of it as emergency insurance.</strong> You pay very little monthly, but if something major happens (accident, surgery, hospitalization), the plan protects you from financial ruin after you meet the high deductible. For day-to-day care, you pay out of pocket except for 3 primary care visits.
                         </p>
@@ -565,8 +556,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 8: Coverage Transition Timeline */}
                 <section id="transition-timeline" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Calendar className="w-7 h-7 text-pink-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Coverage Transition Timeline
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -628,21 +619,21 @@ export default function OPTHealthInsurancePillarGuide() {
                         ].map((item, i) => (
                             <div key={i} className={`p-5 rounded-xl border ${
                                 item.status === "critical"
-                                    ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                                    ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800"
                                     : item.status === "action"
-                                    ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+                                    ? "bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800"
                                     : item.status === "covered"
-                                    ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                    ? "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
                                     : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"
                             }`}>
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
                                         item.status === "critical"
-                                            ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                                            ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300"
                                             : item.status === "action"
-                                            ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
+                                            ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
                                             : item.status === "covered"
-                                            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                                            ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
                                             : "bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300"
                                     }`}>{i + 1}</div>
                                     {item.period}
@@ -662,8 +653,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 9: State-by-State Guide */}
                 <section id="state-guide" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <MapPin className="w-7 h-7 text-violet-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         State-by-State Health Insurance Guide
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -698,7 +689,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         </table>
                     </div>
 
-                    <div className="bg-violet-50 dark:bg-violet-900/20 border-l-4 border-violet-500 p-4 rounded-r-xl">
+                    <div className="bg-violet-50 dark:bg-violet-950 border-l-4 border-violet-500 p-4 rounded-r-xl">
                         <p className="text-violet-900 dark:text-violet-100 text-sm">
                             <strong>Important:</strong> F-1 students are generally NOT eligible for Medicaid in most states, regardless of income. Medicaid expansion primarily helps US citizens and lawful permanent residents. Always verify your specific eligibility through your state&apos;s marketplace.
                         </p>
@@ -707,8 +698,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 10: How to Compare Plans */}
                 <section id="compare-plans" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <DollarSign className="w-7 h-7 text-cyan-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         How to Compare Health Insurance Plans
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -725,7 +716,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center text-cyan-700 dark:text-cyan-300 text-sm font-bold flex-shrink-0">{i + 1}</div>
+                                    <div className="w-7 h-7 rounded-full bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center text-cyan-700 dark:text-cyan-300 text-sm font-bold flex-shrink-0">{i + 1}</div>
                                     {item.step}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 ml-9">{item.desc}</p>
@@ -747,8 +738,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 11: Common Mistakes */}
                 <section id="common-mistakes" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <AlertTriangle className="w-7 h-7 text-amber-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Common Health Insurance Mistakes on OPT
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -779,8 +770,8 @@ export default function OPTHealthInsurancePillarGuide() {
 
                 {/* Section 12: Free & Low-Cost Resources */}
                 <section id="free-resources" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Heart className="w-7 h-7 text-rose-500 flex-shrink-0" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         Free &amp; Low-Cost Health Resources
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -833,7 +824,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         })}
                     </div>
 
-                    <div className="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-5 flex items-start gap-3">
+                    <div className="bg-rose-50 dark:bg-rose-950 rounded-xl p-5 flex items-start gap-3">
                         <Heart className="w-5 h-5 text-rose-600 mt-0.5 flex-shrink-0" />
                         <p className="text-rose-800 dark:text-rose-200 text-sm">
                             <strong>Remember:</strong> These resources help with immediate healthcare needs, but they are not a substitute for comprehensive health insurance. An uninsured hospital stay can still result in $10,000+ in bills. Use these resources while you find and enroll in a proper insurance plan.
@@ -861,7 +852,7 @@ export default function OPTHealthInsurancePillarGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-health-insurance-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1">
@@ -896,7 +887,7 @@ export default function OPTHealthInsurancePillarGuide() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-gradient-to-r from-rose-600 to-pink-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-rose-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Find the Right Health Insurance Plan</h2>
                 <p className="text-rose-100 mb-6 max-w-lg mx-auto">
                     TrackMyOPT&apos;s Health Insurance Finder compares marketplace, employer, short-term, and catastrophic plans based on your state, income, and health needs — so you get the best coverage at the right price.

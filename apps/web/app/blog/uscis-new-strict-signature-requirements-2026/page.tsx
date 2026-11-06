@@ -71,24 +71,22 @@ export default function USCISSignaturePage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Compliance Update</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">July 2026</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     Don't Get Denied: Navigate USCIS's New Strict Signature Rules for OPT
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     A simple signature mistake can now cost you your OPT. Learn about the July 10, 2026 USCIS policy update and how to sign your Form I-765 correctly.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Compliance Update</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 5 min read</span>
                     <span>•</span>
                     <span>July 16, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/uscis-new-strict-signature-requirements-2026.png" alt="Fountain pen signing a government document" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -100,12 +98,12 @@ export default function USCISSignaturePage() {
                     Previously, if a signature was missing or improper, USCIS might issue a Request for Evidence (RFE) to give the applicant a chance to correct it. Under the new policy, USCIS will <strong>outright reject or deny</strong> the petition. 
                 </p>
 
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 my-8 rounded-r-xl">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 my-8 rounded-r-xl">
                     <h3 className="text-red-800 dark:text-red-300 m-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5" />
                         The Risk to OPT Students
                     </h3>
-                    <p className="text-red-900 dark:text-red-200/80 m-0">
+                    <p className="text-red-900 dark:text-red-200 m-0">
                         If your OPT application is rejected due to a signature error and your 60-day grace period has expired (or the upcoming 30-day grace period), you will not be able to re-file. You will lose your OPT eligibility entirely.
                     </p>
                 </div>
@@ -121,20 +119,20 @@ export default function USCISSignaturePage() {
                 </ul>
 
                 <div className="grid sm:grid-cols-2 gap-6 my-8 not-prose">
-                    <div className="bg-red-50/50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 p-6 rounded-xl shadow-sm">
+                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-950 p-6 rounded-xl shadow-sm">
                         <XCircle className="w-8 h-8 text-red-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2 text-red-900 dark:text-red-300">Invalid Signatures (DO NOT USE)</h3>
-                        <ul className="text-sm space-y-2 text-red-800 dark:text-red-200/80">
+                        <ul className="text-sm space-y-2 text-red-800 dark:text-red-200">
                             <li>• Typewritten names (even in cursive fonts) on printed forms</li>
                             <li>• Stamped signatures</li>
                             <li>• Digital signatures drawn with a mouse on a PDF (for paper filings)</li>
                             <li>• Signatures by a parent, spouse, or DSO</li>
                         </ul>
                     </div>
-                    <div className="bg-green-50/50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30 p-6 rounded-xl shadow-sm">
+                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-950 p-6 rounded-xl shadow-sm">
                         <CheckCircle2 className="w-8 h-8 text-green-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2 text-green-900 dark:text-green-300">Valid Signatures</h3>
-                        <ul className="text-sm space-y-2 text-green-800 dark:text-green-200/80">
+                        <ul className="text-sm space-y-2 text-green-800 dark:text-green-200">
                             <li>• Wet ink signature (black ink preferred) on paper forms</li>
                             <li>• Typing your name in the designated electronic signature box on myUSCIS (when filing online)</li>
                         </ul>
@@ -153,7 +151,7 @@ export default function USCISSignaturePage() {
                     <li><strong>Form I-983 (STEM OPT only):</strong> The Training Plan must be signed in wet ink or using a compliant e-signature software by both you and your employer.</li>
                 </ol>
 
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 text-white my-12 shadow-xl">
+                <div className="bg-blue-600 rounded-xl p-8 text-white my-12">
                     <h3 className="text-2xl font-bold text-white mb-4 mt-0">Prepare for Your OPT Successfully</h3>
                     <p className="text-blue-100 mb-6 text-lg">
                         Use TrackMyOPT to track your application status, manage deadlines, and stay on top of the latest USCIS rules.

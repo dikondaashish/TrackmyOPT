@@ -2,10 +2,7 @@ import Link from 'next/link';
 import {
   AlertTriangle,
   CheckCircle2,
-  Clock,
   ExternalLink,
-  Lightbulb,
-  ShieldCheck,
 } from 'lucide-react';
 import {
   AUTOMATED_BYLINE,
@@ -52,14 +49,11 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
       />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-            {article.category}
-          </span>
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-            {article.badgeLabel ?? 'Verified 2026 Guide'}
-          </span>
-        </div>
+        <p className="flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <span>{article.category}</span>
+          <span aria-hidden>·</span>
+          <span>{article.badgeLabel ?? 'Verified 2026 Guide'}</span>
+        </p>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           {article.title}
         </h1>
@@ -67,9 +61,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           {article.description}
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-          <span className="flex items-center gap-1">
-            <Clock className="h-4 w-4" /> {article.readTime}
-          </span>
+          <span>{article.readTime}</span>
           <span aria-hidden>•</span>
           <span>Published {formatDate(article.publishedDate)}</span>
           {article.modifiedDate !== article.publishedDate && (
@@ -87,7 +79,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
       </header>
 
       <figure className="mb-10">
-        <div className="relative aspect-[1200/630] overflow-hidden rounded-2xl shadow-xl">
+        <div className="relative aspect-[1200/630] overflow-hidden rounded-xl">
           <BlogPostImage
             src={image}
             alt={
@@ -106,7 +98,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
       </figure>
 
       {article.statusNote && (
-        <div className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+        <div className="mb-8 rounded-xl bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
           <p className="font-bold flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" /> Publication-status note
           </p>
@@ -114,8 +106,8 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </div>
       )}
 
-      <div className="mb-10 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 p-6 dark:border-emerald-800 dark:from-emerald-950/30 dark:to-teal-950/20">
-        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+      <div className="mb-10 rounded-xl bg-emerald-50 p-6 dark:bg-emerald-950">
+        <p className="mb-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
           Direct answer
         </p>
         <p className="mb-0 text-lg font-medium leading-relaxed text-gray-900 dark:text-gray-100">
@@ -220,9 +212,9 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
               </ol>
             )}
             {section.note && (
-              <div className="not-prose my-7 rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-950/30">
-                <p className="mb-2 flex items-center gap-2 font-bold text-blue-900 dark:text-blue-100">
-                  <Lightbulb className="h-5 w-5" /> Vinay&apos;s practical note
+              <div className="not-prose my-7 rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-950">
+                <p className="mb-2 font-bold text-blue-900 dark:text-blue-100">
+                  Vinay&apos;s practical note
                 </p>
                 <p className="mb-0 leading-relaxed text-blue-900 dark:text-blue-100">
                   {section.note}
@@ -237,7 +229,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           <div className="not-prose grid gap-3">
             {article.checklist.map((item) => (
               <div
-                className="flex gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/20"
+                className="flex gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950"
                 key={item}
               >
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-700 dark:text-green-400" />
@@ -268,7 +260,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         className={`${styles.reading} prose prose-lg dark:prose-invert max-w-none`}
       >
         {article.category.includes('Tax') && (
-          <aside className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-100">
+          <aside className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
             <strong>Tax disclaimer:</strong> This educational guide is not tax,
             legal, or accounting advice. Tax residency, treaty eligibility, and
             filing obligations depend on individual facts. Verify the current
@@ -277,9 +269,9 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           </aside>
         )}
         {article.dataNote && (
-          <section className="rounded-xl border border-violet-200 bg-violet-50 p-6 dark:border-violet-800 dark:bg-violet-950/20">
-            <h2 className="mt-0 flex items-center gap-2">
-              <ShieldCheck className="h-6 w-6" /> Data and methodology note
+          <section className="rounded-xl border border-violet-200 bg-violet-50 p-6 dark:border-violet-800 dark:bg-violet-950">
+            <h2 className="mt-0">
+              Data and methodology note
             </h2>
             <p className="mb-0">{article.dataNote}</p>
           </section>

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, Wallet, FileCheck, Building2 } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,10 +46,6 @@ export default function BuyingCarPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Life in US</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Finance</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     How to Buy and Finance a Car as an International Student on OPT
                 </h1>
@@ -57,13 +53,15 @@ export default function BuyingCarPage() {
                     Moving to a city without public transit for your OPT job? Learn how to get an auto loan without a US credit score and find affordable insurance as a foreign driver.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Life in US · Finance</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 8 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/buying-car-international-student-opt.png" alt="Car keys on an auto loan agreement with a passport and smartphone showing insurance" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -80,21 +78,21 @@ export default function BuyingCarPage() {
                 <h3 className="text-xl font-bold mt-6 mb-3">Alternative Financing Options</h3>
                 <div className="space-y-4 my-6">
                     <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl">
-                        <h4 className="font-bold flex items-center gap-2 mt-0 mb-2"><Wallet className="w-5 h-5 text-green-600" /> Manufacturer "Foreign Professional" Programs</h4>
+                        <h4 className="font-bold mt-0 mb-2">Manufacturer "Foreign Professional" Programs</h4>
                         <p className="mb-0 text-sm">
                             Brands like Volkswagen, Ford, and Audi have special "Foreign Business Professional" or "International Student" financing programs. If you bring your OPT offer letter showing your salary, your EAD card, and your I-20, they will use your income to approve you for a Tier 1 (excellent) interest rate, completely ignoring your lack of credit.
                         </p>
                     </div>
                     
                     <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl">
-                        <h4 className="font-bold flex items-center gap-2 mt-0 mb-2"><Building2 className="w-5 h-5 text-blue-600" /> Credit Unions</h4>
+                        <h4 className="font-bold mt-0 mb-2">Credit Unions</h4>
                         <p className="mb-0 text-sm">
                             Local credit unions (like DCU or PenFed) are non-profit banks. They are much more willing to manually underwrite a loan. If you can show them you have a high-paying OPT job and are putting down a 20% down payment, they will often approve you for a low-interest loan.
                         </p>
                     </div>
                 </div>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         The Visa Expiry Problem
@@ -113,16 +111,15 @@ export default function BuyingCarPage() {
                 <ul>
                     <li><strong>Get a US Driver's License Immediately:</strong> Do not drive on your home country's license or an International Driving Permit for longer than necessary. Go to the DMV, take the test, and get a state-issued license.</li>
                     <li><strong>Bring a Driving Record from Home:</strong> Some insurance companies will accept an official "clean driving record" document from your home country's government, translating it to US driving experience and lowering your rate.</li>
-                    <li><strong>Use Telematics:</strong> Sign up for programs like State Farm's <em>Drive Safe & Save</em>. You plug a tracker into your car or use an app, and if you drive safely, they slash your rates by up to 30%, regardless of your foreign status.</li>
+                    <li><strong>Use Telematics:</strong> Sign up for programs like State Farm's Drive Safe & Save. You plug a tracker into your car or use an app, and if you drive safely, they slash your rates by up to 30%, regardless of your foreign status.</li>
                 </ul>
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Step 3: Registration and Paperwork</h2>
                 <p>
                     When you buy a car, you will receive a mountain of paperwork: the Title, the Registration, the Bill of Sale, and your Insurance Policy. 
                 </p>
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl mb-8">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <FileCheck className="w-6 h-6 text-primary" />
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Organize Your Life with TrackMyOPT
                     </h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">
@@ -141,9 +138,8 @@ export default function BuyingCarPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
 
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Track Your OPT Days, Not Just Your Miles
                 </h3>
@@ -153,7 +149,7 @@ export default function BuyingCarPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Your TrackMyOPT Account
                     </Link>
@@ -164,7 +160,7 @@ export default function BuyingCarPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/building-credit-international-students-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Building US Credit
                             </h4>
@@ -177,7 +173,7 @@ export default function BuyingCarPage() {
                         </div>
                     </Link>
                     <Link href="/blog/90-day-unemployment-rule-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The 90-Day Unemployment Rule
                             </h4>

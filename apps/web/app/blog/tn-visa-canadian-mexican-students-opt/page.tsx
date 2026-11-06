@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, Briefcase, MapPin } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, Briefcase, MapPin } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,29 +46,27 @@ export default function TnVisaPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Work Visas</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">USMCA</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     The TN Visa Guide for Canadian & Mexican Students on OPT
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     If you hold a passport from Canada or Mexico, you do not need to stress over the H-1B lottery. Here is exactly how to transition from your F-1 OPT to a TN Visa.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Work Visas · Usmca</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 7 min read</span>
                     <span>•</span>
                     <span>Updated October 12, 2026</span>
                 </div>
             </header>
 
-            <aside className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+            <aside className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
                 <p className="font-semibold">October 12, 2026 update: online presence review expanded to TN and TD visa applicants on October 1. The announcement addresses consular visa applicants; verify the procedure for your nationality and application route.</p>
                 <Link href="/blog/tn-td-visa-social-media-screening-october-2026" className="mt-2 inline-block font-semibold underline">Read the TN/TD screening update</Link>
             </aside>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/tn-visa-canadian-mexican-students-opt.png" alt="Canadian and Mexican passports next to a USMCA Professional classification document" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -77,10 +75,8 @@ export default function TnVisaPage() {
                     Every March, hundreds of thousands of international students anxiously await the results of the H-1B lottery. But if you are a citizen of Canada or Mexico, you have a massive advantage: the <strong>TN Visa</strong>. Created under the NAFTA agreement (now the USMCA), the TN classification allows North American professionals to work in the US indefinitely without ever entering a lottery.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl mb-10">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <CheckCircle2 className="w-6 h-6 text-primary" />
-                        The TN Visa Advantage
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-10">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">The TN Visa Advantage
                     </h3>
                     <ul className="mb-0 text-gray-700 dark:text-gray-200">
                         <li><strong>No Cap or Lottery:</strong> Unlike the 85,000 cap for H-1B, there is no limit to how many TN visas are issued each year.</li>
@@ -106,24 +102,24 @@ export default function TnVisaPage() {
                 <h3 className="text-xl font-bold mt-8 mb-4">Common TN Professions for New Grads</h3>
                 <div className="grid md:grid-cols-2 gap-4 my-6">
                     <div className="border border-gray-200 dark:border-zinc-700 p-4 rounded-lg">
-                        <h4 className="font-bold text-primary m-0 flex items-center gap-2"><FileText className="w-4 h-4" /> Engineer</h4>
+                        <h4 className="font-bold text-primary m-0">Engineer</h4>
                         <p className="text-sm mt-1 mb-0">Requires a Baccalaureate or Licenciatura Degree in Engineering.</p>
                     </div>
                     <div className="border border-gray-200 dark:border-zinc-700 p-4 rounded-lg">
-                        <h4 className="font-bold text-primary m-0 flex items-center gap-2"><FileText className="w-4 h-4" /> Computer Systems Analyst</h4>
+                        <h4 className="font-bold text-primary m-0">Computer Systems Analyst</h4>
                         <p className="text-sm mt-1 mb-0">Requires a Baccalaureate degree OR post-secondary diploma + 3 years of experience.</p>
                     </div>
                     <div className="border border-gray-200 dark:border-zinc-700 p-4 rounded-lg">
-                        <h4 className="font-bold text-primary m-0 flex items-center gap-2"><FileText className="w-4 h-4" /> Accountant</h4>
+                        <h4 className="font-bold text-primary m-0">Accountant</h4>
                         <p className="text-sm mt-1 mb-0">Requires a Baccalaureate Degree, C.P.A., C.A., C.G.A. or C.M.A.</p>
                     </div>
                     <div className="border border-gray-200 dark:border-zinc-700 p-4 rounded-lg">
-                        <h4 className="font-bold text-primary m-0 flex items-center gap-2"><FileText className="w-4 h-4" /> Graphic Designer</h4>
+                        <h4 className="font-bold text-primary m-0">Graphic Designer</h4>
                         <p className="text-sm mt-1 mb-0">Requires a Baccalaureate Degree OR post-secondary diploma + 3 years of experience.</p>
                     </div>
                 </div>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         The "Software Engineer" Trap
@@ -139,7 +135,7 @@ export default function TnVisaPage() {
                 </p>
 
                 <div className="space-y-6 my-8">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-blue-600 dark:text-blue-400">
                             <MapPin className="w-6 h-6" /> For Canadian Citizens
                         </h3>
@@ -151,7 +147,7 @@ export default function TnVisaPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                             <Briefcase className="w-6 h-6" /> For Mexican Citizens
                         </h3>
@@ -177,9 +173,7 @@ export default function TnVisaPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Track Your Visa Transitions
                 </h3>
@@ -189,7 +183,7 @@ export default function TnVisaPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Free Account
                     </Link>
@@ -200,7 +194,7 @@ export default function TnVisaPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/answers/what-is-h1b-lottery" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 H-1B vs TN Visa
                             </h4>
@@ -213,7 +207,7 @@ export default function TnVisaPage() {
                         </div>
                     </Link>
                     <Link href="/blog/l1-visa-transfer-after-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 L-1 Visa Transfer Guide
                             </h4>

@@ -27,11 +27,11 @@ interface StickyCaseSwitcherProps {
 }
 
 const STATE_CONFIG: Record<CaseState, { dot: string; bg: string; activeBg: string; border: string; label: string }> = {
-  urgent:      { dot: "bg-red-500",    bg: "bg-red-50 dark:bg-red-950/30",     activeBg: "bg-red-100 dark:bg-red-900/50",    border: "border-red-200 dark:border-red-800",    label: "🔴" },
-  actionNeeded:{ dot: "bg-amber-500",  bg: "bg-amber-50 dark:bg-amber-950/30", activeBg: "bg-amber-100 dark:bg-amber-900/50",border: "border-amber-200 dark:border-amber-800", label: "⚠" },
-  inProgress:  { dot: "bg-blue-500",   bg: "bg-blue-50 dark:bg-blue-950/30",   activeBg: "bg-blue-100 dark:bg-blue-900/50",  border: "border-blue-200 dark:border-blue-800",  label: "🔵" },
-  pending:     { dot: "bg-gray-400",   bg: "bg-gray-50 dark:bg-gray-900/30",   activeBg: "bg-gray-100 dark:bg-gray-800/60",  border: "border-gray-200 dark:border-gray-700",  label: "⏳" },
-  approved:    { dot: "bg-emerald-500",bg: "bg-emerald-50 dark:bg-emerald-950/20",activeBg:"bg-emerald-100 dark:bg-emerald-900/40",border:"border-emerald-200 dark:border-emerald-800",label:"✅" },
+  urgent:      { dot: "bg-red-500",    bg: "bg-red-50 dark:bg-red-950",     activeBg: "bg-red-100 dark:bg-red-900",    border: "border-red-200 dark:border-red-800",    label: "🔴" },
+  actionNeeded:{ dot: "bg-amber-500",  bg: "bg-amber-50 dark:bg-amber-950", activeBg: "bg-amber-100 dark:bg-amber-900",border: "border-amber-200 dark:border-amber-800", label: "⚠" },
+  inProgress:  { dot: "bg-blue-500",   bg: "bg-blue-50 dark:bg-blue-950",   activeBg: "bg-blue-100 dark:bg-blue-900",  border: "border-blue-200 dark:border-blue-800",  label: "🔵" },
+  pending:     { dot: "bg-gray-400",   bg: "bg-gray-50 dark:bg-gray-950",   activeBg: "bg-gray-100 dark:bg-gray-800",  border: "border-gray-200 dark:border-gray-700",  label: "⏳" },
+  approved:    { dot: "bg-emerald-500",bg: "bg-emerald-50 dark:bg-emerald-950",activeBg:"bg-emerald-100 dark:bg-emerald-900",border:"border-emerald-200 dark:border-emerald-800",label:"✅" },
 };
 
 const STATE_ORDER: CaseState[] = ["urgent", "actionNeeded", "inProgress", "pending", "approved"];
@@ -63,7 +63,7 @@ export function StickyCaseSwitcher({
   );
 
   return (
-    <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-background/95 backdrop-blur-sm border-b border-border">
+    <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-background backdrop-blur-sm border-b border-border">
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
         {sorted.map((c) => {
           const cfg = STATE_CONFIG[c.caseState];
@@ -75,7 +75,7 @@ export function StickyCaseSwitcher({
             <div
               key={c.id}
               className={cn(
-                "group flex-shrink-0 flex items-center rounded-full border transition-all duration-150 min-h-[36px]",
+                "group flex-shrink-0 flex items-center rounded-lg border transition-all duration-150 min-h-[36px]",
                 isActive
                   ? cn(cfg.activeBg, cfg.border, "shadow-sm ring-1 ring-inset ring-current/10")
                   : cn(cfg.bg, "border-transparent hover:border-current/20")
@@ -87,8 +87,8 @@ export function StickyCaseSwitcher({
                 aria-pressed={isActive}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium cursor-pointer min-h-[36px] rounded-l-full"
               >
-                <span className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot, isActive && "animate-pulse")} />
-                <span className="font-mono text-xs font-semibold tracking-wide whitespace-nowrap">
+                <span className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot)} />
+                <span className="font-mono text-xs font-semibold whitespace-nowrap">
                   {typeLabel} · {short}
                 </span>
                 {c.isPrimary && <Star className="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" />}
@@ -105,7 +105,7 @@ export function StickyCaseSwitcher({
                   className={cn(
                     "flex items-center justify-center w-7 h-7 mr-1 rounded-full shrink-0",
                     "opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity",
-                    "text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40",
+                    "text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900",
                     "disabled:opacity-40 disabled:cursor-not-allowed"
                   )}
                 >
@@ -119,7 +119,7 @@ export function StickyCaseSwitcher({
         {canAddMore && (
           <button
             onClick={onAddCase}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-dashed border-gray-300 dark:border-gray-700 text-muted-foreground hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors min-h-[36px] cursor-pointer"
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-dashed border-gray-300 dark:border-gray-700 text-muted-foreground hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors min-h-[36px] cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             Add case

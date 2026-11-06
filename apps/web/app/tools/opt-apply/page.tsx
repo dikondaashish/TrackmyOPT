@@ -114,7 +114,7 @@ export default function OptApplyPage() {
         title="OPT Application Guide & I-765 Deadline Calculator"
         description="Use the calculator to organize your post-completion OPT filing dates, then work through the steps below before you submit Form I-765."
       >
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Plan your filing window
           </h2>
@@ -126,7 +126,7 @@ export default function OptApplyPage() {
             date also limits when you can file.
           </p>
         </div>
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Prepare before you file
           </h2>

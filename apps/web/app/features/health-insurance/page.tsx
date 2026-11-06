@@ -16,7 +16,6 @@ import {
     Hospital,
     Shield,
     ShieldCheck,
-    Stethoscope,
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
@@ -28,7 +27,7 @@ import { H2, Lead, P } from "@/components/ui/typography";
 
 function InsuranceComparisonCards() {
     const plans = [
-        { name: "Marketplace (ACA)", price: "$0-120", period: "/mo", badge: "Most Popular", highlight: true, features: ["Comprehensive coverage", "Subsidies available", "Pre-existing conditions covered"] },
+        { name: "Marketplace (ACA)", price: "$0-120", period: "/mo", badge: "Most popular", highlight: true, features: ["Comprehensive coverage", "Subsidies available", "Pre-existing conditions covered"] },
         { name: "Short-Term", price: "$50-150", period: "/mo", badge: "Quick Start", highlight: false, features: ["Fast enrollment", "Lower premiums", "Limited coverage"] },
         { name: "Catastrophic", price: "$100-200", period: "/mo", badge: "Under 30", highlight: false, features: ["Low monthly cost", "High deductible", "Emergency coverage"] },
     ];
@@ -42,22 +41,22 @@ function InsuranceComparisonCards() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className={`rounded-2xl border p-5 shadow-sm ${
+                    className={`rounded-xl border p-5 ${
                         plan.highlight
-                            ? "bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/10 dark:to-pink-900/10 border-rose-200 dark:border-rose-800/40"
+                            ? "bg-rose-50 dark:bg-rose-950 border-rose-200 dark:border-rose-900"
                             : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
                         <h4 className="font-bold text-gray-900 dark:text-white text-sm">{plan.name}</h4>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${
                             plan.highlight
-                                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300"
+                                ? "bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-300"
                                 : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400"
                         }`}>{plan.badge}</span>
                     </div>
                     <div className="flex items-baseline gap-1 mb-3">
-                        <span className="text-2xl font-black text-gray-900 dark:text-white">{plan.price}</span>
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
                         <span className="text-sm text-gray-500">{plan.period}</span>
                     </div>
                     <div className="space-y-1.5">
@@ -142,7 +141,7 @@ const faqItems = [
 export default function HealthInsurancePage() {
     return (
         <>
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-red-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <FeatureServiceSchema
                 name="OPT Health Insurance Finder & Comparison Tool"
                 description="Find affordable health insurance for OPT students. Compare Marketplace (ACA), short-term, catastrophic plans, and employer coverage. Many plans available from $0/month with subsidies."
@@ -157,7 +156,6 @@ export default function HealthInsurancePage() {
                 ]}
             />
             <FeatureHero
-                badge="Stay Covered"
                 headline="Find Health Insurance on OPT — Starting at $0/month"
                 subheadline="Your university plan ends after graduation. Compare Marketplace, short-term, and catastrophic plans to find affordable coverage that fits your OPT situation."
                 ctaText="Find Your Plan"
@@ -166,18 +164,14 @@ export default function HealthInsurancePage() {
                     text: "Compare Plans",
                     href: "/dashboard/opt-health-insurance-finder",
                 }}
-                gradient="from-rose-600 to-pink-600"
+                gradient="bg-rose-600"
                 visual={<InsuranceComparisonCards />}
             />
 
             {/* Types of Coverage */}
-            <section className="py-24 relative overflow-hidden bg-white/50 dark:bg-zinc-900/30">
+            <section className="py-24 relative overflow-hidden bg-white dark:bg-zinc-950">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-sm font-medium mb-4">
-                            <Stethoscope className="w-4 h-4" />
-                            Types of Coverage
-                        </div>
                         <H2>Health Insurance Options for OPT Students</H2>
                         <Lead>Compare coverage types to find the right fit for your budget and needs.</Lead>
                     </div>
@@ -190,9 +184,9 @@ export default function HealthInsurancePage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-8 shadow-sm hover:shadow-lg transition-shadow"
+                                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8"
                             >
-                                <div className="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
                                     {item.icon}
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{item.title}</h3>
@@ -212,7 +206,7 @@ export default function HealthInsurancePage() {
             </section>
 
             {/* Coverage Transition Timeline */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -220,10 +214,6 @@ export default function HealthInsurancePage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 text-sm font-medium mb-4">
-                                <Calendar className="w-4 h-4" />
-                                Coverage Timeline
-                            </div>
                             <H2 className="mb-6">Don&apos;t Get Caught Without Coverage</H2>
                             <P className="mb-6">
                                 The transition from university health insurance to OPT coverage
@@ -232,7 +222,7 @@ export default function HealthInsurancePage() {
                             </P>
                             <Link
                                 href="/dashboard/opt-health-insurance-finder"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
                             >
                                 Find Coverage Now
                                 <ArrowRight className="w-4 h-4" />
@@ -244,7 +234,7 @@ export default function HealthInsurancePage() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
+                            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                                     <HeartPulse className="w-5 h-5 text-rose-600" />
                                     Your Coverage Journey
@@ -255,10 +245,10 @@ export default function HealthInsurancePage() {
                                             <div className="flex flex-col items-center">
                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                                                     step.status === "covered"
-                                                        ? "bg-green-100 dark:bg-green-900/30"
+                                                        ? "bg-green-100 dark:bg-green-950"
                                                         : step.status === "warning"
-                                                        ? "bg-amber-100 dark:bg-amber-900/30"
-                                                        : "bg-rose-100 dark:bg-rose-900/30"
+                                                        ? "bg-amber-100 dark:bg-amber-950"
+                                                        : "bg-rose-100 dark:bg-rose-950"
                                                 }`}>
                                                     {step.status === "covered" ? (
                                                         <CheckCircle2 className="w-4 h-4 text-green-600" />

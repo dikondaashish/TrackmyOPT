@@ -222,7 +222,7 @@ export function DocumentVaultClient() {
   if (isPremium === false) {
     return (
       <div className="max-w-4xl mx-auto py-10 space-y-8">
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-100 dark:border-blue-800 rounded-2xl p-8">
+        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-100 dark:border-blue-800 rounded-xl p-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
@@ -334,7 +334,7 @@ export function DocumentVaultClient() {
   return (
     <div className="space-y-4" data-document-vault data-ph-no-capture>
       {/* Modern Header with Email Notifications */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-xl p-4 sm:p-5">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800 rounded-xl p-4 sm:p-5">
         <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
@@ -386,7 +386,7 @@ export function DocumentVaultClient() {
 
       {/* Documents Grid */}
       {documentsError && (
-        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
           {documentsError}
           <button onClick={loadDocuments} className="ml-3 font-semibold underline">Retry</button>
         </div>
@@ -404,7 +404,7 @@ export function DocumentVaultClient() {
       )}
 
       {/* Security details */}
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
         <div className="flex items-start gap-3">
           <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden />
           <div>
@@ -414,9 +414,9 @@ export function DocumentVaultClient() {
               it does not encrypt your files or replace your account password.
             </p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-emerald-900 dark:text-emerald-200">
-              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Encrypted in transit</span>
-              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">AES-256 at rest in AWS S3</span>
-              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Time-limited preview links</span>
+              <span className="rounded-md border border-emerald-200 bg-white px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-950">Encrypted in transit</span>
+              <span className="rounded-md border border-emerald-200 bg-white px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-950">AES-256 at rest in AWS S3</span>
+              <span className="rounded-md border border-emerald-200 bg-white px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-950">Time-limited preview links</span>
             </div>
           </div>
         </div>

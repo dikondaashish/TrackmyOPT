@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, Heart, Target, Zap, Clock, GraduationCap } from "lucide-react";
+import { Users, Heart, Target, Zap, GraduationCap } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
@@ -12,17 +12,16 @@ import { FoundersNote } from "../../components/features/FoundersNote";
 // Animated Team Visual Component
 function TeamVisual() {
     const teamMembers = [
-        { initial: "A", role: "Founder", color: "from-blue-500 to-indigo-600" },
-        { initial: "S", role: "Tech Lead", color: "from-purple-500 to-pink-600" },
-        { initial: "R", role: "Designer", color: "from-green-500 to-teal-600" },
+        { initial: "A", role: "Founder", color: "bg-blue-500" },
+        { initial: "S", role: "Tech Lead", color: "bg-purple-500" },
+        { initial: "R", role: "Designer", color: "bg-green-500" },
     ];
 
     return (
         <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl blur-2xl opacity-20" />
-            <div className="relative bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-2xl">
+            <div className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
                 <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Our Team</span>
                 </div>
 
@@ -33,7 +32,7 @@ function TeamVisual() {
                             initial={{ opacity: 0, scale: 0 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.2 }}
-                            className={`w-16 h-16 rounded-full bg-gradient-to-br ${member.color} flex items-center justify-center text-white font-bold text-xl border-4 border-white dark:border-zinc-900 shadow-lg`}
+                            className={`w-16 h-16 rounded-full ${member.color} flex items-center justify-center text-white font-bold text-xl border-4 border-white dark:border-zinc-900`}
                         >
                             {member.initial}
                         </motion.div>
@@ -53,11 +52,11 @@ function TeamVisual() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
+                    <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 text-center">
                         <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">3+</p>
                         <p className="text-xs text-blue-600 dark:text-blue-400">Years Building</p>
                     </div>
-                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+                    <div className="bg-green-50 dark:bg-green-950 rounded-xl p-4 text-center">
                         <p className="text-2xl font-bold text-green-700 dark:text-green-300">3,000+</p>
                         <p className="text-xs text-green-600 dark:text-green-400">Users Signed Up</p>
                     </div>
@@ -85,10 +84,6 @@ function MissionSection() {
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                        <Target className="w-4 h-4" />
-                        Our Mission
-                    </div>
                     <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Making Immigration Less Stressful
                     </h2>
@@ -105,11 +100,9 @@ function MissionSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 hover:border-blue-500/50 transition-colors group"
+                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                <value.icon className="w-6 h-6 text-white" />
-                            </div>
+                            <value.icon className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-4" />
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{value.title}</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{value.description}</p>
                         </motion.div>
@@ -130,7 +123,7 @@ function FounderStory() {
     ];
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -138,17 +131,13 @@ function FounderStory() {
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                        <Clock className="w-4 h-4" />
-                        Our Journey
-                    </div>
                     <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         From Personal Struggle to Student Solution
                     </h2>
                 </motion.div>
 
                 <div className="relative">
-                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-indigo-500 hidden md:block" />
+                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-500 hidden md:block" />
 
                     <div className="space-y-12">
                         {milestones.map((milestone, index) => (
@@ -160,10 +149,10 @@ function FounderStory() {
                                 transition={{ delay: index * 0.1 }}
                                 className="relative flex gap-8"
                             >
-                                <div className="hidden md:flex relative z-10 w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 items-center justify-center flex-shrink-0">
+                                <div className="hidden md:flex relative z-10 w-16 h-16 rounded-full bg-blue-500 items-center justify-center flex-shrink-0">
                                     <milestone.icon className="w-7 h-7 text-white" />
                                 </div>
-                                <div className="flex-1 bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 shadow-sm">
+                                <div className="flex-1 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6">
                                     <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{milestone.year}</span>
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-1 mb-2">{milestone.title}</h3>
                                     <p className="text-gray-600 dark:text-gray-400">{milestone.description}</p>
@@ -189,7 +178,7 @@ function StatsSection() {
     return (
         <section className="py-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 md:p-12">
+                <div className="bg-blue-600 rounded-xl p-8 md:p-12">
                     <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
                         Our Impact in Numbers
                     </h2>
@@ -271,12 +260,11 @@ function AboutFAQ() {
 
 export default function AboutPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <LandingNavbar />
 
             {/* Hero */}
             <FeatureHero
-                badge="Our Story"
                 headline="Built by F-1 Students, for F-1 Students"
                 subheadline="We've walked the same path — navigating OPT deadlines, hunting for H-1B sponsors, and building careers in the US. TrackMyOPT is the tool we wish existed when we were in your shoes."
                 ctaText="Join Our Community"
@@ -285,7 +273,7 @@ export default function AboutPage() {
                     text: "See Our Features",
                     href: "/features"
                 }}
-                gradient="from-blue-600 to-indigo-600"
+                gradient="bg-blue-600"
                 visual={<TeamVisual />}
             />
 

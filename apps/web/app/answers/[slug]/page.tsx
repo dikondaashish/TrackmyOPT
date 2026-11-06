@@ -6,10 +6,7 @@ import { getAllAnswers, getAnswerBySlug } from "@/lib/answers";
 import { ANSWER_CANONICAL_OVERRIDES } from "@/lib/answers/canonical-overrides";
 import {
     ArrowRight,
-    BookOpen,
     Clock,
-    MessageCircle,
-    Lightbulb,
     Shield,
 } from "lucide-react";
 import { ImmigrationContentDisclaimer } from "@/components/legal/ImmigrationContentDisclaimer";
@@ -114,19 +111,6 @@ export default async function AnswerPage({ params }: Props) {
         ],
     };
 
-    const categoryColors: Record<string, string> = {
-        "opt-basics":
-            "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-        "work-employment":
-            "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-        "uscis-immigration":
-            "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-        "tax-finance":
-            "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-        "h1b-career":
-            "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
-    };
-
     return (
         <>
             <script
@@ -175,25 +159,18 @@ export default async function AnswerPage({ params }: Props) {
                     </ol>
                 </nav>
 
-                <div className="flex flex-wrap items-center gap-4 mb-6">
-                    <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${categoryColors[answer.category] || categoryColors["opt-basics"]}`}
-                    >
-                        {answer.categoryLabel}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-                        <Clock className="w-3.5 h-3.5" />
-                        Last Updated: {answer.lastUpdated}
-                    </span>
-                </div>
+                <p className="flex flex-wrap items-center gap-2 mb-6 text-sm text-gray-500 dark:text-gray-400">
+                    <span>{answer.categoryLabel}</span>
+                    <span aria-hidden>·</span>
+                    <span>Last Updated: {answer.lastUpdated}</span>
+                </p>
 
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
                     {answer.question}
                 </h1>
 
-                <div className="quick-answer bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-8">
-                    <div className="flex items-start gap-3">
-                        <MessageCircle className="w-6 h-6 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="quick-answer bg-blue-50 dark:bg-blue-950 rounded-xl p-6 mb-8">
+                    <div>
                         <div>
                             <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">
                                 Quick Answer
@@ -205,9 +182,8 @@ export default async function AnswerPage({ params }: Props) {
                     </div>
                 </div>
 
-                <div className="key-takeaway bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
-                    <div className="flex items-start gap-3">
-                        <Lightbulb className="w-6 h-6 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                <div className="key-takeaway bg-amber-50 dark:bg-amber-950 rounded-xl p-6 mb-10">
+                    <div>
                         <div>
                             <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">
                                 Key Takeaway
@@ -241,7 +217,7 @@ export default async function AnswerPage({ params }: Props) {
                                 </ul>
                             )}
                             {section.importantNote && (
-                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mt-4">
+                                <div className="bg-red-50 dark:bg-red-950 rounded-xl p-4 mt-4">
                                     <p className="text-red-800 dark:text-red-200 text-sm font-medium">
                                         {section.importantNote}
                                     </p>
@@ -254,9 +230,8 @@ export default async function AnswerPage({ params }: Props) {
                 <ImmigrationContentDisclaimer className="border-t border-gray-200 dark:border-zinc-800 pt-6 mt-10" />
 
                 {answer.relatedLinks.length > 0 && (
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-8 mt-12 mb-10">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                            <BookOpen className="w-5 h-5 text-blue-600" />
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-8 mt-12 mb-10">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                             Related Resources
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -264,7 +239,7 @@ export default async function AnswerPage({ params }: Props) {
                                 <Link
                                     key={i}
                                     href={link.href}
-                                    className="flex items-center gap-2 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-700/50 transition-colors group"
+                                    className="flex items-center gap-2 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-colors group"
                                 >
                                     <ArrowRight className="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform" />
                                     <span className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors">
@@ -286,9 +261,8 @@ export default async function AnswerPage({ params }: Props) {
                                 <Link
                                     key={i}
                                     href={`/answers/${rq.slug}`}
-                                    className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all group"
+                                    className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors group"
                                 >
-                                    <MessageCircle className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
                                     <span className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors">
                                         {rq.question}
                                     </span>
@@ -300,24 +274,24 @@ export default async function AnswerPage({ params }: Props) {
                 )}
             </article>
 
-            <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 py-20">
+            <section className="bg-blue-600 py-20">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                         Track Your OPT Status Automatically
                     </h2>
-                    <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+                    <p className="text-lg text-white mb-8 max-w-2xl mx-auto">
                         Join 3,000+ people who have signed up for TrackMyOPT. Use
                         the tools to track deadlines and plan your OPT journey
                         with confidence.
                     </p>
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold bg-white text-gray-900 rounded-full shadow-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                        className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
                         Start Free Tracking
                         <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>
-                    <div className="mt-6 flex items-center justify-center gap-6 text-white/70 text-sm">
+                    <div className="mt-6 flex items-center justify-center gap-6 text-white text-sm">
                         <span className="flex items-center gap-1.5">
                             <Shield className="w-4 h-4" />
                             No credit card required

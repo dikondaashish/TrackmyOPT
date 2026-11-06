@@ -87,7 +87,7 @@ export function VerifiedAuthorizationPanel({ verified, onChange }: Props) {
         const groupId = `verified-${meaning}`;
         return (
           <div key={meaning} className="rounded-lg border border-border p-4" role="group" aria-labelledby={`${groupId}-question`}>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{SHORT_LABEL[meaning]}</p>
+            <p className="text-xs font-semibold text-gray-500">{SHORT_LABEL[meaning]}</p>
             <p id={`${groupId}-question`} className="mt-1 text-sm font-medium">
               {VERIFIED_MEANING_QUESTION[meaning]}
             </p>

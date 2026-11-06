@@ -47,7 +47,7 @@ export function DedicatedMigrationBanner() {
   );
 
   return (
-    <div className="border-b border-purple-200 bg-purple-50 px-4 py-3 text-purple-950 dark:border-purple-900/50 dark:bg-purple-950/40 dark:text-purple-100">
+    <div className="border-b border-purple-200 bg-purple-50 px-4 py-3 text-purple-950 dark:border-purple-950 dark:bg-purple-900 dark:text-purple-100">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-2 text-sm">
           <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
@@ -57,7 +57,7 @@ export function DedicatedMigrationBanner() {
                 ? "Your Dedicated consultation benefit is ready."
                 : "Your Dedicated consultation has a 7-day eligibility wait."}
             </p>
-            <p className="mt-0.5 text-purple-900/80 dark:text-purple-100/80">
+            <p className="mt-0.5 text-purple-900 dark:text-purple-100">
               {consultation.eligible
                 ? `Request your one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial consultation. One per account; attorney availability, conflict checks, and acceptance apply.`
                 : consultation.eligibleAt

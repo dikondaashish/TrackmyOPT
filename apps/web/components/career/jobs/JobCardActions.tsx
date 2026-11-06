@@ -54,7 +54,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
   const isList = variant === 'list';
 
   return (
-    <section className={isList ? 'w-full lg:w-auto' : 'border-t border-slate-950/10 bg-white/25 px-5 py-4 dark:border-white/10 dark:bg-slate-950/25 sm:px-6'} aria-label="Safe job actions">
+    <section className={isList ? 'w-full lg:w-auto' : 'border-t border-slate-200 px-5 py-4 dark:border-zinc-800 sm:px-6'} aria-label="Safe job actions">
       <div className={isList ? 'flex flex-wrap items-center gap-1.5 lg:flex-nowrap' : 'flex flex-wrap items-center gap-2'}>
         <button
           type="button"
@@ -79,17 +79,17 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
           <summary className={`inline-flex min-h-11 cursor-pointer list-none items-center justify-center gap-1 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 ${isList ? 'w-full lg:w-auto' : ''}`}>
             More tools <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
           </summary>
-          <div className={`absolute z-10 mt-2 grid w-[min(21rem,calc(100vw-3rem))] gap-1 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-950 ${isList ? 'right-0' : 'left-0'}`}>
+          <div className={`absolute z-10 mt-2 grid w-[min(21rem,calc(100vw-3rem))] gap-1 rounded-xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-950 ${isList ? 'right-0' : 'left-0'}`}>
             <Link
               href={resumeGeneratorHref(companyName, title)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-950/40"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
             >
               <FilePenLine className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Tailor resume
             </Link>
             {sponsorId ? (
               <Link
                 href={`/dashboard/career/h1b-sponsors/${sponsorId}`}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-950/40"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
               >
                 <GitCompareArrows className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Compare sponsor profile
               </Link>
@@ -99,7 +99,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
             <button
               type="button"
               onClick={() => setShowFollowup((current) => !current)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-950/40"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
               aria-expanded={showFollowup}
             >
               <BellPlus className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Set follow-up date
@@ -129,7 +129,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
             )}
             <Link
               href="/dashboard/career/job-tracker"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-950/40"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
             >
               <PencilLine className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Record interview or application manually
             </Link>

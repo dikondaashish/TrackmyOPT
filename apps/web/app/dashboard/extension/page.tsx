@@ -17,7 +17,7 @@ export default function ExtensionPrefillPage() {
         <p className="mb-2 flex items-center gap-2 text-sm font-medium text-primary">
           <Chrome className="h-4 w-4" /> Chrome Job Prefill
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-semibold text-foreground">
           Your application profile
         </h1>
         <p className="mt-3 max-w-prose text-sm leading-6 text-muted-foreground">
@@ -30,7 +30,7 @@ export default function ExtensionPrefillPage() {
             href="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 font-medium text-primary-foreground hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <Chrome className="h-4 w-4" /> Install or open extension
           </a>

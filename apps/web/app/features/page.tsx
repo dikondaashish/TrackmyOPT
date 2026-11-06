@@ -75,16 +75,16 @@ const features = [
 ];
 
 const colorMap: Record<string, string> = {
-  blue: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
-  green: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400",
-  purple: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400",
-  indigo: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
-  amber: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400",
-  cyan: "bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400",
-  rose: "bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400",
-  red: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
-  teal: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400",
-  slate: "bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-300",
+  blue: "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400",
+  green: "bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400",
+  purple: "bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400",
+  indigo: "bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400",
+  amber: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400",
+  cyan: "bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400",
+  rose: "bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400",
+  red: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
+  teal: "bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400",
+  slate: "bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-300",
 };
 
 export default function FeaturesPage() {
@@ -107,7 +107,7 @@ export default function FeaturesPage() {
             <Link
               key={feature.href}
               href={feature.href}
-              className="group p-6 bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-lg transition-all"
+              className="group p-6 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${colorMap[feature.color]}`}>
                 <Icon className="w-6 h-6" />
@@ -127,7 +127,7 @@ export default function FeaturesPage() {
       </div>
 
       <div className="mt-16 text-center">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white">
+        <div className="bg-blue-600 rounded-xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-3">Ready to protect your OPT status?</h2>
           <p className="text-blue-100 mb-6 max-w-lg mx-auto">
             Join 3,000+ people who have signed up for TrackMyOPT. Explore tools for OPT planning and your job search.

@@ -125,10 +125,10 @@ export function OptDecisionWindowTool() {
     <div className="mx-auto max-w-xl space-y-6">
       <form
         onSubmit={onSubmit}
-        className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm dark:border-emerald-900 dark:bg-zinc-950 sm:p-7"
+        className="rounded-xl border border-emerald-200 bg-white p-6 dark:border-emerald-900 dark:bg-zinc-950 sm:p-7"
       >
         <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-600 text-white">
             <Search className="h-5 w-5" aria-hidden />
           </div>
           <div>
@@ -160,7 +160,7 @@ export function OptDecisionWindowTool() {
                   className={`min-h-11 rounded-xl border px-3 text-sm font-semibold transition-colors ${
                     caseKind === value
                       ? 'border-emerald-600 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100'
-                      : 'border-border bg-card text-muted-foreground hover:bg-muted/50'
+                      : 'border-border bg-card text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   {label}
@@ -214,7 +214,7 @@ export function OptDecisionWindowTool() {
                   e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3)
                 )
               }
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 font-mono text-sm uppercase text-foreground"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 font-mono text-sm text-foreground"
             />
             <p className="mt-1.5 text-xs text-muted-foreground">
               First 3 letters only (IOE, EAC, WAC…). Never enter your full
@@ -223,7 +223,7 @@ export function OptDecisionWindowTool() {
           </div>
 
           {error && (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+            <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-200">
               {error}
             </p>
           )}
@@ -231,7 +231,7 @@ export function OptDecisionWindowTool() {
           <button
             type="submit"
             disabled={loading || !received}
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-emerald-700 disabled:opacity-60"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
           >
             {loading ? (
               <>
@@ -249,10 +249,10 @@ export function OptDecisionWindowTool() {
       </form>
 
       {result && (
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-7">
+        <div className="rounded-xl border border-border bg-card p-6 sm:p-7">
           {estimate && low != null && high != null ? (
             <>
-              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              <p className="text-xs text-muted-foreground">
                 Where you stand
               </p>
               <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
@@ -263,7 +263,7 @@ export function OptDecisionWindowTool() {
               </p>
 
               <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <div className="rounded-lg bg-muted p-4">
                   <dt className="text-xs text-muted-foreground">
                     Typical decision wait
                   </dt>
@@ -272,7 +272,7 @@ export function OptDecisionWindowTool() {
                     <span className="ml-1 text-sm font-medium">days</span>
                   </dd>
                 </div>
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/40">
+                <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900">
                   <dt className="text-xs text-emerald-800 dark:text-emerald-200">
                     Decision window · middle 50%
                   </dt>
@@ -283,7 +283,7 @@ export function OptDecisionWindowTool() {
                 </div>
               </dl>
 
-              <p className="mt-4 text-[9px] leading-snug text-muted-foreground/80">
+              <p className="mt-4 text-[9px] leading-snug text-muted-foreground">
                 Based on {estimate.cohortSize.toLocaleString()} completed
                 community reports for similar cases. Planning estimate only —
                 not a USCIS decision date.
@@ -312,7 +312,7 @@ export function OptDecisionWindowTool() {
             </Link>
             <Link
               href="/features/case-status"
-              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-border px-4 text-sm font-semibold text-foreground hover:bg-muted/50"
+              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-border px-4 text-sm font-semibold text-foreground hover:bg-muted"
             >
               How alerts work
             </Link>

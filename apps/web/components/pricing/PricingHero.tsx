@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { PRICING_VALUE_ANCHOR, shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
 import { DEDICATED_CONSULTATION_MINUTES } from "@/lib/legal/legal-config";
@@ -12,13 +12,9 @@ export function PricingHero() {
     return (
         <section className="pt-32 pb-8 text-center">
             <div className="max-w-4xl mx-auto px-4">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-6">
-                    <AlertTriangle className="w-4 h-4" />
-                    One compliance mistake can end your F-1 status
-                </div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     One Missed Deadline Can End{" "}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                    <span className="text-blue-600">
                         Your OPT Status
                     </span>
                 </h1>

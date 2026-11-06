@@ -24,6 +24,10 @@
     --primary: 221 83% 43%;
     /* Darker blue so white CTA text meets WCAG AA (was Apple Blue #007AFF) */
     --primary-foreground: 0 0% 100%;
+    /* Solid companions to primary, used instead of translucent primary tints */
+    --primary-soft: 221 75% 96%;
+    --primary-muted: 221 70% 85%;
+    --primary-hover: 221 83% 37%;
 
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -94,6 +98,9 @@
     --primary: 217 91% 55%;
     /* Lighter primary on dark bg for readable filled buttons */
     --primary-foreground: 0 0% 100%;
+    --primary-soft: 220 40% 12%;
+    --primary-muted: 219 45% 28%;
+    --primary-hover: 217 85% 49%;
 
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -227,23 +234,18 @@
     text-wrap: balance;
   }
 
-  /* Apple-style glassmorphism */
+  /* Solid surfaces (formerly translucent glass) */
   .glass {
-    @apply bg-white/70 dark:bg-black/40 backdrop-blur-xl;
+    @apply bg-background;
   }
 
   .glass-card {
-    @apply bg-white/90 dark:bg-card/90 backdrop-blur-md border border-border/50;
+    @apply bg-card;
   }
 
-  /* Dot Pattern Background */
+  /* Formerly a dotted texture; kept as a plain surface so existing markup still works */
   .bg-dot-pattern {
-    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-
-  .dark .bg-dot-pattern {
-    background-image: radial-gradient(#334155 1px, transparent 1px);
+    background-image: none;
   }
 }
 
@@ -510,7 +512,7 @@
 /* Glass card variant for case status */
 @layer utilities {
   .glass-status {
-    @apply bg-white/80 dark:bg-gray-900/60 backdrop-blur-lg border border-white/20 dark:border-gray-700/40;
+    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800;
   }
 }
 

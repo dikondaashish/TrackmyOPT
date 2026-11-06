@@ -83,10 +83,10 @@ export function OfferDetailsSection({
     };
 
     return (
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-5">
+        <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-900 rounded-xl p-5">
             {/* Header */}
             <div className="flex items-center gap-3 mb-5">
-                <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
+                <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900">
                     <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Offer Details</h3>
@@ -183,7 +183,7 @@ export function OfferDetailsSection({
             {/* Convert Button */}
             <Button
                 onClick={handleConvert}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
             >
                 <ArrowRight className="w-4 h-4 mr-2" />
                 Convert to Employment Record

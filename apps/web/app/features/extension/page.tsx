@@ -44,10 +44,10 @@ function PlatformGrid() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.1 }}
-          className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 text-center hover:shadow-lg transition-shadow group"
+          className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 text-center group"
         >
           <div
-          className="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/20"
+          className="w-12 h-12 mx-auto mb-3 rounded-lg flex items-center justify-center bg-blue-500"
           >
             <platform.icon
               className="w-6 h-6 text-white"
@@ -72,9 +72,9 @@ function PrivacyChecklist() {
   ];
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
+    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+        <div className="w-12 h-12 rounded-lg bg-emerald-500 flex items-center justify-center">
           <Lock className="w-6 h-6 text-white" />
         </div>
         <div>
@@ -92,7 +92,7 @@ function PrivacyChecklist() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl"
+            className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-950 rounded-xl"
           >
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <span className="text-gray-700 dark:text-gray-300">{item}</span>
@@ -106,7 +106,7 @@ function PrivacyChecklist() {
 export default function ExtensionPage() {
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-rose-50/50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
         <FeatureServiceSchema
           name="H-1B Sponsor Intel Chrome Extension"
           description="Save job listings, review the posting's explicit visa-sponsorship language, and prefill application details on supported career pages. TrackMyOPT never submits an application for you."
@@ -147,7 +147,7 @@ export default function ExtensionPage() {
         {/* Hero */}
         <FeatureHero
           badge="Free"
-          headline="Job applications, with a review step."
+          headline="Job applications, with a review step"
           subheadline="Save a role, review explicit sponsorship language, and prefill application details on supported job and career pages."
           ctaText="Add to Chrome - Free"
           ctaHref="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb"
@@ -167,10 +167,6 @@ export default function ExtensionPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                  <Zap className="w-4 h-4" />
-                  Job-page assist
-                </div>
                 <H2>Keep each application moving</H2>
                 <P>
                   The extension captures the job context, helps you prepare materials, and leaves the final review and submission to you.
@@ -204,7 +200,6 @@ export default function ExtensionPage() {
                 className="relative"
               >
                 {/* Decorative elements behind visual */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-20 blur-2xl rounded-full" />
                 <ExtensionOverlayVisual />
               </motion.div>
             </div>
@@ -212,7 +207,7 @@ export default function ExtensionPage() {
         </section>
 
         {/* Platforms */}
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -220,10 +215,6 @@ export default function ExtensionPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                <Globe className="w-4 h-4" />
-                Supported career pages
-              </div>
               <H2>Supported Platforms</H2>
               <Lead>LinkedIn, Indeed, Glassdoor, many ATS portals, and supported company career pages.</Lead>
             </motion.div>
@@ -249,10 +240,6 @@ export default function ExtensionPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
-                  <Shield className="w-4 h-4" />
-                  Privacy First
-                </div>
                 <H2>Privacy & data use</H2>
                 <P>{EXTENSION_PRIVACY_SHORT}</P>
                 <P className="text-sm text-muted-foreground">

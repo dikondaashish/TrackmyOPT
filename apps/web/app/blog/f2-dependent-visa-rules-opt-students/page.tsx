@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,10 +46,6 @@ export default function F2DependentPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Dependent Visas</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Family</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     F-2 Dependent Visa Rules: What Your Spouse and Kids Can (and Cannot) Do
                 </h1>
@@ -57,13 +53,15 @@ export default function F2DependentPage() {
                     Bringing your family to the US on an F-2 visa? Understand the strict rules about employment, education, and how your OPT status directly impacts your dependents.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Dependent Visas · Family</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 7 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/f2-dependent-visa-rules-opt-students.jpg" alt="Passport with an F-2 visa stamp next to an I-20 with the dependent section highlighted and a wedding photo" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -75,7 +73,7 @@ export default function F2DependentPage() {
                 <h2 className="text-2xl font-bold mt-12 mb-6">Quick Reference: What F-2 Dependents Can and Cannot Do</h2>
 
                 <div className="grid md:grid-cols-2 gap-6 my-8">
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-6">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-950 rounded-xl p-6">
                         <h4 className="flex items-center gap-2 font-bold text-emerald-900 dark:text-emerald-400 mt-0 mb-3">
                             <CheckCircle2 className="w-5 h-5" /> Allowed
                         </h4>
@@ -88,7 +86,7 @@ export default function F2DependentPage() {
                             <li>Travel freely within the US.</li>
                         </ul>
                     </div>
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl p-6">
+                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-950 rounded-xl p-6">
                         <h4 className="flex items-center gap-2 font-bold text-red-900 dark:text-red-400 mt-0 mb-3">
                             <XCircle className="w-5 h-5" /> Not Allowed
                         </h4>
@@ -122,13 +120,12 @@ export default function F2DependentPage() {
                     <li>Your spouse's F-2 status is entirely dependent on your compliance. They have no independent immigration standing.</li>
                 </ul>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <ShieldCheck className="w-6 h-6 text-primary" />
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Protect Your Entire Family with TrackMyOPT
                     </h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">
-                        Your spouse and children's immigration status depends entirely on <em>your</em> OPT compliance. A single mistake—exceeding unemployment days, missing a SEVIS reporting deadline, or failing to update your employer—can destroy your entire family's legal presence in the US. <strong>TrackMyOPT</strong> automatically tracks your unemployment counter, sends deadline alerts, and keeps your SEVIS reporting on schedule.
+                        Your spouse and children's immigration status depends entirely on your OPT compliance. A single mistake—exceeding unemployment days, missing a SEVIS reporting deadline, or failing to update your employer—can destroy your entire family's legal presence in the US. <strong>TrackMyOPT</strong> automatically tracks your unemployment counter, sends deadline alerts, and keeps your SEVIS reporting on schedule.
                     </p>
                 </div>
 
@@ -157,9 +154,8 @@ export default function F2DependentPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
 
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Keep Your Family's Status Secure
                 </h3>
@@ -169,7 +165,7 @@ export default function F2DependentPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Protect Your Family's Status
                     </Link>
@@ -180,7 +176,7 @@ export default function F2DependentPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/h4-ead-opt-spouse-work-authorization" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 H-4 EAD Work Authorization
                             </h4>
@@ -193,7 +189,7 @@ export default function F2DependentPage() {
                         </div>
                     </Link>
                     <Link href="/blog/90-day-unemployment-rule-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The 90-Day Unemployment Rule
                             </h4>

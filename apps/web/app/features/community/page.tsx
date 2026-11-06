@@ -7,7 +7,6 @@ import {
     Globe,
     Award,
     CheckCircle2,
-    UserCheck,
     HeartHandshake,
     Lightbulb
 } from "lucide-react";
@@ -24,7 +23,7 @@ import { H2, P } from "@/components/ui/typography";
 export default function CommunityPage() {
     return (
         <>
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <FeatureServiceSchema
                 name="Alumni Mentorship & Community Network"
                 description="Connect with verified alumni mentors from your university working at top companies. Get referrals, interview prep, and visa advice from real people who've navigated OPT successfully."
@@ -38,7 +37,6 @@ export default function CommunityPage() {
             />
             {/* Hero */}
             <FeatureHero
-                badge="Community"
                 headline="You Don't Have to Navigate OPT Alone"
                 subheadline="Join a thriving community of international students and alumni. Get referrals, interview tips, and visa advice from people who've been there."
                 ctaText="Join the Community"
@@ -47,7 +45,7 @@ export default function CommunityPage() {
                     text: "Explore Discussions",
                     href: "#discussions"
                 }}
-                gradient="from-purple-500 to-fuchsia-600"
+                gradient="bg-purple-500"
                 visual={<MentorshipMap />}
             />
 
@@ -60,10 +58,6 @@ export default function CommunityPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium mb-4">
-                                <UserCheck className="w-4 h-4" />
-                                Alumni Mentorship
-                            </div>
                             <H2>Connect with Mentors Who Get It</H2>
                             <P>
                                 Find alumni from your university who are now working at your dream companies.
@@ -88,7 +82,7 @@ export default function CommunityPage() {
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white dark:bg-zinc-900 rounded-3xl p-8 shadow-2xl border border-gray-100 dark:border-zinc-800"
+                            className="bg-white dark:bg-zinc-900 rounded-xl p-8 border border-gray-100 dark:border-zinc-800"
                         >
                             {/* Re-using visual but maybe scaled/contextualized */}
                             <MentorshipMap />
@@ -98,7 +92,7 @@ export default function CommunityPage() {
             </section>
 
             {/* Discussions Feature */}
-            <section id="discussions" className="py-24 bg-white/50 dark:bg-zinc-900/50 relative overflow-hidden">
+            <section id="discussions" className="py-24 bg-white dark:bg-zinc-900 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -116,22 +110,18 @@ export default function CommunityPage() {
                             viewport={{ once: true }}
                             className="order-1 lg:order-2"
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 text-sm font-medium mb-4">
-                                <MessageSquare className="w-4 h-4" />
-                                Expert Discussions
-                            </div>
-                            <H2>Real Advice. No Noise.</H2>
+                            <H2>Real advice, no noise</H2>
                             <P>
                                 Skip the generic Reddit threads. Get verified answers about CPT, OPT, and H-1B
                                 from students and legal experts in our curated forums.
                             </P>
                             <div className="mt-8 grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-gray-100 dark:border-zinc-700">
+                                <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700">
                                     <Lightbulb className="w-6 h-6 text-amber-500 mb-2" />
                                     <h5 className="font-semibold text-gray-900 dark:text-white">Interview Tips</h5>
                                     <p className="text-xs text-gray-500 mt-1">Company-specific guides from recent hires.</p>
                                 </div>
-                                <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-gray-100 dark:border-zinc-700">
+                                <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700">
                                     <Globe className="w-6 h-6 text-blue-500 mb-2" />
                                     <h5 className="font-semibold text-gray-900 dark:text-white">Legal Updates</h5>
                                     <p className="text-xs text-gray-500 mt-1">Latest USCIS news explained simply.</p>

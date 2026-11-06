@@ -11,7 +11,6 @@ import {
     ChevronDown,
     Edit2,
     Trash2,
-    Check,
     Award,
     Briefcase,
 } from "lucide-react";
@@ -39,12 +38,12 @@ const STAGES: JobStage[] = [
 ];
 
 const STAGE_COLORS: Record<JobStage, string> = {
-    "Wishlist": "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400",
-    "Applied": "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
-    "Recruiter Screen": "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-400",
-    "Interviewing": "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
-    "Final Round": "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400",
-    "Offer": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400",
+    "Wishlist": "bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-400",
+    "Applied": "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-400",
+    "Recruiter Screen": "bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-400",
+    "Interviewing": "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400",
+    "Final Round": "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-400",
+    "Offer": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400",
     "Rejected": "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
 };
 
@@ -111,7 +110,7 @@ export function JobTrackerTableView({
             <button
                 type="button"
                 onClick={() => handleSort(field)}
-                className="flex w-full items-center gap-1 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700/50"
+                className="flex w-full items-center gap-1 px-4 py-3 text-left text-xs font-semibold text-gray-500 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700"
             >
                 {label}
                 {sortField === field && (
@@ -126,7 +125,7 @@ export function JobTrackerTableView({
     if (applications.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-20 px-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center mb-4">
+                <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
                     <Briefcase className="w-8 h-8 text-gray-500 dark:text-gray-400" />
                 </div>
                 <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-1">No applications yet</p>
@@ -138,10 +137,10 @@ export function JobTrackerTableView({
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto max-md:-mx-3 md:mx-0">
                 <table className="w-full min-w-[560px] lg:min-w-[900px]">
-                    <thead className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                         <tr>
                             {renderSortHeader("company", "Company")}
                             {renderSortHeader("role", "Role")}
@@ -150,15 +149,15 @@ export function JobTrackerTableView({
                             {renderSortHeader("applied", "Applied")}
                             {renderSortHeader("followup", "Follow-up", "hidden md:table-cell")}
                             {renderSortHeader("interviews", "Interviews", "hidden lg:table-cell")}
-                            <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 Status
                             </th>
-                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {sortedApplications.map((app) => {
                             const followupBadge = clientDate && app.next_follow_up_at
                                 ? getFollowupBadgeInfo(app.next_follow_up_at)
@@ -169,7 +168,7 @@ export function JobTrackerTableView({
                                 <tr
                                     key={app.id}
                                     onClick={() => onCardClick(app)}
-                                    className="hover:bg-gray-50 dark:hover:bg-gray-700/30 cursor-pointer transition-colors"
+                                    className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
                                 >
                                     {/* Company */}
                                     <td className="px-4 py-3">
@@ -276,8 +275,7 @@ export function JobTrackerTableView({
                                     {/* Offer Status */}
                                     <td className="hidden md:table-cell px-4 py-3">
                                         {isOffer ? (
-                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-medium">
-                                                <Check className="w-3 h-3" />
+                                            <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400">
                                                 Offer
                                             </span>
                                         ) : (
@@ -294,7 +292,7 @@ export function JobTrackerTableView({
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     aria-label={`Open ${app.company_name} job listing`}
-                                                    className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                    className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
                                                 >
                                                     <ExternalLink className="w-4 h-4" />
                                                 </a>
@@ -319,7 +317,7 @@ export function JobTrackerTableView({
                                                             console.error(e);
                                                         }
                                                     }}
-                                                    className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                    className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>

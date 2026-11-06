@@ -9,10 +9,8 @@ import {
     ArrowRightLeft,
     DollarSign,
     Heart,
-    Database,
     ArrowRight,
     BookOpen,
-    CheckCircle2,
 } from "lucide-react";
 
 const categories = [
@@ -195,71 +193,31 @@ const categories = [
 
 const colorStyles: Record<
     string,
-    { bg: string; border: string; icon: string; accent: string; badge: string; factBg: string }
+    { icon: string }
 > = {
     blue: {
-        bg: "bg-blue-50 dark:bg-blue-900/20",
-        border: "border-blue-200 dark:border-blue-800",
         icon: "text-blue-600 dark:text-blue-400",
-        accent: "bg-blue-600 dark:bg-blue-500",
-        badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-        factBg: "bg-blue-50/50 dark:bg-blue-900/10",
     },
     emerald: {
-        bg: "bg-emerald-50 dark:bg-emerald-900/20",
-        border: "border-emerald-200 dark:border-emerald-800",
         icon: "text-emerald-600 dark:text-emerald-400",
-        accent: "bg-emerald-600 dark:bg-emerald-500",
-        badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
-        factBg: "bg-emerald-50/50 dark:bg-emerald-900/10",
     },
     purple: {
-        bg: "bg-purple-50 dark:bg-purple-900/20",
-        border: "border-purple-200 dark:border-purple-800",
         icon: "text-purple-600 dark:text-purple-400",
-        accent: "bg-purple-600 dark:bg-purple-500",
-        badge: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-        factBg: "bg-purple-50/50 dark:bg-purple-900/10",
     },
     amber: {
-        bg: "bg-amber-50 dark:bg-amber-900/20",
-        border: "border-amber-200 dark:border-amber-800",
         icon: "text-amber-600 dark:text-amber-400",
-        accent: "bg-amber-600 dark:bg-amber-500",
-        badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-        factBg: "bg-amber-50/50 dark:bg-amber-900/10",
     },
     cyan: {
-        bg: "bg-cyan-50 dark:bg-cyan-900/20",
-        border: "border-cyan-200 dark:border-cyan-800",
         icon: "text-cyan-600 dark:text-cyan-400",
-        accent: "bg-cyan-600 dark:bg-cyan-500",
-        badge: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
-        factBg: "bg-cyan-50/50 dark:bg-cyan-900/10",
     },
     rose: {
-        bg: "bg-rose-50 dark:bg-rose-900/20",
-        border: "border-rose-200 dark:border-rose-800",
         icon: "text-rose-600 dark:text-rose-400",
-        accent: "bg-rose-600 dark:bg-rose-500",
-        badge: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
-        factBg: "bg-rose-50/50 dark:bg-rose-900/10",
     },
     orange: {
-        bg: "bg-orange-50 dark:bg-orange-900/20",
-        border: "border-orange-200 dark:border-orange-800",
         icon: "text-orange-600 dark:text-orange-400",
-        accent: "bg-orange-600 dark:bg-orange-500",
-        badge: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-        factBg: "bg-orange-50/50 dark:bg-orange-900/10",
     },
     pink: {
-        bg: "bg-pink-50 dark:bg-pink-900/20",
-        border: "border-pink-200 dark:border-pink-800",
         icon: "text-pink-600 dark:text-pink-400",
-        accent: "bg-pink-600 dark:bg-pink-500",
-        badge: "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
-        factBg: "bg-pink-50/50 dark:bg-pink-900/10",
     },
 };
 
@@ -334,15 +292,8 @@ export default function AIFactsPage() {
             {/* Hero */}
             <section className="py-16 sm:py-24">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-6">
-                        <Database className="w-4 h-4" />
-                        {totalFacts} Verified Facts
-                    </div>
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
-                        OPT & F-1 Visa{" "}
-                        <span className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-                            Facts Database
-                        </span>
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+                        OPT & F-1 Visa Facts Database
                     </h1>
                     <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">
                         A structured, machine-readable collection of {totalFacts}+ verified
@@ -361,17 +312,14 @@ export default function AIFactsPage() {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-wrap justify-center gap-3">
                         {categories.map((cat) => {
-                            const styles = colorStyles[cat.color];
-                            const Icon = cat.icon;
                             return (
                                 <a
                                     key={cat.id}
                                     href={`#${cat.id}`}
-                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${styles.border} ${styles.badge} hover:opacity-80`}
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-300 transition-colors hover:border-gray-300 dark:hover:border-zinc-700"
                                 >
-                                    <Icon className="w-4 h-4" />
                                     {cat.label}
-                                    <span className="opacity-60">
+                                    <span className="text-gray-500 dark:text-gray-400">
                                         ({cat.facts.length})
                                     </span>
                                 </a>
@@ -385,28 +333,16 @@ export default function AIFactsPage() {
             <section className="pb-20">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
                     {categories.map((cat) => {
-                        const styles = colorStyles[cat.color];
-                        const Icon = cat.icon;
-
                         return (
                             <div key={cat.id} id={cat.id} className="scroll-mt-28">
-                                <div className="flex items-start gap-4 mb-8">
-                                    <div
-                                        className={`p-3 rounded-2xl ${styles.bg} border ${styles.border} flex-shrink-0`}
-                                    >
-                                        <Icon
-                                            className={`w-7 h-7 ${styles.icon}`}
-                                        />
-                                    </div>
+                                <div className="mb-8">
                                     <div>
                                         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                                             {cat.label}
                                         </h2>
                                         <p className="text-gray-500 dark:text-gray-400 mt-1">
                                             {cat.description} —{" "}
-                                            <span className={styles.icon}>
-                                                {cat.facts.length} facts
-                                            </span>
+                                            {cat.facts.length} facts
                                         </p>
                                     </div>
                                 </div>
@@ -415,10 +351,10 @@ export default function AIFactsPage() {
                                     {cat.facts.map((fact, idx) => (
                                         <div
                                             key={idx}
-                                            className={`fact-item flex items-start gap-4 p-5 rounded-xl border ${styles.border} bg-white dark:bg-gray-800/50 transition-all hover:shadow-md`}
+                                            className="fact-item flex items-start gap-4 p-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
                                         >
                                             <span
-                                                className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-white ${styles.accent} flex-shrink-0 mt-0.5`}
+                                                className="w-6 flex-shrink-0 text-right text-sm font-semibold tabular-nums text-gray-400 dark:text-gray-500 leading-relaxed"
                                             >
                                                 {idx + 1}
                                             </span>
@@ -447,7 +383,7 @@ export default function AIFactsPage() {
                             return (
                                 <div
                                     key={cat.id}
-                                    className={`text-center p-5 rounded-xl border ${styles.border} bg-white dark:bg-gray-800/50`}
+                                    className="text-center p-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
                                 >
                                     <Icon
                                         className={`w-6 h-6 ${styles.icon} mx-auto mb-2`}
@@ -463,10 +399,9 @@ export default function AIFactsPage() {
                         })}
                     </div>
                     <div className="text-center mt-8">
-                        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-semibold">
-                            <CheckCircle2 className="w-5 h-5" />
+                        <p className="font-semibold text-gray-700 dark:text-gray-300">
                             {totalFacts} Total Verified Facts
-                        </div>
+                        </p>
                     </div>
                 </div>
             </section>
@@ -484,7 +419,7 @@ export default function AIFactsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <Link
                             href="/answers"
-                            className="group flex flex-col p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:shadow-lg"
+                            className="group flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
                         >
                             <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4" />
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -501,7 +436,7 @@ export default function AIFactsPage() {
                         </Link>
                         <Link
                             href="/glossary"
-                            className="group flex flex-col p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all hover:shadow-lg"
+                            className="group flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
                         >
                             <FileText className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mb-4" />
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
@@ -518,7 +453,7 @@ export default function AIFactsPage() {
                         </Link>
                         <Link
                             href="/blog"
-                            className="group flex flex-col p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 hover:border-purple-300 dark:hover:border-purple-700 transition-all hover:shadow-lg"
+                            className="group flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-purple-300 dark:hover:border-purple-700 transition-colors"
                         >
                             <GraduationCap className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-4" />
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">

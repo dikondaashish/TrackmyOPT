@@ -116,11 +116,11 @@ export function DashboardWidgetsSettings({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95">
+      <div className="w-full max-w-md bg-card border border-border rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="p-2 bg-primary-soft rounded-lg">
               <Settings className="w-5 h-5 text-primary" />
             </div>
             <div>
@@ -143,7 +143,7 @@ export function DashboardWidgetsSettings({
             <div
               key={widget.id}
               className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                widget.visible ? "bg-muted/30" : "opacity-50"
+                widget.visible ? "bg-muted" : "opacity-50"
               }`}
             >
               <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
@@ -175,7 +175,7 @@ export function DashboardWidgetsSettings({
                   onClick={() => onToggle(widget.id)}
                   className={`p-1.5 rounded transition-colors ${
                     widget.visible
-                      ? "text-primary hover:bg-primary/10"
+                      ? "text-primary hover:bg-primary-soft"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                   title={widget.visible ? "Hide widget" : "Show widget"}
@@ -188,7 +188,7 @@ export function DashboardWidgetsSettings({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t border-border bg-muted/30">
+        <div className="flex items-center justify-between p-4 border-t border-border bg-muted">
           <button
             onClick={onReset}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -197,7 +197,7 @@ export function DashboardWidgetsSettings({
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
           >
             Done
           </button>
@@ -215,7 +215,7 @@ export function DashboardCustomizeButton({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted rounded-lg transition-colors"
+      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground bg-muted hover:bg-muted rounded-lg transition-colors"
       title="Customize dashboard"
     >
       <Settings className="w-3.5 h-3.5" />

@@ -67,13 +67,13 @@ export default function NotGettingInterviewsPage() {
       <p>Same work, two ways of writing it:</p>
 
       <p>
-        <em>Does not count:</em> &quot;Architected 12 endpoints across authentication and CRUD.
+        <strong>Does not count:</strong> &quot;Architected 12 endpoints across authentication and CRUD.
         Increased signups 100%.&quot; Impressive to another engineer. A recruiter cannot tell which
         required skills this proves.
       </p>
 
       <p>
-        <em>Counts:</em> &quot;Built REST APIs in Python with FastAPI and PostgreSQL on AWS so
+        <strong>Counts:</strong> &quot;Built REST APIs in Python with FastAPI and PostgreSQL on AWS so
         customers could schedule email briefings without asking our team to pull data manually.&quot;
         Their words, a real stack, a reason a non-engineer understands, inside a real role.
       </p>
@@ -166,7 +166,7 @@ export default function NotGettingInterviewsPage() {
       <h2>What we are building next</h2>
       <p>
         We are wiring sponsor-aware checks and clearer resume feedback into TrackMyOPT so the tool
-        tells you <em>what is missing</em> instead of handing you a meaningless score. We also want
+        tells you <strong>what is missing</strong> instead of handing you a meaningless score. We also want
         to publish side-by-side resume breakdowns — what a recruiter actually sees in the ones that
         get calls vs the ones that do not.
       </p>

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, BookOpen, Briefcase, Globe } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, Briefcase } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -69,9 +69,8 @@ export default function H1BAlternativesGuide() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-                        Work Visas
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Work Visas</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         14 min read
@@ -91,24 +90,23 @@ export default function H1BAlternativesGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/h1b-alternatives-work-visas.png" alt="US Visa options and employment pathways paperwork on a workspace desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/h1b-alternatives-work-visas.png" alt="US Visa options and employment pathways paperwork on a workspace desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Exploring alternative visa options early is crucial to securing a continuous legal work status in the US.
                 </figcaption>
             </figure>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>Don&apos;t panic if you miss the H-1B lottery.</strong> Depending on your citizenship, background, and company structure, you may qualify for: <strong>TN</strong> (Canadians/Mexicans), <strong>H-1B1</strong> (Chile/Singapore), <strong>E-3</strong> (Australia), <strong>O-1</strong> (Extraordinary ability), <strong>L-1</strong> (Transfer after 1 year abroad), or <strong>Cap-Exempt H-1B</strong> (Universities, research non-profits).
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -119,9 +117,8 @@ export default function H1BAlternativesGuide() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
                 <nav className="space-y-2">
@@ -158,7 +155,7 @@ export default function H1BAlternativesGuide() {
                         <li><strong>Non-profit Entities Related to Higher Education:</strong> University hospitals, research labs, or collaborative centers.</li>
                         <li><strong>Government Research Organizations:</strong> Federal, state, or local government labs.</li>
                     </ul>
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold">
                             Note: If you transition from a cap-exempt H-1B to a regular commercial employer, you will have to enter the H-1B lottery to make the switch.
                         </p>
@@ -174,8 +171,7 @@ export default function H1BAlternativesGuide() {
                     </p>
                     <div className="space-y-4">
                         <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                            <h4 className="font-bold text-gray-950 dark:text-white flex items-center gap-2">
-                                <Globe className="w-5 h-5 text-blue-500" />
+                            <h4 className="font-bold text-gray-950 dark:text-white">
                                 TN Visa (Canada & Mexico)
                             </h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -183,8 +179,7 @@ export default function H1BAlternativesGuide() {
                             </p>
                         </div>
                         <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                            <h4 className="font-bold text-gray-950 dark:text-white flex items-center gap-2">
-                                <Globe className="w-5 h-5 text-indigo-500" />
+                            <h4 className="font-bold text-gray-950 dark:text-white">
                                 E-3 Visa (Australia)
                             </h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -192,8 +187,7 @@ export default function H1BAlternativesGuide() {
                             </p>
                         </div>
                         <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                            <h4 className="font-bold text-gray-950 dark:text-white flex items-center gap-2">
-                                <Globe className="w-5 h-5 text-teal-500" />
+                            <h4 className="font-bold text-gray-950 dark:text-white">
                                 H-1B1 Visa (Chile & Singapore)
                             </h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -210,7 +204,7 @@ export default function H1BAlternativesGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         The O-1 visa is for individuals who have risen to the very top of their field. It is popular among researchers, founders, software engineers, and designers.
                     </p>
-                    <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                         <h4 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Key Criteria: Must Meet at Least 3</h4>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
                             <li>• High compensation or contract payment history</li>
@@ -273,7 +267,7 @@ export default function H1BAlternativesGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Enrolling in another educational program (such as a second Master&apos;s or MBA) resets your F-1 clock. Some universities offer Day 1 CPT, which allows you to continue working full-time under school authorization while attending classes.
                     </p>
-                    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
                         <div className="flex gap-2">
                             <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-600" />
                             <div>
@@ -290,17 +284,16 @@ export default function H1BAlternativesGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Mainly used for research, teaching, or training programs. If your employer is a research organization, think tank, or international exchange sponsor, you can apply for a J-1 visa.
                     </p>
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 text-amber-900 dark:text-amber-100 text-sm">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-4 text-amber-900 dark:text-amber-100 text-sm">
                         Be aware of the <strong>212(e) Two-Year Home-Country Physical Presence Requirement</strong>, which forces certain J-1 holders to return home for two years before switching to H-1B or green card status.
                     </div>
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-8 my-12 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="relative z-10">
+                <div className="bg-indigo-600 rounded-xl p-8 my-12 text-white">
+                    <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-white/20 rounded-lg">
+                            <div className="p-2 bg-indigo-500 rounded-lg">
                                 <Briefcase className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Track Your OPT Deadlines</h3>
@@ -310,7 +303,7 @@ export default function H1BAlternativesGuide() {
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-indigo-700 font-bold hover:bg-indigo-50 transition-colors shadow-lg"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-indigo-700 font-bold hover:bg-indigo-50 transition-colors"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -338,7 +331,7 @@ export default function H1BAlternativesGuide() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/eb2-niw-green-card-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ EB-2 NIW Green Card Guide</Link>

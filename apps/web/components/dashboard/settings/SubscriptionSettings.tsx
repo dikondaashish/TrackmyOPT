@@ -161,7 +161,7 @@ function PricingSection({
             }`}
           >
             Annual{' '}
-            <span className="text-[10px] text-green-600 dark:text-green-400 font-bold ml-1">
+            <span className="text-xs text-green-600 dark:text-green-400 font-medium ml-1">
               (Save up to {annualSavingsPercent('pro')}%)
             </span>
           </button>
@@ -222,15 +222,15 @@ function PricingSection({
           return (
             <div
               key={i}
-              className={`relative rounded-2xl p-6 flex flex-col ${
+              className={`relative rounded-xl p-6 flex flex-col ${
                 plan.popular
-                  ? 'bg-white dark:bg-gray-800 border-2 border-primary shadow-xl scale-105 z-10'
-                  : 'bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700'
+                  ? 'bg-white dark:bg-gray-800 border-2 border-primary'
+                  : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold rounded-full shadow-lg">
-                  Most Popular
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-blue-600 text-white text-xs font-medium rounded-md">
+                  Most popular
                 </div>
               )}
 
@@ -324,7 +324,7 @@ function PricingSection({
                 onClick={onClick}
                 className={`w-full py-6 font-semibold rounded-xl ${
                   plan.popular
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
                     : plan.price[billingCycle] > 0
                       ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
                       : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -430,14 +430,14 @@ export function SubscriptionSettings({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8">
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           Subscription & Billing
           {premium.isPremium && (
-            <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-200 to-yellow-400 dark:from-amber-600 dark:to-yellow-600 text-[10px] text-amber-900 dark:text-white font-extrabold tracking-wide uppercase shadow-sm">
-              {currentPlan.toUpperCase()}
+            <span className="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-xs text-amber-900 dark:text-amber-200 font-medium">
+              {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}
             </span>
           )}
         </h2>
@@ -497,14 +497,13 @@ export function SubscriptionSettings({
         <div className="grid lg:grid-cols-3 gap-8 pt-8 border-t border-gray-200 dark:border-gray-700">
           {/* Left Column: Plan Details (1/3) */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-1 border border-amber-100 dark:border-amber-900/30 shadow-sm relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent dark:from-amber-900/10 pointer-events-none" />
-              <div className="p-5 relative">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-1 border border-amber-100 dark:border-amber-950">
+              <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900 flex items-center justify-center text-amber-600 dark:text-amber-400">
                     <Crown className="w-6 h-6 fill-current" />
                   </div>
-                  <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold rounded-full uppercase tracking-wide">
+                  <div className="px-2 py-0.5 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 text-xs font-medium rounded-md">
                     Active
                   </div>
                 </div>
@@ -530,10 +529,10 @@ export function SubscriptionSettings({
                 <Button
                   onClick={onManage}
                   variant="outline"
-                  className="group mt-5 h-auto min-h-14 w-full justify-between rounded-xl border-gray-200 bg-white px-3.5 py-3 text-left text-gray-900 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50/70 hover:text-gray-950 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-blue-700 dark:hover:bg-blue-950/30 dark:hover:text-white"
+                  className="group mt-5 h-auto min-h-14 w-full justify-between rounded-xl border-gray-200 bg-white px-3.5 py-3 text-left text-gray-900 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-gray-950 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-blue-700 dark:hover:bg-blue-950 dark:hover:text-white"
                 >
                   <span className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:group-hover:bg-blue-900/60">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-400 dark:group-hover:bg-blue-900">
                       <CreditCard className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <span className="min-w-0">
@@ -571,7 +570,7 @@ export function SubscriptionSettings({
                   )}
                 {currentPlan === 'dedicated' &&
                   !dedicatedConsultation.eligible && (
-                    <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                    <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-900 dark:bg-amber-950 dark:text-amber-200">
                       {dedicatedConsultation.eligibleAt
                         ? `Attorney consultation unlocks ${dedicatedConsultation.eligibleAt.toLocaleDateString()} after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated.`
                         : 'Checking your attorney-consultation eligibility…'}
@@ -583,7 +582,7 @@ export function SubscriptionSettings({
 
           {/* Right Column: Billing History & Features (2/3) */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <BillingHistory />
             </div>
           </div>

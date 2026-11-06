@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Quote, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
 interface FeatureTestimonialProps {
     quote: string;
@@ -15,11 +15,11 @@ interface FeatureTestimonialProps {
 }
 
 const accentStyles = {
-    blue: "from-blue-500 to-indigo-600",
-    emerald: "from-emerald-500 to-teal-600",
-    purple: "from-purple-500 to-pink-600",
-    amber: "from-amber-500 to-orange-600",
-    cyan: "from-cyan-500 to-blue-600",
+    blue: "bg-blue-500",
+    emerald: "bg-emerald-500",
+    purple: "bg-purple-500",
+    amber: "bg-amber-500",
+    cyan: "bg-cyan-500",
 };
 
 export function FeatureTestimonial({
@@ -37,12 +37,7 @@ export function FeatureTestimonial({
                     className="relative"
                 >
                     {/* Background card */}
-                    <div className="relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12 shadow-xl">
-                        {/* Quote icon */}
-                        <div className={`absolute -top-6 left-8 p-3 rounded-2xl bg-gradient-to-br ${accentStyles[accentColor]} shadow-lg`}>
-                            <Quote className="w-6 h-6 text-white" />
-                        </div>
-
+                    <div className="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12">
                         {/* Stars */}
                         <div className="flex items-center gap-1 mb-6">
                             {[...Array(5)].map((_, i) => (
@@ -58,7 +53,7 @@ export function FeatureTestimonial({
                         {/* Author */}
                         <div className="flex items-center gap-4">
                             {/* Avatar */}
-                            <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${accentStyles[accentColor]} flex items-center justify-center text-white font-bold text-lg`}>
+                            <div className={`w-14 h-14 rounded-full ${accentStyles[accentColor]} flex items-center justify-center text-white font-bold text-lg`}>
                                 {author.name.split(" ").map(n => n[0]).join("")}
                             </div>
 

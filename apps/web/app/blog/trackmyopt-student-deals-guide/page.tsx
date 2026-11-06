@@ -8,7 +8,6 @@ import {
     Sparkles,
     Wallet,
     Briefcase,
-    Music,
     Shield,
     LogIn,
 } from "lucide-react";
@@ -78,10 +77,6 @@ export default function TrackMyOPTStudentDealsGuidePage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Student Life</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Deals</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     TrackMyOPT Student Deals: {savingsLabel}+ in Perks for F-1 & OPT Students
                 </h1>
@@ -89,7 +84,9 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                     GitHub, Google AI, health insurance, Wise, LinkedIn Premium, and dozens more — curated for
                     international students. <strong>Login required</strong> to view and claim offers inside TrackMyOPT.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Student Life · Deals</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1">
                         <Clock className="w-4 h-4" /> 6 min read
                     </span>
@@ -98,7 +95,7 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                 </div>
             </header>
 
-            <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-6 mb-10">
+            <div className="rounded-xl border-2 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950 p-6 mb-10">
                 <div className="flex items-start gap-3">
                     <Lock className="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div>
@@ -114,14 +111,14 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                         <div className="flex flex-wrap gap-3">
                             <Link
                                 href="/login"
-                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F3162] text-white rounded-full font-semibold hover:bg-[#0F3162]/90 transition-colors"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F3162] text-white rounded-lg font-semibold hover:bg-[#0B2549] transition-colors"
                             >
                                 <LogIn className="w-4 h-4" />
                                 Log in to view deals
                             </Link>
                             <Link
                                 href="/dashboard/offers"
-                                className="inline-flex items-center gap-2 px-5 py-2.5 border border-amber-300 dark:border-amber-700 rounded-full font-semibold text-amber-900 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 border border-amber-300 dark:border-amber-700 rounded-lg font-semibold text-amber-900 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors"
                             >
                                 Open Special Offers
                                 <ArrowRight className="w-4 h-4" />
@@ -206,7 +203,7 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                 <p>
                     We keep offers inside the dashboard so links stay current, eligibility notes stay accurate, and we can
                     surface partner perks next to your OPT tools — case tracking, unemployment days, and career resources.
-                    Public blog posts explain <em>what</em> is available; your account is where you <em>use</em> them.
+                    Public blog posts explain <strong>what</strong> is available; your account is where you <strong>use</strong> them.
                 </p>
 
                 <h2>Tips to maximize savings</h2>
@@ -225,10 +222,9 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                     <li>Revisit the catalog each semester — student promos change and we add new partners regularly.</li>
                 </ul>
 
-                <div className="not-prose my-10 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 p-8 text-center text-white">
-                    <Music className="w-10 h-10 mx-auto mb-4 opacity-90" />
+                <div className="not-prose my-10 rounded-xl bg-purple-600 p-8 text-center text-white">
                     <h3 className="text-2xl font-bold mb-2">Ready to claim your perks?</h3>
-                    <p className="text-white/90 mb-6 max-w-lg mx-auto">
+                    <p className="text-white mb-6 max-w-lg mx-auto">
                         Log in to TrackMyOPT and open Special Offers to unlock {savingsLabel}+ in student deals with your
                         college email.
                     </p>
@@ -250,11 +246,9 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                 ))}
 
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <em>
-                        Partner offers are provided by third parties. TrackMyOPT may receive compensation for referrals.
-                        Savings estimates are based on documented partner offer values and vary by eligibility. This
-                        article is for informational purposes only.
-                    </em>
+                    Partner offers are provided by third parties. TrackMyOPT may receive compensation for referrals.
+                    Savings estimates are based on documented partner offer values and vary by eligibility. This
+                    article is for informational purposes only.
                 </p>
             </div>
         

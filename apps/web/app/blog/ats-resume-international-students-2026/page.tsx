@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, ArrowRight } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -65,9 +65,8 @@ export default function ATSResumeArticle() {
             {/* Header */}
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-semibold">
-                        JOB SEARCH
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Job search</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         11 min read
@@ -90,7 +89,7 @@ export default function ATSResumeArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     An ATS (Applicant Tracking System) optimized resume uses standard formatting, relevant keywords from the job description, and clear section headers to pass automated screening software. International students should include their work authorization status clearly but should not include photos, personal details, or non-US formatting.
@@ -98,9 +97,8 @@ export default function ATSResumeArticle() {
             </div>
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -112,7 +110,7 @@ export default function ATSResumeArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -143,7 +141,7 @@ export default function ATSResumeArticle() {
                         An <strong>Applicant Tracking System (ATS)</strong> is software that scans resumes, extracts information, matches keywords, and ranks candidates based on fit. <strong>98% of Fortune 500 companies use ATS systems</strong>.
                     </p>
 
-                    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold">
                             "If your resume isn't ATS-optimized, it may never reach human eyes. You could be the perfect candidate, but be screened out by the software."
                         </p>
@@ -165,7 +163,7 @@ export default function ATSResumeArticle() {
                         ))}
                     </div>
 
-                    <div className="p-5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
+                    <div className="p-5 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-100 dark:border-amber-800">
                         <p className="text-amber-900 dark:text-amber-100 font-medium text-sm">
                             For international students applying for H-1B sponsorship roles: These jobs attract 2,000-10,000+ applicants. ATS filtering is inevitable. Get it right or you're invisible.
                         </p>
@@ -181,7 +179,7 @@ export default function ATSResumeArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="p-5 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <h3 className="font-bold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
                                 <CheckCircle2 className="w-5 h-5" />
                                 DO: Use Standard Formatting
@@ -196,7 +194,7 @@ export default function ATSResumeArticle() {
                             </ul>
                         </div>
 
-                        <div className="p-5 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
+                        <div className="p-5 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
                             <h3 className="font-bold text-red-900 dark:text-red-100 mb-2 flex items-center gap-2">
                                 <AlertTriangle className="w-5 h-5" />
                                 DON'T: Avoid These
@@ -238,7 +236,7 @@ export default function ATSResumeArticle() {
                         ))}
                     </div>
 
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                         <p className="text-blue-900 dark:text-blue-100 text-sm">
                             <strong>Example Keywords for Software Engineer Role:</strong> Python, Java, AWS, Docker, Kubernetes, Microservices, REST APIs, SQL, CI/CD, Git, Agile, JIRA, React, Spring Boot
                         </p>
@@ -349,23 +347,23 @@ Relevant Coursework: Algorithms, Database Systems, Cloud Computing, Machine Lear
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Headline</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">Instead of: "Software Engineer"</p>
                             <p className="text-blue-800 dark:text-blue-200 text-sm">Use: "Software Engineer | Python | AWS | React | Open to H-1B Sponsorship"</p>
                         </div>
 
-                        <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Summary</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm">Write 3-4 paragraphs highlighting: skills, experience, career goals, and that you're open to H-1B sponsorship. Include keywords.</p>
                         </div>
 
-                        <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Experience Section</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm">Mirror your resume exactly. Include same job titles, dates, and descriptions. Use bullet points for achievements.</p>
                         </div>
 
-                        <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Skills Section</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm">Add 15-20+ skills matching job postings. Ask colleagues to endorse your top skills to boost visibility.</p>
                         </div>
@@ -422,7 +420,7 @@ Relevant Coursework: Algorithms, Database Systems, Cloud Computing, Machine Lear
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/top-h1b-sponsor-companies-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Top H-1B Sponsors 2026</Link>
@@ -439,7 +437,7 @@ Relevant Coursework: Algorithms, Database Systems, Cloud Computing, Machine Lear
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-gradient-to-r from-orange-600 to-yellow-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-orange-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Optimize Your Resume with TrackMyOPT Resume AI</h2>
                 <p className="text-orange-100 mb-6 max-w-lg mx-auto">
                     Get AI-powered resume feedback and ATS optimization scores to boost your H-1B sponsorship chances.

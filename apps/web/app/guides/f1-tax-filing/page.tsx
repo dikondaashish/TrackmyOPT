@@ -2,15 +2,10 @@ import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import {
-    BookOpen,
-    Clock,
     AlertTriangle,
     CheckCircle2,
     ArrowRight,
-    Calculator,
     FileText,
-    DollarSign,
-    Globe,
     Calendar,
     ExternalLink,
 } from "lucide-react";
@@ -130,18 +125,13 @@ export default function F1TaxFilingPillarGuide() {
 
             {/* Hero Section */}
             <header className="mb-12">
-                <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-xs font-semibold">
-                        Pillar Guide
-                    </span>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">
-                        Tax & Finance
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        35 min read
-                    </span>
-                </div>
+                <p className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Pillar Guide</span>
+                    <span aria-hidden>·</span>
+                    <span>Tax & Finance</span>
+                    <span aria-hidden>·</span>
+                    <span>35 min read</span>
+                </p>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     The Ultimate F-1 Student Tax Guide (2026)
                 </h1>
@@ -158,9 +148,9 @@ export default function F1TaxFilingPillarGuide() {
             </header>
 
             {/* Key Takeaway Box */}
-            <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-teal-900 dark:text-teal-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-teal-900 dark:text-teal-100 mb-3">
+                    
                     Key Takeaway
                 </h2>
                 <p className="text-teal-800 dark:text-teal-200 font-medium">
@@ -172,7 +162,7 @@ export default function F1TaxFilingPillarGuide() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents</h2>
                 <nav className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
                     {[
@@ -213,7 +203,7 @@ export default function F1TaxFilingPillarGuide() {
                     </p>
 
                     <div className="space-y-4 mb-6">
-                        <div className="flex items-start gap-3 p-4 bg-teal-50 dark:bg-teal-900/20 rounded-xl border border-teal-100 dark:border-teal-800">
+                        <div className="flex items-start gap-3 p-4 bg-teal-50 dark:bg-teal-950 rounded-xl border border-teal-100 dark:border-teal-800">
                             <CheckCircle2 className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-teal-900 dark:text-teal-100">You MUST File If:</h3>
@@ -227,7 +217,7 @@ export default function F1TaxFilingPillarGuide() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
+                        <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-100 dark:border-amber-800">
                             <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-amber-900 dark:text-amber-100">No Income? You Still File Form 8843</h3>
@@ -253,14 +243,14 @@ export default function F1TaxFilingPillarGuide() {
                     </p>
 
                     <div className="bg-gray-100 dark:bg-zinc-800 rounded-xl p-6 mb-6">
-                        <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                            <Calculator className="w-5 h-5 text-teal-600" />
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-3">
+                            
                             The Substantial Presence Test Formula
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
                             You are a <strong>resident alien</strong> if your day count meets <strong>both</strong> conditions:
                         </p>
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 font-mono text-sm mb-4 border border-gray-200 dark:border-zinc-700">
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 tabular-nums text-sm mb-4 border border-gray-200 dark:border-zinc-700">
                             <p className="text-gray-900 dark:text-white">Days present in current year ≥ 31</p>
                             <p className="text-gray-900 dark:text-white mt-1"><strong>AND</strong></p>
                             <p className="text-gray-900 dark:text-white mt-1">(Days in current year × 1) + (Days in year-1 × ⅓) + (Days in year-2 × ⅙) ≥ 183</p>
@@ -305,7 +295,7 @@ export default function F1TaxFilingPillarGuide() {
                         </table>
                     </div>
 
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-800 dark:text-amber-200 text-sm">
                             <strong>Critical:</strong> Filing as a resident alien when you are a non-resident — or vice versa — is the single most costly mistake F-1 students make. It can result in IRS notices, incorrect refunds that must be returned with interest, and immigration complications. Use the <Link href="/dashboard/tax-filing" className="underline font-medium">TrackMyOPT Tax Tool</Link> to determine your exact classification.
                         </p>
@@ -406,15 +396,15 @@ export default function F1TaxFilingPillarGuide() {
                         ))}
                     </div>
 
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-5 mb-6">
-                        <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
-                            <FileText className="w-5 h-5" />
+                    <div className="bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 p-5 mb-6">
+                        <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">
+                            
                             Where to Mail Form 8843
                         </h3>
                         <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">
                             If filing Form 8843 <strong>by itself</strong> (no income, no 1040-NR), mail it to:
                         </p>
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 text-sm font-mono text-gray-700 dark:text-gray-300 border border-blue-100 dark:border-blue-800">
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 text-sm text-gray-700 dark:text-gray-300 border border-blue-100 dark:border-blue-800">
                             Department of the Treasury<br />
                             Internal Revenue Service Center<br />
                             Austin, TX 73301-0215
@@ -482,7 +472,7 @@ export default function F1TaxFilingPillarGuide() {
                         </table>
                     </div>
 
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-800 dark:text-amber-200 text-sm">
                             <strong>Deductions:</strong> Non-resident aliens generally <strong>cannot</strong> claim the standard deduction. Exceptions exist for students from India (under the US-India treaty, Article 21). NRAs can claim itemized deductions for state/local taxes paid, charitable contributions to US organizations, and casualty/theft losses.
                         </p>
@@ -498,7 +488,7 @@ export default function F1TaxFilingPillarGuide() {
                         FICA stands for the Federal Insurance Contributions Act and includes two taxes: <strong>Social Security (6.2%)</strong> and <strong>Medicare (1.45%)</strong> — a combined <strong>7.65% of your gross wages</strong>. Under IRC Section 3121(b)(19), F-1 students are exempt from FICA during their first <strong>5 calendar years</strong> in the US.
                     </p>
 
-                    <div className="bg-teal-50 dark:bg-teal-900/20 border-l-4 border-teal-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-teal-50 dark:bg-teal-950 border-l-4 border-teal-500 p-4 rounded-r-xl my-6">
                         <p className="text-teal-900 dark:text-teal-100 font-semibold text-lg">
                             &quot;F-1 students are exempt from FICA taxes for services performed to carry out the purpose of their visa. This exemption saves $3,825 for every $50,000 earned — money that most students never reclaim.&quot;
                         </p>
@@ -537,12 +527,12 @@ export default function F1TaxFilingPillarGuide() {
                         ))}
                     </div>
 
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-5">
-                        <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
-                            <DollarSign className="w-5 h-5" />
+                    <div className="bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 p-5">
+                        <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">
+                            
                             Sample IRS Letter Template
                         </h3>
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 font-mono border border-blue-100 dark:border-blue-800 whitespace-pre-line leading-relaxed">
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 border border-blue-100 dark:border-blue-800 whitespace-pre-line leading-relaxed">
 {`To: Internal Revenue Service
 Re: Claim for Refund of FICA Taxes — Tax Year 2025
 
@@ -564,8 +554,8 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
 
                 {/* Section 7 */}
                 <section id="tax-treaties" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Globe className="w-8 h-8 text-teal-600" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         7. Tax Treaty Benefits by Country
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -611,7 +601,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                         </table>
                     </div>
 
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-800 dark:text-amber-200 text-sm">
                             <strong>Important:</strong> Treaty benefits must be actively claimed on your tax return. Consult <a href="https://www.irs.gov/pub/irs-pdf/p901.pdf" target="_blank" rel="noopener noreferrer" className="underline">IRS Publication 901 <ExternalLink className="w-3 h-3 inline" /></a> for the full list of treaties. Treaty provisions change — always verify current terms. Students from India should note that the US-India treaty also permits claiming the standard deduction on Form 1040-NR.
                         </p>
@@ -633,7 +623,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-6">
                         {["Texas", "Florida", "Washington", "Nevada", "Wyoming", "Alaska", "South Dakota", "Tennessee", "New Hampshire*"].map((state) => (
-                            <span key={state} className="px-3 py-1 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 rounded-full text-sm font-medium border border-teal-200 dark:border-teal-800">
+                            <span key={state} className="px-3 py-1 bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 rounded-md text-sm font-medium">
                                 {state}
                             </span>
                         ))}
@@ -707,7 +697,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                         </table>
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800 mb-6">
+                    <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800 mb-6">
                         <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                             <h3 className="font-semibold text-red-900 dark:text-red-100">TurboTax Does NOT Support Non-Resident Alien Filing</h3>
@@ -717,7 +707,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                         </div>
                     </div>
 
-                    <div className="bg-teal-50 dark:bg-teal-900/20 rounded-xl border border-teal-200 dark:border-teal-800 p-5">
+                    <div className="bg-teal-50 dark:bg-teal-950 rounded-xl border border-teal-200 dark:border-teal-800 p-5">
                         <h3 className="font-bold text-teal-900 dark:text-teal-100 mb-2">Our Recommendation</h3>
                         <p className="text-teal-800 dark:text-teal-200 text-sm">
                             If you are a <strong>non-resident alien</strong> (most F-1 students in their first 5 years): use <strong>Sprintax</strong>. It is purpose-built for NRA tax filing, auto-detects treaty benefits, generates Form 8843, and supports e-filing. If your university offers <strong>Glacier Tax Prep</strong> for free, that is a solid option for simple returns. Use the <Link href="/features/tax-filing" className="underline font-medium">TrackMyOPT Tax Tool</Link> to determine your residency status first.
@@ -807,7 +797,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                                             <p className="text-sm text-teal-700 dark:text-teal-300 mt-2 font-medium">Fix: {item.fix}</p>
                                         </div>
                                     </div>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${item.impact === "Critical" ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" : item.impact === "High" ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" : item.impact === "Medium" ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300" : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400"}`}>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${item.impact === "Critical" ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300" : item.impact === "High" ? "bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400" : item.impact === "Medium" ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300" : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400"}`}>
                                         {item.impact}
                                     </span>
                                 </div>
@@ -818,8 +808,8 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
 
                 {/* Section 11 */}
                 <section id="timeline" className="mb-14">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Calendar className="w-8 h-8 text-teal-600" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        
                         11. Tax Filing Timeline & Deadlines
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -837,7 +827,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                         ].map((item, i) => (
                             <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-700 dark:text-teal-300 text-xs font-bold">{i + 1}</div>
+                                    <div className="w-7 h-7 rounded-full bg-teal-100 dark:bg-teal-950 flex items-center justify-center text-teal-700 dark:text-teal-300 text-xs font-bold">{i + 1}</div>
                                     {item.month}
                                 </h3>
                                 <ul className="space-y-1 ml-9">
@@ -972,7 +962,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides & Resources</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Tax Filing Quick-Start Guide (Blog)</Link>
@@ -993,7 +983,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-teal-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Stop Guessing — File Your F-1 Taxes Correctly</h2>
                 <p className="text-teal-100 mb-6 max-w-lg mx-auto">
                     TrackMyOPT's Tax Filing Tool determines your residency status, identifies every form you need, checks FICA eligibility, and walks you through the entire process — built by former F-1 students who have been through it.
@@ -1002,7 +992,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                     <Link href="/features/tax-filing" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-teal-600 rounded-xl font-semibold hover:bg-teal-50 transition-colors">
                         Try Tax Filing Tool Free <ArrowRight className="w-4 h-4" />
                     </Link>
-                    <Link href="/dashboard/tax-filing" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">
+                    <Link href="/dashboard/tax-filing" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-teal-400 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors">
                         Go to Dashboard <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>

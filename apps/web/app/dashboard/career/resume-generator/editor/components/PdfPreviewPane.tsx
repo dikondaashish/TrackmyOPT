@@ -85,7 +85,7 @@ export function PdfPreviewPane({
                     </Button>
                 </div>
 
-                <div role="tabpanel" aria-label="PDF Preview" className={`flex-1 overflow-hidden justify-center bg-gray-200/50 dark:bg-gray-900/50 m-0 ${activeTab === "preview" ? "flex" : "hidden"}`}>
+                <div role="tabpanel" aria-label="PDF Preview" className={`flex-1 overflow-hidden justify-center bg-gray-200 dark:bg-gray-900 m-0 ${activeTab === "preview" ? "flex" : "hidden"}`}>
                     <div className="relative flex h-full w-full items-center justify-center">
                         {compiledPdfBlob ? (
                             <div className="h-full w-full max-w-[8.5in]">
@@ -145,7 +145,7 @@ export function PdfPreviewPane({
                             }}
                         />
                         {atsAnalysis && (!atsAnalysis.passed || (atsAnalysis.score ?? 0) < ATS_PASS_SCORE) && (
-                            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/70 dark:bg-blue-950/30">
+                            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="space-y-1">
                                         <h3 className="text-sm font-semibold text-blue-950 dark:text-blue-100">
@@ -180,7 +180,7 @@ export function PdfPreviewPane({
                                 size="sm"
                                 onClick={onDeepScan}
                                 disabled={isScanning || isGenerating || isAutoFixing || !generatedLatex}
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                                className="bg-primary hover:bg-primary-hover text-primary-foreground"
                             >
                                 {isScanning ? (
                                     <>

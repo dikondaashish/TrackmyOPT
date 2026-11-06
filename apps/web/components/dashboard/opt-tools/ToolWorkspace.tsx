@@ -40,7 +40,7 @@ export function ToolWorkspace({
       aria-label={tool.title}
     >
       <header
-        className={`flex items-center gap-3 rounded-2xl border p-4 sm:p-5 ${theme.surface}`}
+        className={`flex items-center gap-3 rounded-xl border p-4 sm:p-5 ${theme.surface}`}
       >
         <span
           className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${theme.solid}`}
@@ -48,7 +48,7 @@ export function ToolWorkspace({
           <Icon aria-hidden="true" className="h-5 w-5" />
         </span>
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">{tool.title}</h2>
+          <h2 className="text-xl font-semibold">{tool.title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {tool.description}
           </p>

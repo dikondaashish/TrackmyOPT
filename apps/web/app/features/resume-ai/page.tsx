@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import {
     FileText,
-    Sparkles,
     CheckCircle2,
     Target,
     Zap,
@@ -47,11 +46,11 @@ function HowItWorks() {
                 >
                     {/* Connector line */}
                     {i < steps.length - 1 && (
-                        <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 opacity-30" />
+                        <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-purple-500 opacity-30" />
                     )}
 
                     {/* Step number */}
-                    <div className="relative z-10 w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 duration-300">
+                    <div className="relative z-10 w-20 h-20 mx-auto mb-4 rounded-lg bg-purple-500 flex items-center justify-center">
                         <step.icon className="w-9 h-9 text-white" />
                     </div>
 
@@ -81,9 +80,9 @@ function FeatureCards() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300 group"
+                    className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 transition-all duration-300 group"
                 >
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <feature.icon className="w-6 h-6 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h4>
@@ -97,7 +96,7 @@ function FeatureCards() {
 export default function ResumeAIPage() {
     return (
         <>
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-cyan-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <FeatureServiceSchema
                 name="Resume AI Optimizer for H-1B Job Seekers"
                 description="AI-powered resume analysis that beats ATS systems and impresses recruiters. Get actionable feedback on ATS optimization, keyword improvements, and industry-specific recommendations in 60 seconds."
@@ -113,8 +112,7 @@ export default function ResumeAIPage() {
             />
             {/* Hero */}
             <FeatureHero
-                badge="AI Powered"
-                headline="We cook your resume in 2 minutes — faster than Maggi."
+                headline="We cook your resume in 2 minutes — faster than Maggi"
                 subheadline="Beat the ATS. Impress the Recruiter. Get 3x more callbacks."
                 ctaText="Analyze My Resume"
                 ctaHref="/dashboard/resume"
@@ -122,7 +120,7 @@ export default function ResumeAIPage() {
                     text: "See How It Works",
                     href: "#how-it-works"
                 }}
-                gradient="from-purple-500 to-pink-600"
+                gradient="bg-purple-500"
                 visual={<ResumeScanner />}
             />
 
@@ -135,10 +133,6 @@ export default function ResumeAIPage() {
                         viewport={{ once: true }}
                         className="text-center mb-16"
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                            <Sparkles className="w-4 h-4" />
-                            3 Simple Steps
-                        </div>
                         <H2 className="mb-6">How It Works</H2>
                         <Lead className="max-w-2xl mx-auto">
                             Get actionable feedback on your resume in under 30 seconds.
@@ -150,7 +144,7 @@ export default function ResumeAIPage() {
             </section>
 
             {/* Interactive Before/After Demo */}
-            <section className="py-24 bg-white/50 dark:bg-black/20">
+            <section className="py-24 bg-white dark:bg-black/20">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
                         <H2>See the Difference</H2>
@@ -161,7 +155,7 @@ export default function ResumeAIPage() {
             </section>
 
             {/* Features */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -169,10 +163,6 @@ export default function ResumeAIPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                                <Brain className="w-4 h-4" />
-                                Powered by Top AI
-                            </div>
                             <H2 className="mb-6">More Than Just Keywords</H2>
                             <div className="text-lg text-gray-600 dark:text-gray-300 mb-8 space-y-4">
                                 <p>

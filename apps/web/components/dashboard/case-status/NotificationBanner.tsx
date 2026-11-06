@@ -200,7 +200,7 @@ export function NotificationBanner({
     switch (type) {
       case "urgent":
         return {
-          bg: "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50",
+          bg: "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-950",
           icon: "text-red-500",
           title: "text-red-800 dark:text-red-300",
           message: "text-red-700 dark:text-red-400",
@@ -208,7 +208,7 @@ export function NotificationBanner({
         };
       case "warning":
         return {
-          bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50",
+          bg: "bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-950",
           icon: "text-amber-500",
           title: "text-amber-800 dark:text-amber-300",
           message: "text-amber-700 dark:text-amber-400",
@@ -216,7 +216,7 @@ export function NotificationBanner({
         };
       case "success":
         return {
-          bg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50",
+          bg: "bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-950",
           icon: "text-emerald-500",
           title: "text-emerald-800 dark:text-emerald-300",
           message: "text-emerald-700 dark:text-emerald-400",
@@ -224,7 +224,7 @@ export function NotificationBanner({
         };
       default:
         return {
-          bg: "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50",
+          bg: "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-950",
           icon: "text-blue-500",
           title: "text-blue-800 dark:text-blue-300",
           message: "text-blue-700 dark:text-blue-400",
@@ -279,7 +279,7 @@ export function NotificationBanner({
             {notification.dismissible && (
               <button
                 onClick={() => dismissNotification(notification.id)}
-                className="shrink-0 p-1 text-muted-foreground hover:text-foreground rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                className="shrink-0 p-1 text-muted-foreground hover:text-foreground rounded-lg hover:bg-black/5 dark:hover:bg-zinc-800 transition-colors"
                 aria-label="Dismiss notification"
               >
                 <X className="w-4 h-4" />

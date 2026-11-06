@@ -45,29 +45,28 @@ export default function OptJobRelatedToDegreePage() {
       <BreadcrumbSchema items={[{ name: "Home", url: "https://www.trackmyopt.com" }, { name: "Blog", url: "https://www.trackmyopt.com/blog" }, { name: "OPT Job Related to Degree", url: CANONICAL }]} />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">OPT Employment</span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           How to Explain How Your OPT Job Relates to Your Degree (SEVP Field + Examples)
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300">
-          When reporting employment in the SEVP portal, you may see: <em>&quot;Explain how this job relates to the degree that qualified you for this OPT.&quot;</em> This is a duties test, not a job-title test. Below: what to write, copy-ready examples, and common mistakes.
+          When reporting employment in the SEVP portal, you may see: &quot;Explain how this job relates to the degree that qualified you for this OPT.&quot; This is a duties test, not a job-title test. Below: what to write, copy-ready examples, and common mistakes.
         </p>
-        <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>OPT Employment</span>
+          <span>•</span>
           <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 12 min read</span>
           <span>•</span>
           <span>Updated September 1, 2026</span>
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
         <BlogPostImage src="/blog/opt-job-related-to-degree.png" alt="Degree relationship statement letter, university diploma, and LinkedIn job posting on laptop" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">Direct Answer</p>
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">Direct Answer</p>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed">
           An OPT job is related to your degree when the role&apos;s actual duties require knowledge,
           skills, or techniques that you developed through your major or course of study. The standard
@@ -87,7 +86,7 @@ export default function OptJobRelatedToDegreePage() {
           the form may require a free-text explanation of how your employment relates to your qualifying degree.
           The prompt often reads exactly:
         </p>
-        <blockquote className="border-l-4 border-primary pl-4 italic text-gray-700 dark:text-gray-300 my-4">
+        <blockquote className="border-l-4 border-primary pl-4 text-gray-700 dark:text-gray-300 my-4">
           &quot;Explain how this job relates to the degree that qualified you for this OPT.&quot;
         </blockquote>
         <p>
@@ -98,8 +97,8 @@ export default function OptJobRelatedToDegreePage() {
           <li><strong>Duties:</strong> List 3–5 recurring job tasks (not the job title alone).</li>
           <li><strong>Connection:</strong> For each duty, name the specific coursework or degree skill it uses.</li>
         </ol>
-        <div className="not-prose bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-5 my-6">
-          <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase mb-2">Copy-ready SEVP field example (Computer Science)</p>
+        <div className="not-prose bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-5 my-6">
+          <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2">Copy-ready SEVP field example (Computer Science)</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             I hold an MS in Computer Science with coursework in Database Systems, Software Engineering, and Data Structures. As a Software Engineer at [Company], I design REST APIs and write backend services in Python (applying Software Engineering and algorithm design), optimize SQL queries and data models (applying Database Systems), and participate in code reviews using object-oriented design patterns from my degree program. Each core duty requires technical knowledge from my qualifying degree.
           </p>
@@ -141,7 +140,7 @@ export default function OptJobRelatedToDegreePage() {
           <li>Immigration officers evaluating future visa petitions cannot verify job titles—they can read and evaluate duty descriptions</li>
         </ul>
 
-        <div className="not-prose bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
+        <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
           <div className="flex gap-3">
             <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -162,12 +161,12 @@ export default function OptJobRelatedToDegreePage() {
         </p>
         <div className="not-prose grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
           {[
-            { num: "01", q: "What did you study?", desc: "Degree, concentration, and 3–5 specific courses or skill areas most relevant to the role." },
-            { num: "02", q: "What do you do?", desc: "3–5 core recurring duties—not everything in the job description, just the key technical ones." },
-            { num: "03", q: "What connects them?", desc: "For each duty, name the specific course, skill, or knowledge area from your degree that applies." },
+            { num: "1", q: "What did you study?", desc: "Degree, concentration, and 3–5 specific courses or skill areas most relevant to the role." },
+            { num: "2", q: "What do you do?", desc: "3–5 core recurring duties—not everything in the job description, just the key technical ones." },
+            { num: "3", q: "What connects them?", desc: "For each duty, name the specific course, skill, or knowledge area from your degree that applies." },
           ].map((item) => (
             <div key={item.num} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-4">
-              <p className="text-3xl font-black text-primary/30 mb-2">{item.num}</p>
+              <p className="text-lg font-bold text-primary mb-2">{item.num}</p>
               <p className="font-bold text-gray-900 dark:text-white mb-2 text-sm">{item.q}</p>
               <p className="text-xs text-gray-600 dark:text-gray-400">{item.desc}</p>
             </div>
@@ -182,7 +181,7 @@ export default function OptJobRelatedToDegreePage() {
 
         <h3>Computer Science — Data Engineer</h3>
         <div className="not-prose bg-gray-50 dark:bg-zinc-800 rounded-xl p-5 my-4 border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Relationship Statement Example</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">Relationship Statement Example</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             I hold a Master of Science in Computer Science from [University], with coursework in
             Database Systems, Distributed Computing, Machine Learning, and Data Structures. In my
@@ -197,7 +196,7 @@ export default function OptJobRelatedToDegreePage() {
 
         <h3>Business Administration — Financial Analyst</h3>
         <div className="not-prose bg-gray-50 dark:bg-zinc-800 rounded-xl p-5 my-4 border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Relationship Statement Example</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">Relationship Statement Example</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             I hold a Master of Business Administration from [University] with concentrations in
             Finance and Strategy, including coursework in Corporate Finance, Financial Modeling,
@@ -212,7 +211,7 @@ export default function OptJobRelatedToDegreePage() {
 
         <h3>Biology — Research Associate</h3>
         <div className="not-prose bg-gray-50 dark:bg-zinc-800 rounded-xl p-5 my-4 border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Relationship Statement Example</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">Relationship Statement Example</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             I hold a Bachelor of Science in Biology from [University] with coursework in Cell
             Biology, Genetics, Biochemistry, and Molecular Laboratory Techniques. In my role as
@@ -226,7 +225,7 @@ export default function OptJobRelatedToDegreePage() {
 
         <h3>Mechanical Engineering — Product Design Engineer</h3>
         <div className="not-prose bg-gray-50 dark:bg-zinc-800 rounded-xl p-5 my-4 border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Relationship Statement Example</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">Relationship Statement Example</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             I hold a Master of Science in Mechanical Engineering from [University] with
             specialization in Product Design and Manufacturing, including coursework in CAD/CAM,
@@ -241,7 +240,7 @@ export default function OptJobRelatedToDegreePage() {
 
         <h3>Public Health — Epidemiologist / Data Analyst</h3>
         <div className="not-prose bg-gray-50 dark:bg-zinc-800 rounded-xl p-5 my-4 border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Relationship Statement Example</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">Relationship Statement Example</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             I hold a Master of Public Health in Epidemiology from [University] with coursework in
             Biostatistics, Epidemiological Methods, Health Policy, and Survey Research Design.
@@ -277,7 +276,7 @@ export default function OptJobRelatedToDegreePage() {
         <div className="not-prose overflow-x-auto my-6">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-red-50 dark:bg-red-900/20">
+              <tr className="bg-red-50 dark:bg-red-950">
                 <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700 text-red-800 dark:text-red-300">Weak Approach</th>
                 <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700 text-green-800 dark:text-green-300">Stronger Approach</th>
               </tr>
@@ -291,7 +290,7 @@ export default function OptJobRelatedToDegreePage() {
                 ['"The job description mentions my field."', "Quote specific duties from the job description and explain the connection to your coursework."],
               ].map(([weak, strong], i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white dark:bg-zinc-900" : "bg-gray-50 dark:bg-zinc-800"}>
-                  <td className="p-3 border border-gray-200 dark:border-zinc-700 text-red-700 dark:text-red-400 italic">{weak}</td>
+                  <td className="p-3 border border-gray-200 dark:border-zinc-700 text-red-700 dark:text-red-400">{weak}</td>
                   <td className="p-3 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">{strong}</td>
                 </tr>
               ))}
@@ -362,7 +361,7 @@ export default function OptJobRelatedToDegreePage() {
             { label: "USCIS OPT Information", href: "https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-opt-for-f-1-students" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary/30 transition-colors">
+              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary transition-colors">
               <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
               {s.label}
             </a>
@@ -391,7 +390,7 @@ export default function OptJobRelatedToDegreePage() {
               { href: "/blog/laid-off-on-opt", title: "Laid Off on OPT", desc: "What to do if your OPT employment ends — reporting, tracking, and next steps." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
-                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-base">{r.title}</h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{r.desc}</p>
                   <span className="text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

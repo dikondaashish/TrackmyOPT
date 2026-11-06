@@ -22,7 +22,7 @@ export function LockedAnalyticsPanel({
   onUpgrade,
 }: LockedAnalyticsPanelProps) {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center space-y-3">
+    <div className="rounded-xl border border-dashed border-border bg-muted p-6 text-center space-y-3">
       <div className="flex items-center justify-center gap-2">
         <Lock className="w-4 h-4 text-muted-foreground" />
         <p className="text-sm font-semibold text-foreground">{title}</p>

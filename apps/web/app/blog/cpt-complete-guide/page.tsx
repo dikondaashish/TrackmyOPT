@@ -72,9 +72,8 @@ export default function CPTCompleteGuide() {
             {/* Header */}
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
-                        CPT Guide
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">CPT Guide</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         12 min read
@@ -95,8 +94,8 @@ export default function CPTCompleteGuide() {
 
             {/* Hero Image */}
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/cpt-complete-guide.png" alt="University bulletin board with CPT application forms and internship flyers" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/cpt-complete-guide.png" alt="University bulletin board with CPT application forms and internship flyers" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     CPT allows F-1 students to gain practical work experience while still enrolled in their degree program.
@@ -104,7 +103,7 @@ export default function CPTCompleteGuide() {
             </figure>
 
             {/* TL;DR */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>CPT is work authorization for F-1 students to do internships, co-ops, or practicums that are an integral part of their curriculum.</strong> You need to be enrolled full-time for at least one academic year first (unless your program requires immediate participation). Part-time CPT does NOT affect your OPT — but 12+ months of full-time CPT will make you ineligible for post-completion OPT.
@@ -112,9 +111,8 @@ export default function CPTCompleteGuide() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -126,9 +124,8 @@ export default function CPTCompleteGuide() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
                 <nav className="space-y-2">
@@ -164,7 +161,7 @@ export default function CPTCompleteGuide() {
                         Unlike <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 underline">OPT</Link>, which is authorized by USCIS and used after (or just before) completing your degree, CPT is authorized <strong>by your school's Designated School Official (DSO)</strong> and is used while you are still actively enrolled in your program.
                     </p>
 
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             &quot;CPT must be an integral part of the student&apos;s curriculum — either required by the program or for which academic credit is given.&quot;
                         </p>
@@ -272,7 +269,7 @@ export default function CPTCompleteGuide() {
                         </table>
                     </div>
 
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mt-6">
+                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mt-6">
                         <h3 className="text-lg font-bold text-red-900 dark:text-red-100 mb-2 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Critical Warning: The 12-Month Rule
@@ -313,8 +310,7 @@ export default function CPTCompleteGuide() {
                     </div>
 
                     <div className="bg-gray-100 dark:bg-zinc-800 rounded-xl p-6 mt-6">
-                        <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-3">
                             Timeline Estimate
                         </h3>
                         <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
@@ -347,7 +343,7 @@ export default function CPTCompleteGuide() {
                     </p>
 
                     <div className="space-y-4 mb-6">
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-green-900 dark:text-green-100">Part-Time CPT (≤20 hours/week)</h3>
@@ -357,7 +353,7 @@ export default function CPTCompleteGuide() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
+                        <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-100 dark:border-amber-800">
                             <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-amber-900 dark:text-amber-100">Full-Time CPT (&gt;20 hours/week) — Under 12 Months</h3>
@@ -367,7 +363,7 @@ export default function CPTCompleteGuide() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
+                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
                             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-red-900 dark:text-red-100">Full-Time CPT (&gt;20 hours/week) — 12+ Months</h3>
@@ -387,7 +383,7 @@ export default function CPTCompleteGuide() {
                         &quot;Day 1 CPT&quot; programs allow students to begin CPT from their very first day of enrollment, bypassing the standard one-academic-year requirement. While <strong>technically legal</strong> at certain schools whose programs require immediate CPT participation, these programs carry significant immigration risks.
                     </p>
 
-                    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold text-lg">
                             &quot;USCIS has increased scrutiny of Day 1 CPT programs. Multiple H-1B petitions have been denied based on concerns about the legitimacy of prior CPT employment.&quot;
                         </p>
@@ -406,14 +402,14 @@ export default function CPTCompleteGuide() {
                             "The school has a disproportionately high percentage of CPT students",
                             "Your previous OPT or H-1B status recently ended before enrollment",
                         ].map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
+                            <div key={i} className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-950 rounded-lg border border-red-100 dark:border-red-800">
                                 <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                                 <span className="text-red-700 dark:text-red-200 text-sm">{item}</span>
                             </div>
                         ))}
                     </div>
 
-                    <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 mt-6">
+                    <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800 mt-6">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Our Recommendation</h3>
                         <p className="text-blue-800 dark:text-blue-200 text-sm">
                             If you're considering a Day 1 CPT program, consult an immigration attorney first. Understand the risks to your future H-1B and green card petitions. Read our <Link href="/blog/day-1-cpt-vs-opt" className="underline font-medium">Day 1 CPT vs OPT comparison</Link> for a deeper dive.
@@ -482,11 +478,10 @@ export default function CPTCompleteGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 my-12 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="relative z-10">
+                <div className="bg-blue-600 rounded-xl p-8 my-12 text-white">
+                    <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-white/20 rounded-lg">
+                            <div className="p-2 bg-blue-500 rounded-lg">
                                 <GraduationCap className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Planning OPT After CPT? Track It All</h3>
@@ -511,7 +506,7 @@ export default function CPTCompleteGuide() {
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Link
                                 href="/login"
-                                className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors shadow-lg"
+                                className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors"
                             >
                                 Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                             </Link>
@@ -544,7 +539,7 @@ export default function CPTCompleteGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/day-1-cpt-vs-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Day 1 CPT vs OPT: Key Differences</Link>
@@ -563,7 +558,7 @@ export default function CPTCompleteGuide() {
             <AuthorBio />
 
             {/* Bottom CTA */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-purple-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Planning Your OPT After CPT?</h2>
                 <p className="text-purple-100 mb-6 max-w-lg mx-auto">
                     Join 3,000+ people who have signed up for TrackMyOPT. Use it to track deadlines, monitor unemployment days, and research H-1B sponsors.

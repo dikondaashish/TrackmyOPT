@@ -78,7 +78,7 @@ export function PricingFinalCta() {
   return (
     <section className="py-24">
       <div className="max-w-4xl mx-auto px-4 text-center">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-12 text-white">
+        <div className="bg-blue-600 rounded-xl p-12 text-white">
           <h2 className="text-3xl font-bold mb-4">
             Track Every OPT Deadline Before It Becomes a Problem
           </h2>
@@ -96,14 +96,14 @@ export function PricingFinalCta() {
             {shouldShowDedicatedPlanForSale() ? (
               <Link
                 href={DEDICATED_CHECKOUT_HREF}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors border border-blue-400"
               >
                 Get Dedicated + Attorney Consultation
                 <ArrowRight className="w-4 h-4" />
               </Link>
             ) : null}
           </div>
-          <p className="text-sm text-blue-100/80 mt-4">
+          <p className="text-sm text-blue-100 mt-4">
             {shouldShowDedicatedPlanForSale()
               ? `Pro from $${formatMonthlyEquivalentFromYearly(PLAN_PRICES.pro.year)}/mo billed yearly · Dedicated includes one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation`
               : `Pro from $${formatMonthlyEquivalentFromYearly(PLAN_PRICES.pro.year)}/mo billed yearly · cancel anytime`}

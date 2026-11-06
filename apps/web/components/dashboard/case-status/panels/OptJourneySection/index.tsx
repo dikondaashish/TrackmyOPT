@@ -1,6 +1,5 @@
 'use client';
 
-import { Route } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { getStemFilingWindow } from '@/lib/immigration/opt-calculations';
@@ -85,12 +84,9 @@ export function OptJourneySection({
     });
 
   return (
-    <Card className="p-5 sm:p-6 border-0 shadow-lg">
+    <Card className="p-5 sm:p-6">
       {/* Section header */}
-      <div className="flex items-center gap-3 mb-5">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md shadow-violet-500/20 flex-shrink-0">
-          <Route className="w-4 h-4 text-white" />
-        </div>
+      <div className="mb-5">
         <div>
           <h2 className="text-base font-bold text-foreground">
             {isStemExtension ? 'STEM OPT Journey' : 'OPT Journey'}
@@ -110,7 +106,7 @@ export function OptJourneySection({
       {savedWindow && (
         <section
           aria-label="STEM filing window from saved dates"
-          className="mt-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-950/20"
+          className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950"
         >
           <h3 className="text-sm font-semibold">STEM filing window</h3>
           <dl className="mt-3 grid grid-cols-2 gap-4 ph-mask" data-ph-mask>

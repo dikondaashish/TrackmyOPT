@@ -35,7 +35,6 @@ export default function Day1CPTArticle() {
             </nav>
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs font-semibold">Important</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />11 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know</h1>
@@ -47,14 +46,14 @@ export default function Day1CPTArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Day-1 CPT programs allow F-1 students to work from the first day of enrollment in a new program, while OPT is available after program completion. Day-1 CPT is legal but faces increased USCIS scrutiny, especially for students who enroll primarily for work authorization.
                 </p>
             </div>
 
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
+            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2"><AlertTriangle className="w-5 h-5" />Important Disclaimer</h2>
                 <p className="text-amber-800 dark:text-amber-200 font-medium">This article provides factual information about Day 1 CPT and OPT for educational purposes. <strong>Day 1 CPT is a legal gray area</strong> with significant immigration risks. Always consult a qualified immigration attorney before making decisions about work authorization.</p>
             </div>
@@ -116,7 +115,7 @@ export default function Day1CPTArticle() {
                             { risk: "School accreditation concerns", desc: "Some Day 1 CPT schools have faced scrutiny from SEVP. If a school loses its SEVP certification, students' SEVIS records can be terminated.", severity: "high" },
                             { risk: "Tax and legal complications", desc: "Some Day 1 CPT arrangements may create tax complications or questions about the legitimacy of the educational program.", severity: "medium" },
                         ].map((item, i) => (
-                            <div key={i} className={`p-4 rounded-xl border flex items-start gap-3 ${item.severity === "critical" ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800" : item.severity === "high" ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"}`}>
+                            <div key={i} className={`p-4 rounded-xl border flex items-start gap-3 ${item.severity === "critical" ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800" : item.severity === "high" ? "bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800" : "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800"}`}>
                                 <AlertTriangle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${item.severity === "critical" ? "text-red-600" : "text-amber-600"}`} />
                                 <div><h3 className={`font-semibold ${item.severity === "critical" ? "text-red-900 dark:text-red-100" : "text-amber-900 dark:text-amber-100"}`}>{item.risk}</h3><p className="text-sm mt-1 text-gray-700 dark:text-gray-300">{item.desc}</p></div>
                             </div>
@@ -128,7 +127,7 @@ export default function Day1CPTArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">When OPT Is the Better Choice</h2>
                     <div className="space-y-2">
                         {["You want the standard, safest immigration pathway (OPT → STEM OPT → H-1B)", "You have a STEM degree and want 36 months of work authorization", "You plan to pursue long-term immigration (green card, O-1)", "You don't want additional tuition costs for a second masters program", "You want no extra scrutiny on future USCIS applications"].map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <div key={i} className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950 rounded-lg">
                                 <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                                 <p className="text-sm text-green-800 dark:text-green-200">{item}</p>
                             </div>
@@ -153,7 +152,7 @@ export default function Day1CPTArticle() {
                 </section>
             </div>
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule</Link>
@@ -167,7 +166,7 @@ export default function Day1CPTArticle() {
             </div>
 
             <AuthorBio />
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Choosing OPT? Track Every Day That Matters</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT helps you manage OPT deadlines, unemployment days, and H-1B transition — all in one place.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>

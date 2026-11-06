@@ -270,7 +270,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                     <div className="min-w-0 flex-1 pt-0.5">
                         <h2
                             id="application-drawer-title"
-                            className="truncate text-lg font-semibold tracking-tight text-gray-900 dark:text-white sm:text-xl"
+                            className="truncate text-lg font-semibold text-gray-900 dark:text-white sm:text-xl"
                         >
                             {application.role_title}
                         </h2>
@@ -294,7 +294,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                 <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
 
                     {/* Status & Links */}
-                    <div className="space-y-4 rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-950/40">
+                    <div className="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
                         <div className="space-y-2">
                             <Label htmlFor="application-status">Status</Label>
                             <select
@@ -335,7 +335,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="h-10 w-full gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                            className="h-10 w-full gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-400"
                             onClick={() => {
                                 if (application.job_description) {
                                     setJobDescription(application.job_description, application.role_title);
@@ -353,17 +353,17 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                         )}
 
                         {linkedResume && (
-                            <div className="space-y-2 rounded-lg border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-800 dark:bg-emerald-900/10">
+                            <div className="space-y-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-950">
                                 <div className="flex items-center justify-between gap-2">
                                     <span className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
                                         Linked resume
                                     </span>
                                     {linkedResume.resumeStatus === "ready" ? (
-                                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                        <span className="rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
                                             Ready to apply
                                         </span>
                                     ) : (
-                                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                                        <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
                                             Draft
                                         </span>
                                     )}
@@ -396,7 +396,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                     </div>
 
                     {application.job_description && (
-                        <details open className="rounded-lg border border-gray-200 bg-gray-50/70 dark:border-gray-700 dark:bg-gray-800/60">
+                        <details open className="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
                             <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset dark:text-white">
                                 Saved job description
                             </summary>
@@ -451,7 +451,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
 
                         <div className="space-y-3">
                             {interviews.length === 0 && !isAddingInterview ? (
-                                <p className="text-sm text-gray-400 italic">No interviews scheduled yet.</p>
+                                <p className="text-sm text-gray-400">No interviews scheduled yet.</p>
                             ) : (
                                 interviews.map(inv => (
                                     <div key={inv.id} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
@@ -523,7 +523,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
 
                         <div className="space-y-3">
                             {followups.length === 0 && !isAddingFollowup ? (
-                                <p className="text-sm text-gray-400 italic">No follow-ups pending.</p>
+                                <p className="text-sm text-gray-400">No follow-ups pending.</p>
                             ) : (
                                 followups.map(fp => (
                                     <div key={fp.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
@@ -599,7 +599,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                         <button
                             type="button"
                             onClick={handleDelete}
-                            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900"
                         >
                             <Trash2 className="h-4 w-4" />
                             Delete

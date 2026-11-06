@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Shield, ChevronDown, ChevronRight, CreditCard, Clock, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronRight, CreditCard, Clock, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { setInsuranceResultsPayload } from "@/lib/insurance/insurance-results-session";
 import { bucketMonthlyIncome } from "@/lib/posthog/income-bucket";
@@ -138,43 +138,35 @@ export default function HealthInsuranceFinderPage() {
   };
 
   return (
-    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-background">
       {/* Hero */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-cyan-500/5" />
+      <div>
         <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 sm:pt-8 sm:pb-8">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Shield className="w-4 h-4" />
-              Free plans available in select states
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground tracking-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground mb-4">
               Get Health Insurance
-              <span className="block text-blue-600 dark:text-blue-400">Starting from $0/month</span>
+              <span className="block">Starting from $0/month</span>
             </h1>
             <p className="text-lg text-slate-600 dark:text-muted-foreground max-w-2xl mx-auto">
               Find affordable coverage based on your state and eligibility. No SSN required.
+            </p>
+            <p className="mt-2 text-sm text-slate-500 dark:text-muted-foreground">
+              Free plans available in select states
             </p>
           </div>
 
           {/* Benefits */}
           <div className="flex flex-wrap justify-center gap-6 mt-10">
             <div className="flex items-center gap-2 text-slate-700 dark:text-foreground">
-              <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-              </div>
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
               <span className="text-sm font-medium">No SSN Required</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700 dark:text-foreground">
-              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-blue-600" />
-              </div>
+              <CreditCard className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium">Instant Digital Card</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700 dark:text-foreground">
-              <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Clock className="w-4 h-4 text-purple-600" />
-              </div>
+              <Clock className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium">Coverage in 24hrs</span>
             </div>
           </div>
@@ -183,7 +175,7 @@ export default function HealthInsuranceFinderPage() {
 
       {/* Form Card */}
       <div className="max-w-xl mx-auto px-4 -mt-2">
-        <div className="bg-white dark:bg-card rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-border p-6 sm:p-8">
+        <div className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border p-6 sm:p-8">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-foreground mb-6">Check Your Eligibility</h2>
 
           <div className="space-y-5 ph-mask" data-ph-mask>
@@ -278,7 +270,7 @@ export default function HealthInsuranceFinderPage() {
                     }}
                     className={`h-12 rounded-xl border transition-all font-medium text-sm ${gender === g.value
                       ? "bg-blue-600 border-blue-600 text-white"
-                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
+                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted"
                       }`}
                   >
                     {g.label}
@@ -299,7 +291,7 @@ export default function HealthInsuranceFinderPage() {
                     onClick={() => setIsPregnant(false)}
                     className={`flex-1 h-12 rounded-xl border transition-all font-medium ${!isPregnant
                       ? "bg-blue-600 border-blue-600 text-white"
-                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
+                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted"
                       }`}
                   >
                     No
@@ -309,7 +301,7 @@ export default function HealthInsuranceFinderPage() {
                     onClick={() => setIsPregnant(true)}
                     className={`flex-1 h-12 rounded-xl border transition-all font-medium ${isPregnant
                       ? "bg-pink-600 border-pink-600 text-white"
-                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
+                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted"
                       }`}
                   >
                     Yes
@@ -328,7 +320,7 @@ export default function HealthInsuranceFinderPage() {
               className="w-full h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-muted disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 mt-2"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-blue-300 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
                   Show Results
@@ -372,7 +364,7 @@ export default function HealthInsuranceFinderPage() {
       </div>
 
       {/* Partners */}
-      <div className="border-t border-slate-100 dark:border-border bg-slate-50/50 dark:bg-muted/30">
+      <div className="border-t border-slate-100 dark:border-border bg-slate-50 dark:bg-muted">
         <div className="max-w-4xl mx-auto px-4 py-12">
           <p className="text-center text-sm text-slate-500 dark:text-muted-foreground mb-6">Our Trusted Partners</p>
           <div className="flex flex-wrap justify-center items-center gap-10 sm:gap-16">

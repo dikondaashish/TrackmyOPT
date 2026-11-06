@@ -25,7 +25,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Update OPT timeline",
     href: "/dashboard/opt-dates",
     icon: <Calendar className="w-5 h-5" />,
-    color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+    color: "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400",
   },
   {
     id: "report-employment",
@@ -33,7 +33,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Add or update job",
     href: "/dashboard/opt-dates#employment",
     icon: <Briefcase className="w-5 h-5" />,
-    color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+    color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400",
   },
   {
     id: "upload-docs",
@@ -41,7 +41,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Store important files",
     href: "/dashboard/documents",
     icon: <Upload className="w-5 h-5" />,
-    color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+    color: "bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400",
   },
   {
     id: "case-status",
@@ -49,7 +49,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "USCIS case status",
     href: "/dashboard/case-status",
     icon: <FileText className="w-5 h-5" />,
-    color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+    color: "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400",
   },
   {
     id: "opt-tools",
@@ -57,7 +57,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Calculate deadlines",
     href: "/dashboard/opt-tools",
     icon: <Calculator className="w-5 h-5" />,
-    color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+    color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400",
   },
   {
     id: "notifications",
@@ -65,7 +65,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Manage reminders",
     href: "/dashboard/settings#notifications",
     icon: <Bell className="w-5 h-5" />,
-    color: "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+    color: "bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400",
   },
 ];
 
@@ -76,9 +76,9 @@ export function QuickActions() {
         <Link
           key={action.id}
           href={action.href}
-          className="group flex flex-col items-center max-md:min-h-[88px] p-4 bg-card border border-border rounded-xl hover:border-primary/50 hover:shadow-md transition-all"
+          className="group flex flex-col items-center max-md:min-h-[88px] p-4 bg-card border border-border rounded-xl hover:border-primary hover:shadow-md transition-all"
         >
-          <div className={`p-3 rounded-xl ${action.color} mb-3 group-hover:scale-110 transition-transform`}>
+          <div className={`p-3 rounded-xl ${action.color} mb-3`}>
             {action.icon}
           </div>
           <span className="text-sm font-medium text-center">{action.label}</span>

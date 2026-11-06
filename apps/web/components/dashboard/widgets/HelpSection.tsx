@@ -18,11 +18,8 @@ export function HelpSection() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
-            <HelpCircle className="w-6 h-6 text-white" />
-          </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Help Center</h1>
             <p className="text-muted-foreground">

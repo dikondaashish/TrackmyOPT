@@ -33,7 +33,7 @@ export function DatesStep({
 }: DatesStepProps) {
   return (
     <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
-      <h2 className="text-2xl font-bold tracking-tight mb-2">Set your key dates</h2>
+      <h2 className="text-2xl font-bold mb-2">Set your key dates</h2>
       <p className="text-muted-foreground mb-2">
         We use these dates to calculate your filing windows, OPT expiry, and unemployment day
         limits.

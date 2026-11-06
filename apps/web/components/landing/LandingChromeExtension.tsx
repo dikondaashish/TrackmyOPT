@@ -1,34 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { Check, Download, Layers } from "lucide-react";
+import { Check, Download } from "lucide-react";
 import Image from "next/image";
 import { ExtensionHeroVideo } from "./ExtensionHeroVideo";
 
 export function LandingChromeExtension() {
     return (
-        <section className="py-24 bg-muted/30 relative overflow-hidden border-y border-border/50">
-            {/* Decorative background elements */}
-            <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                <Layers className="w-96 h-96 text-primary" />
-            </div>
-
+        <section className="py-24 bg-muted relative overflow-hidden border-y border-border">
             <div className="container px-4 mx-auto">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
 
                     {/* Left Column: Content */}
                     <div className="flex-1 space-y-8 text-center lg:text-left">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-sm font-medium">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                            </span>
-                            Top Rated Extension
-                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            Top rated extension
+                        </p>
 
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                            Your F-1 Copilot, <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
-                                Built Into Your Browser
-                            </span>
+                        <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">
+                            Your F-1 copilot, built into your browser
                         </h2>
 
                         <div className="prose-longform max-w-xl mx-auto lg:mx-0">
@@ -45,10 +33,8 @@ export function LandingChromeExtension() {
                                 "H-1B Sponsor Flags"
                             ].map((feature, i) => (
                                 <div key={i} className="flex items-center gap-3">
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                        <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                    </div>
-                                    <span className="text-foreground/80 font-medium">{feature}</span>
+                                    <Check className="w-5 h-5 shrink-0 text-green-600 dark:text-green-400" aria-hidden />
+                                    <span className="text-foreground font-medium">{feature}</span>
                                 </div>
                             ))}
                         </div>

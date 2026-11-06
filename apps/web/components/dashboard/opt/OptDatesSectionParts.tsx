@@ -1,4 +1,4 @@
-import { AlertTriangle, CalendarDays, ChevronDown, Info } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,23 +30,15 @@ export function OptDatesLoadingSkeleton() {
 
 export function OptDatesHeader() {
   return (
-    <header className="flex items-center justify-between gap-4 rounded-2xl bg-blue-800 px-4 py-4 text-blue-50 dark:bg-blue-950 sm:px-5 sm:py-5">
+    <header className="flex items-center justify-between gap-4 rounded-xl bg-blue-800 px-4 py-4 text-blue-50 dark:bg-blue-950 sm:px-5 sm:py-5">
       <div className="max-w-2xl">
-        <p className="mb-1 text-xs font-medium tracking-wide text-blue-200">
-          Your OPT timeline
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="text-2xl font-semibold sm:text-3xl">
           OPT Dates
         </h1>
         <p className="mt-1 text-sm leading-6 text-blue-100">
           Track filing windows, OPT dates, and employment history in one place.
         </p>
       </div>
-      <CalendarDays
-        aria-hidden="true"
-        strokeWidth={1.25}
-        className="hidden h-10 w-10 shrink-0 text-blue-200 sm:block"
-      />
     </header>
   );
 }
@@ -61,7 +53,7 @@ export function OptDatesUnemploymentWarning({
       {warning && (
         <div
           role="alert"
-          className="flex gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-900 dark:border-red-900 dark:bg-red-950/30 dark:text-red-100"
+          className="flex gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
         >
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
           <p>{warning}</p>
@@ -73,8 +65,8 @@ export function OptDatesUnemploymentWarning({
 
 export function OptDatesDayCountExplainer() {
   return (
-    <details className="group rounded-xl border border-border bg-muted/25 text-xs leading-5 text-muted-foreground">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-xl px-4 py-3 font-medium text-foreground outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+    <details className="group rounded-xl border border-border bg-muted text-xs leading-5 text-muted-foreground">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-xl px-4 py-3 font-medium text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
         <Info aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />
         How your days are counted
         <ChevronDown
@@ -107,7 +99,7 @@ export function OptDatesFormFields({
     <>
       <div
         id="dates-before-opt"
-        className="scroll-mt-24 space-y-4 rounded-2xl border border-blue-100 bg-blue-50/35 p-4 dark:border-blue-950 dark:bg-blue-950/15 sm:p-5"
+        className="scroll-mt-24 space-y-4 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-950 dark:bg-blue-950 sm:p-5"
       >
         <div>
           <h2 className="text-base font-semibold">Before OPT</h2>
@@ -142,7 +134,7 @@ export function OptDatesFormFields({
 
       <div
         id="dates-on-opt"
-        className="scroll-mt-24 space-y-4 rounded-2xl border border-emerald-100 bg-emerald-50/30 p-4 dark:border-emerald-950 dark:bg-emerald-950/15 sm:p-5"
+        className="scroll-mt-24 space-y-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-950 dark:bg-emerald-950 sm:p-5"
       >
         <div>
           <h2 className="text-base font-semibold">On OPT</h2>
@@ -181,7 +173,7 @@ export function OptDatesFormFields({
 
       <div
         id="dates-stem"
-        className="scroll-mt-24 space-y-4 rounded-2xl border border-violet-100 bg-violet-50/30 p-4 dark:border-violet-950 dark:bg-violet-950/15 sm:p-5"
+        className="scroll-mt-24 space-y-4 rounded-xl border border-violet-100 bg-violet-50 p-4 dark:border-violet-950 dark:bg-violet-950 sm:p-5"
       >
         <div>
           <h2 className="text-base font-semibold">STEM extension</h2>
@@ -241,7 +233,7 @@ export function EmploymentHistoryLoadingCard({
 }) {
   const employmentLoadState = loadState;
   return (
-    <Card id="employment" className="rounded-2xl p-6">
+    <Card id="employment" className="rounded-xl p-6">
       <p role={employmentLoadState === 'error' ? 'alert' : 'status'}>
         {employmentLoadState === 'error'
           ? 'Could not load employment history. Counts are unavailable.'
@@ -260,7 +252,7 @@ export function EmploymentHistoryEmptyCard() {
   return (
     <Card
       id="employment"
-      className="scroll-mt-24 overflow-hidden rounded-2xl border-dashed border-primary/30 bg-gradient-to-br from-primary/[0.04] via-card to-cyan-50/40"
+      className="scroll-mt-24 overflow-hidden rounded-xl border-dashed border-primary from-primary/[0.04]"
     >
       <div className="p-6 sm:p-8 text-center">
         <h2 className="text-lg font-semibold mb-2">Employment History</h2>

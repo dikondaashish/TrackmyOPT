@@ -85,7 +85,7 @@ export function RecentActivityLog({ user, optStatus, employmentSpans }: RecentAc
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm h-full">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold tracking-tight text-foreground">Timeline</h3>
+        <h3 className="text-lg font-semibold text-foreground">Timeline</h3>
       </div>
 
       <div className="relative border-l border-gray-200 dark:border-gray-800 ml-3 space-y-6">

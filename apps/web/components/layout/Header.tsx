@@ -24,7 +24,7 @@ export function Header({ isPremium, onMenuToggle }: HeaderProps) {
                 {onMenuToggle && (
                     <button
                         onClick={onMenuToggle}
-                        className="lg:hidden min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center"
+                        className="lg:hidden min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-[#163B73] transition-colors flex items-center justify-center"
                         aria-label="Toggle menu"
                     >
                         <Menu className="w-5 h-5 text-white" />
@@ -54,7 +54,7 @@ export function Header({ isPremium, onMenuToggle }: HeaderProps) {
                 {!isPremium && (
                     <Link
                         href="/premium/checkout?planId=pro&interval=year"
-                        className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-semibold rounded-full hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                        className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition-colors"
                     >
                         <Crown className="w-4 h-4" />
                         <span className="hidden md:inline">Get Pro</span>
@@ -65,24 +65,18 @@ export function Header({ isPremium, onMenuToggle }: HeaderProps) {
                 {/* Deals Button - Premium UI */}
                 <Link
                     href="/dashboard/offers"
-                    className="group relative hidden sm:flex items-center gap-3 px-4 py-1 bg-gray-900/40 dark:bg-black/40 hover:bg-gray-900/60 dark:hover:bg-black/60 border border-white/10 dark:border-white/5 rounded-full transition-all duration-300 backdrop-blur-sm"
+                    className="group relative hidden sm:flex items-center gap-3 px-3 py-1 bg-[#163B73] hover:bg-[#1D4A8C] border border-[#2A5596] rounded-lg transition-colors"
                 >
-                    {/* Icon Circle */}
-                    <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300 group-hover:bg-indigo-500/30 group-hover:text-indigo-200 transition-colors">
+                    <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-[#0F3162] text-indigo-200">
                         <Tag className="w-4 h-4" />
                     </div>
 
                     {/* Text Content */}
                     <div className="flex flex-col">
-                        <span className="text-xs font-bold text-gray-100 dark:text-gray-100 leading-none mb-0.5">Deals</span>
-                        <span className="text-[10px] font-medium text-gray-400 group-hover:text-gray-300 transition-colors leading-none">
+                        <span className="text-xs font-semibold text-white leading-none mb-0.5">Deals</span>
+                        <span className="text-[10px] font-medium text-blue-200 leading-none">
                             {formatUsd(OFFERS_CATALOG_TOTAL_SAVINGS_USD)} free for you
                         </span>
-                    </div>
-
-                    {/* HOT Badge */}
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-lg scale-90 animate-bounce-slow">
-                        HOT
                     </div>
                 </Link>
 
@@ -92,7 +86,7 @@ export function Header({ isPremium, onMenuToggle }: HeaderProps) {
                     className="sm:hidden min-h-11 min-w-11 p-2.5 text-gray-300 hover:text-white transition-colors relative flex items-center justify-center"
                 >
                     <Tag className="w-5 h-5" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-gray-900" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0F3162]" />
                 </Link>
 
                 <ThemeToggle />

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Twitter, Quote, Linkedin } from "lucide-react";
+import { Twitter, Linkedin } from "lucide-react";
 
 interface Testimonial {
     type: "twitter" | "linkedin" | "quote" | "stat";
@@ -29,7 +29,7 @@ const TESTIMONIALS: Testimonial[] = [
         content: "I applied to 500+ jobs with no luck. The AI Resume Doctor revamped my CV, and I got callbacks from Amazon and Uber within a week.",
         author: "Raj Patel",
         role: "Data Analyst @ Uber",
-        color: "bg-blue-50 dark:bg-blue-900/10 text-blue-900 dark:text-blue-100"
+        color: "bg-blue-50 dark:bg-blue-950 text-blue-900 dark:text-blue-100"
     },
     {
         type: "stat",
@@ -38,7 +38,7 @@ const TESTIMONIALS: Testimonial[] = [
         role: "",
         statValue: "21 Days",
         statLabel: "Average time to find a job vs 90 days industry avg",
-        color: "bg-gradient-to-br from-green-400 to-emerald-600 text-white"
+        color: "bg-green-400 text-white"
     },
     {
         type: "linkedin",
@@ -53,7 +53,7 @@ const TESTIMONIALS: Testimonial[] = [
         content: "My DSO was surprised I knew more about the 24-month extension rules than her! All thanks to the simplified guides here.",
         author: "Elena Rodriguez",
         role: "Biotech Researcher",
-        color: "bg-purple-50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100"
+        color: "bg-purple-50 dark:bg-purple-950 text-purple-900 dark:text-purple-100"
     },
     {
         type: "twitter",
@@ -77,7 +77,7 @@ const TESTIMONIALS: Testimonial[] = [
         content: "TrackMyOPT is the mentor I never had. It gave me the confidence to negotiate my offer and ask for relocation support.",
         author: "Priya Gupta",
         role: "Financial Analyst",
-        color: "bg-amber-50 dark:bg-amber-900/10 text-amber-900 dark:text-amber-100"
+        color: "bg-amber-50 dark:bg-amber-950 text-amber-900 dark:text-amber-100"
     }
 ];
 
@@ -85,8 +85,6 @@ export function MasonryWallOfLove() {
     return (
         <section className="py-24 relative overflow-hidden">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 p-64 bg-pink-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 p-64 bg-blue-500/5 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
@@ -124,7 +122,7 @@ export function MasonryWallOfLove() {
 
 function TwitterCard({ item }: { item: Testimonial }) {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 hover:shadow-md">
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
@@ -144,7 +142,7 @@ function TwitterCard({ item }: { item: Testimonial }) {
 
 function LinkedinCard({ item }: { item: Testimonial }) {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 hover:shadow-md">
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
@@ -164,9 +162,8 @@ function LinkedinCard({ item }: { item: Testimonial }) {
 
 function QuoteCard({ item }: { item: Testimonial }) {
     return (
-        <div className={`rounded-2xl p-8 ${item.color} shadow-sm border border-transparent`}>
-            <Quote className="w-8 h-8 mb-4 opacity-50" />
-            <p className="text-lg font-medium mb-6 leading-relaxed">
+        <div className={`rounded-xl p-8 ${item.color} border border-transparent`}>
+                        <p className="text-lg font-medium mb-6 leading-relaxed">
                 "{item.content}"
             </p>
             <div>
@@ -179,8 +176,8 @@ function QuoteCard({ item }: { item: Testimonial }) {
 
 function StatCard({ item }: { item: Testimonial }) {
     return (
-        <div className={`rounded-2xl p-8 ${item.color} shadow-lg flex flex-col items-center justify-center text-center min-h-[200px]`}>
-            <div className="text-5xl font-bold mb-2 tracking-tight">{item.statValue}</div>
+        <div className={`rounded-xl p-8 ${item.color} flex flex-col items-center justify-center text-center min-h-[200px]`}>
+            <div className="text-5xl font-bold mb-2">{item.statValue}</div>
             <div className="text-sm opacity-90 font-medium">{item.statLabel}</div>
         </div>
     );

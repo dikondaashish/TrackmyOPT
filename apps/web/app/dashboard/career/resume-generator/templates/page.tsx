@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import {
     ArrowLeft,
     Check,
-    Crown,
     Sparkles,
     ChevronRight,
     FileText,
@@ -24,12 +23,12 @@ const TemplatePreviewModal = dynamic(() => import("./TemplatePreviewModal").then
 
 /** Soft tint behind the card copy only — never applied to the resume preview. */
 const TEMPLATE_INFO_BG: Record<string, string> = {
-    modern: "bg-sky-50 dark:bg-sky-950/40",
-    tech: "bg-teal-50 dark:bg-teal-950/40",
-    professional: "bg-stone-50 dark:bg-stone-900/50",
-    executive: "bg-indigo-50 dark:bg-indigo-950/40",
-    academic: "bg-amber-50 dark:bg-amber-950/30",
-    creative: "bg-violet-50 dark:bg-violet-950/40",
+    modern: "bg-sky-50 dark:bg-sky-900",
+    tech: "bg-teal-50 dark:bg-teal-900",
+    professional: "bg-stone-50 dark:bg-stone-900",
+    executive: "bg-indigo-50 dark:bg-indigo-900",
+    academic: "bg-amber-50 dark:bg-amber-950",
+    creative: "bg-violet-50 dark:bg-violet-900",
 };
 
 
@@ -87,7 +86,7 @@ export default function TemplateSelectionPage() {
     return (
         <div className="min-w-0 overflow-x-hidden">
             {/* Header */}
-            <div className="sticky top-0 z-10 -mx-3 sm:-mx-6 px-3 sm:px-6 bg-white dark:bg-gray-900 border-b border-gray-200/80 dark:border-gray-800">
+            <div className="sticky top-0 z-10 -mx-3 sm:-mx-6 px-3 sm:px-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                 <div className="max-w-7xl mx-auto py-4">
                     <div className="flex items-center justify-between gap-3">
                         {/* Back Button */}
@@ -123,7 +122,7 @@ export default function TemplateSelectionPage() {
             {/* Main Content */}
             <div className="max-w-7xl mx-auto py-6 sm:py-8 min-w-0">
                 {/* Info Banner */}
-                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800">
                     <div className="flex items-center gap-3 min-w-0">
                         <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
                         <div className="min-w-0">
@@ -144,7 +143,7 @@ export default function TemplateSelectionPage() {
                             key={template.id}
                             onClick={() => handleSelectTemplate(template.id)}
                             className={`relative cursor-pointer overflow-hidden transition-shadow duration-300 hover:shadow-xl group min-w-0 ${selectedTemplateId === template.id
-                                ? "ring-2 ring-blue-600 dark:ring-blue-400 shadow-xl shadow-blue-500/20"
+                                ? "ring-2 ring-blue-600 dark:ring-blue-400 shadow-xl"
                                 : "border-gray-200 dark:border-gray-800"
                                 }`}
                         >
@@ -170,12 +169,11 @@ export default function TemplateSelectionPage() {
                                 </div>
 
                                 {/* Badges */}
-                                <div className="absolute top-3 left-3 px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded-full shadow-md z-10 pointer-events-none">
+                                <div className="absolute top-3 left-3 px-2 py-0.5 bg-green-600 text-white text-xs font-medium rounded-md z-10 pointer-events-none">
                                     ATS-Safe
                                 </div>
                                 {template.isPremium && (
-                                    <div className="absolute top-3 right-3 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full flex items-center gap-1 shadow-md z-10 pointer-events-none">
-                                        <Crown className="w-3 h-3" />
+                                    <div className="absolute top-3 right-3 px-2 py-0.5 bg-amber-500 text-white text-xs font-medium rounded-md z-10 pointer-events-none">
                                         Premium
                                     </div>
                                 )}
@@ -190,13 +188,13 @@ export default function TemplateSelectionPage() {
 
                             {/* Template Info — light tint only on this copy block */}
                             <div
-                                className={`p-5 relative min-w-0 ${TEMPLATE_INFO_BG[template.id] ?? "bg-slate-50 dark:bg-slate-900/50"}`}
+                                className={`p-5 relative min-w-0 ${TEMPLATE_INFO_BG[template.id] ?? "bg-slate-50 dark:bg-slate-900"}`}
                             >
                                 <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
                                     <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                                         {template.name}
                                     </h3>
-                                    <span className="text-xs px-2.5 py-1 bg-white/80 dark:bg-gray-800/80 rounded-full text-gray-600 dark:text-gray-400 font-medium border border-gray-200/80 dark:border-gray-700 shrink-0">
+                                    <span className="text-xs px-2 py-0.5 bg-white dark:bg-gray-800 rounded-md text-gray-600 dark:text-gray-400 font-medium shrink-0">
                                         {template.category}
                                     </span>
                                 </div>
@@ -227,7 +225,7 @@ export default function TemplateSelectionPage() {
                     <Button
                         onClick={() => handleContinue()}
                         disabled={!canContinue}
-                        className="px-10 py-7 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group rounded-2xl"
+                        className="px-10 py-7 text-lg font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed group rounded-xl"
                     >
                         <Sparkles className="w-5 h-5 mr-3" />
                         Generate Resume with Selected

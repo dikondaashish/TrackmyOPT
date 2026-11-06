@@ -13,7 +13,7 @@ test('monitoring email GET never qualifies engagement; the deliberate click is v
   });
   await page.goto('/premium/monitoring?token=synthetic-preview-token');
   await expect(
-    page.getByRole('heading', { name: 'Let us handle the daily checks.' })
+    page.getByRole('heading', { name: 'Let us handle the daily checks' })
   ).toBeVisible();
   expect(engagement).toBe(0);
   await page.getByRole('button', { name: 'See my monitoring options' }).click();

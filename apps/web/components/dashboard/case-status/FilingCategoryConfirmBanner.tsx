@@ -17,16 +17,16 @@ export function FilingCategoryConfirmBanner({
   saving = false,
 }: FilingCategoryConfirmBannerProps) {
   return (
-    <Card className="p-4 border-violet-200 dark:border-violet-800 bg-violet-50/80 dark:bg-violet-950/30">
+    <Card className="p-4 border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center shrink-0">
           <Sparkles className="w-4 h-4 text-violet-600 dark:text-violet-400" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-violet-950 dark:text-violet-100">
             Confirm your filing type
           </p>
-          <p className="text-sm text-violet-800/90 dark:text-violet-200/90 mt-1">
+          <p className="text-sm text-violet-800 dark:text-violet-200 mt-1">
             We use this for approval-time estimates. Is this an initial OPT application or a STEM OPT extension?
           </p>
           <div className="flex flex-wrap gap-2 mt-3">

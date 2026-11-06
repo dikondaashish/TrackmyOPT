@@ -15,11 +15,11 @@ export function ResumeScanner() {
     }, []);
 
     return (
-        <div className="relative w-full max-w-md mx-auto aspect-[3/4] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-border overflow-hidden group">
+        <div className="relative w-full max-w-md mx-auto aspect-[3/4] bg-white dark:bg-zinc-900 rounded-xl border border-border overflow-hidden group">
             {/* Header */}
             <div className="absolute top-0 inset-x-0 h-14 bg-gray-50 dark:bg-zinc-800 border-b border-border flex items-center px-4 justify-between z-20">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center text-blue-600">
                         <FileText className="w-4 h-4" />
                     </div>
                     <div>
@@ -28,9 +28,9 @@ export function ResumeScanner() {
                     </div>
                 </div>
                 <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                 </div>
             </div>
 
@@ -61,13 +61,13 @@ export function ResumeScanner() {
                     className="absolute inset-0 z-20"
                 >
                     {/* Bad Keyword Highlight */}
-                    <div className="absolute top-[35%] left-8 right-8 h-6 bg-red-500/20 border border-red-500/50 rounded flex items-center px-2">
+                    <div className="absolute top-[35%] left-8 right-8 h-6 bg-red-100 border border-red-500 rounded flex items-center px-2">
                         <AlertCircle className="w-3 h-3 text-red-600 mr-1" />
                         <span className="text-[10px] text-red-600 font-medium">Vague action verb</span>
                     </div>
 
                     {/* Good Keyword Highlight */}
-                    <div className="absolute top-[55%] left-8 right-8 h-6 bg-green-500/20 border border-green-500/50 rounded flex items-center px-2">
+                    <div className="absolute top-[55%] left-8 right-8 h-6 bg-green-100 border border-green-500 rounded flex items-center px-2">
                         <CheckCircle2 className="w-3 h-3 text-green-600 mr-1" />
                         <span className="text-[10px] text-green-600 font-medium">Strong metric: "Increased by 20%"</span>
                     </div>
@@ -86,20 +86,17 @@ export function ResumeScanner() {
                     repeatDelay: 1
                 }}
             >
-                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-500/20 to-transparent" />
+                <div className="absolute top-0 left-0 right-0 h-32" />
             </motion.div>
 
-            {/* Overlay Grid */}
-            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 z-0 user-select-none pointer-events-none" />
-
             {/* AI HUD Overlay */}
-            <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-md rounded-lg p-3 z-40 border border-white/10 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center animate-pulse">
+            <div className="absolute bottom-4 left-4 right-4 bg-zinc-900 rounded-lg p-3 z-40 border border-zinc-700 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
                     <Scan className="w-4 h-4 text-blue-400" />
                 </div>
                 <div>
-                    <p className="text-xs text-blue-400 font-medium font-mono mb-0.5">
-                        {scanComplete ? "ANALYSIS COMPLETE" : "SCANNING DOCUMENT..."}
+                    <p className="text-xs text-blue-300 font-medium mb-0.5">
+                        {scanComplete ? "Analysis complete" : "Scanning document..."}
                     </p>
                     <div className="h-1 w-32 bg-gray-800 rounded-full overflow-hidden">
                         <motion.div

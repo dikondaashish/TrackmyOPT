@@ -25,7 +25,7 @@ import { H2, Lead, P } from "@/components/ui/typography";
 // Calculator Preview Component
 function CalculatorPreview() {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                 <Calendar className="w-6 h-6 text-blue-600" />
                 Filing Window Calculator
@@ -50,7 +50,7 @@ function CalculatorPreview() {
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white"
+                className="bg-blue-500 rounded-xl p-6 text-white"
             >
                 <p className="text-sm opacity-80 mb-1">Your Safe Filing Window</p>
                 <p className="text-2xl font-bold mb-2">April 15 - June 15, 2025</p>
@@ -68,7 +68,7 @@ export default function CompliancePage() {
                 { name: "Features", url: "https://www.trackmyopt.com/features" },
                 { name: "Compliance", url: "https://www.trackmyopt.com/features/compliance" },
             ]} />
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <FeatureServiceSchema
                 name="OPT Compliance Tracker & Timeline Manager"
                 description="Track your entire OPT timeline, unemployment days, and USCIS deadlines in real-time. Stay compliant with multi-channel alerts for all critical milestones including filing windows and employer reporting."
@@ -84,7 +84,6 @@ export default function CompliancePage() {
             />
             {/* Hero */}
             <FeatureHero
-                badge="Core Feature"
                 headline="Never Miss a USCIS Deadline Again"
                 subheadline="The only platform that tracks your OPT timeline, unemployment days, and filing windows in real-time. Stay compliant, stay stress-free."
                 ctaText="Start Tracking Free"
@@ -93,18 +92,14 @@ export default function CompliancePage() {
                     text: "See Calculator",
                     href: "/tools/opt-clock"
                 }}
-                gradient="from-blue-600 to-indigo-600"
+                gradient="bg-blue-600"
                 visual={<ComplianceShield />}
             />
 
             {/* Feature 1: The Journey Timeline */}
-            <section className="py-24 relative overflow-hidden bg-white/50 dark:bg-zinc-900/30">
+            <section className="py-24 relative overflow-hidden bg-white dark:bg-zinc-950">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                            <Clock className="w-4 h-4" />
-                            Your F-1 Timeline
-                        </div>
                         <H2>Visualizing Your Compliance Journey</H2>
                         <Lead>From graduation to H-1B, see exactly what milestones are coming up.</Lead>
                     </div>
@@ -114,7 +109,7 @@ export default function CompliancePage() {
             </section>
 
             {/* Feature 2: Smart Alerts */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -124,13 +119,13 @@ export default function CompliancePage() {
                             className="order-2 lg:order-1 relative"
                         >
                             {/* Abstract Alert Visual instead of Timeline */}
-                            <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-3 bg-red-500/10 rounded-bl-2xl">
-                                    <Bell className="w-6 h-6 text-red-500 animate-pulse" />
+                            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-3 bg-red-50 rounded-bl-xl">
+                                    <Bell className="w-6 h-6 text-red-500 " />
                                 </div>
                                 <div className="space-y-6">
                                     {/* Mock Email Alert */}
-                                    <div className="border border-gray-100 dark:border-zinc-800 rounded-xl p-4 bg-gray-50 dark:bg-zinc-800/50">
+                                    <div className="border border-gray-100 dark:border-zinc-800 rounded-xl p-4 bg-gray-50 dark:bg-zinc-800">
                                         <div className="flex gap-3 mb-2">
                                             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">T</div>
                                             <div>
@@ -140,14 +135,14 @@ export default function CompliancePage() {
                                         </div>
                                         <div className="h-2 w-full bg-gray-200 dark:bg-zinc-700 rounded mb-2" />
                                         <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 rounded mb-4" />
-                                        <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 rounded text-sm font-medium border border-red-100 dark:border-red-900/30 flex items-center gap-2">
+                                        <div className="bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 px-3 py-2 rounded text-sm font-medium border border-red-100 dark:border-red-950 flex items-center gap-2">
                                             <AlertTriangle className="w-4 h-4 shrink-0" />
                                             Action Required: 10 Days Remain
                                         </div>
                                     </div>
                                     {/* Mock SMS Alert */}
-                                    <div className="border border-gray-100 dark:border-zinc-800 rounded-xl p-4 bg-gray-50 dark:bg-zinc-800/50 max-w-[280px] ml-auto">
-                                        <div className="bg-blue-500 text-white p-3 rounded-2xl rounded-br-none text-sm">
+                                    <div className="border border-gray-100 dark:border-zinc-800 rounded-xl p-4 bg-gray-50 dark:bg-zinc-800 max-w-[280px] ml-auto">
+                                        <div className="bg-blue-500 text-white p-3 rounded-xl rounded-br-none text-sm">
                                             Reminder: Your 90-day unemployment limit is approaching. Please update your employer info.
                                         </div>
                                         <p className="text-[10px] text-gray-400 text-right mt-1">Today 9:41 AM</p>
@@ -162,10 +157,6 @@ export default function CompliancePage() {
                             viewport={{ once: true }}
                             className="order-1 lg:order-2"
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-4">
-                                <Bell className="w-4 h-4" />
-                                Smart Alerts
-                            </div>
                             <H2 className="mb-6">Get Reminded Before It's Too Late</H2>
                             <P className="mb-8">
                                 Receive email and SMS alerts at critical milestones—60 days, 30 days,
@@ -198,10 +189,6 @@ export default function CompliancePage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                                <Calendar className="w-4 h-4" />
-                                Filing Calculator
-                            </div>
                             <H2 className="mb-6">Know Exactly When to File</H2>
                             <P className="mb-8">
                                 Our calculator tells you the perfect window to apply for extensions,
@@ -209,7 +196,7 @@ export default function CompliancePage() {
                             </P>
                             <Link
                                 href="/tools/opt-clock"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
                             >
                                 Try the Calculator
                                 <ArrowRight className="w-4 h-4" />

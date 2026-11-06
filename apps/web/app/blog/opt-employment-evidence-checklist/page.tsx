@@ -44,9 +44,6 @@ export default function OptEmploymentEvidenceChecklistPage() {
       <BreadcrumbSchema items={[{ name: "Home", url: "https://www.trackmyopt.com" }, { name: "Blog", url: "https://www.trackmyopt.com/blog" }, { name: "OPT Employment Evidence Checklist", url: CANONICAL }]} />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">OPT Recordkeeping</span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           OPT Employment Evidence Checklist: What to Save for USCIS and Future Visas
         </h1>
@@ -55,20 +52,22 @@ export default function OptEmploymentEvidenceChecklistPage() {
           for an RFE, for an H-1B petition, and for every future visa application that asks
           about your work history. This checklist ensures you never face a gap.
         </p>
-        <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>OPT Recordkeeping</span>
+          <span>•</span>
           <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 11 min read</span>
           <span>•</span>
           <span>Updated July 27, 2026</span>
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
         <BlogPostImage src="/blog/opt-employment-evidence-checklist.png" alt="OPT evidence folder with pay stubs, W-2, EAD card, offer letter and evidence checklist on legal pad" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">Direct Answer</p>
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">Direct Answer</p>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed">
           For each OPT employer, collect and keep: signed offer letter, job description, start and
           end dates, worksite address, supervisor contact, hours per week, pay records, and a short
@@ -94,7 +93,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
           <li><strong>RFE responses:</strong> USCIS can issue an RFE for an H-1B petition asking for proof that prior OPT employment was related to the specialty occupation. A complete OPT evidence file turns a stressful RFE into a manageable response.</li>
         </ul>
 
-        <div className="not-prose bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
+        <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -271,7 +270,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
           <li>All USCIS correspondence (receipts, approvals, denials, RFEs, responses)</li>
         </ul>
 
-        <div className="not-prose bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-2xl p-6 my-10">
+        <div className="not-prose bg-primary-soft dark:bg-primary-soft border border-primary-muted rounded-xl p-6 my-10">
           <div className="flex items-start gap-4">
             <FolderOpen className="w-8 h-8 text-primary flex-shrink-0" />
             <div>
@@ -282,7 +281,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
                 OPT compliance categories above so your files are always where you need them.
               </p>
               <Link href="/features/compliance"
-                className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm">
+                className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primary-hover transition-colors text-sm">
                 Open Document Vault <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -293,7 +292,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
         <div className="not-prose overflow-x-auto my-6">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-primary/10">
+              <tr className="bg-primary-soft">
                 <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">Gap</th>
                 <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">How to Address It</th>
               </tr>
@@ -364,7 +363,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             { label: "USCIS OPT Information", href: "https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-opt-for-f-1-students" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary/30 transition-colors">
+              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary transition-colors">
               <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
               {s.label}
             </a>
@@ -393,7 +392,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
               { href: "/blog/opt-to-h1b-transition", title: "OPT to H-1B Transition Guide", desc: "How your OPT employment record affects your H-1B petition." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
-                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-base">{r.title}</h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{r.desc}</p>
                   <span className="text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

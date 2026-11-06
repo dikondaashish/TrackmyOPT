@@ -156,15 +156,14 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
   return (
     <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
       <div className="min-w-0 space-y-5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-7">
           {bundleId && bundle ? (
             <div className="space-y-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
                   <EmployerSuggestionLogo name={bundle.companyName} domain={bundle.companyDomain || ''} className="size-12" />
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.13em] text-blue-700 dark:text-blue-300">Outreach workspace</p>
-                    <h2 className="mt-1 truncate text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">{bundle.companyName}</h2>
+                    <h2 className="truncate text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">{bundle.companyName}</h2>
                     <p className="text-sm text-slate-600 dark:text-slate-300">{bundle.companyDomain || 'Company website not confirmed'} · {bundle.targetRole}</p>
                   </div>
                 </div>
@@ -175,7 +174,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
           ) : (
             <form onSubmit={build} className="space-y-5">
               <div>
-                <h2 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">Find contacts at a company</h2>
+                <h2 className="text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">Find contacts at a company</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">Get up to 3 contacts with ready-to-edit outreach.</p>
               </div>
               {applicationsUnavailable && <p role="alert" className="text-sm text-amber-800 dark:text-amber-200">Applications could not be loaded. Enter company and role manually.</p>}
@@ -219,11 +218,11 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
           )}
         </div>
 
-        {bundleId && !bundle && !error && <div role="status" className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"><LoaderCircle className="mr-2 inline size-4 animate-spin" aria-hidden="true" />Loading saved outreach…</div>}
-        {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">{error}</p>}
+        {bundleId && !bundle && !error && <div role="status" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"><LoaderCircle className="mr-2 inline size-4 animate-spin" aria-hidden="true" />Loading saved outreach…</div>}
+        {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">{error}</p>}
         {bundle && <section className="space-y-5" aria-label="Outreach results">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-            <div className="flex items-center gap-2"><Sparkles className="size-5 text-blue-700 dark:text-blue-300" aria-hidden="true" /><h3 className="font-semibold text-slate-950 dark:text-white">Research progress</h3></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <h3 className="font-semibold text-slate-950 dark:text-white">Research progress</h3>
             <ol className="mt-4 space-y-3" aria-live="polite" aria-atomic="true">
               {stages.map(([key, label], index) => {
                 const current = stageIndex(bundle.status);
@@ -244,10 +243,10 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
           {contacts.map((contact, index) => <ContactCard key={`${contact.id}-${contact.emailSubject}-${contact.emailBody}-${contact.linkedinNote}`} contact={contact} index={index} bundleId={bundle.id} targetRole={bundle.targetRole} userIntent={bundle.userIntent} />)}
         </section>}
       </div>
-      <aside className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-6" aria-label="Recent outreach">
+      <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-6" aria-label="Recent outreach">
         <div className="flex items-center justify-between gap-2"><h2 className="font-semibold text-slate-950 dark:text-white">Recent outreach</h2><span className="text-xs text-slate-500 dark:text-slate-400">Saved</span></div>
         {history.length === 0 ? <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">Your searches appear here. Reopen anytime.</p> :
-          <ul className="mt-4 space-y-1">{history.map((item) => <li key={item.id}><button type="button" onClick={() => openBundle(item.id)} className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-slate-800 ${item.id === bundleId ? 'bg-blue-50 dark:bg-blue-950/40' : ''}`}>
+          <ul className="mt-4 space-y-1">{history.map((item) => <li key={item.id}><button type="button" onClick={() => openBundle(item.id)} className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-slate-800 ${item.id === bundleId ? 'bg-blue-50 dark:bg-blue-900' : ''}`}>
             <EmployerSuggestionLogo name={item.companyName} domain={item.companyDomain || ''} />
             <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-slate-950 dark:text-white">{item.companyName}</span><span className="block truncate text-xs text-slate-600 dark:text-slate-300">{item.targetRole} · {item.contactCount} {item.contactCount === 1 ? 'contact' : 'contacts'}</span><span className="block text-xs text-slate-500 dark:text-slate-400">{item.createdAt.slice(0, 10)}</span></span><ChevronRight className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
           </button></li>)}</ul>}
@@ -282,16 +281,16 @@ function ContactCard({ contact, index, bundleId, targetRole, userIntent }: { con
       captureClientEvent(kind, { contact_position: index + 1 });
     } catch { setNotice('Could not copy. Select the text and copy manually.'); }
   }
-  return <article className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6" aria-labelledby={`contact-${contact.id}`}>
+  return <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6" aria-labelledby={`contact-${contact.id}`}>
     <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
       <ContactAvatar name={contact.name} />
-      <div className="min-w-0 flex-1"><p className="text-xs font-semibold uppercase tracking-[0.13em] text-blue-700 dark:text-blue-300">Relevant contact {index + 1}</p><h3 id={`contact-${contact.id}`} className="mt-0.5 truncate text-lg font-semibold text-slate-950 dark:text-white">{contact.name}</h3><p className="text-sm text-slate-600 dark:text-slate-300">{contact.title} · {contact.company}</p></div>
+      <div className="min-w-0 flex-1"><p className="text-xs text-slate-500 dark:text-slate-400">Relevant contact {index + 1}</p><h3 id={`contact-${contact.id}`} className="mt-0.5 truncate text-lg font-semibold text-slate-950 dark:text-white">{contact.name}</h3><p className="text-sm text-slate-600 dark:text-slate-300">{contact.title} · {contact.company}</p></div>
       <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" onClick={() => captureClientEvent('networking_linkedin_opened', { contact_position: index + 1 })} className={subtleClass}>Open profile <ArrowUpRight className="size-4" aria-hidden="true" /></a>
     </div>
     <p className="mt-4 text-sm leading-6 text-slate-700 dark:text-slate-200"><span className="font-semibold text-slate-950 dark:text-white">Why relevant:</span> {contact.relevanceReason}</p>
     <div className="mt-5">
-      {verified ? <div className="flex flex-wrap items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-3 py-3 dark:border-blue-900 dark:bg-blue-950/30 sm:px-4"><Mail className="size-4 shrink-0 text-blue-700 dark:text-blue-300" aria-hidden="true" /><a href={`mailto:${contact.email}`} className="min-w-0 flex-1 break-all text-sm font-semibold text-slate-950 hover:underline dark:text-white sm:text-base">{contact.email}</a><span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">Work email verified</span><button type="button" onClick={() => copy(contact.email!, 'networking_email_copied')} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-blue-700 px-3 text-sm font-semibold text-white hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus-visible:ring-offset-slate-900"><Copy className="size-3.5" aria-hidden="true" />Copy email</button></div> :
-        <div className="border-t border-slate-200 pt-4 dark:border-slate-800"><p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">Work email</p><p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{contact.emailStatus === 'provider_error' ? 'The saved bundle could not check this email.' : contact.emailStatus === 'pending' ? 'Checking email…' : 'No verified work email found. You can still reach out on LinkedIn.'}</p></div>}
+      {verified ? <div className="flex flex-wrap items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-3 py-3 dark:border-blue-900 dark:bg-blue-950 sm:px-4"><Mail className="size-4 shrink-0 text-blue-700 dark:text-blue-300" aria-hidden="true" /><a href={`mailto:${contact.email}`} className="min-w-0 flex-1 break-all text-sm font-semibold text-slate-950 hover:underline dark:text-white sm:text-base">{contact.email}</a><span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">Work email verified</span><button type="button" onClick={() => copy(contact.email!, 'networking_email_copied')} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-blue-700 px-3 text-sm font-semibold text-white hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus-visible:ring-offset-slate-900"><Copy className="size-3.5" aria-hidden="true" />Copy email</button></div> :
+        <div className="border-t border-slate-200 pt-4 dark:border-slate-800"><p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Work email</p><p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{contact.emailStatus === 'provider_error' ? 'The saved bundle could not check this email.' : contact.emailStatus === 'pending' ? 'Checking email…' : 'No verified work email found. You can still reach out on LinkedIn.'}</p></div>}
       {contact.emailStatus === 'provider_error' && <BrowserEmailRecovery contact={contact} targetRole={targetRole} userIntent={userIntent} />}
     </div>
     {verified && contact.emailSubject && <div className="mt-5 space-y-3"><h4 className="font-semibold text-slate-950 dark:text-white">Email draft</h4><div><label htmlFor={`subject-${contact.id}`} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Subject</label><input id={`subject-${contact.id}`} maxLength={160} value={subject} onChange={(event) => setSubject(event.target.value)} className={fieldClass} /></div><div><label htmlFor={`body-${contact.id}`} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Message</label><textarea id={`body-${contact.id}`} rows={6} maxLength={2000} value={body} onChange={(event) => setBody(event.target.value)} className={`${fieldClass} resize-y`} /></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => copy(`${subject}\n\n${body}`, 'networking_email_copied')} className={subtleClass}><Copy className="size-4" aria-hidden="true" />Copy draft</button>{canCompose && <><a href={gmailUrl(contact.email!, subject, body)} target="_blank" rel="noopener noreferrer" onClick={() => captureClientEvent('networking_gmail_opened', { contact_position: index + 1 })} className={subtleClass}>Open Gmail <ArrowUpRight className="size-4" aria-hidden="true" /></a><a href={outlookUrl(contact.email!, subject, body)} target="_blank" rel="noopener noreferrer" onClick={() => captureClientEvent('networking_outlook_opened', { contact_position: index + 1 })} className={subtleClass}>Open Outlook <ArrowUpRight className="size-4" aria-hidden="true" /></a></>}</div></div>}

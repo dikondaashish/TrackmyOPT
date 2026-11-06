@@ -29,7 +29,7 @@ export function EmploymentSpanRow({
         domain={
           employerLogoDomain(span.employer_name, span.employer_domain) || ''
         }
-        className="h-10 w-10 rounded-xl"
+        className="h-10 w-10 rounded-lg"
       />
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -37,7 +37,7 @@ export function EmploymentSpanRow({
             {span.employer_name}
           </h3>
           {span.is_current && (
-            <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
+            <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 rounded-md">
               Current
             </span>
           )}

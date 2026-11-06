@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Shield,
   Loader2,
   AlertCircle,
   LogOut,
   Trash2,
-  Key} from "lucide-react";
+  Key,
+} from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
 interface SecurityTabProps {
@@ -35,9 +35,6 @@ export function SecurityTab({
           <div className="p-6 sm:p-8">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Password & Security</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Manage your password and security settings</p>
@@ -46,7 +43,7 @@ export function SecurityTab({
 
               <div className="space-y-6">
                 {/* Password Reset */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Password</p>
@@ -71,7 +68,7 @@ export function SecurityTab({
                 </div>
 
                 {/* Sign Out */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Sign Out</p>
@@ -91,11 +88,11 @@ export function SecurityTab({
                 </div>
 
                 {/* Delete Account */}
-                <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800/50">
+                <div className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-900">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-red-600 dark:text-red-400">Delete Account</p>
-                      <p className="text-sm text-red-500/80 dark:text-red-400/70 mt-1">
+                      <p className="text-sm text-red-500 dark:text-red-400 mt-1">
                         Permanently delete your account and all data
                       </p>
                     </div>
@@ -103,7 +100,7 @@ export function SecurityTab({
                       <Button
                         variant="outline"
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="h-10 text-red-600 border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20"
+                        className="h-10 text-red-600 border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
@@ -113,7 +110,7 @@ export function SecurityTab({
 
                   {/* Delete Confirmation Warning */}
                   {showDeleteConfirm && (
-                    <div className="mt-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-lg border border-red-300 dark:border-red-700">
+                    <div className="mt-4 p-4 bg-red-100 dark:bg-red-950 rounded-lg border border-red-300 dark:border-red-700">
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                         <div>

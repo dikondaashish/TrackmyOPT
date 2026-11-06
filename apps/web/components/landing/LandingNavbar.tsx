@@ -87,7 +87,7 @@ export function LandingNavbar() {
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform duration-300 group-hover:scale-110">
+                        <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                             <Image
                                 src="/TrackMyOPT Logo/Favicon.png"
                                 alt="TrackMyOPT Logo"
@@ -97,7 +97,7 @@ export function LandingNavbar() {
                                 priority
                             />
                         </div>
-                        <span className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                        <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
                             TrackMyOPT
                         </span>
                     </Link>
@@ -140,7 +140,7 @@ export function LandingNavbar() {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[520px] bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
+                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[520px] bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
                                     >
                                         {/* Feature grid */}
                                         <div className="p-3 grid grid-cols-2 gap-2">
@@ -150,7 +150,7 @@ export function LandingNavbar() {
                                                     href={feature.href}
                                                     className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group"
                                                 >
-                                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                                                    <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
                                                         <feature.icon className="w-5 h-5 text-white" />
                                                     </div>
                                                     <div>
@@ -207,7 +207,7 @@ export function LandingNavbar() {
                                                     href={link.href}
                                                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group"
                                                 >
-                                                    <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary flex-shrink-0">
+                                                    <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-primary flex-shrink-0">
                                                         <link.icon className="w-4 h-4" />
                                                     </div>
                                                     <div>
@@ -251,7 +251,7 @@ export function LandingNavbar() {
                             <>
                                 <Link
                                     href="/dashboard"
-                                    className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white transition-all bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
+                                    className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
                                 >
                                     <LayoutDashboard className="w-4 h-4 mr-2" />
                                     Dashboard
@@ -279,7 +279,7 @@ export function LandingNavbar() {
                                 </Link>
                                 <Link
                                     href="/login"
-                                    className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-md shadow-blue-500/25 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-500/30"
+                                    className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                                 >
                                     Start free
                                 </Link>
@@ -335,7 +335,7 @@ export function LandingNavbar() {
 
                             {/* Features Section */}
                             <div className="pt-2 pb-2">
-                                <p className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Features</p>
+                                <p className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Features</p>
                                 <div className="space-y-1">
                                     {featureLinks.map((feature) => (
                                         <Link
@@ -353,7 +353,7 @@ export function LandingNavbar() {
 
                             {/* About Section */}
                             <div className="pt-2 pb-2">
-                                <p className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">About</p>
+                                <p className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">About</p>
                                 <div className="space-y-1">
                                     {aboutLinks.map((link) => (
                                         <Link
@@ -400,7 +400,7 @@ export function LandingNavbar() {
                                 {user ? (
                                     <>
                                         <div className="flex items-center gap-3 px-2 py-2">
-                                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-sm">
+                                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-sm">
                                                 {(user.user_metadata?.full_name?.[0] || user.email?.[0] || "U").toUpperCase()}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -416,7 +416,7 @@ export function LandingNavbar() {
                                         <Link
                                             href="/dashboard"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-shadow hover:from-blue-700 hover:to-indigo-700"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                                         >
                                             <LayoutDashboard className="w-4 h-4 mr-2" />
                                             Dashboard
@@ -447,7 +447,7 @@ export function LandingNavbar() {
                                                     setUser(null);
                                                     router.refresh();
                                                 }}
-                                                className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-2 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                                className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-2 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
                                             >
                                                 <LogOut className="w-4 h-4" />
                                                 Sign out
@@ -466,7 +466,7 @@ export function LandingNavbar() {
                                         <Link
                                             href="/login"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-shadow hover:from-blue-700 hover:to-indigo-700"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                                         >
                                             Start free
                                             <ArrowRight className="w-4 h-4 ml-2" />

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MessageCircle, Clock, CheckCircle, HelpCircle, FileText, CreditCard, Bug, ChevronDown } from "lucide-react";
+import { Mail, MessageCircle, HelpCircle, FileText, CreditCard, Bug, ChevronDown } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
@@ -13,10 +13,9 @@ import { SmartContactForm } from "@/components/features/SmartContactForm";
 function ContactVisual() {
     return (
         <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl blur-2xl opacity-20" />
-            <div className="relative bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-2xl">
+            <div className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
                 <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Support Team Online</span>
                 </div>
 
@@ -25,7 +24,7 @@ function ContactVisual() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-gray-100 dark:bg-zinc-800 rounded-2xl rounded-bl-sm p-4"
+                        className="bg-gray-100 dark:bg-zinc-800 rounded-xl rounded-bl-sm p-4"
                     >
                         <p className="text-sm text-gray-900 dark:text-white">Hi! How can we help you today?</p>
                     </motion.div>
@@ -33,7 +32,7 @@ function ContactVisual() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-blue-600 rounded-2xl rounded-br-sm p-4 ml-8"
+                        className="bg-blue-600 rounded-xl rounded-br-sm p-4 ml-8"
                     >
                         <p className="text-sm text-white">I have a question about my OPT timeline...</p>
                     </motion.div>
@@ -41,20 +40,18 @@ function ContactVisual() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="bg-gray-100 dark:bg-zinc-800 rounded-2xl rounded-bl-sm p-4"
+                        className="bg-gray-100 dark:bg-zinc-800 rounded-xl rounded-bl-sm p-4"
                     >
                         <p className="text-sm text-gray-900 dark:text-white">Of course! I'd be happy to help. Let me check that for you.</p>
                     </motion.div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
-                        <Clock className="w-5 h-5 text-green-600 mx-auto mb-1" />
+                    <div className="bg-green-50 dark:bg-green-950 rounded-xl p-4 text-center">
                         <p className="text-lg font-bold text-green-700 dark:text-green-300">&lt;4h</p>
                         <p className="text-xs text-green-600 dark:text-green-400">Response Time</p>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
-                        <CheckCircle className="w-5 h-5 text-blue-600 mx-auto mb-1" />
+                    <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 text-center">
                         <p className="text-lg font-bold text-blue-700 dark:text-blue-300">98%</p>
                         <p className="text-xs text-blue-600 dark:text-blue-400">Resolution Rate</p>
                     </div>
@@ -67,9 +64,9 @@ function ContactVisual() {
 // Support Channels
 function SupportChannels() {
     const channels = [
-        { icon: Mail, title: "Email Support", description: "support@trackmyopt.com", detail: "Response within 4 hours", color: "blue" },
-        { icon: MessageCircle, title: "Live Chat", description: "Chat with our team", detail: "Available 9am-6pm EST", color: "green" },
-        { icon: HelpCircle, title: "Help Center", description: "Browse FAQs & guides", detail: "24/7 self-service", color: "purple" },
+        { icon: Mail, title: "Email Support", description: "support@trackmyopt.com", detail: "Response within 4 hours" },
+        { icon: MessageCircle, title: "Live Chat", description: "Chat with our team", detail: "Available 9am-6pm EST" },
+        { icon: HelpCircle, title: "Help Center", description: "Browse FAQs & guides", detail: "24/7 self-service" },
     ];
 
     return (
@@ -81,10 +78,6 @@ function SupportChannels() {
                     viewport={{ once: true }}
                     className="text-center mb-12"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                        <Mail className="w-4 h-4" />
-                        Support Channels
-                    </div>
                     <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Multiple Ways to Reach Us
                     </h2>
@@ -98,14 +91,9 @@ function SupportChannels() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 hover:border-blue-500/50 transition-colors text-center"
+                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 hover:border-blue-500 transition-colors text-center"
                         >
-                            <div className={`w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center ${channel.color === 'blue' ? 'bg-gradient-to-br from-blue-500 to-indigo-600' :
-                                channel.color === 'green' ? 'bg-gradient-to-br from-green-500 to-teal-600' :
-                                    'bg-gradient-to-br from-purple-500 to-pink-600'
-                                }`}>
-                                <channel.icon className="w-7 h-7 text-white" />
-                            </div>
+                            <channel.icon className="w-7 h-7 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{channel.title}</h3>
                             <p className="text-blue-600 dark:text-blue-400 font-medium mb-1">{channel.description}</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{channel.detail}</p>
@@ -127,7 +115,7 @@ function HelpCategories() {
     ];
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900/50">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-900">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -148,9 +136,9 @@ function HelpCategories() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.05 }}
-                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 hover:border-blue-500/50 transition-colors cursor-pointer"
+                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 hover:border-blue-500 transition-colors cursor-pointer"
                         >
-                            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary mb-3">
+                            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-primary mb-3">
                                 <cat.icon className="w-5 h-5" />
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{cat.title}</h3>
@@ -174,7 +162,7 @@ function ContactFAQ() {
     ];
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900/50">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-900">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -198,7 +186,7 @@ function ContactFAQ() {
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+                                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
                             >
                                 <span className="font-medium text-gray-900 dark:text-white">{faq.question}</span>
                                 <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
@@ -218,12 +206,11 @@ function ContactFAQ() {
 
 export default function ContactPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <LandingNavbar />
 
             {/* Hero */}
             <FeatureHero
-                badge="Contact Us"
                 headline="We're Here to Help"
                 subheadline="Have a question or need assistance? Our team is ready to help you get the most out of TrackMyOPT. Response time under 4 hours."
                 ctaText="Email Us"
@@ -232,7 +219,7 @@ export default function ContactPage() {
                     text: "Help Center",
                     href: "/help"
                 }}
-                gradient="from-blue-600 to-indigo-600"
+                gradient="bg-blue-600"
                 visual={<ContactVisual />}
             />
 

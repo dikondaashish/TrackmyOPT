@@ -4,18 +4,18 @@ import { DateSelector } from "../opt/DateSelector";
 
 export function OnboardingCard() {
   return (
-    <div className="bg-card hover:bg-card/80 border border-border rounded-xl p-8 transition-colors duration-200">
+    <div className="bg-card hover:bg-card border border-border rounded-xl p-8 transition-colors duration-200">
       {/* 1. Welcome Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <PartyPopper className="w-8 h-8 text-primary" />
-          <h2 className="text-2xl font-bold tracking-tight">Welcome to TrackMyOPT!</h2>
+          <h2 className="text-2xl font-bold">Welcome to TrackMyOPT!</h2>
         </div>
         <p className="text-muted-foreground">Track your OPT status and stay compliant</p>
       </div>
 
       {/* 2. Info Box - What We Track */}
-      <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 border border-primary/20 rounded-lg p-6 mb-6">
+      <div className="bg-primary-soft dark:bg-primary-soft border border-primary-muted rounded-lg p-6 mb-6">
         <p className="text-sm mb-4 font-medium">
           <Target className="inline w-4 h-4 mr-1 text-primary align-text-bottom" />
           Your dates are displayed below. Click <strong>"Edit Dates →"</strong> to update them.

@@ -33,7 +33,7 @@ export default function CaseStatusError({
 
   return (
     <div className="mx-auto flex min-h-[360px] max-w-lg flex-col items-center justify-center p-6 text-center">
-      <div className="rounded-full bg-amber-100 p-3 dark:bg-amber-900/20">
+      <div className="rounded-full bg-amber-100 p-3 dark:bg-amber-950">
         <svg
           className="h-8 w-8 text-amber-600 dark:text-amber-500"
           fill="none"

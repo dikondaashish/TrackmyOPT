@@ -29,8 +29,8 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
       className={cn(
         "rounded-xl border-l-4 p-4 sm:p-5",
         isUrgent
-          ? "bg-red-50 dark:bg-red-950/30 border-l-red-500 border border-red-200 dark:border-red-800"
-          : "bg-amber-50 dark:bg-amber-950/30 border-l-amber-500 border border-amber-200 dark:border-amber-800"
+          ? "bg-red-50 dark:bg-red-950 border-l-red-500 border border-red-200 dark:border-red-800"
+          : "bg-amber-50 dark:bg-amber-950 border-l-amber-500 border border-amber-200 dark:border-amber-800"
       )}
     >
       <div className="flex items-start gap-3">
@@ -43,7 +43,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
         <div className="flex-1 min-w-0">
           {isPPOverdue ? (
             <>
-              <p className={cn("text-sm font-extrabold uppercase tracking-wide mb-1", "text-red-700 dark:text-red-300")}>
+              <p className={cn("text-sm font-extrabold mb-1", "text-red-700 dark:text-red-300")}>
                 Premium Processing Overdue — {premiumProcessing.overdueBusinessDays} business day{premiumProcessing.overdueBusinessDays !== 1 ? "s" : ""} past deadline
               </p>
               <p className="text-sm text-red-800 dark:text-red-200 mb-3">
@@ -54,7 +54,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40 gap-2"
+                  className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 gap-2"
                   asChild
                 >
                   <a href="tel:18003755283">
@@ -65,7 +65,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40 gap-2"
+                  className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 gap-2"
                   asChild
                 >
                   <a href="https://my.uscis.gov/account" target="_blank" rel="noopener noreferrer">
@@ -77,7 +77,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
             </>
           ) : caseState === "actionNeeded" ? (
             <>
-              <p className="text-sm font-extrabold uppercase tracking-wide mb-1 text-amber-700 dark:text-amber-300">
+              <p className="text-sm font-extrabold mb-1 text-amber-700 dark:text-amber-300">
                 Request for Evidence {rfeDate ? `— Received ${formatDisplayDateShort(rfeDate)}` : "Received"}
               </p>
               <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
@@ -87,7 +87,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 gap-2"
+                  className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900 gap-2"
                   asChild
                 >
                   <a href="https://my.uscis.gov" target="_blank" rel="noopener noreferrer">
@@ -98,7 +98,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 gap-2"
+                  className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900 gap-2"
                 >
                   <Users className="w-3.5 h-3.5" />
                   Contact DSO
@@ -107,7 +107,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
             </>
           ) : (
             <>
-              <p className="text-sm font-extrabold uppercase tracking-wide mb-1 text-red-700 dark:text-red-300">
+              <p className="text-sm font-extrabold mb-1 text-red-700 dark:text-red-300">
                 Action Required
               </p>
               <p className="text-sm text-red-800 dark:text-red-200">

@@ -96,8 +96,7 @@ export default function OptUnemploymentClockStartArticle() {
 
       <header className="mb-10">
         <div className="mb-4 flex items-center gap-3">
-          <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">OPT Compliance</span>
-          <span className="flex items-center gap-1 text-sm text-gray-500"><Clock className="h-3.5 w-3.5" /> 9 min read</span>
+          <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400"><Clock className="h-3.5 w-3.5" />OPT Compliance · 9 min read</span>
         </div>
         <h1 className="mb-5 text-4xl font-bold leading-tight text-gray-900 dark:text-white sm:text-5xl">When Does the OPT Unemployment Clock Start?</h1>
         <p className="text-xl leading-relaxed text-gray-600 dark:text-gray-300">
@@ -108,12 +107,12 @@ export default function OptUnemploymentClockStartArticle() {
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
         <BlogPostImage src="/blog/when-does-opt-unemployment-clock-start.png" alt="Calendar with OPT start date circled in red, EAD card, countdown timer showing 78 days remaining, and SEVIS reporting confirmation on a rustic wooden desk" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
-      <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950/30">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Short answer</p>
+      <div className="mb-8 rounded-xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950">
+        <p className="mb-2 text-sm font-semibold text-blue-700 dark:text-blue-300">Short answer</p>
         <p className="text-lg font-medium leading-relaxed text-gray-900 dark:text-white">
           For post-completion OPT, count unemployment from the first day of the OPT authorization period shown on your EAD. A late physical card does not automatically move that start date. You may not work until you are authorized, so document the delay and contact your DSO.
         </p>
@@ -122,7 +121,7 @@ export default function OptUnemploymentClockStartArticle() {
       <BlogProductCTA variant="unemployment" sourcePage="/blog/when-does-opt-unemployment-clock-start" />
 
       <div className="prose prose-lg prose-longform max-w-none dark:prose-invert">
-        <div className="not-prose mb-10 rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="not-prose mb-10 rounded-xl border border-gray-200 bg-gray-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">In this guide</h2>
           <div className="grid gap-2 sm:grid-cols-2">
             {[
@@ -144,7 +143,7 @@ export default function OptUnemploymentClockStartArticle() {
           <p>
             U.S. Immigration and Customs Enforcement explains that OPT must relate to your major and that you should wait to begin work until you receive work authorization. The two dates therefore matter independently: the EAD controls when you may work, while the OPT authorization period controls the compliance timeline. Compare the official <a href="https://www.ice.gov/sevis/practical-training" target="_blank" rel="noopener noreferrer">ICE practical-training guidance</a> with <a href="https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-opt-for-f-1-students" target="_blank" rel="noopener noreferrer">USCIS OPT guidance</a>, then confirm your individual record with your DSO.
           </p>
-          <div className="not-prose my-6 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-5 dark:bg-amber-950/30">
+          <div className="not-prose my-6 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-5 dark:bg-amber-950">
             <p className="font-semibold text-amber-900 dark:text-amber-100">A late EAD is urgent, but it is not a reason to work without authorization.</p>
             <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">Do not begin employment before the authorized start date and do not assume an application receipt, approval notice, or tracking number is permission to work.</p>
           </div>
@@ -201,7 +200,7 @@ export default function OptUnemploymentClockStartArticle() {
             <li>Use TrackMyOPT to track the unemployment counter, USCIS case changes, deadlines, and job applications together.</li>
             <li>Use the <Link href="/features/resume-ai">TrackMyOPT AI resume tools</Link> to tailor applications to your degree-related roles. AI can help with resume wording and job-search organization; it cannot determine your immigration status or replace DSO/legal advice.</li>
           </ol>
-          <div className="not-prose my-6 rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-800 dark:bg-indigo-950/30">
+          <div className="not-prose my-6 rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-800 dark:bg-indigo-950">
             <p className="font-semibold text-indigo-900 dark:text-indigo-100">Need a plain-English second check?</p>
             <p className="mt-1 text-sm text-indigo-800 dark:text-indigo-200">Browse the <Link href="/ai-facts" className="font-semibold underline">TrackMyOPT AI facts and answers</Link> for definitions, then verify the result against USCIS/ICE guidance and your DSO’s instructions.</p>
           </div>
@@ -215,7 +214,7 @@ export default function OptUnemploymentClockStartArticle() {
         </section>
       </div>
 
-      <div className="mt-10 rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="mt-10 rounded-xl border border-gray-200 bg-gray-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Continue reading</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <Link href="/blog/90-day-unemployment-rule-opt" className="text-sm text-blue-600 hover:underline dark:text-blue-400">→ The 90-day OPT unemployment rule</Link>
@@ -229,7 +228,7 @@ export default function OptUnemploymentClockStartArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("when-does-opt-unemployment-clock-start")} />
             <AuthorBio />
 
-      <div className="mt-12 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center text-white">
+      <div className="mt-12 rounded-xl bg-blue-600 p-8 text-center text-white">
         <h2 className="mb-3 text-2xl font-bold">Know your remaining OPT buffer</h2>
         <p className="mx-auto mb-6 max-w-lg text-blue-100">Track unemployment days, USCIS updates, job applications, and reminders in one place.</p>
         <Link href="/login" className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50">Start tracking free <ArrowRight className="h-4 w-4" /></Link>

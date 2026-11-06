@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, IdCard, ShieldCheck } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,24 +46,22 @@ export default function RealIdPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Life in US</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Travel</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     Can International Students Fly Domestically Without a Passport?
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Taking a weekend trip to Vegas or flying across the country for an OPT job interview? Learn exactly what documents TSA and Border Patrol expect you to carry.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Life in US · Travel</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 7 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <Image
                     src="/blog/real-id-domestic-flights-international-students.png"
                     alt="Domestic airline boarding pass with a REAL ID driver's license and an I-20 document"
@@ -101,8 +99,8 @@ export default function RealIdPage() {
                     <li>Two proofs of physical residency (e.g., a utility bill and a bank statement).</li>
                 </ul>
 
-                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm my-8">
-                    <h4 className="flex items-center gap-2 font-bold text-lg mt-0 mb-3"><IdCard className="w-5 h-5 text-blue-500" /> The "Limited Term" Caveat</h4>
+                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 my-8">
+                    <h4 className="font-bold text-lg mt-0 mb-3">The "Limited Term" Caveat</h4>
                     <p className="mb-0 text-sm text-gray-600 dark:text-gray-400">
                         Because you are not a US citizen or Permanent Resident, your REAL ID will be marked as "Limited Term." This simply means the license will expire on the exact date your I-20 or EAD card expires. If you get a STEM OPT extension, you will have to go back to the DMV to extend your driver's license.
                     </p>
@@ -116,7 +114,7 @@ export default function RealIdPage() {
                     <strong>HOWEVER:</strong> US Customs and Border Protection (CBP) operates internal checkpoints within 100 miles of any US land or coastal border. Furthermore, CBP occasionally conducts random immigration sweeps at domestic airport terminals. 
                 </p>
 
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-6 h-6" />
                         The Legal Requirement to Carry Documents
@@ -139,9 +137,8 @@ export default function RealIdPage() {
                     <li>Use <strong>TrackMyOPT's Document Safe</strong>.</li>
                 </ol>
 
-                <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl my-8">
-                    <h4 className="flex items-center gap-2 font-bold text-primary mt-0 mb-3">
-                        <ShieldCheck className="w-6 h-6" /> The TrackMyOPT Document Safe
+                <div className="bg-primary-soft border border-primary-muted p-6 rounded-xl my-8">
+                    <h4 className="font-bold text-primary mt-0 mb-3">The TrackMyOPT Document Safe
                     </h4>
                     <p className="mb-0">
                         If you are stopped by law enforcement or CBP and don't have your physical passport, having instant access to high-quality digital copies is your best defense against detention. 
@@ -160,9 +157,7 @@ export default function RealIdPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Travel With Peace of Mind
                 </h3>
@@ -172,7 +167,7 @@ export default function RealIdPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Access the Document Safe
                     </Link>
@@ -183,7 +178,7 @@ export default function RealIdPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/can-you-travel-on-opt-complete-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 International Travel Checklist
                             </h4>
@@ -196,7 +191,7 @@ export default function RealIdPage() {
                         </div>
                     </Link>
                     <Link href="/blog/renewing-f1-visa-on-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Visa Renewal on OPT
                             </h4>

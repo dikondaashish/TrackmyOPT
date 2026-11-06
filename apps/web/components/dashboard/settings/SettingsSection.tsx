@@ -535,8 +535,8 @@ export function SettingsSection() {
               {tab.icon}
               {tab.label}
               {tab.isPro && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                  PRO
+                <span className="px-1.5 py-0.5 text-xs font-medium text-purple-800 bg-purple-100 dark:bg-purple-950 dark:text-purple-300 rounded-md">
+                  Pro
                 </span>
               )}
             </button>
@@ -546,20 +546,20 @@ export function SettingsSection() {
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-3 text-green-700 dark:text-green-300">
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-3 text-green-700 dark:text-green-300">
           <Check className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm">{success}</span>
         </div>
       )}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-3 text-red-700 dark:text-red-300">
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-3 text-red-700 dark:text-red-300">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm">{error}</span>
         </div>
       )}
 
       {/* Tab Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (

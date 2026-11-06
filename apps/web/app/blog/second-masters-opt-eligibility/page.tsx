@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, GraduationCap } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle, GraduationCap } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -88,8 +88,7 @@ export default function BlogPost() {
 
                 <header className="mb-12">
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">Eligibility Guide</span>
-                        <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />5 min read</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Eligibility Guide · 5 min read</span>
                     </div>
                     <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                         Can I Apply for OPT Again After a Second Master's Degree?
@@ -101,15 +100,15 @@ export default function BlogPost() {
                 </header>
 
                 <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/second-masters-opt.png" alt="International college student with two graduation caps studying at a library desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/second-masters-opt.png" alt="International college student with two graduation caps studying at a library desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                     <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                         OPT is awarded based on progressing to higher educational levels, not just for completing any new degree program.
                     </figcaption>
                 </figure>
 
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                     <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                     <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                         <strong>No, you cannot apply for OPT again if you already used it for a previous degree at the same level.</strong> Under USCIS rules, F-1 students are granted a maximum of 12 months of OPT at each higher educational degree level. If you used OPT after your first Master's, you will not get OPT after a second Master's. You must complete a Ph.D. to become eligible for OPT again.
@@ -117,9 +116,7 @@ export default function BlogPost() {
                 </div>
 
                 <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        Table of Contents
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                     </h2>
                     <ul className="space-y-3">
                         <li><a href="#once-per-level-rule" className="text-blue-600 dark:text-blue-400 hover:underline">1. The "Once Per Higher Degree Level" Rule</a></li>
@@ -165,14 +162,14 @@ export default function BlogPost() {
                             Does the STEM Extension Change Things?
                         </h2>
                         <p>
-                            The 24-month STEM OPT extension follows slightly different rules, but the core principle remains the same. You can only apply for the STEM OPT extension <strong>twice</strong> in a lifetime, and the second STEM extension must be based on a degree at a <em>higher</em> educational level than the first.
+                            The 24-month STEM OPT extension follows slightly different rules, but the core principle remains the same. You can only apply for the STEM OPT extension <strong>twice</strong> in a lifetime, and the second STEM extension must be based on a degree at a <strong>higher</strong> educational level than the first.
                         </p>
                         <p>
                             If you used standard OPT and a STEM extension on your first Master's degree, you cannot get another STEM extension on a second Master's degree. You must proceed to a Ph.D. to be eligible again, as clarified by <a href="https://studyinthestates.dhs.gov/stem-opt-hub/additional-resources/stem-opt-frequently-asked-questions" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">ICE SEVP STEM OPT FAQs</a>.
                         </p>
                     </section>
 
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 my-10">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 my-10">
                         <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Warning: Fractional OPT Usage
@@ -188,7 +185,7 @@ export default function BlogPost() {
                             Can I use CPT During My Second Master's?
                         </h2>
                         <p>
-                            While OPT is exhausted, you <em>may</em> still be eligible for <strong>Curricular Practical Training (CPT)</strong> during your second Master's degree, provided that the new program requires internships or practical training as part of its curriculum.
+                            While OPT is exhausted, you <strong>may</strong> still be eligible for <strong>Curricular Practical Training (CPT)</strong> during your second Master's degree, provided that the new program requires internships or practical training as part of its curriculum.
                         </p>
                         <p>
                             Many students pursuing a second Master's degree look for "Day 1 CPT" universities that allow them to work while studying. However, be extremely cautious. USCIS scrutinizes Day 1 CPT heavily during H-1B petitions to ensure you are maintaining your F-1 academic intent rather than just using the university as a "visa mill" to continue working.
@@ -208,11 +205,10 @@ export default function BlogPost() {
                         </p>
                     </section>
 
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 my-12 text-white shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="bg-blue-600 rounded-xl p-8 my-12 text-white relative overflow-hidden">
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2 bg-white/20 rounded-lg">
+                                <div className="p-2 bg-blue-500 rounded-lg">
                                     <GraduationCap className="w-6 h-6 text-white" />
                                 </div>
                                 <h3 className="text-2xl font-bold">Track Your OPT Compliance Intelligently</h3>
@@ -237,7 +233,7 @@ export default function BlogPost() {
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Link 
                                     href="/login" 
-                                    className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors shadow-lg"
+                                    className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors"
                                 >
                                     Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, BookOpen, Award, Compass } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, Award, Compass } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -69,9 +69,8 @@ export default function EB2NIWGuide() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
-                        Immigration
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Immigration</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         12 min read
@@ -91,24 +90,23 @@ export default function EB2NIWGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/eb2-niw-green-card-opt.png" alt="Academic research papers, laptop showing academic paper, and Form I-140 folder on library desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/eb2-niw-green-card-opt.png" alt="Academic research papers, laptop showing academic paper, and Form I-140 folder on library desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Your academic papers, publications, and professional endeavor form the core of your EB-2 NIW petition.
                 </figcaption>
             </figure>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The <strong>EB-2 NIW</strong> is a self-petition Green Card option for students with a Master&apos;s or Ph.D. (or Bachelor&apos;s + 5 years experience). You don&apos;t need an employer or job offer. You must prove your work is of <strong>national importance</strong>, you are qualified to execute it, and the US benefits from skipping the PERM labor market test.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -119,9 +117,8 @@ export default function EB2NIWGuide() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
                 <nav className="space-y-2">
@@ -146,7 +143,7 @@ export default function EB2NIWGuide() {
                         The Legal Framework: Matter of Dhanasar
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        To qualify for a National Interest Waiver, your petition must satisfy all three prongs established in the landmark case <em>Matter of Dhanasar (2016)</em>:
+                        To qualify for a National Interest Waiver, your petition must satisfy all three prongs established in the landmark case Matter of Dhanasar (2016):
                     </p>
                     <div className="space-y-3">
                         {[
@@ -209,7 +206,7 @@ export default function EB2NIWGuide() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Important Caveats & F-1 Status Risks
                     </h2>
-                    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
                         <div className="flex gap-2">
                             <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-600" />
                             <div>
@@ -220,11 +217,10 @@ export default function EB2NIWGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-8 my-12 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="relative z-10">
+                <div className="bg-purple-600 rounded-xl p-8 my-12 text-white">
+                    <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-white/20 rounded-lg">
+                            <div className="p-2 bg-purple-500 rounded-lg">
                                 <Compass className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Consolidate Your Case Records</h3>
@@ -234,7 +230,7 @@ export default function EB2NIWGuide() {
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-purple-700 font-bold hover:bg-purple-50 transition-colors shadow-lg"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-purple-700 font-bold hover:bg-purple-50 transition-colors"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -242,7 +238,7 @@ export default function EB2NIWGuide() {
                 </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/green-card-after-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Green Card After OPT Options</Link>

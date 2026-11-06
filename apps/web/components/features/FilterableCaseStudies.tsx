@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { Sparkles, ArrowRight, Briefcase, GraduationCap, Microscope } from "lucide-react";
+import { ArrowRight, Briefcase, GraduationCap, Microscope } from "lucide-react";
 
 interface CaseStudy {
     id: string;
@@ -89,7 +89,7 @@ export function FilterableCaseStudies() {
         : CASE_STUDIES.filter(c => c.category === activeCategory);
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <div className="text-center mb-12">
@@ -103,8 +103,8 @@ export function FilterableCaseStudies() {
                             <button
                                 key={cat.id}
                                 onClick={() => setActiveCategory(cat.id)}
-                                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${activeCategory === cat.id
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105"
+                                className={`px-6 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${activeCategory === cat.id
+                                        ? "bg-blue-600 text-white"
                                         : "bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-700"
                                     }`}
                             >
@@ -125,13 +125,13 @@ export function FilterableCaseStudies() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.3 }}
-                                className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 shadow-sm hover:shadow-xl transition-all group h-full flex flex-col"
+                                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 transition-all group h-full flex flex-col"
                             >
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${cs.category === 'engineering' ? 'from-blue-500 to-indigo-600' :
-                                            cs.category === 'business' ? 'from-purple-500 to-pink-600' :
-                                                'from-green-500 to-teal-600'
-                                        } flex items-center justify-center text-white font-bold text-lg shadow-lg`}>
+                                    <div className={`w-14 h-14 rounded-full ${cs.category === 'engineering' ? 'bg-blue-500' :
+                                            cs.category === 'business' ? 'bg-purple-500' :
+                                                'bg-green-500'
+                                        } flex items-center justify-center text-white font-bold text-lg`}>
                                         {cs.name.split(' ').map(n => n[0]).join('')}
                                     </div>
                                     <div>
@@ -142,20 +142,19 @@ export function FilterableCaseStudies() {
                                 </div>
 
                                 <div className="mb-6 flex-grow">
-                                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${cs.category === 'engineering' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' :
-                                            cs.category === 'business' ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300' :
-                                                'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                                    <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium mb-4 ${cs.category === 'engineering' ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300' :
+                                            cs.category === 'business' ? 'bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300' :
+                                                'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300'
                                         }`}>
-                                        <Sparkles className="w-3 h-3" />
                                         {cs.highlight}
                                     </div>
-                                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed italic">
+                                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                                         &ldquo;{cs.story}&rdquo;
                                     </p>
                                 </div>
 
                                 <div className="pt-6 border-t border-gray-100 dark:border-zinc-800 flex justify-between items-center">
-                                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">{cs.category}</span>
+                                    <span className="text-xs font-semibold text-gray-400">{cs.category}</span>
                                     <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                                         <ArrowRight className="w-4 h-4" />
                                     </div>

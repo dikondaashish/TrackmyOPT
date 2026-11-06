@@ -62,9 +62,9 @@ export function NotificationsTab({
             <div className="max-w-2xl space-y-8">
 
               {/* Preferences Section - Combined with Notification Email */}
-              <div className="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="p-5 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
                     <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
@@ -102,7 +102,7 @@ export function NotificationsTab({
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
                       <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
@@ -110,17 +110,17 @@ export function NotificationsTab({
                       <p className="text-sm text-gray-500 dark:text-gray-400">Email reminders for each OPT tracking tool</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-purple-500 rounded-md">
                     PRO
                   </span>
                 </div>
 
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
                     <Button
                       onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
+                      className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 text-base font-semibold"
                     >
                       Upgrade to Pro
                     </Button>
@@ -136,10 +136,10 @@ export function NotificationsTab({
                   ]).map((tool) => {
                     const ToolIcon = OPT_TOOL_ICONS[tool.icon];
                     return (
-                    <div key={tool.key} className="p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700">
+                    <div key={tool.key} className="p-4 rounded-xl border bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                         <div className="flex items-center gap-3 w-full sm:w-auto">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200/80 dark:bg-gray-800">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 dark:bg-gray-800">
                             <ToolIcon className="h-4 w-4 text-gray-700 dark:text-gray-300" />
                           </div>
                           <div>
@@ -200,7 +200,7 @@ export function NotificationsTab({
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-950 flex items-center justify-center">
                       <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
@@ -208,24 +208,24 @@ export function NotificationsTab({
                       <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your USCIS case status changes</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-purple-500 rounded-md">
                     PRO
                   </span>
                 </div>
 
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
                     <Button
                       onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
+                      className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 text-base font-semibold"
                     >
                       Upgrade to Pro
                     </Button>
                   </div>
                 )}
 
-                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
+                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                     <div className="w-full sm:w-auto text-center sm:text-left mb-2 sm:mb-0">
                       <p className="font-medium text-gray-900 dark:text-gray-100">Case Status Alerts</p>
@@ -292,7 +292,7 @@ export function NotificationsTab({
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center">
                       <Lock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
@@ -300,24 +300,24 @@ export function NotificationsTab({
                       <p className="text-sm text-gray-500 dark:text-gray-400">Get alerts before your documents expire</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-purple-500 rounded-md">
                     PRO
                   </span>
                 </div>
 
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
                     <Button
                       onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
+                      className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 text-base font-semibold"
                     >
                       Upgrade to Pro
                     </Button>
                   </div>
                 )}
 
-                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
+                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Document Expiry Reminders</p>

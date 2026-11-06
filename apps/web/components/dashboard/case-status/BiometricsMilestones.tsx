@@ -72,7 +72,7 @@ export function BiometricsMilestones({
         userBiometricsDate={savedDate}
       />
       {canConfirm && (
-        <div className="mt-4 rounded-xl border border-border bg-muted/30 p-3 text-sm">
+        <div className="mt-4 rounded-xl border border-border bg-muted p-3 text-sm">
           {savedDate && !editing ? (
             <>
               <p className="font-medium">

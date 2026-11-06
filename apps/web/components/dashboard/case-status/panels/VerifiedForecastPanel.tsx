@@ -16,7 +16,7 @@ export function ForecastDetails({ forecast: f }: { forecast: Forecast }) {
   return (
     <section
       aria-label="Verified approval forecast"
-      className="mb-5 rounded-xl border border-border bg-muted/20 p-5"
+      className="mb-5 rounded-xl border border-border bg-muted p-5"
     >
       <h3 className="text-base font-semibold">
         {f.state === 'approved'

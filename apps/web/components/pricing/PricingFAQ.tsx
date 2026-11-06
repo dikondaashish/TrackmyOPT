@@ -1,6 +1,5 @@
 "use client";
 
-import { HelpCircle } from "lucide-react";
 import { pricingFaqs } from "./PricingData";
 
 export function PricingFAQ() {
@@ -22,8 +21,7 @@ export function PricingFAQ() {
                             key={i}
                             className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
                         >
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <HelpCircle className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
                                 {faq.q}
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">

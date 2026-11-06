@@ -96,36 +96,36 @@ export function InsightsPanel({ applications }: InsightsPanelProps) {
             label: "Total Applications",
             value: metrics.total,
             icon: BarChart3,
-            color: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40"
+            color: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900"
         },
         {
             label: "Applied → Interview",
             value: `${metrics.appliedToInterview}%`,
             icon: TrendingUp,
-            color: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40",
+            color: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900",
             subtext: `${metrics.withInterview} of ${metrics.applied} applied`
         },
         {
             label: "Interview → Offer",
             value: `${metrics.interviewToOffer}%`,
             icon: Award,
-            color: "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/40",
+            color: "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900",
             subtext: `${metrics.offers} of ${metrics.withInterview} interviewed`
         },
         {
             label: "Avg. Days to Interview",
             value: metrics.avgDaysToInterview ?? "—",
             icon: Clock,
-            color: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40"
+            color: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900"
         }
     ];
 
     return (
-        <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             {/* Header */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
                 <div className="flex items-center gap-2">
                     <Target className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -147,7 +147,7 @@ export function InsightsPanel({ applications }: InsightsPanelProps) {
                             return (
                                 <div
                                     key={index}
-                                    className="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 flex flex-col justify-between h-full"
+                                    className="p-3 rounded-xl bg-gray-50 dark:bg-gray-700 flex flex-col justify-between h-full"
                                 >
                                     <div className="flex items-start justify-between mb-2">
                                         <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", card.color)}>

@@ -67,12 +67,12 @@ export function OptimizationFeedbackModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && !isGenerating && onClose()}>
-            <DialogContent onClose={onClose} className="sm:max-w-md p-0 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none rounded-2xl">
+            <DialogContent onClose={onClose} className="sm:max-w-md p-0 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl dark:shadow-none rounded-xl">
                 {/* Header */}
                 <div className="px-5 pt-5 pb-3">
                     <DialogHeader>
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                            <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
                                 <Sparkles className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
@@ -99,7 +99,7 @@ export function OptimizationFeedbackModal({
                             maxLength={REGENERATION_FEEDBACK_MAX_CHARS}
                             disabled={isGenerating}
                             rows={2}
-                            className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all disabled:opacity-50"
+                            className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-all disabled:opacity-50"
                         />
                         <p className="mt-1 text-right text-[11px] text-gray-400 dark:text-gray-500">
                             {feedback.length}/{REGENERATION_FEEDBACK_MAX_CHARS}
@@ -112,7 +112,7 @@ export function OptimizationFeedbackModal({
                             <Zap className="w-3 h-3 text-gray-400" />
                             <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Quick suggestions</span>
                             {selectedSuggestions.size > 0 && (
-                                <span className="text-[10px] bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded-full font-medium">
+                                <span className="text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded-md font-medium">
                                     {selectedSuggestions.size}
                                 </span>
                             )}
@@ -130,8 +130,8 @@ export function OptimizationFeedbackModal({
                                             inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-all
                                             disabled:opacity-50 disabled:cursor-not-allowed
                                             ${isSelected
-                                                ? "bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300"
-                                                : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-200 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/10"
+                                                ? "bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300"
+                                                : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-200 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
                                             }
                                         `}
                                     >

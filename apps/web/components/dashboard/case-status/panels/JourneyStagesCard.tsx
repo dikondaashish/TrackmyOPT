@@ -124,8 +124,8 @@ export function JourneyStagesCard({
               className={cn(
                 "flex items-start gap-3 rounded-lg px-3 py-2.5 border",
                 active
-                  ? "border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/30"
-                  : "border-transparent bg-muted/30"
+                  ? "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950"
+                  : "border-transparent bg-muted"
               )}
             >
               <span
@@ -144,7 +144,7 @@ export function JourneyStagesCard({
                   <p className="text-sm font-medium text-foreground">
                     {step.title}
                     {active && (
-                      <span className="ml-2 text-[10px] font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                      <span className="ml-2 text-xs font-medium text-blue-600 dark:text-blue-400">
                         You're here
                       </span>
                     )}
@@ -175,7 +175,7 @@ export function JourneyStagesCard({
         <button
           type="button"
           onClick={onUpgrade}
-          className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:border-foreground transition-colors cursor-pointer"
         >
           <Lock className="w-3 h-3" />
           See the full range and how many reports each timing is based on

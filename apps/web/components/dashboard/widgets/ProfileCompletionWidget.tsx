@@ -76,12 +76,12 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile, r
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="border border-blue-100 dark:border-blue-900/50 bg-gradient-to-br from-blue-50 to-blue-100/30 dark:from-blue-950/20 dark:to-blue-900/10 rounded-xl p-6 relative overflow-hidden">
+    <div className="border border-blue-100 dark:border-blue-950 bg-blue-50 dark:bg-blue-950 rounded-xl p-6 relative overflow-hidden">
       <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
         <div className="relative flex items-center justify-center shrink-0">
           <svg className="w-24 h-24 transform -rotate-90">
             <circle
-              className="text-blue-200 dark:text-blue-900/50"
+              className="text-blue-200 dark:text-blue-900"
               strokeWidth="8"
               stroke="currentColor"
               fill="transparent"
@@ -111,7 +111,7 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile, r
           <h3 className="text-lg font-bold text-blue-950 dark:text-blue-100 mb-1">
             Complete your profile
           </h3>
-          <p className="text-sm text-blue-800/80 dark:text-blue-200/80 mb-4 max-w-md">
+          <p className="text-sm text-blue-800 dark:text-blue-200 mb-4 max-w-md">
             You're almost there! Providing complete information ensures we can accurately track your OPT status and STEM eligibility without errors.
           </p>
 
@@ -134,7 +134,6 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile, r
       </div>
       
       {/* Decorative background circle */}
-      <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
     </div>
   );
 }

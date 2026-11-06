@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, Coins, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -129,11 +129,8 @@ export function ResumeCreditTopUpModal({
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className="max-w-lg overflow-hidden p-0">
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 px-6 py-6 text-white">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
-            <Coins className="h-6 w-6" aria-hidden="true" />
-          </div>
-          <h2 className="mt-4 text-2xl font-bold">
+        <div className="bg-blue-600 px-6 py-6 text-white">
+          <h2 className="text-2xl font-bold">
             {monthlyExhausted ? 'Keep generating resumes' : 'Load resume credits'}
           </h2>
           <p className="mt-1 text-sm text-blue-100">
@@ -226,7 +223,7 @@ export function ResumeCreditTopUpModal({
                       setError(null);
                     }}
                     disabled={isLoading}
-                    className="min-h-9 rounded-full border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 transition-colors hover:border-blue-400 hover:bg-blue-100 disabled:cursor-wait disabled:opacity-60 dark:border-blue-900/70 dark:bg-blue-950/40 dark:text-blue-300"
+                    className="min-h-9 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 transition-colors hover:border-blue-400 hover:bg-blue-100 disabled:cursor-wait disabled:opacity-60 dark:border-blue-900 dark:bg-blue-900 dark:text-blue-300"
                   >
                     ${suggestedAmount} ·{' '}
                     {creditsForPackQuantity(suggestedAmount)} credits

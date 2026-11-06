@@ -62,7 +62,7 @@ export function SubscriptionFAQ() {
                     >
                         <button
                             onClick={() => toggle(index)}
-                            className="w-full flex items-center justify-between p-4 text-left font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                            className="w-full flex items-center justify-between p-4 text-left font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                         >
                             <span className="text-sm">{faq.question}</span>
                             {openIndex === index ? (
@@ -72,7 +72,7 @@ export function SubscriptionFAQ() {
                             )}
                         </button>
                         {openIndex === index && (
-                            <div className="p-4 pt-0 text-sm text-gray-600 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-800/50">
+                            <div className="p-4 pt-0 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800">
                                 {faq.answer}
                             </div>
                         )}

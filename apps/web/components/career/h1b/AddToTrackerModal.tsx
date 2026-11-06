@@ -50,7 +50,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div role="dialog" aria-modal="true" aria-labelledby="add-job-tracker-title" className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-6">
+            <div role="dialog" aria-modal="true" aria-labelledby="add-job-tracker-title" className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md shadow-2xl p-6 space-y-6">
                 <div className="flex items-center justify-between">
                     <h3 id="add-job-tracker-title" className="text-xl font-bold text-gray-900 dark:text-white">Add to Job Tracker</h3>
                     <button type="button" onClick={onClose} aria-label="Close add to job tracker dialog" className="min-h-11 min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition">
@@ -124,7 +124,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                     <div className="pt-2">
                         <button
                             type="submit"
-                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all shadow-lg shadow-blue-500/25"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all shadow-lg"
                         >
                             <Check className="w-5 h-5" />
                             Save to Job Tracker

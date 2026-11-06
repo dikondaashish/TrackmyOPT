@@ -206,15 +206,15 @@ function JobListItem({
           <JobCompanyLogo companyName={companyName} website={job.company_website} />
           <div className="min-w-0 flex-1">
             <button type="button" onClick={onToggle} aria-expanded={expanded} className="group flex min-h-11 items-center gap-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
-              <h2 className="text-base font-semibold leading-5 tracking-[-0.01em] text-slate-950 group-hover:text-blue-800 sm:text-[1.05rem] dark:text-white dark:group-hover:text-blue-200">{job.title}</h2>
+              <h2 className="text-base font-semibold leading-5 text-slate-950 group-hover:text-blue-800 sm:text-[1.05rem] dark:text-white dark:group-hover:text-blue-200">{job.title}</h2>
               <ChevronDown className={`size-4 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
             </button>
             <p className="text-sm leading-5 text-slate-600 dark:text-slate-300">{companyName} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {postedLabel(job)}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {resumeMatch && <span className={`rounded-md px-2 py-0.5 text-xs font-semibold leading-5 ${resumeMatch.score >= 75 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200' : resumeMatch.score >= 50 ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-200' : 'bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300'}`}>{resumeMatch.score}% match</span>}
+              {resumeMatch && <span className={`rounded-md px-2 py-0.5 text-xs font-semibold leading-5 ${resumeMatch.score >= 75 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200' : resumeMatch.score >= 50 ? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200' : 'bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300'}`}>{resumeMatch.score}% match</span>}
               {requirements.map((label) => <span key={label} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium leading-5 text-slate-600 dark:bg-slate-900 dark:text-slate-300">{label}</span>)}
-              {employerHistory && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium leading-5 text-blue-700 dark:bg-blue-950/50 dark:text-blue-200">Source-backed history</span>}
-              {job.tracker_status && <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium leading-5 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200">Tracker: {job.tracker_status}</span>}
+              {employerHistory && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium leading-5 text-blue-700 dark:bg-blue-900 dark:text-blue-200">Source-backed history</span>}
+              {job.tracker_status && <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium leading-5 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200">Tracker: {job.tracker_status}</span>}
             </div>
             <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"><AtsSourceLogo sourceAts={job.source_ats} /> {atsSourceName(job.source_ats)} verified{job.department ? ` · ${job.department}` : ''}</p>
           </div>
@@ -232,7 +232,7 @@ function JobListItem({
       </div>
 
       {expanded && (
-        <div className="rounded-b-[0.7rem] border-t border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900/30">
+        <div className="rounded-b-[0.7rem] border-t border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
             <div>
               <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white"><FileText className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Job description</h3>
@@ -269,7 +269,7 @@ function JobListItem({
             </aside>
           </div>
           {resumeMatch && (
-            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 p-3 dark:border-blue-900/60 dark:bg-blue-950/20">
+            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-950">
               <h3 className="text-sm font-semibold text-slate-950 dark:text-white">Why this job matches</h3>
               <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
                 {resumeMatch.reasons.map((reason) => <li key={reason} className="flex gap-2"><span className="mt-[0.55rem] size-1 shrink-0 rounded-full bg-blue-600" aria-hidden="true" />{reason}</li>)}
@@ -443,7 +443,7 @@ export function JobBoardExplorer({
         }}
       >
         <div className="flex flex-col gap-2">
-          <div className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600/15 dark:border-slate-700 dark:bg-slate-950">
+          <div className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600 dark:border-slate-700 dark:bg-slate-950">
             <FilterSelect label="Search scope" value={draft.searchScope} onChange={(value) => updateDraft('searchScope', value as JobFilters['searchScope'])}>
               <option value="title_description">Title + description</option>
               <option value="title">Title only</option>
@@ -480,7 +480,7 @@ export function JobBoardExplorer({
               <summary className="inline-flex min-h-11 w-full cursor-pointer list-none items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900">
                 <SlidersHorizontal className="size-4" aria-hidden="true" /> More filters <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
               </summary>
-              <div className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/60">
+              <div className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
                 <label className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm dark:border-slate-700">
                   <span className="font-medium text-slate-500">Exclude</span>
                   <input
@@ -528,13 +528,13 @@ export function JobBoardExplorer({
 
       <div aria-busy={loading} className={`transition-opacity duration-200 ${loading ? 'pointer-events-none opacity-50' : ''}`}>
       {serverMode && serverError && visibleJobs.length === 0 ? (
-        <div role="alert" className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900/50">
+        <div role="alert" className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900">
           <h2 className="font-semibold text-slate-950 dark:text-white">{serverError}</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Your filters are kept. Try again in a moment.</p>
           <button type="button" disabled={loading} onClick={() => void loadServerPage(currentPage, filters)} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Try again</button>
         </div>
       ) : visibleJobs.length === 0 ? (
-        <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900/50">
+        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900">
           <h2 className="font-semibold text-slate-950 dark:text-white">No verified jobs match these filters</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Try removing a filter or searching with a broader term. Only authorized employer-board listings appear here.</p>
           <button type="button" onClick={() => clearFilters()} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Clear filters</button>

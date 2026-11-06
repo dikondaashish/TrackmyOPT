@@ -94,10 +94,10 @@ const testimonials = [
 
 function TestimonialCard({ img, name, university, body, country }: (typeof testimonials)[number]) {
     return (
-        <Card className="w-64 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 shadow-sm hover:shadow-lg transition-shadow">
+        <Card className="w-64 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 shadow-none">
             <CardContent className="p-4 prose-longform">
                 <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 ring-2 ring-blue-500/20">
+                    <Avatar className="h-10 w-10">
                         <AvatarImage src={img} alt={name} />
                         <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold">{name[0]}</AvatarFallback>
                     </Avatar>
@@ -116,7 +116,7 @@ function TestimonialCard({ img, name, university, body, country }: (typeof testi
 
 export function LandingTestimonials() {
     return (
-        <section className="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-zinc-950 dark:to-zinc-900 overflow-hidden" id="testimonials">
+        <section className="py-24 bg-white dark:bg-zinc-950 overflow-hidden" id="testimonials">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="prose-longform text-center mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
@@ -127,15 +127,8 @@ export function LandingTestimonials() {
                     </p>
                 </div>
 
-                {/* 3D Marquee Testimonials */}
-                <div className="relative flex h-[500px] w-full flex-row items-center justify-center overflow-hidden gap-4 [perspective:300px]">
-                    <div
-                        className="flex flex-row items-center gap-4"
-                        style={{
-                            transform:
-                                'translateX(-100px) translateY(0px) translateZ(-100px) rotateX(20deg) rotateY(-10deg) rotateZ(20deg)',
-                        }}
-                    >
+                <div className="relative flex h-[500px] w-full flex-row items-center justify-center overflow-hidden gap-4">
+                    <div className="flex flex-row items-start gap-4">
                         {/* Column 1: Down */}
                         <Marquee vertical pauseOnHover repeat={3} className="[--duration:35s]">
                             {testimonials.slice(0, 4).map((review) => (
@@ -161,12 +154,6 @@ export function LandingTestimonials() {
                             ))}
                         </Marquee>
                     </div>
-
-                    {/* Gradient overlays */}
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white dark:from-zinc-950"></div>
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-gray-50 dark:from-zinc-900"></div>
-                    <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-white dark:from-zinc-950"></div>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-white dark:from-zinc-950"></div>
                 </div>
             </div>
         </section>

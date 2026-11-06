@@ -41,7 +41,7 @@ export function AddColumnModal({ isOpen, onClose }: AddColumnModalProps) {
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
+                        <div className="p-1.5 rounded-lg bg-blue-600">
                             <Columns3 className="w-4 h-4 text-white" />
                         </div>
                         Add Custom Stage

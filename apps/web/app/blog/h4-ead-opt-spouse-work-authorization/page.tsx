@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2, Briefcase, ShieldCheck } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,10 +46,6 @@ export default function H4EADPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Dependent Visas</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Work Authorization</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     H-4 EAD: Can Your Spouse Work While You Are on OPT or H-1B?
                 </h1>
@@ -57,13 +53,15 @@ export default function H4EADPage() {
                     Learn whether H-4 visa holders can get work authorization, the eligibility rules tied to I-140 approval, and how the OPT-to-H-1B transition impacts your spouse.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Dependent Visas · Work Authorization</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 8 min read</span>
                     <span>•</span>
                     <span>Updated October 11, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/h4-ead-opt-spouse-work-authorization.jpg" alt="Two EAD cards and two passports with H-1B and H-4 visa stamps next to wedding rings" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -77,7 +75,7 @@ export default function H4EADPage() {
                     If you are currently on an F-1 visa (including OPT and STEM OPT), your spouse is on an <strong>F-2 dependent visa.</strong> Under current immigration law, F-2 visa holders are <strong>strictly prohibited from working</strong> in the United States. They cannot be employed, freelance, or even do volunteer work that would normally be paid. Study permissions depend on the level and course load. Ask the school about F-2 study rules and any change of status needed for full-time postsecondary study.
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         F-2 Work Is Illegal
@@ -102,7 +100,7 @@ export default function H4EADPage() {
                 </ol>
 
                 <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm my-8">
-                    <h4 className="flex items-center gap-2 font-bold text-lg mt-0 mb-3"><Briefcase className="w-5 h-5 text-blue-500" /> Key Benefit</h4>
+                    <h4 className="font-bold text-lg mt-0 mb-3">Key Benefit</h4>
                     <p className="mb-0 text-sm text-gray-600 dark:text-gray-400">
                         Unlike the OPT EAD, which restricts you to jobs related to your major, the <strong>H-4 EAD has no employment restrictions.</strong> Your spouse can work in any field, for any employer, full-time or part-time. They can even start their own business.
                     </p>
@@ -112,7 +110,7 @@ export default function H4EADPage() {
                 <p>
                     Here is the typical timeline for a married international student's spouse to eventually gain work authorization:
                 </p>
-                <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-xl p-6 my-6">
+                <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-6 my-6">
                     <div className="space-y-4 text-sm">
                         <div className="flex items-start gap-3">
                             <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
@@ -149,13 +147,12 @@ export default function H4EADPage() {
                     <strong>Processing time:</strong> 3-6 months on average. Your spouse cannot begin working until they physically receive the EAD card.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <ShieldCheck className="w-6 h-6 text-primary" />
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Track the Entire Journey with TrackMyOPT
                     </h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">
-                        From OPT to H-1B to I-140 approval—your spouse's work authorization depends on every step of <em>your</em> immigration journey going smoothly. <strong>TrackMyOPT</strong> helps you track unemployment days during OPT, monitor SEVIS reporting deadlines, and securely store every immigration document for both you and your spouse. Start building a clean immigration record from Day 1.
+                        From OPT to H-1B to I-140 approval—your spouse's work authorization depends on every step of your immigration journey going smoothly. <strong>TrackMyOPT</strong> helps you track unemployment days during OPT, monitor SEVIS reporting deadlines, and securely store every immigration document for both you and your spouse. Start building a clean immigration record from Day 1.
                     </p>
                 </div>
 
@@ -171,9 +168,8 @@ export default function H4EADPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
 
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Plan Your Immigration Journey
                 </h3>
@@ -183,7 +179,7 @@ export default function H4EADPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Start Planning Your Future
                     </Link>
@@ -194,7 +190,7 @@ export default function H4EADPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/f2-dependent-visa-rules-opt-students" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 F-2 Dependent Visa Rules
                             </h4>
@@ -207,7 +203,7 @@ export default function H4EADPage() {
                         </div>
                     </Link>
                     <Link href="/blog/green-card-after-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Green Card After OPT
                             </h4>

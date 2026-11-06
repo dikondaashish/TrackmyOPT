@@ -51,18 +51,11 @@ export function LandingFAQ() {
 
     return (
         <section id="faq" className="py-24 relative">
-            <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-16">
-                    <span className="inline-block px-4 py-1.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-sm font-medium rounded-full mb-4">
-                        FAQ
-                    </span>
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-                        Frequently Asked{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600">
-                            Questions
-                        </span>
+                        Frequently asked questions
                     </h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         Everything you need to know about TrackMyOPT.

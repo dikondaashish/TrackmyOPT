@@ -6,7 +6,7 @@ import { Users, AlertTriangle, BarChart3, Search, Bell, Settings, PieChart, Down
 export function UniversityDashboardPreview() {
     return (
         <motion.div
-            className="w-full bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col md:flex-row h-[500px] md:h-[600px] text-left"
+            className="w-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden flex flex-col md:flex-row h-[500px] md:h-[600px] text-left"
             initial={{ rotateX: 5, y: 20 }}
             whileInView={{ rotateX: 0, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -27,14 +27,14 @@ export function UniversityDashboardPreview() {
                     <SidebarItem icon={Settings} label="Settings" />
                 </div>
 
-                <div className="mt-auto bg-blue-100 dark:bg-blue-900/20 rounded-xl p-4">
+                <div className="mt-auto bg-blue-100 dark:bg-blue-950 rounded-xl p-4">
                     <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1">Upcoming Webinar</p>
                     <p className="text-[10px] text-blue-600 dark:text-blue-400">"H-1B Trends 2025" for DSOs</p>
                 </div>
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 bg-gray-50/50 dark:bg-zinc-900/50">
+            <div className="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-zinc-900">
                 {/* Header */}
                 <div className="h-16 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between px-6 bg-white dark:bg-zinc-900">
                     <h3 className="font-semibold text-gray-900 dark:text-white">Dashboard Overview</h3>
@@ -47,7 +47,7 @@ export function UniversityDashboardPreview() {
                             <Bell className="w-5 h-5 text-gray-500" />
                             <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900" />
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-indigo-700 font-bold text-xs">
                             US
                         </div>
                     </div>
@@ -81,7 +81,7 @@ export function UniversityDashboardPreview() {
                     </div>
 
                     {/* Action Items / Table Mockup */}
-                    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-200 dark:border-zinc-800 flex justify-between items-center">
                             <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Urgent Compliance Alerts</h4>
                             <button className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
@@ -103,7 +103,7 @@ export function UniversityDashboardPreview() {
                         transition={{ duration: 2, delay: 1, repeat: Infinity, repeatType: "reverse", repeatDelay: 3 }}
                         className="absolute z-20 pointer-events-none"
                     >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-xl">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="#2563EB" stroke="white" strokeWidth="2" strokeLinejoin="round" />
                         </svg>
                     </motion.div>
@@ -122,7 +122,7 @@ function SidebarItem({ icon: Icon, label, active = false, badge }: { icon: any, 
                 <span className="text-sm font-medium">{label}</span>
             </div>
             {badge && (
-                <span className="px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold">{badge}</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 text-[10px] font-bold">{badge}</span>
             )}
         </div>
     );
@@ -130,7 +130,7 @@ function SidebarItem({ icon: Icon, label, active = false, badge }: { icon: any, 
 
 function StatCard({ title, value, change, trend, isBad, color = "blue" }: { title: string, value: string, change: string, trend: "up" | "down", isBad?: boolean, color?: string }) {
     return (
-        <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-gray-200 dark:border-zinc-800">
             <p className="text-xs text-gray-500 mb-1">{title}</p>
             <div className="flex items-end justify-between">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
@@ -147,7 +147,7 @@ function StatCard({ title, value, change, trend, isBad, color = "blue" }: { titl
 
 function AlertRow({ name, id, issue, daysLeft, status }: { name: string, id: string, issue: string, daysLeft: string, status: "Critical" | "Warning" | "Info" }) {
     return (
-        <div className="px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
+        <div className="px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
             <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
                     {name.split(' ').map(n => n[0]).join('')}
@@ -162,7 +162,7 @@ function AlertRow({ name, id, issue, daysLeft, status }: { name: string, id: str
             </div>
             <div className="flex items-center gap-4">
                 <span className="text-xs text-gray-500">{daysLeft}</span>
-                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${status === 'Critical' ? 'bg-red-100 text-red-600' :
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium ${status === 'Critical' ? 'bg-red-100 text-red-600' :
                         status === 'Warning' ? 'bg-amber-100 text-amber-600' :
                             'bg-blue-100 text-blue-600'
                     }`}>

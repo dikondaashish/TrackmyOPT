@@ -95,9 +95,8 @@ export default function LeverageResumeGeneratorBlogPage() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-semibold">
-                        CAREERS
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Careers</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         9 min read
@@ -118,7 +117,7 @@ export default function LeverageResumeGeneratorBlogPage() {
 
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <section className="mb-10">
-                    <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20">
+                    <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-0 mb-3">Quick Answer</h2>
                         <p className="text-gray-700 dark:text-gray-300 mb-0">
                             TrackMyOPT Resume Generator helps you build one strong base resume, tailor it per role in minutes, and keep ATS-friendly formatting. This reduces low-quality applications and improves your odds of getting recruiter callbacks.
@@ -199,7 +198,7 @@ export default function LeverageResumeGeneratorBlogPage() {
                             "Overloading resume with unrelated tools",
                             "Sending old resume versions without role alignment",
                         ].map((m, i) => (
-                            <div key={i} className="p-4 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 text-sm text-red-800 dark:text-red-300">
+                            <div key={i} className="p-4 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 text-sm text-red-800 dark:text-red-300">
                                 {m}
                             </div>
                         ))}
@@ -211,7 +210,7 @@ export default function LeverageResumeGeneratorBlogPage() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Use a repeatable system: shortlist roles, generate tailored resume versions, apply, then track outcomes.
                     </p>
-                    <div className="p-5 rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-900/20">
+                    <div className="p-5 rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950">
                         <ul className="space-y-2 text-green-900 dark:text-green-200 text-sm">
                             <li>Monday: Identify 10-15 high-fit roles.</li>
                             <li>Tuesday-Thursday: Generate and submit 3-5 tailored applications per day.</li>
@@ -236,7 +235,7 @@ export default function LeverageResumeGeneratorBlogPage() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/ats-resume-international-students-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ ATS Resume for International Students 2026</Link>
@@ -252,7 +251,7 @@ export default function LeverageResumeGeneratorBlogPage() {
 
             <AuthorBio />
 
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Build Better Resumes in Minutes</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">
                     Use TrackMyOPT Resume Generator to tailor each application, improve ATS compatibility, and increase interview calls.

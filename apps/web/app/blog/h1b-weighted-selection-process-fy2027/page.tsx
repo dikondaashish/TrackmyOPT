@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2, TrendingUp, FileText, Download } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
@@ -53,7 +53,8 @@ export default function H1BWeightedSelectionArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">H-1B Updates</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">H-1B Updates</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />8 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
@@ -71,13 +72,13 @@ export default function H1BWeightedSelectionArticle() {
                 width={1200}
                 height={630}
                 sizes="(max-width: 896px) 100vw, 896px"
-                className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" 
+                className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" 
             />
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
                 The new H-1B weighted selection process prioritizes candidates with higher wage levels.
             </figcaption>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     USCIS has shifted away from a pure lottery. The new weighted selection system prioritizes registrations based on the OES wage level that the offered wage equals or exceeds. Higher-paid workers at Level 3 and 4 wages now have statistically massive advantages over entry-level applicants.
@@ -86,8 +87,7 @@ export default function H1BWeightedSelectionArticle() {
 
             {/* Table of Contents */}
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
@@ -101,8 +101,7 @@ export default function H1BWeightedSelectionArticle() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section id="how-it-works" className="mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <TrendingUp className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         How the Weighted Selection Works
                     </h2>
                     <p>
@@ -140,7 +139,7 @@ export default function H1BWeightedSelectionArticle() {
                 </section>
 
                 <section id="impact" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             What This Means for International Students
@@ -154,10 +153,10 @@ export default function H1BWeightedSelectionArticle() {
                     </div>
                     
                     {/* Practical Tool */}
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
                         <div>
-                            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
-                                <Download className="w-5 h-5" /> H-1B Cap-Exempt Employer Database
+                            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
+                                H-1B Cap-Exempt Employer Database
                             </h3>
                             <p className="text-sm text-blue-800 dark:text-blue-200 mb-0">
                                 Download our list of over 500 cap-exempt organizations that bypass the lottery entirely.
@@ -197,7 +196,7 @@ export default function H1BWeightedSelectionArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Updates</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/dhs-proposes-103265-h1b-fee-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ $103,265 H-1B Fee Proposal: What It Means</Link>
@@ -206,7 +205,7 @@ export default function H1BWeightedSelectionArticle() {
                 </div>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Optimize Your Job Search for the New Rules</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">Use TrackMyOPT's AI Resume Builder to target higher-level roles and use our sponsor database to find cap-exempt employers.</p>
                 <Link href="/features/resume-ai" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">

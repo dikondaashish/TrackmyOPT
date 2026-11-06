@@ -5,8 +5,8 @@ import {
   Loader2,
   Check,
   Download,
-  Database,
-  History} from "lucide-react";
+  History,
+} from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
 interface PrivacyTabProps {
@@ -44,9 +44,6 @@ export function PrivacyTab({
           <div className="p-6 sm:p-8">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                  <Database className="w-6 h-6 text-teal-600 dark:text-teal-400" />
-                </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Data & Privacy</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Manage your data and privacy settings</p>
@@ -55,7 +52,7 @@ export function PrivacyTab({
 
               <div className="space-y-6">
                 {/* Export Data */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                   <div className="flex items-center gap-3 mb-4">
                     <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     <div>
@@ -93,15 +90,15 @@ export function PrivacyTab({
                         <Download className="w-4 h-4 mr-2" />
                       )}
                       Export as ZIP
-                      <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                        PRO
+                      <span className="ml-2 px-1.5 py-0.5 text-xs font-medium text-purple-800 bg-purple-100 dark:bg-purple-950 dark:text-purple-300 rounded-md">
+                        Pro
                       </span>
                     </Button>
                   </div>
 
                   {/* ZIP Export OTP Verification */}
                   {showZipExportOtp && (
-                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
                       <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">
                         Enter the 6-digit code sent to your email to verify and download your data.
                       </p>
@@ -114,7 +111,7 @@ export function PrivacyTab({
                           value={zipExportOtp}
                           onChange={(e) => setZipExportOtp(e.target.value.replace(/\D/g, ''))}
                           placeholder="Enter 6-digit code"
-                          className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-center text-lg font-mono tracking-widest"
+                          className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-center text-lg font-mono"
                         />
                         <Button
                           onClick={handleZipExportVerify}
@@ -155,7 +152,7 @@ export function PrivacyTab({
                 </div>
 
                 {/* Data Retention */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                   <div className="flex items-center gap-3 mb-2">
                     <History className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     <p className="font-medium text-gray-900 dark:text-gray-100">Data Retention</p>

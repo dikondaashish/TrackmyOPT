@@ -64,7 +64,7 @@ export function ProfileTab({
     (
           <div className="p-4 sm:p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-8 text-center sm:text-left">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
                 {profile.fullName ? profile.fullName.charAt(0).toUpperCase() : profile.email.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -205,8 +205,8 @@ export function ProfileTab({
                       <div className="mt-3">
                         <div className={`p-3 rounded-lg flex items-center justify-between transition-colors ${
                           profile.isStemEligible 
-                            ? 'bg-emerald-50 border border-emerald-200 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800/50 dark:text-emerald-300' 
-                            : 'bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-300'
+                            ? 'bg-emerald-50 border border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-900 dark:text-emerald-300' 
+                            : 'bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-900 dark:text-amber-300'
                         }`}>
                           <div className="flex items-center gap-2">
                             {profile.isStemEligible ? (
@@ -256,9 +256,9 @@ export function ProfileTab({
               {/* Appearance Section (Moved from separate tab) */}
               <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Appearance</h3>
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex items-center justify-between">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
                       {darkMode ? (
                         <Moon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                       ) : (
@@ -280,7 +280,7 @@ export function ProfileTab({
               {hasReferralAccess && (
                 <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Referral Program</h3>
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Referral Stats</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">

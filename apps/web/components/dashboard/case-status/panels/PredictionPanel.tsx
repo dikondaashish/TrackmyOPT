@@ -81,7 +81,7 @@ function PositionTrack({
           style={{ left: `${youPct}%`, background: 'var(--chart-you)' }}
         />
         <div
-          className="absolute -top-7 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold uppercase tracking-wide"
+          className="absolute -top-7 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold"
           style={{
             left: `${youPct}%`,
             color: 'var(--chart-you)',
@@ -157,7 +157,7 @@ export function PredictionPanel({
           <dt className="text-xs font-medium text-muted-foreground">
             Typical decision wait
           </dt>
-          <dd className="mt-1 text-4xl font-semibold tracking-tight tabular-nums text-foreground">
+          <dd className="mt-1 text-4xl font-semibold tabular-nums text-foreground">
             {medianDays}
             <span className="ml-1 text-base font-medium">days</span>
           </dd>
@@ -169,7 +169,7 @@ export function PredictionPanel({
           <dt className="text-xs font-medium text-muted-foreground">
             Decision window · middle 50%
           </dt>
-          <dd className="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+          <dd className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
             {low}–{high}
             <span className="ml-1 text-sm font-medium">days</span>
           </dd>
@@ -188,7 +188,7 @@ export function PredictionPanel({
         p75={high}
       />
 
-      <p className="text-[9px] leading-snug text-muted-foreground/80">
+      <p className="text-[9px] leading-snug text-muted-foreground">
         Planning estimate from community cases — not a USCIS decision date.
       </p>
       <details className="border-t border-border pt-3 text-xs text-muted-foreground">

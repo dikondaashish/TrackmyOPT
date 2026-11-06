@@ -30,8 +30,8 @@ export function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
                 {/* Node */}
                 <div className={cn(
                   "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all",
-                  m.status === "done"    && "bg-emerald-500 shadow-md shadow-emerald-500/30",
-                  m.status === "active"  && "bg-blue-500 shadow-md shadow-blue-500/30 ring-4 ring-blue-100 dark:ring-blue-900/30",
+                  m.status === "done"    && "bg-emerald-500 shadow-md",
+                  m.status === "active"  && "bg-blue-500 shadow-md ring-4 ring-blue-100 dark:ring-blue-900",
                   m.status === "upcoming"&& "bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600"
                 )}>
                   {m.status === "done"    && <CheckCircle2 className="w-4 h-4 text-white" />}
@@ -76,7 +76,7 @@ export function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
             <div className={cn(
               "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0",
               m.status === "done"    && "bg-emerald-500",
-              m.status === "active"  && "bg-blue-500 ring-3 ring-blue-100 dark:ring-blue-900/30",
+              m.status === "active"  && "bg-blue-500 ring-3 ring-blue-100 dark:ring-blue-900",
               m.status === "upcoming"&& "bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600"
             )}>
               {m.status === "done"    && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}

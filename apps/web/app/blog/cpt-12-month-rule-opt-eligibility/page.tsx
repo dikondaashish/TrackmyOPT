@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2, Calendar } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -73,10 +73,6 @@ export default function CPT12MonthRulePage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">CPT Basics</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Compliance</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     Should I Use 11 Months of CPT? The OPT 12-Month Rule
                 </h1>
@@ -84,13 +80,15 @@ export default function CPT12MonthRulePage() {
                     Eleven months of full-time CPT is below the one-year bar, but getting close to the limit deserves a DSO review. Here is how full-time and part-time CPT affect post-completion OPT.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>CPT Basics · Compliance</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 6 min read</span>
                     <span>•</span>
                     <span>Updated July 27, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <Image
                     src="/blog/cpt-12-month-rule.png"
                     alt="Desk calendar showing exactly 12 months marked off with a red pen and student ID"
@@ -105,7 +103,7 @@ export default function CPT12MonthRulePage() {
                     If you are an F-1 student considering an internship, you've probably heard the terrifying rumor: "Don't use CPT, or you'll lose your OPT!" This rumor is only half-true. In reality, you can do plenty of CPT internships without losing a single day of your post-graduation OPT—but you must understand the <strong>12-Month Rule</strong>.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl mb-10">
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-10">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
                         <CheckCircle2 className="w-6 h-6 text-primary" />
                         The Quick Answer
@@ -119,7 +117,7 @@ export default function CPT12MonthRulePage() {
                 <p>
                     Under 8 CFR 214.2(f)(10)(i) and <a href="https://www.ice.gov/sevis/practical-training" target="_blank" rel="noopener noreferrer">ICE practical-training guidance</a>:
                 </p>
-                <blockquote className="border-l-4 border-gray-300 dark:border-zinc-700 pl-4 py-2 italic text-gray-700 dark:text-gray-300 my-6 bg-gray-50 dark:bg-zinc-800/50 rounded-r-lg">
+                <blockquote className="border-l-4 border-gray-300 dark:border-zinc-700 pl-4 py-2 text-gray-700 dark:text-gray-300 my-6 bg-gray-50 dark:bg-zinc-800 rounded-r-lg">
                     "Students who have received one year or more of full time curricular practical training are ineligible for post-completion academic training [OPT]."
                 </blockquote>
                 <p>
@@ -127,18 +125,16 @@ export default function CPT12MonthRulePage() {
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-6 my-10">
-                    <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-200 dark:border-green-900/50">
-                        <h3 className="text-xl font-bold text-green-900 dark:text-green-300 flex items-center gap-2 mt-0">
-                            <Calendar className="w-5 h-5" />
+                    <div className="bg-green-50 dark:bg-green-950 p-6 rounded-xl border border-green-200 dark:border-green-950">
+                        <h3 className="text-xl font-bold text-green-900 dark:text-green-300 mt-0">
                             Part-Time CPT (20 hours or less/week)
                         </h3>
                         <p className="text-green-800 dark:text-green-200 mt-3 mb-0 text-sm">
                             Part-time CPT does not count toward the one-year full-time CPT bar. It still must be properly authorized, related to the curriculum, and compliant with your school&apos;s requirements.
                         </p>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-900/50">
-                        <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2 mt-0">
-                            <Clock className="w-5 h-5" />
+                    <div className="bg-blue-50 dark:bg-blue-950 p-6 rounded-xl border border-blue-200 dark:border-blue-950">
+                        <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300 mt-0">
                             Full-Time CPT (Over 20 hours/week)
                         </h3>
                         <p className="text-blue-800 dark:text-blue-200 mt-3 mb-0 text-sm">
@@ -149,7 +145,7 @@ export default function CPT12MonthRulePage() {
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">How CPT Math Works: It's All or Nothing</h2>
                 <p>
-                    One of the biggest misconceptions is that CPT time is <em>subtracted</em> from OPT time. <strong>This is false.</strong>
+                    One of the biggest misconceptions is that CPT time is <strong>subtracted</strong> from OPT time. <strong>This is false.</strong>
                 </p>
                 <p>
                     Unlike Pre-Completion OPT (which subtracts from post-completion OPT day-by-day), CPT is an <strong>"all or nothing"</strong> trigger:
@@ -159,7 +155,7 @@ export default function CPT12MonthRulePage() {
                     <li>If it totals <strong>one year or more</strong>, you are ineligible for post-completion OPT at that education level.</li>
                 </ul>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         Do Not Plan Up to the Edge
@@ -219,9 +215,8 @@ export default function CPT12MonthRulePage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
 
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Track Your CPT Days Automatically
                 </h3>
@@ -231,7 +226,7 @@ export default function CPT12MonthRulePage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Free Account
                     </Link>
@@ -242,7 +237,7 @@ export default function CPT12MonthRulePage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/pre-completion-opt-vs-cpt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Pre-Completion OPT vs CPT
                             </h4>
@@ -255,7 +250,7 @@ export default function CPT12MonthRulePage() {
                         </div>
                     </Link>
                     <Link href="/blog/cpt-complete-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The Complete CPT Guide
                             </h4>

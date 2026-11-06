@@ -264,7 +264,7 @@ function ContactCard({
 
   return (
     <article
-      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6"
+      className="space-y-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6"
       aria-label={`Contact ${index + 1}`}
     >
       <ContactLookupForm
@@ -360,17 +360,17 @@ function ContactLookupResult({
               </p>
             </div>
             <span
-              className={`rounded-full px-2.5 py-1 text-xs font-medium ${result.verified ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'}`}
+              className={`rounded-md px-2 py-0.5 text-xs font-medium ${result.verified ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'}`}
             >
               {result.verified ? 'Verified at lookup' : 'Not verified'}
             </span>
           </div>
           {companyMismatch && (
-            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900 dark:bg-amber-900 dark:text-amber-200">
               The contact’s reported company differs from the selected company. Review their current employer before using this address.
             </p>
           )}
-          <div className={`flex flex-wrap items-center gap-3 rounded-xl border px-3 py-3 sm:px-4 ${result.verified && !companyMismatch ? 'border-blue-100 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30' : 'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30'}`}>
+          <div className={`flex flex-wrap items-center gap-3 rounded-xl border px-3 py-3 sm:px-4 ${result.verified && !companyMismatch ? 'border-blue-100 bg-blue-50 dark:border-blue-900 dark:bg-blue-950' : 'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950'}`}>
             <Mail
               className="size-4 shrink-0 text-blue-700 dark:text-blue-300"
               aria-hidden="true"
@@ -721,7 +721,7 @@ function ErrorNotice({ error }: { error: string }) {
       {error && (
         <p
           role="alert"
-          className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-900 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100"
+          className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-900 dark:border-rose-900 dark:bg-rose-900 dark:text-rose-100"
         >
           <XCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           {error}

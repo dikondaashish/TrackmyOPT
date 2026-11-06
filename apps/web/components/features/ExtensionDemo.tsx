@@ -20,11 +20,11 @@ export function ExtensionDemo() {
         <div className="relative w-full max-w-2xl mx-auto font-sans">
             {/* Notification Toast */}
             <motion.div
-                className="absolute top-4 right-4 z-50 bg-white dark:bg-zinc-800 shadow-xl rounded-lg p-3 flex items-center gap-3 border border-gray-100 dark:border-zinc-700 pointer-events-none"
+                className="absolute top-4 right-4 z-50 bg-white dark:bg-zinc-800 rounded-lg p-3 flex items-center gap-3 border border-gray-100 dark:border-zinc-700 pointer-events-none"
                 initial={{ opacity: 0, y: -20, scale: 0.9 }}
                 animate={{ opacity: showNotification ? 1 : 0, y: showNotification ? 0 : -20, scale: showNotification ? 1 : 0.9 }}
             >
-                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
                     <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
@@ -34,20 +34,20 @@ export function ExtensionDemo() {
             </motion.div>
 
             {/* Browser Window Chrome */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl overflow-hidden border border-gray-200 dark:border-zinc-800">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-800">
                 {/* Header */}
-                <div className="bg-gray-50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-zinc-800 p-3 flex items-center justify-between">
+                <div className="bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-800 p-3 flex items-center justify-between">
                     <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                     </div>
                     <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 rounded-md px-3 py-1 text-xs text-gray-400 border border-gray-200 dark:border-zinc-700 flex-1 mx-4 max-w-sm">
                         <Lock className="w-3 h-3" />
                         linkedin.com/jobs/view/3928...
                     </div>
                     <div className="flex gap-2">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
                             <Chrome className="w-3.5 h-3.5 text-blue-600" />
                         </div>
                     </div>
@@ -70,7 +70,7 @@ export function ExtensionDemo() {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setShowNotification(true)}
-                            className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 cursor-pointer"
+                            className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center text-green-600 cursor-pointer"
                         >
                             <Bookmark className="w-4 h-4" />
                         </motion.button>
@@ -108,16 +108,16 @@ export function ExtensionDemo() {
                         transition={{ delay: 1, duration: 0.5 }}
                         className="mb-6 overflow-hidden"
                     >
-                        <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/30 rounded-lg p-3 flex items-start gap-3">
-                            <div className="bg-emerald-100 dark:bg-emerald-900/30 p-1.5 rounded-full shrink-0 mt-0.5">
+                        <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-900 rounded-lg p-3 flex items-start gap-3">
+                            <div className="bg-emerald-100 dark:bg-emerald-950 p-1.5 rounded-full shrink-0 mt-0.5">
                                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
                                 <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
                                     Sponsorship signal from this listing
-                                    <span className="text-[10px] bg-emerald-100 dark:bg-emerald-800/50 px-1.5 py-0.5 rounded text-emerald-700 dark:text-emerald-300 font-normal">TrackMyOPT Intel</span>
+                                    <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 rounded text-emerald-700 dark:text-emerald-300 font-normal">TrackMyOPT Intel</span>
                                 </h4>
-                                <div className="flex gap-4 mt-1.5 text-xs text-emerald-700 dark:text-emerald-400/80">
+                                <div className="flex gap-4 mt-1.5 text-xs text-emerald-700 dark:text-emerald-400">
                                     <span>Visa sponsorship not stated</span>
                                     <span className="w-1 h-1 bg-emerald-300 rounded-full self-center" />
                                     <span>Review with the employer</span>
@@ -128,12 +128,12 @@ export function ExtensionDemo() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3 mb-8">
-                        <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-full flex items-center justify-center gap-2 transition-colors">
+                        <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition-colors">
                             Apply Now <ExternalLink className="w-4 h-4" />
                         </button>
                         <button
                             onClick={handleSave}
-                            className={`px-4 py-2 rounded-full font-semibold border transition-all ${isSaved ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+                            className={`px-4 py-2 rounded-lg font-semibold border transition-all ${isSaved ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
                         >
                             {isSaved ? 'Saved' : 'Save'}
                         </button>

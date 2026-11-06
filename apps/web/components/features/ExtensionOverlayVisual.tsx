@@ -8,7 +8,7 @@ export function ExtensionOverlayVisual() {
     return (
         <div className="relative w-full aspect-[4/3] max-w-[500px] mx-auto perspective-1000">
             {/* Browser Frame */}
-            <div className="absolute inset-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
+            <div className="absolute inset-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden flex flex-col">
                 {/* Browser Chrome */}
                 <div className="h-8 bg-gray-100 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 flex items-center px-3 gap-2">
                     <div className="flex gap-1.5">
@@ -43,7 +43,7 @@ export function ExtensionOverlayVisual() {
                         </div>
 
                         {/* Main Content (Job Detail) */}
-                        <div className="flex-1 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 p-6 shadow-sm relative">
+                        <div className="flex-1 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 p-6 relative">
                             {/* Job Header */}
                             <div className="flex items-start justify-between mb-2">
                                 <div>
@@ -84,7 +84,7 @@ export function ExtensionOverlayVisual() {
                 >
                     <MousePointer2 className="w-6 h-6 text-black dark:text-white fill-black dark:fill-white stroke-white dark:stroke-black" />
                     <motion.div
-                        className="w-8 h-8 bg-blue-500/20 rounded-full absolute -top-1 -left-1"
+                        className="w-8 h-8 bg-blue-100 rounded-full absolute -top-1 -left-1"
                         animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
                         transition={{ duration: 1, repeat: Infinity }}
                     />
@@ -92,16 +92,16 @@ export function ExtensionOverlayVisual() {
 
                 {/* Slide-out Sidebar (Extension Panel) */}
                 <motion.div
-                    className="absolute top-[33px] right-0 bottom-0 w-64 bg-white dark:bg-zinc-900 border-l border-gray-200 dark:border-zinc-800 shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-10 flex flex-col"
+                    className="absolute top-[33px] right-0 bottom-0 w-64 bg-white dark:bg-zinc-900 border-l border-gray-200 dark:border-zinc-800 z-10 flex flex-col"
                     initial={{ x: "100%" }}
                     animate={{ x: "0%" }}
                     transition={{ delay: 2, duration: 0.5, type: "spring", stiffness: 100 }}
                 >
-                    <div className="p-4 bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
+                    <div className="p-4 bg-blue-600 text-white">
                         <div className="flex items-center gap-2 mb-1">
                             <Image src="/TrackMyOPT Logo/Favicon.png" width={20} height={20} className="w-5 h-5 bg-white rounded-full" alt="TrackMyOPT" />
                             <span className="font-bold text-sm">TrackMyOPT</span>
-                            <div className="ml-auto bg-white/20 p-1 rounded hover:bg-white/30 cursor-pointer">
+                            <div className="ml-auto bg-blue-500 p-1 rounded hover:bg-blue-400 cursor-pointer">
                                 <X className="w-3 h-3" />
                             </div>
                         </div>
@@ -130,7 +130,7 @@ export function ExtensionOverlayVisual() {
                             <p className="text-xs font-semibold text-gray-500 mb-2">Application progress</p>
                             <div className="h-16 flex items-end justify-between gap-1">
                                 {[40, 60, 45, 70, 85, 90, 80].map((h, i) => (
-                                    <div key={i} className="w-4 bg-blue-100 dark:bg-blue-900/30 rounded-t-sm" style={{ height: `${h}%` }}>
+                                    <div key={i} className="w-4 bg-blue-100 dark:bg-blue-950 rounded-t-sm" style={{ height: `${h}%` }}>
                                         <div className="w-full bg-blue-500 rounded-t-sm" style={{ height: '40%' }} />
                                     </div>
                                 ))}

@@ -119,7 +119,7 @@ export default function OptClockPage() {
         title="OPT 90-Day Unemployment Calculator"
         description="Record employment periods and use this calculator to plan around the unemployment limit for post-completion OPT."
       >
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Track the dates that matter
           </h2>
@@ -129,7 +129,7 @@ export default function OptClockPage() {
             report updates through the process required by your school.
           </p>
         </div>
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Use the 90-day limit carefully
           </h2>

@@ -108,7 +108,7 @@ export default function EmailCampaignDashboard({
       <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-5">
         <p className="font-semibold text-blue-600 dark:text-blue-400">
           TrackMyOPT{' '}
-          <span className="ml-2 text-xs font-normal uppercase tracking-widest text-muted-foreground">
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
             Admin
           </span>
         </p>
@@ -126,7 +126,7 @@ export default function EmailCampaignDashboard({
         </div>
       </header>
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">
+        <h1 className="text-3xl font-semibold">
           Email analytics
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -171,7 +171,7 @@ export default function EmailCampaignDashboard({
         loggingOut={loggingOut}
         lastUpdated={lastUpdated}
       />
-      <aside className="rounded-xl bg-blue-50 p-5 text-sm leading-6 text-slate-700 dark:bg-blue-950/30 dark:text-muted-foreground">
+      <aside className="rounded-xl bg-blue-50 p-5 text-sm leading-6 text-slate-700 dark:bg-blue-950 dark:text-muted-foreground">
         <h2 className="font-semibold">What these numbers mean</h2>
         <p className="mt-1">
           Clicks count unique recipient messages. The main cards exclude

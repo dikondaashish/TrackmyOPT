@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, BarChart3 } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -41,7 +41,8 @@ export default function H1BApprovalRatesArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">H-1B</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">H-1B</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />8 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
@@ -57,7 +58,7 @@ export default function H1BApprovalRatesArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     H-1B approval rates vary significantly by employer, with top tech companies achieving 95%+ approval rates while smaller or less established sponsors may see rates below 70%. Approval rates are publicly available through USCIS data and can help you evaluate potential employers.
@@ -65,9 +66,8 @@ export default function H1BApprovalRatesArticle() {
             </div>
 
             {/* Key Stats */}
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-3 flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5" />
+            <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-3">
                     FY2025 H-1B Data Summary
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -125,7 +125,7 @@ export default function H1BApprovalRatesArticle() {
                         </table>
                     </div>
 
-                    <p className="text-sm text-gray-500 mt-3 italic">
+                    <p className="text-sm text-gray-500 mt-3">
                         Note: Data compiled from USCIS H-1B Employer Data Hub. Approval rates include initial and continuing petitions. For the most current data, use TrackMyOPT's <Link href="/features/sponsors" className="text-blue-600 underline">H-1B Sponsor Database</Link>.
                     </p>
                 </section>
@@ -141,7 +141,7 @@ export default function H1BApprovalRatesArticle() {
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-red-50 dark:bg-red-900/20">
+                                <tr className="bg-red-50 dark:bg-red-950">
                                     <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Company Type</th>
                                     <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Typical Approval Rate</th>
                                     <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Common Issues</th>
@@ -204,7 +204,7 @@ export default function H1BApprovalRatesArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
@@ -219,7 +219,7 @@ export default function H1BApprovalRatesArticle() {
                 </div>
             </div>
 
-            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-emerald-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Research H-1B Sponsors With Real Data</h2>
                 <p className="text-emerald-100 mb-6 max-w-lg mx-auto">Search 25,000+ employers with approval rates, salary data, fraud alerts, and E-Verify status.</p>
                 <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition-colors">

@@ -73,7 +73,7 @@ export function CaseProgressStepper({
         </p>
       )}
 
-      {/* Desktop: Horizontal Stepper with animated bars */}
+      {/* Desktop: horizontal stepper */}
       <div className="hidden md:flex items-center justify-between">
         {milestoneStates.map((step, index) => {
           const stepNum = index + 1;
@@ -89,12 +89,12 @@ export function CaseProgressStepper({
                 {/* Step circle */}
                 <div
                   className={`
-                    w-11 h-11 rounded-full flex items-center justify-center transition-all duration-500 relative
+                    w-11 h-11 rounded-full flex items-center justify-center transition-colors relative
                     ${
                       resolvedCompleted
-                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20'
+                        ? 'bg-emerald-500 text-white'
                         : isCurrent
-                          ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20 animate-ripple'
+                          ? 'bg-blue-500 text-white'
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-2 border-gray-200 dark:border-gray-700'
                     }
                   `}
@@ -102,7 +102,7 @@ export function CaseProgressStepper({
                   {resolvedCompleted ? (
                     <CheckCircle2 className="w-5 h-5" />
                   ) : isCurrent ? (
-                    <div className="w-3.5 h-3.5 bg-white rounded-full animate-pulse" />
+                    <div className="w-3.5 h-3.5 bg-white rounded-full" />
                   ) : (
                     <Circle className="w-5 h-5" />
                   )}
@@ -125,18 +125,18 @@ export function CaseProgressStepper({
                 </span>
               </div>
 
-              {/* Connector bar with animated fill */}
+              {/* Connector bar */}
               {index < steps.length - 1 && (
                 <div className="flex-1 mx-3">
                   <div className="h-1 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden relative">
                     <div
                       className={`
-                        h-full rounded-full transition-all duration-700 ease-out animate-progress-fill
+                        h-full rounded-full transition-[width] duration-700 ease-out
                         ${
                           resolvedCompleted
-                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-400'
+                            ? 'bg-emerald-500'
                             : isCurrent
-                              ? 'bg-gradient-to-r from-indigo-500 to-indigo-300'
+                              ? 'bg-indigo-500'
                               : ''
                         }
                       `}
@@ -159,13 +159,13 @@ export function CaseProgressStepper({
       {/* Mobile: Segmented Progress Bar */}
       <div className="md:hidden space-y-4">
         {/* Current step card */}
-        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <div className="flex items-center gap-4 p-4 bg-indigo-50 dark:bg-indigo-950 rounded-xl border border-indigo-100 dark:border-indigo-800">
+          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
             <span className="text-white font-bold text-xl">{currentStep}</span>
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
               Step {currentStep} of {steps.length}
             </p>
             <p className="text-lg font-bold text-gray-900 dark:text-gray-100 break-words">
@@ -191,12 +191,12 @@ export function CaseProgressStepper({
               <div
                 key={step.key}
                 className={`
-                  h-2.5 rounded-full flex-1 transition-all duration-500
+                  h-2.5 rounded-full flex-1 transition-colors
                   ${
                     resolvedCompleted
-                      ? 'bg-emerald-500 shadow-sm shadow-emerald-500/30'
+                      ? 'bg-emerald-500'
                       : isCurrent
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 shadow-sm shadow-indigo-500/30'
+                        ? 'bg-blue-500'
                         : 'bg-gray-200 dark:bg-gray-700'
                   }
                 `}

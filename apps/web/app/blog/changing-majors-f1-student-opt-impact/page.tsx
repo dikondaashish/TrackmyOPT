@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, RefreshCw, ShieldCheck } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,10 +46,6 @@ export default function ChangingMajorsPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Academics</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">STEM OPT</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     Changing Majors on an F-1 Visa: How it Impacts Your OPT
                 </h1>
@@ -57,13 +53,15 @@ export default function ChangingMajorsPage() {
                     Switching from Business to Computer Science? Learn how changing your degree program impacts your F-1 status, your I-20, and your future STEM OPT eligibility.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Academics · STEM OPT</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 7 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/changing-majors-f1-student-opt-impact.png" alt="Academic desk with a Change of Major Request form, I-20 document, and a course catalog" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -86,9 +84,9 @@ export default function ChangingMajorsPage() {
                 </p>
 
                 <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl my-6">
-                    <h4 className="flex items-center gap-2 font-bold text-lg mt-0 mb-3"><RefreshCw className="w-5 h-5 text-blue-500" /> Scenario: The Pivot</h4>
+                    <h4 className="font-bold text-lg mt-0 mb-3">Scenario: The Pivot</h4>
                     <p className="mb-0 text-sm">
-                        Let's say you started as a <em>Marketing</em> major, but halfway through, you switched to <em>Data Science</em>. When you graduate and apply for your 12-month standard OPT, you can <strong>only</strong> accept jobs related to Data Science. You cannot take a Marketing job, even though you spent two years studying it, because Marketing is no longer the active major on your final I-20.
+                        Let's say you started as a Marketing major, but halfway through, you switched to Data Science. When you graduate and apply for your 12-month standard OPT, you can <strong>only</strong> accept jobs related to Data Science. You cannot take a Marketing job, even though you spent two years studying it, because Marketing is no longer the active major on your final I-20.
                     </p>
                 </div>
 
@@ -102,7 +100,7 @@ export default function ChangingMajorsPage() {
                     What if you double major? If you have one STEM major (e.g., Mathematics) and one non-STEM major (e.g., Art History), you are fully eligible for the STEM OPT extension—<strong>as long as the job you take is directly related to the STEM major.</strong> You cannot use a STEM extension to work as an art curator.
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         CIP Code Verification
@@ -114,19 +112,18 @@ export default function ChangingMajorsPage() {
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Changing Your Major While on OPT?</h2>
                 <p>
-                    Can you change your major <em>after</em> you have already graduated and are currently working on OPT? 
+                    Can you change your major <strong>after</strong> you have already graduated and are currently working on OPT? 
                 </p>
                 <p>
                     <strong>No.</strong> Your degree has already been conferred. You cannot retroactively change your major to a STEM field just to get an extension. If you want to study a new major, you must enroll in a new degree program, which will require a SEVIS update and will <strong>instantly cancel</strong> your current OPT authorization.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <ShieldCheck className="w-6 h-6 text-primary" />
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Keep Track of Your Old I-20s
                     </h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">
-                        When you change your major, your school will issue you a new I-20. <strong>Do not throw the old one away.</strong> When you apply for OPT, the H-1B lottery, or a Green Card, USCIS will ask you to upload copies of <em>every</em> I-20 you have ever been issued. 
+                        When you change your major, your school will issue you a new I-20. <strong>Do not throw the old one away.</strong> When you apply for OPT, the H-1B lottery, or a Green Card, USCIS will ask you to upload copies of <strong>every</strong> I-20 you have ever been issued. 
                         <strong>Use TrackMyOPT's Document Safe</strong> to securely scan and store all your historical I-20s in the cloud, ensuring you never lose the paper trail of your immigration history.
                     </p>
                 </div>
@@ -142,9 +139,8 @@ export default function ChangingMajorsPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
 
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Never Lose an I-20 Again
                 </h3>
@@ -154,7 +150,7 @@ export default function ChangingMajorsPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Access the Document Safe
                     </Link>
@@ -165,7 +161,7 @@ export default function ChangingMajorsPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/opt-job-related-to-degree" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 OPT Job Relevance
                             </h4>
@@ -178,7 +174,7 @@ export default function ChangingMajorsPage() {
                         </div>
                     </Link>
                     <Link href="/blog/stem-opt-extension-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 STEM OPT Extension Guide
                             </h4>

@@ -23,8 +23,8 @@ function FeatureTile({
   description: string;
 }) {
   return (
-    <div className="flex flex-col rounded-lg border border-border bg-card p-3.5 text-left shadow-sm transition-shadow hover:shadow-md">
-      <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
+    <div className="flex flex-col rounded-lg border border-border bg-card p-3.5 text-left">
+      <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-md bg-primary-soft text-primary">
         <Icon className="h-4 w-4" strokeWidth={2} aria-hidden />
       </div>
       <p className="text-[13px] font-semibold leading-snug text-foreground">
@@ -76,31 +76,23 @@ export function PremiumCancelledClient() {
           <div
             className={cn(
               "relative flex flex-col justify-center border-b border-border p-8 sm:p-10",
-              "bg-muted/40 md:border-b-0 md:border-r"
+              "bg-muted md:border-b-0 md:border-r"
             )}
           >
-            <div
-              className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
-              aria-hidden
-            >
-              <span className="select-none text-[clamp(7rem,26vw,14rem)] font-extralight leading-none text-primary/[0.06]">
-                ×
-              </span>
-            </div>
             <div className="relative z-10">
               <div className="mb-7 flex justify-center md:justify-start">
                 <div
                   className={cn(
                     "flex h-12 w-12 items-center justify-center rounded-full",
-                    "bg-primary text-primary-foreground ring-1 ring-primary/20 shadow-sm",
+                    "bg-primary text-primary-foreground",
                     "animate-premium-hero-in"
                   )}
                 >
                   <X className="h-6 w-6" strokeWidth={2.5} aria-hidden />
                 </div>
               </div>
-              <h1 className="text-center text-[1.35rem] font-semibold leading-snug tracking-tight text-foreground sm:text-[1.5rem] md:text-left">
-                No charge — checkout closed.
+              <h1 className="text-center text-[1.35rem] font-semibold leading-snug text-foreground sm:text-[1.5rem] md:text-left">
+                No charge — checkout closed
               </h1>
               <p className="mt-4 max-w-[32ch] text-center text-[0.9375rem] leading-relaxed text-muted-foreground md:text-left md:mx-0 mx-auto">
                 You left before completing payment. Nothing was billed to your
@@ -112,7 +104,7 @@ export function PremiumCancelledClient() {
           {/* Right — what Pro includes + actions */}
           <div className="flex flex-col justify-between gap-8 bg-card p-8 sm:p-10">
             <div>
-              <p className="mb-5 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground md:text-left">
+              <p className="mb-5 text-center text-[10px] font-semibold text-muted-foreground md:text-left">
                 What Pro includes
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -155,7 +147,7 @@ export function PremiumCancelledClient() {
           Questions?{" "}
           <a
             href="mailto:support@trackmyopt.com"
-            className="font-medium text-foreground/80 underline-offset-2 hover:underline"
+            className="font-medium text-foreground underline-offset-2 hover:underline"
           >
             support@trackmyopt.com
           </a>

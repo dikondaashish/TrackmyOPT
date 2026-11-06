@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, HelpCircle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface FAQItem {
     question: string;
@@ -18,31 +18,31 @@ interface FeatureFAQProps {
 
 const accentColors = {
     blue: {
-        bg: "bg-blue-50 dark:bg-blue-900/20",
+        bg: "bg-blue-50 dark:bg-blue-950",
         border: "border-blue-200 dark:border-blue-800",
         icon: "text-blue-600 dark:text-blue-400",
         hover: "hover:border-blue-300 dark:hover:border-blue-700",
     },
     emerald: {
-        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        bg: "bg-emerald-50 dark:bg-emerald-950",
         border: "border-emerald-200 dark:border-emerald-800",
         icon: "text-emerald-600 dark:text-emerald-400",
         hover: "hover:border-emerald-300 dark:hover:border-emerald-700",
     },
     purple: {
-        bg: "bg-purple-50 dark:bg-purple-900/20",
+        bg: "bg-purple-50 dark:bg-purple-950",
         border: "border-purple-200 dark:border-purple-800",
         icon: "text-purple-600 dark:text-purple-400",
         hover: "hover:border-purple-300 dark:hover:border-purple-700",
     },
     amber: {
-        bg: "bg-amber-50 dark:bg-amber-900/20",
+        bg: "bg-amber-50 dark:bg-amber-950",
         border: "border-amber-200 dark:border-amber-800",
         icon: "text-amber-600 dark:text-amber-400",
         hover: "hover:border-amber-300 dark:hover:border-amber-700",
     },
     cyan: {
-        bg: "bg-cyan-50 dark:bg-cyan-900/20",
+        bg: "bg-cyan-50 dark:bg-cyan-950",
         border: "border-cyan-200 dark:border-cyan-800",
         icon: "text-cyan-600 dark:text-cyan-400",
         hover: "hover:border-cyan-300 dark:hover:border-cyan-700",
@@ -68,10 +68,6 @@ export function FeatureFAQ({
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${colors.bg} ${colors.icon} text-sm font-medium mb-4`}>
-                        <HelpCircle className="w-4 h-4" />
-                        Have Questions?
-                    </div>
                     <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         {title}
                     </h2>
@@ -92,7 +88,7 @@ export function FeatureFAQ({
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className={`w-full text-left p-6 rounded-2xl border ${colors.border} ${colors.hover} bg-white dark:bg-gray-800/50 transition-all duration-200 group`}
+                                className={`w-full text-left p-6 rounded-xl border ${colors.border} ${colors.hover} bg-white dark:bg-gray-800 transition-all duration-200 group`}
                             >
                                 <div className="flex items-center justify-between gap-4">
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-200">

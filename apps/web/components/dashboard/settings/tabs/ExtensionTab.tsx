@@ -34,9 +34,6 @@ export function ExtensionTab({
           <div className="p-6 sm:p-8">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                  <Chrome className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Chrome Extension</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Manage your browser extension connection</p>
@@ -46,9 +43,9 @@ export function ExtensionTab({
               <div className="space-y-6">
                 <Link
                   href="/dashboard/extension"
-                  className="group flex min-h-24 items-center gap-4 rounded-xl border border-blue-200 bg-blue-50/60 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-blue-900 dark:bg-blue-950/20 dark:hover:border-blue-800 dark:hover:bg-blue-950/30"
+                  className="group flex min-h-24 items-center gap-4 rounded-xl border border-blue-200 bg-blue-50 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-blue-900 dark:bg-blue-950 dark:hover:border-blue-800 dark:hover:bg-blue-950"
                 >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <Chrome className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -64,10 +61,10 @@ export function ExtensionTab({
                 </Link>
 
                 {/* Connection Status */}
-                <div className={`p-4 rounded-xl border ${extensionStatus.isConnected ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'}`}>
+                <div className={`p-4 rounded-xl border ${extensionStatus.isConnected ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'}`}>
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                     <div className="flex items-center gap-3 w-full sm:w-auto">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${extensionStatus.isConnected ? 'bg-green-100 dark:bg-green-900/50' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${extensionStatus.isConnected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-200 dark:bg-gray-700'}`}>
                         {extensionStatus.isConnected ? (
                           <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
@@ -86,8 +83,7 @@ export function ExtensionTab({
                       </div>
                     </div>
                     {extensionStatus.isConnected ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/20 text-green-700 dark:text-green-400 text-xs font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                      <span className="px-2 py-0.5 rounded-md bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 text-xs font-medium">
                         Active
                       </span>
                     ) : (
@@ -105,7 +101,7 @@ export function ExtensionTab({
                 {extensionStatus.isConnected && (
                   <>
                     {/* Last Sync */}
-                    <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                       <div className="flex items-center gap-3">
                         <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                         <div>
@@ -120,11 +116,11 @@ export function ExtensionTab({
                     </div>
 
                     {/* Disconnect */}
-                    <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800/50">
+                    <div className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-900">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-red-600 dark:text-red-400">Disconnect Extension</p>
-                          <p className="text-sm text-red-500/80 dark:text-red-400/70">
+                          <p className="text-sm text-red-500 dark:text-red-400">
                             Remove the connection between this account and the extension
                           </p>
                         </div>
@@ -147,7 +143,7 @@ export function ExtensionTab({
                     <Link2 className="w-4 h-4" />
                     Linked Accounts
                   </h3>
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
@@ -165,7 +161,7 @@ export function ExtensionTab({
                           </p>
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">
+                      <span className="px-2 py-0.5 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 text-xs font-medium rounded-md">
                         Connected
                       </span>
                     </div>
@@ -180,7 +176,7 @@ export function ExtensionTab({
                   </h3>
                   <div className="space-y-3">
                     {recentLogins.map((login, index) => (
-                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg flex items-center justify-between">
+                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Smartphone className="w-5 h-5 text-gray-500" />
                           <div>

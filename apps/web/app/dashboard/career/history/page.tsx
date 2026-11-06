@@ -251,9 +251,9 @@ export default function HistoryPage() {
     };
 
     return (
-        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-gray-950">
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
+            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
                     <div className="flex items-center justify-between">
                         <Link
@@ -265,7 +265,7 @@ export default function HistoryPage() {
                         </Link>
 
                         <div className="text-center">
-                            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-300 dark:via-pink-300 dark:to-blue-300 bg-clip-text text-transparent">
+                            <h1 className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-300">
                                 Resume History
                             </h1>
                         </div>
@@ -289,7 +289,7 @@ export default function HistoryPage() {
                     </div>
                 ) : error ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-full mb-4">
+                        <div className="bg-red-100 dark:bg-red-950 p-4 rounded-full mb-4">
                             <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Error Loading Resumes</h3>
@@ -297,8 +297,8 @@ export default function HistoryPage() {
                         <Button onClick={fetchResumes}>Try Again</Button>
                     </div>
                 ) : resumes.length === 0 ? (
-                    <div className="text-center py-20 bg-white/50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-800">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+                        <div className="bg-blue-100 dark:bg-blue-950 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                             <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No history yet</h3>
@@ -315,19 +315,19 @@ export default function HistoryPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {resumes.map((resume, index) => (
-                            <div key={resume.id} className={`group bg-white dark:bg-slate-800/60 rounded-xl border ${index === 0 ? 'border-blue-500 shadow-md ring-1 ring-blue-500/20' : 'border-gray-200 dark:border-slate-600'} hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-all duration-200 overflow-hidden`}>
+                            <div key={resume.id} className={`group bg-white dark:bg-slate-800 rounded-xl border ${index === 0 ? 'border-blue-500 shadow-md ring-1 ring-blue-500' : 'border-gray-200 dark:border-slate-600'} hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 overflow-hidden`}>
                                 {/* Modern Header */}
-                                <div className={`p-4 ${index === 0 ? 'bg-blue-100/50 dark:bg-blue-900/50' : 'bg-blue-50 dark:bg-blue-900/30'}`}>
+                                <div className={`p-4 ${index === 0 ? 'bg-blue-100 dark:bg-blue-900' : 'bg-blue-50 dark:bg-blue-950'}`}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                                            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                                                 <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                             </div>
                                             <div>
                                                 <h3 className="font-semibold text-gray-900 dark:text-white capitalize text-sm flex items-center gap-2">
                                                     Resume
                                                     {index === 0 && (
-                                                        <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wider font-bold">Latest</span>
+                                                        <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-md font-medium">Latest</span>
                                                     )}
                                                 </h3>
                                                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5" title={new Date(resume.created_at).toLocaleString()}>
@@ -337,14 +337,12 @@ export default function HistoryPage() {
                                         </div>
 
                                         {/* Status Badge */}
-                                        <div className="flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-                                            <span>✓</span>
+                                        <div className="flex items-center text-xs rounded-md px-2 py-0.5 font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                                             <span>Parsed</span>
                                         </div>
                                         {/* Generated Badge */}
                                         {(resume.structuredData?.latexCode || resume.structuredData?.generatedLatex) && (
-                                            <div className="ml-2 flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
-                                                <span>⚡</span>
+                                            <div className="ml-2 flex items-center text-xs rounded-md px-2 py-0.5 font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
                                                 <span>Generated</span>
                                             </div>
                                         )}
@@ -385,7 +383,7 @@ export default function HistoryPage() {
                                         {resume.file_path && (
                                             <button
                                                 onClick={() => handleDownload(resume)}
-                                                className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                                                className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
                                                 title="Download resume"
                                             >
                                                 <FolderDown className="w-4 h-4" />
@@ -395,7 +393,7 @@ export default function HistoryPage() {
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <button
-                                                    className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-all"
+                                                    className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-all"
                                                     title="Delete resume"
                                                 >
                                                     <Trash2 className="w-4 h-4" />

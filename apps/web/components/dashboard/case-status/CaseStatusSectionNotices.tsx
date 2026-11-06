@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import {
   AlertCircle,
   CheckCircle2,
-  ClipboardCheck,
   Crown,
   Info,
   Loader2,
@@ -15,9 +14,6 @@ import {
 export function CaseStatusLoading() {
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
-      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 animate-pulse">
-        <ClipboardCheck className="w-7 h-7 text-white" />
-      </div>
       <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
       <p className="text-sm text-muted-foreground font-medium">
         Loading your case status…
@@ -29,7 +25,7 @@ export function CaseStatusLoading() {
 export function DeleteNoticeBanner({ message }: { message: string }) {
   return (
     <Card
-      className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800"
+      className="p-4 bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800"
       role="status"
     >
       <div className="flex items-start gap-3">
@@ -51,7 +47,7 @@ export function LoadErrorBanner({
 }) {
   return (
     <Card
-      className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+      className="p-4 bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800"
       role="alert"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -80,7 +76,7 @@ export function PackagingNoticeBanner({
 }) {
   return (
     <Card
-      className="p-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+      className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800"
       role="status"
     >
       <div className="flex items-start gap-3">
@@ -118,7 +114,7 @@ export function TrialCtaStrip({
   onUpgrade: () => void;
 }) {
   return (
-    <Card className="p-3 border-purple-200 dark:border-purple-800 bg-purple-50/80 dark:bg-purple-950/20">
+    <Card className="p-3 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <p className="text-sm text-purple-950 dark:text-purple-100 flex-1">
           {message}
@@ -140,7 +136,7 @@ export function TrialCtaStrip({
 export function FormMismatchBanner({ message }: { message: string }) {
   return (
     <Card
-      className="p-4 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
+      className="p-4 bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800"
       role="status"
     >
       <div className="flex items-start gap-3">
@@ -154,7 +150,7 @@ export function FormMismatchBanner({ message }: { message: string }) {
 export function RefreshFailedBanner({ message }: { message: string }) {
   return (
     <Card
-      className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+      className="p-4 bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800"
       role="alert"
     >
       <div className="flex items-start gap-3">
@@ -168,7 +164,7 @@ export function RefreshFailedBanner({ message }: { message: string }) {
 export function UscisMockModeBadge() {
   return (
     <Card
-      className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800"
+      className="p-4 bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800"
       role="status"
     >
       <div className="flex items-start gap-3">

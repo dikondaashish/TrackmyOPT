@@ -52,7 +52,7 @@ export function TrackerKanbanDemo() {
     };
 
     return (
-        <div className="w-full bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-4 overflow-hidden relative shadow-2xl">
+        <div className="w-full bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-4 overflow-hidden relative">
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export function TrackerKanbanDemo() {
             {/* Kanban Columns */}
             <div className="grid grid-cols-3 gap-4">
                 {columns.map((col) => (
-                    <div key={col.id} className="bg-gray-100 dark:bg-zinc-800/50 rounded-lg p-2 min-h-[300px]">
+                    <div key={col.id} className="bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 min-h-[300px]">
                         <div className="flex items-center justify-between mb-3 px-1">
                             <div className="flex items-center gap-2">
                                 <div className={`w-2 h-2 rounded-full ${col.color}`} />
@@ -83,7 +83,7 @@ export function TrackerKanbanDemo() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.1 }}
-                                    className="bg-white dark:bg-zinc-900 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-800 group hover:border-blue-500/50 hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
+                                    className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 group hover:border-blue-500 hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="w-8 h-8 rounded bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-400">
@@ -100,25 +100,12 @@ export function TrackerKanbanDemo() {
                                             {card.date}
                                         </div>
                                         {col.id === 'offer' && (
-                                            <div className="w-4 h-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+                                            <div className="w-4 h-4 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center text-green-600">
                                                 <DollarSign className="w-2.5 h-2.5" />
                                             </div>
                                         )}
                                     </div>
 
-                                    {/* Celebration Particles for Offer Card */}
-                                    {col.id === 'offer' && (
-                                        <motion.div
-                                            className="absolute inset-0 pointer-events-none"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: [0, 1, 0] }}
-                                            transition={{ duration: 1, repeat: Infinity, repeatDelay: 3 }}
-                                        >
-                                            <div className="absolute top-0 right-0 w-2 h-2 bg-yellow-400 rounded-full" style={{ left: '20%', top: '10%' }} />
-                                            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-blue-400 rounded-full" style={{ left: '80%', top: '30%' }} />
-                                            <div className="absolute top-0 right-0 w-2 h-2 bg-red-400 rounded-full" style={{ left: '50%', top: '60%' }} />
-                                        </motion.div>
-                                    )}
                                 </motion.div>
                             ))}
                         </div>
@@ -128,7 +115,7 @@ export function TrackerKanbanDemo() {
 
             {/* Drag Overlay (Simulated) */}
             <motion.div
-                className="absolute top-[40%] left-[40%] w-48 bg-white dark:bg-zinc-900 p-3 rounded-lg shadow-xl border-2 border-blue-500 rotate-6 z-20 cursor-grabbing pointer-events-none"
+                className="absolute top-[40%] left-[40%] w-48 bg-white dark:bg-zinc-900 p-3 rounded-lg border-2 border-blue-500 z-20 cursor-grabbing pointer-events-none"
                 initial={{ x: 0, y: 0, opacity: 0, scale: 0.8 }}
                 animate={{
                     x: [0, 150],
@@ -139,7 +126,7 @@ export function TrackerKanbanDemo() {
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}
             >
                 <div className="flex justify-between items-start mb-2">
-                    <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+                    <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-blue-500">
                         <Building2 className="w-4 h-4" />
                     </div>
                 </div>

@@ -90,23 +90,18 @@ export default function OptPremiumProcessingTimeline2026Page() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">
-                        Premium Processing
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />9 min read
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Premium Processing · 9 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     OPT Premium Processing Timeline 2026: Stage-by-Stage Wait Times
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                    Premium processing does not mean your EAD arrives in 30 days — it means USCIS must take adjudicative action in 30 <em>business</em> days. Here is the full timeline from I-907 filing to card delivery, with real 2026 case data.
+                    Premium processing does not mean your EAD arrives in 30 days — it means USCIS must take adjudicative action in 30 <strong>business</strong> days. Here is the full timeline from I-907 filing to card delivery, with real 2026 case data.
                 </p>
                 <div className="mt-6 text-sm text-gray-500">Last updated: September 1, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
+            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Plan for <strong>6–9 calendar weeks</strong> from premium request to approval, plus <strong>1–2 weeks</strong> for EAD mailing. USCIS&apos;s 30-day promise is business days and covers only the decision — not card production or delivery. Fee details:{" "}
@@ -174,7 +169,7 @@ export default function OptPremiumProcessingTimeline2026Page() {
                             <li>Total realistic timeline: 8–11 weeks from I-907 to card in hand</li>
                         </ul>
                     </div>
-                    <div className="p-5 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-900/10">
+                    <div className="p-5 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-2">STEM OPT Extension</h3>
                         <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 list-disc pl-4">
                             <li>180-day auto-extension may make premium unnecessary</li>
@@ -224,7 +219,7 @@ export default function OptPremiumProcessingTimeline2026Page() {
                         </div>
                     ))}
                 </div>
-                <p className="mt-4 text-sm text-gray-500 italic">Illustrative example — your dates will vary by service center and case complexity.</p>
+                <p className="mt-4 text-sm text-gray-500">Illustrative example — your dates will vary by service center and case complexity.</p>
             </section>
 
             <section className="mb-12">
@@ -236,7 +231,7 @@ export default function OptPremiumProcessingTimeline2026Page() {
                         "You filed late and regular processing would miss your requested start date",
                         "You are NOT eligible for STEM OPT 180-day auto-extension",
                     ].map((tip) => (
-                        <div key={tip} className="flex items-start gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/10">
+                        <div key={tip} className="flex items-start gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-950">
                             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
                             <p className="text-gray-700 dark:text-gray-300 text-sm">{tip}</p>
                         </div>
@@ -256,7 +251,7 @@ export default function OptPremiumProcessingTimeline2026Page() {
                 </div>
             </section>
 
-            <div className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl p-8 text-center text-white">
+            <div className="bg-amber-600 rounded-xl p-8 text-center text-white">
                 <h2 className="text-2xl font-bold mb-3">Track Your Premium OPT Case</h2>
                 <p className="text-amber-100 mb-6 max-w-lg mx-auto">
                     Log your I-907 date, approval, and delivery milestones — get alerts when USCIS updates your case.
@@ -266,7 +261,7 @@ export default function OptPremiumProcessingTimeline2026Page() {
                 </Link>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-premium-processing-fee-increase-1780" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Is the $1,780 Premium Fee Worth It?</Link>

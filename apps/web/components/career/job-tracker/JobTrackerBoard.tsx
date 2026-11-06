@@ -423,7 +423,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-2">
                 {/* Title Section */}
                 <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900">
                         <ClipboardList className="size-6 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
@@ -513,7 +513,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
                                             setShowAddColumnModal(true);
                                         }
                                     }}
-                                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-dashed border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors font-medium h-[60px]"
+                                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-dashed border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950 transition-colors font-medium h-[60px]"
                                 >
                                     <Plus className="w-4 h-4" />
                                     Add Column

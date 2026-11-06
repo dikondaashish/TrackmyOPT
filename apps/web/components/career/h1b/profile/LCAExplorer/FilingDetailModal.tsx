@@ -221,17 +221,17 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="lca-case-details-title"
-                className="flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-2xl border border-gray-200 bg-white shadow-2xl animate-in slide-in-from-bottom-4 duration-300 dark:border-gray-800 dark:bg-gray-900 sm:max-h-[88vh] sm:rounded-2xl sm:zoom-in-95"
+                className="flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-xl border border-gray-200 bg-white shadow-2xl animate-in slide-in-from-bottom-4 duration-300 dark:border-gray-800 dark:bg-gray-900 sm:max-h-[88vh] sm:rounded-xl sm:zoom-in-95"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex shrink-0 items-start justify-between gap-4 border-b border-gray-200 bg-gray-50 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50 sm:px-6">
+                <div className="flex shrink-0 items-start justify-between gap-4 border-b border-gray-200 bg-gray-50 px-5 py-4 dark:border-gray-800 dark:bg-gray-900 sm:px-6">
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             <h2 id="lca-case-details-title" className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">LCA Case Details</h2>
                             {filing.status && (
-                                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${filing.status === "Certified"
-                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${filing.status === "Certified"
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
                                     : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
                                     }`}>
                                     {filing.status}
@@ -251,18 +251,18 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                 </div>
 
                 {/* Content */}
-                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gray-50/50 p-4 dark:bg-black/20 sm:p-6">
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gray-50 p-4 dark:bg-black/20 sm:p-6">
                     <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 sm:gap-5">
                         {visibleSections.map((section) => (
-                            <section key={section.title} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5">
-                                <div className="mb-3 flex items-center gap-2 border-b border-gray-100 pb-3 dark:border-gray-700/50">
+                            <section key={section.title} className="rounded-xl border border-gray-100 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:p-5">
+                                <div className="mb-3 flex items-center gap-2 border-b border-gray-100 pb-3 dark:border-gray-700">
                                     <section.icon className="h-4 w-4 shrink-0 text-blue-500" />
                                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{section.title}</h3>
                                 </div>
                                 <dl className="space-y-2.5">
                                     {section.items.map((item) => (
                                         <div key={item.label} className="flex flex-col gap-0.5">
-                                            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                            <dt className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
                                                 {item.label}
                                             </dt>
                                             <dd className={`break-words text-sm ${item.highlight
@@ -281,7 +281,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
 
                 {/* Footer */}
                 <div className="flex shrink-0 items-center justify-between gap-4 border-t border-gray-200 bg-white px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-gray-800 dark:bg-gray-900 sm:px-6">
-                    <p className="text-xs italic text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                         Source: US Department of Labor LCA Disclosure Data
                     </p>
                     <button

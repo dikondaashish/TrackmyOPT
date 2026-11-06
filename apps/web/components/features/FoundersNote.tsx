@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
 import { GlobalTalentGlobe } from "./GlobalTalentGlobe";
 
 export function FoundersNote() {
@@ -10,20 +9,17 @@ export function FoundersNote() {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <div className="flex flex-col items-center text-center mb-12">
-                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 mb-6">
-                        <Quote className="w-5 h-5 fill-current" />
-                    </div>
-                    <motion.h2
+                    <motion.blockquote
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl md:text-4xl font-serif font-medium text-gray-900 dark:text-white leading-relaxed italic"
+                        className="max-w-3xl text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white leading-snug"
                     >
-                        "We built TrackMyOPT because we were tired of seeing brilliant friends lose their status due to simple deadline errors."
-                    </motion.h2>
+                        <p>&ldquo;We built TrackMyOPT because we were tired of seeing brilliant friends lose their status due to simple deadline errors.&rdquo;</p>
+                    </motion.blockquote>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-12 items-center mt-16 border-t border-gray-100 dark:border-zinc-800 pt-12">
+                <div className="grid md:grid-cols-2 gap-12 items-center mt-16">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -50,16 +46,8 @@ export function FoundersNote() {
                             <GlobalTalentGlobe />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-900 dark:text-white">Karthik Reddy Pochugari</h4>
-                            <p className="text-sm text-gray-500 uppercase tracking-wider font-semibold mt-1">Founder & CEO, TrackMyOPT</p>
-
-                            {/* Signatures */}
-                            <div className="mt-4 opacity-70">
-                                <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10 30 C 20 20, 40 50, 50 30 C 60 10, 70 40, 90 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-gray-900 dark:text-white" />
-                                    <path d="M110 35 C 120 45, 140 10, 150 35 C 160 55, 170 15, 190 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-gray-900 dark:text-white" />
-                                </svg>
-                            </div>
+                            <p className="font-semibold text-gray-900 dark:text-white">Karthik Reddy Pochugari</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Founder & CEO, TrackMyOPT</p>
                         </div>
                     </motion.div>
                 </div>

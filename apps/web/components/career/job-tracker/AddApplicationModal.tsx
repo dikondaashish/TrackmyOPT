@@ -75,8 +75,8 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                     setOpen(true);
                 }} 
                 className={cn(
-                    "bg-emerald-600 hover:bg-emerald-700 text-white gap-2 transition-all duration-500",
-                    isPrimaryEmptyState && "animate-pulse ring-4 ring-emerald-500/40 ring-offset-2 ring-offset-background shadow-lg shadow-emerald-500/20"
+                    "bg-emerald-600 hover:bg-emerald-700 text-white gap-2 transition-colors",
+                    isPrimaryEmptyState && "ring-2 ring-emerald-500 ring-offset-2 ring-offset-background"
                 )}
             >
                 <Plus className="w-4 h-4" />
@@ -107,8 +107,8 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                     )}
                     onClose={() => setOpen(false)}
                 >
-                    <DialogHeader className="space-y-1.5 rounded-t-xl px-6 sm:px-8 pt-6 pb-4 pr-14 text-left border-b border-border/80 bg-muted/35 dark:bg-muted/25">
-                        <DialogTitle className="text-xl font-semibold tracking-tight">
+                    <DialogHeader className="space-y-1.5 rounded-t-xl px-6 sm:px-8 pt-6 pb-4 pr-14 text-left border-b border-border bg-muted dark:bg-muted">
+                        <DialogTitle className="text-xl font-semibold">
                             {isSuccess ? "Application added" : "Add job application"}
                         </DialogTitle>
                         {!isSuccess && (
@@ -120,7 +120,7 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
 
                     {isSuccess ? (
                         <div className="px-6 sm:px-8 py-8 flex flex-col items-center text-center space-y-6">
-                            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
+                            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center">
                                 <CheckCircle2 className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             
@@ -133,7 +133,7 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
 
                             <div className="flex flex-col w-full gap-3 pt-4">
                                 <Button 
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 py-6 text-base shadow-lg shadow-blue-500/20"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 py-6 text-base shadow-lg"
                                     onClick={() => {
                                         const params = new URLSearchParams({
                                             company: formData.company_name,
@@ -166,7 +166,7 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                     ) : (
                         <form onSubmit={handleSubmit} className="flex flex-col">
                             <div className="px-6 sm:px-8 py-6 sm:py-7">
-                                <div className="rounded-xl border border-border/70 bg-muted/20 dark:bg-muted/10 p-5 sm:p-6 space-y-5 sm:space-y-6">
+                                <div className="rounded-xl border border-border bg-muted dark:bg-muted p-5 sm:p-6 space-y-5 sm:space-y-6">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                                         <div className="space-y-2 min-w-0">
                                             <EmployerNameInput
@@ -275,7 +275,7 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                                 </div>
                             </div>
 
-                            <div className="flex flex-col-reverse rounded-b-xl sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-4 sm:py-5 border-t border-border/80 bg-muted/25 dark:bg-muted/15">
+                            <div className="flex flex-col-reverse rounded-b-xl sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-4 sm:py-5 border-t border-border bg-muted dark:bg-muted">
                                 <Button
                                     type="button"
                                     variant="outline"

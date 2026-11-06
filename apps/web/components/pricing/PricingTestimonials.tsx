@@ -21,7 +21,7 @@ export function PricingTestimonials() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.1 }}
-                            className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6"
+                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
                         >
                             <div className="flex gap-1 mb-4">
                                 {Array.from({ length: 5 }).map(
@@ -33,10 +33,10 @@ export function PricingTestimonials() {
                                     )
                                 )}
                             </div>
-                            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-6 italic">
+                            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-6">
                                 &ldquo;{t.quote}&rdquo;
                             </p>
-                            <div className="border-t border-gray-100 dark:border-zinc-800 pt-4">
+                            <div>
                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">
                                     {t.name}
                                 </p>

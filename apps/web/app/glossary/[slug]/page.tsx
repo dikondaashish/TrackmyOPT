@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { glossaryData, getAllTermsForSchema } from "../../../data/glossary-data";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
@@ -74,12 +74,7 @@ export default async function GlossaryTermPage({ params }: PageProps) {
                     <ArrowLeft className="w-4 h-4" /> Back to Glossary
                 </Link>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 sm:p-12 shadow-sm border border-gray-200 dark:border-zinc-800">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
-                        <BookOpen className="w-4 h-4" />
-                        Immigration Definition
-                    </div>
-                    
+                <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 sm:p-12 border border-gray-200 dark:border-zinc-800">
                     <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
                         {term.term}
                     </h1>
@@ -112,7 +107,7 @@ export default async function GlossaryTermPage({ params }: PageProps) {
                 </div>
                 
                 {/* CTA */}
-                <div className="mt-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white text-center">
+                <div className="mt-12 bg-blue-600 rounded-xl p-8 text-white text-center">
                     <h2 className="text-2xl font-bold mb-3">Track Your OPT Compliance</h2>
                     <p className="text-blue-100 mb-6">
                         Don't let complex immigration rules risk your status. Track timelines, unemployment days, and deadlines.

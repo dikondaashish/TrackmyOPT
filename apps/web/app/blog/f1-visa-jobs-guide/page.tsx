@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, Briefcase, BookOpen } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
@@ -35,7 +35,8 @@ export default function F1JobsArticle() {
             </nav>
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold">Careers</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Careers</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />12 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">F-1 Visa Jobs 2026: How to Find Jobs as an International Student</h1>
@@ -47,15 +48,15 @@ export default function F1JobsArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     F-1 students have four legal work authorization types: on-campus employment, CPT, pre-completion OPT, and post-completion OPT. To work in the US long-term after graduation, you need an employer willing to sponsor an H-1B visa.
                 </p>
             </div>
 
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
+            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-green-900 dark:text-green-100 mb-3">Key Takeaway</h2>
                 <p className="text-green-800 dark:text-green-200 font-medium">F-1 students have <strong>4 legal work authorization types</strong>: on-campus employment, CPT, pre-completion OPT, and post-completion OPT. To work long-term, you'll need an employer willing to sponsor H-1B. Start your job search <strong>3-6 months before graduation</strong>.</p>
             </div>
 
@@ -95,7 +96,7 @@ export default function F1JobsArticle() {
                             { step: "Use the Right Job Boards", tips: ["LinkedIn (filter for H-1B sponsor companies)", "Glassdoor (search for visa sponsorship)", "MyVisaJobs.com (H-1B specific job listings)", "University career services (employer partnerships)", "TrackMyOPT Job Tracker (track applications + unemployment days)"] },
                         ].map((item, i) => (
                             <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-700 dark:text-green-300 text-sm font-bold">{i + 1}</div>{item.step}</h3>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center text-green-700 dark:text-green-300 text-sm font-bold">{i + 1}</div>{item.step}</h3>
                                 <ul className="space-y-1">{item.tips.map((tip, j) => (<li key={j} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />{tip}</li>))}</ul>
                             </div>
                         ))}
@@ -114,9 +115,9 @@ export default function F1JobsArticle() {
                             { industry: "Academia", roles: "Research Assistant, Postdoc, Teaching Assistant", sponsorship: "Cap-Exempt" },
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2"><Briefcase className="w-4 h-4 text-green-500" />{item.industry}</h3>
+                                <h3 className="font-semibold text-gray-900 dark:text-white">{item.industry}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.roles}</p>
-                                <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">Sponsorship: {item.sponsorship}</span>
+                                <span className="block mt-2 text-xs text-gray-500 dark:text-gray-400">Sponsorship: {item.sponsorship}</span>
                             </div>
                         ))}
                     </div>
@@ -140,7 +141,7 @@ export default function F1JobsArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
@@ -158,7 +159,7 @@ export default function F1JobsArticle() {
 
             <AuthorBio />
 
-            <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-green-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Job Applications & OPT Days Together</h2>
                 <p className="text-green-100 mb-6 max-w-lg mx-auto">TrackMyOPT's Job Tracker manages your applications while monitoring your unemployment clock.</p>
                 <Link href="/features/job-tracker" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-green-50 transition-colors">Try Job Tracker Free <ArrowRight className="w-4 h-4" /></Link>

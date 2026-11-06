@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    FileText,
     BookOpen,
     Loader2,
     Check,
@@ -75,12 +74,9 @@ export function ResumeInputPanel({
     onFileDrop,
 }: ResumeInputPanelProps) {
     return (
-        <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+        <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    </div>
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Resume</h2>
                         <p className="text-xs text-gray-500">Paste or upload your current resume</p>
@@ -116,7 +112,7 @@ export function ResumeInputPanel({
                     value={text}
                     onChange={(e) => onTextChange(e.target.value)}
                     placeholder="Paste your resume text here..."
-                    className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
+                    className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
                 />
                 {text && (
                     <button
@@ -132,7 +128,7 @@ export function ResumeInputPanel({
 
             {/* Error Message */}
             {error && (
-                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-start gap-2">
+                <div className="mt-2 p-2 bg-red-50 dark:bg-red-950 rounded-lg flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 </div>
@@ -167,7 +163,7 @@ export function ResumeInputPanel({
                 role="button"
                 tabIndex={0}
                 aria-label="Upload a resume file"
-                className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer group"
+                className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-all cursor-pointer group"
             >
                 <input
                     ref={fileInputRef}
@@ -203,7 +199,7 @@ export function ResumeInputPanel({
                     value={url}
                     onChange={(e) => onUrlChange(e.target.value)}
                     placeholder="Or enter Google Drive / cloud storage URL"
-                    className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                    className="flex-1 bg-gray-50 dark:bg-gray-800 text-sm"
                     onKeyDown={(e) => {
                         if (e.key === "Enter" && url.trim()) {
                             onUrlProcess();

@@ -181,27 +181,27 @@ export function PersonalizedTips({
     switch (type) {
       case "urgent":
         return {
-          bg: "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50",
+          bg: "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-950",
           icon: "text-red-500",
-          iconBg: "bg-red-100 dark:bg-red-900/30",
+          iconBg: "bg-red-100 dark:bg-red-950",
         };
       case "warning":
         return {
-          bg: "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50",
+          bg: "bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-950",
           icon: "text-amber-500",
-          iconBg: "bg-amber-100 dark:bg-amber-900/30",
+          iconBg: "bg-amber-100 dark:bg-amber-950",
         };
       case "success":
         return {
-          bg: "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50",
+          bg: "bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-950",
           icon: "text-emerald-500",
-          iconBg: "bg-emerald-100 dark:bg-emerald-900/30",
+          iconBg: "bg-emerald-100 dark:bg-emerald-950",
         };
       default:
         return {
-          bg: "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50",
+          bg: "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-950",
           icon: "text-blue-500",
-          iconBg: "bg-blue-100 dark:bg-blue-900/30",
+          iconBg: "bg-blue-100 dark:bg-blue-950",
         };
     }
   };
@@ -255,7 +255,7 @@ export function PersonalizedTips({
             </div>
             <button
               onClick={() => dismissTip(tip.id)}
-              className="shrink-0 p-1.5 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
+              className="shrink-0 p-1.5 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-zinc-800 rounded-lg transition-colors"
               title="Dismiss tip"
             >
               <X className="w-4 h-4" />

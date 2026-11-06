@@ -3,9 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
-  Search,
   Building2,
-  Shield,
   AlertTriangle,
   CheckCircle2,
   TrendingUp,
@@ -62,7 +60,7 @@ function SignalGrid() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.1 }}
-          className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 hover:shadow-lg transition-shadow"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
         >
           <div
             className={`w-12 h-12 rounded-xl bg-${signal.color}-100 dark:bg-${signal.color}-900/30 flex items-center justify-center mb-4`}
@@ -104,7 +102,7 @@ function DataStats() {
           className="text-center"
         >
           <motion.div
-            className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
+            className="text-4xl font-bold text-emerald-600"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -123,7 +121,7 @@ function DataStats() {
 export default function SponsorsPage() {
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
         <FeatureServiceSchema
           name="H-1B Sponsor Database & Research Tool"
           description="Browse H-1B sponsor profiles with historical activity, calculated trends, and LCA filing details. Use it as research, not a guarantee that an employer will sponsor your visa."
@@ -163,8 +161,7 @@ export default function SponsorsPage() {
         />
         {/* Hero */}
         <FeatureHero
-          badge="Most Popular"
-          headline="H-1B sponsor history, without assumptions."
+          headline="H-1B sponsor history, without assumptions"
           subheadline="Research historical activity, calculated trends, and LCA filing details before you apply—then confirm current sponsorship with the employer."
           ctaText="Search Sponsors Free"
           ctaHref="/dashboard/sponsors"
@@ -173,7 +170,7 @@ export default function SponsorsPage() {
             href: '/dashboard/career/h1b-sponsors',
           }}
           visual={
-            <div className="rounded-2xl border border-emerald-100 bg-white p-6 text-left shadow-xl dark:border-emerald-900/60 dark:bg-zinc-900">
+            <div className="rounded-xl border border-emerald-100 bg-white p-6 text-left dark:border-emerald-900 dark:bg-zinc-900">
               <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Sponsor profile</p>
               <h3 className="mt-2 text-xl font-bold text-gray-950 dark:text-white">Historical H-1B activity</h3>
               <ul className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-300">
@@ -202,10 +199,6 @@ export default function SponsorsPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
-                  <Search className="w-4 h-4" />
-                  Instant Search
-                </div>
                 <H2>Find and compare sponsor profiles</H2>
                 <P>
                   Search by company or location, then filter and sort profiles
@@ -234,7 +227,7 @@ export default function SponsorsPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-8 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-8 dark:border-emerald-900 dark:bg-emerald-950">
                   <h3 className="font-semibold text-gray-950 dark:text-white">What a profile can show</h3>
                   <ul className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-300">
                     <li>Historical H-1B activity for 2021–2025</li>
@@ -249,7 +242,7 @@ export default function SponsorsPage() {
         </section>
 
         {/* Feature 2: Intelligence Signals */}
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -257,10 +250,6 @@ export default function SponsorsPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                <Shield className="w-4 h-4" />
-                Profile context
-              </div>
               <H2>Useful context, clearly scoped</H2>
               <Lead>
                 The dashboard shows the data and calculated signals it has; it does not certify employers or predict visa outcomes.
@@ -281,7 +270,7 @@ export default function SponsorsPage() {
                 viewport={{ once: true }}
                 className="order-2 lg:order-1"
               >
-                <div className="rounded-2xl border border-amber-100 bg-amber-50 p-8 dark:border-amber-900/60 dark:bg-amber-950/30">
+                <div className="rounded-xl border border-amber-100 bg-amber-50 p-8 dark:border-amber-900 dark:bg-amber-950">
                   <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Research checklist</p>
                   <ol className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-300">
                     <li>1. Use historical activity to identify employers to research.</li>
@@ -297,10 +286,6 @@ export default function SponsorsPage() {
                 viewport={{ once: true }}
                 className="order-1 lg:order-2"
               >
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-4">
-                  <AlertTriangle className="w-4 h-4" />
-                  Responsible research
-                </div>
                 <H2>Use sponsor data as a starting point</H2>
                 <P>
                   H-1B history can help you target your search, but it cannot verify a current opening, E-Verify enrollment, or whether an employer will sponsor you. Confirm those details directly with the employer.
@@ -317,10 +302,10 @@ export default function SponsorsPage() {
           </div>
         </section>
 
-        <section className="border-y border-blue-100 bg-blue-50/70 py-10 dark:border-blue-950 dark:bg-blue-950/20">
+        <section className="border-y border-blue-100 bg-blue-50 py-10 dark:border-blue-950 dark:bg-blue-950">
           <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-5 px-4 sm:px-6 md:flex-row md:items-center lg:px-8">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+              <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                 Planning for STEM OPT?
               </p>
               <h2 className="mt-1 text-2xl font-bold text-gray-950 dark:text-white">
@@ -333,7 +318,7 @@ export default function SponsorsPage() {
             </div>
             <Link
               href="/e-verify-employer-search"
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
             >
               Search E-Verify
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

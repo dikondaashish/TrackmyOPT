@@ -57,18 +57,18 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                 <tr>
                   <th className="px-4 py-3">Feature</th>
                   <th className="px-4 py-3 text-center">Free<br /><span className="font-normal text-gray-500">$0</span></th>
-                  <th className="bg-blue-50/60 px-4 py-3 text-center text-blue-600 dark:bg-blue-900/10 dark:text-blue-400">
+                  <th className="bg-blue-50 px-4 py-3 text-center text-blue-600 dark:bg-blue-950 dark:text-blue-400">
                     Pro<br /><span className="font-normal">${PLAN_PRICES.pro.month.toFixed(2)}/mo</span>
                   </th>
-                  <th className="bg-purple-50/60 px-4 py-3 text-center text-purple-700 dark:bg-purple-900/10 dark:text-purple-300">
+                  <th className="bg-purple-50 px-4 py-3 text-center text-purple-700 dark:bg-purple-950 dark:text-purple-300">
                     Dedicated<br /><span className="font-normal">${PLAN_PRICES.dedicated.month.toFixed(2)}/mo</span>
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {PLAN_COMPARISON_FEATURES.flatMap((category) => [
-                  <tr key={`${category.category}-header`} className="bg-gray-50/70 dark:bg-gray-800/50">
-                    <th colSpan={4} className="px-4 py-2 text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">
+                  <tr key={`${category.category}-header`} className="bg-gray-50 dark:bg-gray-800">
+                    <th colSpan={4} className="px-4 py-2 text-xs text-gray-600 dark:text-gray-300">
                       {category.category}
                     </th>
                   </tr>,
@@ -76,8 +76,8 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                     <tr key={`${category.category}-${feature.name}`}>
                       <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{feature.name}</td>
                       <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">{renderValue(feature.free)}</td>
-                      <td className="bg-blue-50/30 px-4 py-3 text-center font-medium text-gray-900 dark:bg-blue-900/5 dark:text-gray-100">{renderValue(feature.pro)}</td>
-                      <td className="bg-purple-50/30 px-4 py-3 text-center font-medium text-gray-900 dark:bg-purple-900/5 dark:text-gray-100">{renderValue(feature.dedicated)}</td>
+                      <td className="bg-blue-50 px-4 py-3 text-center font-medium text-gray-900 dark:bg-blue-950 dark:text-gray-100">{renderValue(feature.pro)}</td>
+                      <td className="bg-purple-50 px-4 py-3 text-center font-medium text-gray-900 dark:bg-purple-950 dark:text-gray-100">{renderValue(feature.dedicated)}</td>
                     </tr>
                   )),
                 ])}
@@ -87,7 +87,7 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
 
           <div className="mt-6 text-center">
             <Button
-              className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-2 font-semibold text-white shadow-lg hover:from-blue-700 hover:to-purple-700"
+              className="bg-blue-600 px-8 py-2 font-semibold text-white hover:bg-blue-700"
               onClick={handleUpgrade}
             >
               Get Pro

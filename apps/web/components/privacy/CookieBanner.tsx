@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Cookie } from 'lucide-react';
 import {
   acceptAllOptional,
   openPrivacySettings,
@@ -41,11 +40,8 @@ export function CookieBanner({ hidden = false }: { hidden?: boolean }) {
       aria-label="Privacy choices"
       aria-describedby="privacy-banner-description"
     >
-      <div className="mx-auto max-w-4xl rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl shadow-black/10 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30 sm:p-6">
+      <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-5 shadow-lg dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
         <div className="flex items-start gap-4">
-          <div className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30 sm:flex">
-            <Cookie className="h-6 w-6 text-blue-600 dark:text-blue-400" aria-hidden />
-          </div>
           <div className="min-w-0 flex-1">
             <h2 className="mb-1 text-base font-semibold text-gray-900 dark:text-white">
               Your privacy choices

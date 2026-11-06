@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, BookOpen, GraduationCap, XCircle, ShieldAlert, MonitorCheck } from "lucide-react";
+import { Clock, ArrowRight, GraduationCap, XCircle, ShieldAlert, MonitorCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,24 +46,22 @@ export default function WithdrawingClassesPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Academics</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Compliance</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     Withdrawing from Classes on an F-1 Visa: Avoid Losing Your Status
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Failing a class and want to hit the 'Withdraw' button on your student portal? Stop. Learn the strict SEVIS rules for course withdrawals and how a single click can destroy your future OPT.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Academics · Compliance</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 8 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/withdrawing-from-classes-f1-visa.png" alt="Academic desk with a Course Withdrawal Form, student ID, and a laptop showing a student portal" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -81,7 +79,7 @@ export default function WithdrawingClassesPage() {
                     <li><strong>Graduates:</strong> Must be enrolled in what the university defines as full-time (usually 9 credit hours per semester).</li>
                 </ul>
 
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <XCircle className="w-6 h-6" />
                         The Instant Termination Trap
@@ -96,23 +94,22 @@ export default function WithdrawingClassesPage() {
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Solution: Authorized Reduced Course Load (RCL)</h2>
                 <p>
-                    You <em>can</em> drop below full-time status, but only if you receive written authorization from your DSO <strong>before</strong> you drop the class. This is called a Reduced Course Load (RCL).
+                    You <strong>can</strong> drop below full-time status, but only if you receive written authorization from your DSO <strong>before</strong> you drop the class. This is called a Reduced Course Load (RCL).
                 </p>
                 <p>
                     There are only three acceptable reasons DHS allows a DSO to grant an RCL:
                 </p>
 
                 <div className="space-y-6 my-8">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
-                        <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                            <BookOpen className="w-6 h-6" /> 1. Academic Difficulty
+                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+                        <h3 className="text-xl font-bold mt-0 mb-2 text-blue-600 dark:text-blue-400">1. Academic Difficulty
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">
                             You can get an RCL if you are facing initial difficulties with the English language or reading requirements, unfamiliarity with US teaching methods, or improper course level placement. <strong>Crucially:</strong> You can only use this reason once per degree level, and you must still maintain at least 6 credits (half-time).
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-red-600 dark:text-red-400">
                             <ShieldAlert className="w-6 h-6" /> 2. Medical Condition
                         </h3>
@@ -121,7 +118,7 @@ export default function WithdrawingClassesPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                             <GraduationCap className="w-6 h-6" /> 3. Final Semester
                         </h3>
@@ -139,7 +136,7 @@ export default function WithdrawingClassesPage() {
                     However, you should still email your DSO to confirm before you do it, just in case the class has a lab component that brings you down to 11 credits.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
                         <MonitorCheck className="w-6 h-6 text-primary" />
                         Compliance Tracking with TrackMyOPT
@@ -162,9 +159,7 @@ export default function WithdrawingClassesPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Secure Your OPT Future
                 </h3>
@@ -174,7 +169,7 @@ export default function WithdrawingClassesPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Your TrackMyOPT Account
                     </Link>
@@ -185,7 +180,7 @@ export default function WithdrawingClassesPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/fall-out-of-f1-status-options" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Out of Status Options
                             </h4>
@@ -198,7 +193,7 @@ export default function WithdrawingClassesPage() {
                         </div>
                     </Link>
                     <Link href="/blog/sevis-transfer-guide-opt-impact" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 SEVIS Transfer Guide
                             </h4>

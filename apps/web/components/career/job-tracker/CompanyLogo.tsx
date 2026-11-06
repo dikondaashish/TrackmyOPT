@@ -67,7 +67,7 @@ export function CompanyLogo({
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 font-bold text-white shadow-inner',
+        'inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-inner',
         SIZE_CLASSES[size],
         className
       )}

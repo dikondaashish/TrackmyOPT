@@ -28,7 +28,7 @@ export default async function NetworkingPage({ searchParams }: {
     <Link href="/dashboard/career" className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:text-blue-300"><ArrowLeft className="size-4" aria-hidden="true" />Career Hub</Link>
     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">Networking</h1>
+        <h1 className="text-2xl font-semibold text-slate-950 dark:text-white sm:text-3xl">Networking</h1>
         <p className="text-sm text-slate-600 dark:text-slate-300">Find a contact. Start a conversation.</p>
       </div>
       <NetworkingUsageStats key={legacy ? "manual" : "bundles"} mode={legacy ? "manual" : "bundles"} />

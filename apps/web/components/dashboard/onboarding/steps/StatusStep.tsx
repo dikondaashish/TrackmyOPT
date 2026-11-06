@@ -42,7 +42,7 @@ export function StatusStep({
 }: StatusStepProps) {
   return (
     <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
-      <h2 className="text-2xl font-bold tracking-tight mb-2">Where are you in your journey?</h2>
+      <h2 className="text-2xl font-bold mb-2">Where are you in your journey?</h2>
       <p className="text-muted-foreground mb-8">This helps us customize your dashboard widgets.</p>
 
       <div className="space-y-3 flex-1">
@@ -52,7 +52,7 @@ export function StatusStep({
             onClick={() => onStatusChange(option.id)}
             className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-start gap-4 ${
               status === option.id
-                ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                ? "border-blue-600 bg-blue-50 dark:bg-blue-950"
                 : "border-muted hover:border-gray-300 dark:hover:border-gray-700 bg-card"
             }`}
           >

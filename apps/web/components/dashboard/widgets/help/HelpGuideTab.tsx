@@ -19,7 +19,7 @@ export function HelpGuideTab() {
         {/* What is OPT */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-950 flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
             <h2 className="text-xl font-bold">What is OPT?</h2>
@@ -32,7 +32,7 @@ export function HelpGuideTab() {
             </p>
 
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                 <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
                   Pre-Completion OPT
                 </h4>
@@ -41,7 +41,7 @@ export function HelpGuideTab() {
                   classes, full-time during breaks. Time used reduces post-completion OPT.
                 </p>
               </div>
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
                 <h4 className="font-semibold text-green-800 dark:text-green-300 mb-2">
                   Post-Completion OPT
                 </h4>
@@ -57,7 +57,7 @@ export function HelpGuideTab() {
         {/* OPT Timeline */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-950 flex items-center justify-center">
               <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <h2 className="text-xl font-bold">OPT Timeline & Key Dates</h2>
@@ -66,7 +66,7 @@ export function HelpGuideTab() {
           <div className="space-y-4">
             {/* Timeline Steps */}
             <div className="relative">
-              <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-green-500" />
+              <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-blue-500" />
 
               {[
                 {
@@ -107,11 +107,11 @@ export function HelpGuideTab() {
                         step.color === "green" ? "border-green-500" :
                           "border-red-500"
                     }`} />
-                  <div className={`p-4 rounded-lg ${step.color === "blue" ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800" :
-                    step.color === "purple" ? "bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800" :
-                      step.color === "amber" ? "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800" :
-                        step.color === "green" ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800" :
-                          "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+                  <div className={`p-4 rounded-lg ${step.color === "blue" ? "bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800" :
+                    step.color === "purple" ? "bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800" :
+                      step.color === "amber" ? "bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800" :
+                        step.color === "green" ? "bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800" :
+                          "bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800"
                     }`}>
                     <h4 className="font-semibold">{step.title}</h4>
                     <p className="text-xs text-muted-foreground mt-1 mb-2">{step.date}</p>
@@ -126,13 +126,13 @@ export function HelpGuideTab() {
         {/* Unemployment Clock */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center">
               <Clock className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
             <h2 className="text-xl font-bold">The Unemployment Clock</h2>
           </div>
 
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div>
@@ -173,7 +173,7 @@ export function HelpGuideTab() {
               </div>
             </div>
 
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
               <h4 className="font-semibold text-green-800 dark:text-green-300 mb-2">
                 What Stops the Unemployment Clock?
               </h4>
@@ -190,7 +190,7 @@ export function HelpGuideTab() {
         {/* STEM OPT Extension */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </div>
             <h2 className="text-xl font-bold">STEM OPT Extension (24 Months)</h2>
@@ -228,7 +228,7 @@ export function HelpGuideTab() {
             </div>
           </div>
 
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <div className="p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg">
             <div className="flex items-start gap-2">
               <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
               <div>
@@ -245,7 +245,7 @@ export function HelpGuideTab() {
         {/* Cap Gap */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center">
               <Shield className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
             </div>
             <h2 className="text-xl font-bold">Cap Gap Extension</h2>
@@ -256,7 +256,7 @@ export function HelpGuideTab() {
             you may be eligible for a "cap gap" extension of your OPT and F-1 status.
           </p>
 
-          <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-lg">
+          <div className="p-4 bg-cyan-50 dark:bg-cyan-950 border border-cyan-200 dark:border-cyan-800 rounded-lg">
             <h4 className="font-semibold text-cyan-800 dark:text-cyan-300 mb-2">
               How Cap Gap Works
             </h4>
@@ -270,7 +270,7 @@ export function HelpGuideTab() {
         </Card>
 
         {/* Still Need Help */}
-        <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+        <Card className="p-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
           <div className="text-center">
             <h3 className="text-xl font-bold mb-2">Still Have Questions?</h3>
             <p className="text-muted-foreground mb-4">

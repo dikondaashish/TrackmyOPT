@@ -44,10 +44,6 @@ export default function EmployerRefusesI983Page() {
       <BreadcrumbSchema items={[{ name: "Home", url: "https://www.trackmyopt.com" }, { name: "Blog", url: "https://www.trackmyopt.com/blog" }, { name: "Employer Refuses Form I-983", url: CANONICAL }]} />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">STEM OPT Compliance</span>
-          <span className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-3 py-1 rounded-full">Urgent</span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           What If Your Employer Refuses to Complete or Sign Form I-983?
         </h1>
@@ -57,19 +53,21 @@ export default function EmployerRefusesI983Page() {
           the required training plan or evaluation.
         </p>
         <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>STEM OPT Compliance</span>
+          <span>•</span>
           <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 12 min read</span>
           <span>•</span>
           <span>Updated July 27, 2026</span>
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
         <BlogPostImage src="/blog/employer-refuses-form-i983.png" alt="Form I-983 with empty employer signature, HR no-response email printout, and urgent sticky note" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">Direct Answer</p>
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">Direct Answer</p>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed">
           If your employer refuses to complete or sign Form I-983: (1) send a written request
           explaining the federal requirement and providing the form, (2) identify the employer&apos;s
@@ -147,7 +145,7 @@ export default function EmployerRefusesI983Page() {
 
         <h3>Sample language for the written request</h3>
         <div className="not-prose bg-gray-50 dark:bg-zinc-800 rounded-xl p-5 my-4 border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Sample Email to HR</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">Sample Email to HR</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             Subject: Form I-983 — STEM OPT Training Plan — Action Required by [Date]<br /><br />
             Dear [HR Contact],<br /><br />
@@ -206,7 +204,7 @@ export default function EmployerRefusesI983Page() {
           that makes the obligation clearer.
         </p>
 
-        <div className="not-prose bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-5 rounded-r-xl my-6">
+        <div className="not-prose bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-5 rounded-r-xl my-6">
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -229,7 +227,7 @@ export default function EmployerRefusesI983Page() {
         <div className="not-prose overflow-x-auto my-6">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-primary/10">
+              <tr className="bg-primary-soft">
                 <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">Situation</th>
                 <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">Urgency</th>
                 <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">What This Means</th>
@@ -348,7 +346,7 @@ export default function EmployerRefusesI983Page() {
             { label: "ICE Practical Training Guidance", href: "https://www.ice.gov/sevis/practical-training" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary/30 transition-colors">
+              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary transition-colors">
               <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
               {s.label}
             </a>
@@ -377,7 +375,7 @@ export default function EmployerRefusesI983Page() {
               { href: "/blog/stem-opt-employer-site-visit-preparation", title: "STEM OPT Employer Site Visits", desc: "How ICE site visits work and how students and employers should prepare." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
-                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-base">{r.title}</h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{r.desc}</p>
                   <span className="text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

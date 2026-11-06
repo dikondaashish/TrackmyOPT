@@ -41,10 +41,10 @@ function InfoSection({
 }) {
   return (
     <section className="space-y-2">
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
         {label}
       </h3>
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
+      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
         {children}
       </div>
     </section>
@@ -189,7 +189,7 @@ export function ResumeInfoDrawer({
       >
         <header className="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-800">
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Resume details
             </p>
             <h2
@@ -217,7 +217,7 @@ export function ResumeInfoDrawer({
               <p className="text-sm">Loading details…</p>
             </div>
           ) : error ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-900 dark:text-red-200">
               {error}
             </div>
           ) : (
@@ -309,7 +309,7 @@ export function ResumeInfoButton({
     <button
       type="button"
       onClick={onClick}
-      className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+      className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
       title="Resume info"
       aria-label="Resume info"
     >

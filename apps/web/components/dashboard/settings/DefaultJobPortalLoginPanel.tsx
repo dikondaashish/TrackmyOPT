@@ -31,14 +31,14 @@ export function DefaultJobPortalLoginPanel({
         email, password, and password confirmation on login or create-account
         forms. You click Login or Create Account yourself.
       </p>
-      <p className="mt-3 max-w-prose rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+      <p className="mt-3 max-w-prose rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900 dark:bg-amber-950 dark:text-amber-200">
         Reusing a password puts other accounts at risk if one portal is
         compromised. Do not use your TrackMyOPT, email, or banking password
         here. A password manager with a unique password per employer is safer.
       </p>
 
       {legacyJobPortalLogins.length > 0 && (
-        <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/30">
+        <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950">
           <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
             Action required for your older saved logins
           </p>

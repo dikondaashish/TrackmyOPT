@@ -114,14 +114,8 @@ export function LandingFaqCategories() {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header - Optimized for SEO */}
                 <header className="prose-longform text-center mb-16">
-                    <span className="inline-block px-4 py-1.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-sm font-medium rounded-full mb-4">
-                        Frequently Asked Questions
-                    </span>
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-                        Everything About{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600">
-                            OPT & F-1 Visa
-                        </span>
+                        Everything about OPT & F-1 visa
                     </h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
                         Get answers to the most common questions about Optional Practical Training,
@@ -141,7 +135,7 @@ export function LandingFaqCategories() {
                                 setOpenCategory(index);
                                 setOpenQuestion(cat.questions[0]?.question || null);
                             }}
-                            className={`min-h-11 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${openCategory === index
+                            className={`min-h-11 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${openCategory === index
                                 ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                                 : "bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-zinc-700"
                                 }`}
@@ -156,7 +150,7 @@ export function LandingFaqCategories() {
                     {faqCategories[openCategory]?.questions.map((faq, index) => (
                         <article
                             key={index}
-                            className="bg-gray-50 dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700 overflow-hidden"
+                            className="bg-gray-50 dark:bg-zinc-800 rounded-xl overflow-hidden"
                             itemScope
                             itemProp="mainEntity"
                             itemType="https://schema.org/Question"
@@ -220,7 +214,7 @@ export function LandingFaqCategories() {
                         ].map((item, index) => (
                             <div
                                 key={index}
-                                className="bg-white dark:bg-zinc-800/50 rounded-lg p-4 border border-gray-200 dark:border-zinc-700"
+                                className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-gray-200 dark:border-zinc-700"
                             >
                                 <dt className="font-semibold text-gray-900 dark:text-white text-sm">
                                     {item.term}

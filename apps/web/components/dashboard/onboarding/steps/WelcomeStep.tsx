@@ -9,7 +9,7 @@ interface WelcomeStepProps {
 }
 
 const choiceClassName =
-  "group flex w-full items-center gap-3 rounded-2xl border p-4 sm:gap-4 sm:p-5 text-left transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:active:scale-[0.98] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600";
+  "group flex w-full items-center gap-3 rounded-xl border p-4 sm:gap-4 sm:p-5 text-left transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:active:scale-[0.98] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600";
 
 export function WelcomeStep({
   onNext,
@@ -20,12 +20,12 @@ export function WelcomeStep({
   return (
     <div className="flex flex-1 flex-col justify-center gap-5 sm:gap-7">
       <div className="text-center">
-        <p className="mb-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+        <p className="mb-2 text-sm text-muted-foreground">
           Welcome to TrackMyOPT
         </p>
         <h2
           id="onboarding-wizard-title"
-          className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
+          className="text-2xl sm:text-3xl font-bold text-foreground"
         >
           What brings you here?
         </h2>
@@ -37,9 +37,9 @@ export function WelcomeStep({
         <Link
           href="/dashboard/case-status"
           onNavigate={onTrackCase}
-          className={`${choiceClassName} border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40`}
+          className={`${choiceClassName} border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-900`}
         >
-          <span className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+          <span className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
             <Radar className="h-5 w-5" aria-hidden="true" />
           </span>
           <span className="flex-1">
@@ -60,7 +60,7 @@ export function WelcomeStep({
           onClick={onNext}
           className={`${choiceClassName} border-border bg-background`}
         >
-          <span className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
+          <span className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
             <CalendarDays className="h-5 w-5" aria-hidden="true" />
           </span>
           <span className="flex-1">

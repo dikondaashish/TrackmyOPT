@@ -130,9 +130,9 @@ const SidebarNavLink = memo(({
     };
 
     const commonClasses = cn(
-        "group relative z-20 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500/20",
+        "group relative z-20 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500",
         isActive
-            ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+            ? "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400"
             : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
         isCollapsed && "justify-center px-0 w-10 h-10 mx-auto"
     );
@@ -144,7 +144,7 @@ const SidebarNavLink = memo(({
                 <>
                     <span className="flex-1">{link.label}</span>
                     {link.badge && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded">
+                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 rounded">
                             {link.badge}
                         </span>
                     )}
@@ -257,7 +257,7 @@ const SidebarNavSection = memo(({
                     aria-expanded={isExpanded}
                     aria-controls={submenuId}
                     className={cn(
-                        "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-blue-500/20",
+                        "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-blue-500",
                         isCollapsed && "h-11 w-11 flex-none justify-center px-0"
                     )}
                 >
@@ -271,7 +271,7 @@ const SidebarNavSection = memo(({
                         aria-expanded={isExpanded}
                         aria-controls={submenuId}
                         onClick={() => onToggle(section.label)}
-                        className="m-1 min-h-11 min-w-11 rounded-md transition-colors hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:hover:bg-gray-700"
+                        className="m-1 min-h-11 min-w-11 rounded-md transition-colors hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-gray-700"
                     >
                         <ChevronDown className={cn(
                             "mx-auto w-4 h-4 transition-transform",
@@ -578,7 +578,7 @@ export function Sidebar({
                                         // On desktop, we don't close the menu, so just do nothing (or route)
                                         if (isMobileOpen && onMobileClose) onMobileClose();
                                     }}
-                                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-md transition-colors"
+                                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                                 >
                                     <link.icon className="w-4 h-4" />
                                     <span>{link.label}</span>

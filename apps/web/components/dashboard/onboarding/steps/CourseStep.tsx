@@ -33,12 +33,12 @@ export function CourseStep({
 
   return (
     <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
-      <h2 className="text-2xl font-bold tracking-tight mb-2">What did you study?</h2>
+      <h2 className="text-2xl font-bold mb-2">What did you study?</h2>
       <p className="text-muted-foreground mb-4">
         This helps us determine if you are eligible for the 24-month STEM OPT extension.
       </p>
 
-      <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg p-3 flex gap-3 text-sm text-blue-800 dark:text-blue-300 mb-6">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-950 rounded-lg p-3 flex gap-3 text-sm text-blue-800 dark:text-blue-300 mb-6">
         <div className="mt-0.5">
           <GraduationCap className="h-4 w-4" />
         </div>
@@ -105,8 +105,8 @@ export function CourseStep({
             <div
               className={`p-4 rounded-lg flex items-start gap-3 transition-opacity duration-300 ${
                 isStemEligible
-                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-100 dark:border-emerald-800"
-                  : "bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-100 dark:border-amber-800"
+                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-100 dark:border-emerald-800"
+                  : "bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:text-amber-100 dark:border-amber-800"
               }`}
             >
               {isStemEligible ? (

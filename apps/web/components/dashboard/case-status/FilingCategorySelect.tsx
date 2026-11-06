@@ -28,9 +28,9 @@ export function FilingCategorySelect({
       disabled={disabled}
       aria-describedby={describedBy}
       className={cn(
-        "w-full h-[42px] px-[16px] rounded-[11px] border border-black/10 dark:border-white/10",
-        "bg-white dark:bg-zinc-950 text-[14px] text-[#1D1D1F] dark:text-white",
-        "focus:ring-[3px] focus:ring-[#0A84FF]/20 focus:border-[#0A84FF] transition-all",
+        "w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-zinc-800",
+        "bg-white dark:bg-zinc-950 text-sm text-gray-900 dark:text-white",
+        "focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 focus:border-blue-600 transition-colors",
         "disabled:opacity-60 disabled:cursor-not-allowed",
         className
       )}

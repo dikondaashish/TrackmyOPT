@@ -1,20 +1,13 @@
 .offer {
   color: #0f172a;
-  background: linear-gradient(155deg, #ffdc57 0%, #ffc531 55%, #ffad16 100%);
+  background: #ffc531;
 }
 .title:focus-visible {
   outline: none;
   box-shadow: none;
 }
 .ticket {
-  mask-image:
-    radial-gradient(circle at 0 64%, transparent 9px, #000 9.5px),
-    radial-gradient(circle at 100% 64%, transparent 9px, #000 9.5px);
-  mask-composite: intersect;
   animation: ticket-in 280ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-.spark {
-  animation: spark-in 500ms cubic-bezier(0.77, 0, 0.175, 1) 180ms;
 }
 .check,
 .bell,
@@ -57,21 +50,8 @@
     transform: scale(1);
   }
 }
-@keyframes spark-in {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-  35% {
-    transform: rotate(-10deg);
-  }
-  70% {
-    transform: rotate(6deg);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .ticket,
-  .spark,
   .check,
   .bell,
   .reminder {

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -29,18 +29,16 @@ export default function RelocatingPage() {
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-05-04" modifiedDate="2026-10-11" author="Vinay Kumar" canonicalUrl={metadata.alternates?.canonical as string} />
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Life in US</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Compliance</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">Relocating for Your OPT Job: Moving States Checklist</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Got an OPT job in a different state? Follow this immigration-safe moving checklist to ensure you don't accidentally violate your F-1 status during the move.</p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Life in US · Compliance</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 6 min read</span>
                     <span>•</span><span>Updated October 11, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/relocating-for-opt-job-moving-states.jpg" alt="Moving boxes with a laptop showing apartment listings and a US map with a route drawn" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -49,7 +47,7 @@ export default function RelocatingPage() {
                 <h2 className="text-2xl font-bold mt-12 mb-6">The 10-Day Address Update Rule</h2>
                 <p>Under federal immigration law, you are required to update your physical US address with both <strong>USCIS (via AR-11 form)</strong> and <strong>SEVP (via the SEVP Portal)</strong> within <strong>10 days</strong> of moving to a new address. This is not optional—failure to comply can be grounds for SEVIS termination.</p>
 
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2"><AlertTriangle className="w-6 h-6" /> This Is a Legal Requirement</h3>
                     <p className="mb-0 text-red-800 dark:text-red-200">Under INA Section 265, every noncitizen must report an address change within 10 days using USCIS Form AR-11 (online at uscis.gov). Additionally, OPT students must update their address in the SEVP Portal. Missing this deadline can result in deportation proceedings.</p>
                 </div>
@@ -66,38 +64,38 @@ export default function RelocatingPage() {
                         { title: "Update USCIS and your student records", desc: "Update USCIS and your DSO/SEVIS records separately. USPS forwarding does not update USCIS or forward USCIS mail." },
                         { title: "Update your bank address", desc: "Banks use your address for verification. Update it to avoid account freezes." },
                     ].map((item, i) => (
-                        <div key={i} className="flex items-start gap-3 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+                        <div key={i} className="flex items-start gap-3 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-4">
                             <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                             <div><p className="font-bold mb-1 text-sm">{item.title}</p><p className="text-xs text-gray-500 dark:text-gray-400 mb-0">{item.desc}</p></div>
                         </div>
                     ))}
                 </div>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2"><ShieldCheck className="w-6 h-6 text-primary" /> TrackMyOPT Keeps You on Track</h3>
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">TrackMyOPT Keeps You on Track</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">Moving is chaotic enough without worrying about immigration deadlines. <strong>TrackMyOPT</strong> sends you automated reminders for address update deadlines, tracks your SEVIS reporting, and stores all your documents securely in the cloud—so no matter where you move, your immigration file travels with you.</p>
                 </div>
             </div>
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Move with Confidence</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">TrackMyOPT makes sure you never miss an immigration deadline during your relocation. Automated alerts, document storage, and compliance tracking—all in one place.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/opt-reporting-requirements-dso" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">OPT Reporting Requirements</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Address changes are just one of many mandatory reporting requirements on OPT.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/renting-apartment-without-us-credit-history" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Renting Without Credit History</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Moving to a new city? Learn how to rent an apartment without US credit history.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

@@ -73,7 +73,7 @@ function ToolCard({
     <div
       className={`group bg-card border border-border rounded-xl p-6 transition-all duration-200 ${
         available 
-          ? "hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] cursor-pointer" 
+          ? "hover:border-primary cursor-pointer" 
           : "opacity-50 cursor-not-allowed"
       }`}
       role="button"
@@ -82,7 +82,7 @@ function ToolCard({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="mb-4 transition-transform duration-200 group-hover:scale-110">{icon}</div>
+      <div className="mb-4">{icon}</div>
       <h3 className="mb-2 font-semibold text-foreground">{title}</h3>
       <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
       {available && (
@@ -193,20 +193,19 @@ export function ToolsGrid() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Your Toolkit</h2>
+        <h2 className="text-2xl font-bold">Your Toolkit</h2>
         {!isCheckingExtension && (
           <div className="flex items-center gap-2 text-xs">
             {extensionInstalled ? (
-              <span className="flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
-                <Check className="w-3 h-3" />
-                Extension Installed
+              <span className="font-medium text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-950 px-2 py-0.5 rounded-md">
+                Extension installed
               </span>
             ) : (
               <a
                 href={CHROME_STORE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950 px-2 py-1 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900 transition-colors"
               >
                 <Download className="w-3 h-3" />
                 Get Extension

@@ -2,11 +2,7 @@
 
 import {
     Clock,
-    Star,
     ExternalLink,
-    Tag,
-    Fuel,
-    GraduationCap,
     Banknote,
     MapPin,
 } from "lucide-react";
@@ -41,23 +37,11 @@ export default function OffersPage() {
         <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-background">
 
             {/* Hero Section */}
-            <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-orange-500/5" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent" />
-
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
+            <div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
                     <div className="text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-200/50 dark:border-purple-500/30 mb-6">
-                            <Tag className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
-                                Exclusive Partner Deals
-                            </span>
-                        </div>
-
-                        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-                            <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent">
-                                Special Offers
-                            </span>
+                        <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+                            Special Offers
                         </h1>
 
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -72,10 +56,7 @@ export default function OffersPage() {
             {/* Featured Offers */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-6">
-                    <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 text-yellow-500" />
                     <h2 className="text-xl font-semibold">Featured Offers</h2>
-                    </div>
                     <p className="mt-2 text-sm text-muted-foreground max-w-3xl">
                         Hand-picked for international students and OPT workers — health coverage, taxes, banking without an SSN, and job-search essentials.
                     </p>
@@ -88,21 +69,16 @@ export default function OffersPage() {
                             href={offer.link}
                             target={offer.link.startsWith("http") ? "_blank" : "_self"}
                             rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02]"
+                            className="group relative overflow-hidden rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 hover:scale-[1.02]"
                         >
-                            {/* Badge */}
-                            <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-bold uppercase text-white rounded-full bg-gradient-to-r ${offer.badgeColor}`}>
-                                {offer.badge}
-                            </div>
-
                             {/* Content */}
                             <div className="flex items-start gap-4">
                                 <OfferBrandLogo name={offer.title} domain={offer.logoDomain} size="lg" />
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                            {offer.category}
+                                        <span className="text-xs font-medium text-muted-foreground">
+                                            {offer.category} · {offer.badge}
                                         </span>
                                     </div>
 
@@ -126,20 +102,14 @@ export default function OffersPage() {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Hover gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/5 group-hover:to-pink-500/5 transition-all duration-300 pointer-events-none" />
                         </a>
                     ))}
                 </div>
 
                 {/* Fuel & Rewards Deals */}
-                <div className="flex items-center gap-2 mb-6">
-                    <Fuel className="w-5 h-5 text-amber-500" />
+                <div className="flex items-baseline gap-3 mb-6">
                     <h2 className="text-xl font-semibold">Fuel & Rewards Deals</h2>
-                    <span className="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase text-white rounded-full bg-gradient-to-r from-amber-500 to-orange-500">
-                        New Partner
-                    </span>
+                    <span className="text-sm text-muted-foreground">New partner</span>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -147,23 +117,18 @@ export default function OffersPage() {
                         <button
                             key={deal.id}
                             onClick={() => setSelectedFuelDeal(deal)}
-                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-700 p-6 hover:shadow-2xl hover:shadow-amber-500/10 hover:border-amber-300 dark:hover:border-amber-500/50 transition-all duration-300 hover:scale-[1.02] text-left"
+                            className="group relative overflow-hidden rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-700 p-6 hover:shadow-2xl hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300 hover:scale-[1.02] text-left"
                         >
-                            {/* Badge */}
-                            <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-bold uppercase text-white rounded-full bg-gradient-to-r ${deal.badgeColor}`}>
-                                {deal.badge}
-                            </div>
-
                             {/* Content */}
                             <div className="flex items-start gap-4">
-                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${deal.badgeColor} flex items-center justify-center flex-shrink-0`}>
+                                <div className={`w-12 h-12 rounded-lg ${deal.badgeColor} flex items-center justify-center flex-shrink-0`}>
                                     <deal.icon className="w-6 h-6 text-white" />
                                 </div>
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                            {deal.category}
+                                        <span className="text-xs font-medium text-muted-foreground">
+                                            {deal.category} · {deal.badge}
                                         </span>
                                     </div>
 
@@ -182,7 +147,7 @@ export default function OffersPage() {
                                                 {deal.discount}
                                             </span>
                                             {deal.maxSavings && (
-                                                <span className="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full mt-1 inline-flex items-center gap-1">
+                                                <span className="text-xs font-medium text-amber-700 dark:text-amber-300 mt-1 inline-flex items-center gap-1">
                                                     <Banknote className="w-3 h-3 shrink-0" />
                                                     {deal.maxSavings}
                                                 </span>
@@ -198,24 +163,18 @@ export default function OffersPage() {
                             </div>
 
                             {/* Available states */}
-                            <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700/50">
+                            <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-800">
                                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <MapPin className="w-3 h-3" />
                                     <span>Available in: {deal.availableStates.join(", ")}</span>
                                 </div>
                             </div>
-
-                            {/* Hover gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/5 group-hover:to-orange-500/5 transition-all duration-300 pointer-events-none" />
                         </button>
                     ))}
                 </div>
 
                 {/* Student Offers Directory */}
-                <div className="flex items-center gap-2 mb-2">
-                    <GraduationCap className="w-5 h-5 text-indigo-500" />
-                    <h2 className="text-xl font-semibold">Student Offers Directory</h2>
-                </div>
+                <h2 className="text-xl font-semibold mb-2">Student Offers Directory</h2>
                 <p className="text-sm text-muted-foreground mb-8 max-w-3xl">
                     Verified evergreen deals for international students and F-1/OPT holders — prioritized where no US SSN is required.
                 </p>
@@ -226,10 +185,7 @@ export default function OffersPage() {
 
                     return (
                         <div key={section.id} className="mb-12">
-                            <div className="flex items-center gap-2 mb-6">
-                                <section.icon className="w-5 h-5 text-purple-500" />
-                                <h3 className="text-lg font-semibold">{section.title}</h3>
-                            </div>
+                            <h3 className="text-lg font-semibold mb-6">{section.title}</h3>
 
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {sectionOffers.map((offer) => (
@@ -238,18 +194,14 @@ export default function OffersPage() {
                                         href={offer.link}
                                         target={offer.link.startsWith("http") ? "_blank" : "_self"}
                                         rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                                        className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-200 hover:scale-[1.02]"
+                                        className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200 hover:scale-[1.02]"
                                     >
-                                        <div className={`absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold uppercase text-white rounded-full bg-gradient-to-r ${offer.badgeColor}`}>
-                                            {offer.badge}
-                                        </div>
-
                                         <div className="flex items-start gap-3">
                                             <OfferBrandLogo name={offer.title} domain={offer.logoDomain} />
 
                                             <div className="flex-1 min-w-0">
-                                                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                                                    {offer.category}
+                                                <span className="text-xs font-medium text-muted-foreground">
+                                                    {offer.category} · {offer.badge}
                                                 </span>
                                                 <h3 className="font-semibold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                                                     {offer.title}
@@ -279,10 +231,7 @@ export default function OffersPage() {
                 })}
 
                 {/* Essential Services */}
-                <div className="flex items-center gap-2 mb-6">
-                    <Tag className="w-5 h-5 text-purple-500" />
-                    <h2 className="text-xl font-semibold">Essential Services</h2>
-                </div>
+                <h2 className="text-xl font-semibold mb-6">Essential Services</h2>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {OFFERS.filter(o => o.section === "essential").map((offer) => (
@@ -291,19 +240,14 @@ export default function OffersPage() {
                             href={offer.link}
                             target={offer.link.startsWith("http") ? "_blank" : "_self"}
                             rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                            className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-200 hover:scale-[1.02]"
+                            className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200 hover:scale-[1.02]"
                         >
-                            {/* Badge */}
-                            <div className={`absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold uppercase text-white rounded-full bg-gradient-to-r ${offer.badgeColor}`}>
-                                {offer.badge}
-                            </div>
-
                             <div className="flex items-start gap-3">
                                 <OfferBrandLogo name={offer.title} domain={offer.logoDomain} />
 
                                 <div className="flex-1 min-w-0">
-                                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                                        {offer.category}
+                                    <span className="text-xs font-medium text-muted-foreground">
+                                        {offer.category} · {offer.badge}
                                     </span>
                                     <h3 className="font-semibold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                                         {offer.title}
@@ -332,18 +276,16 @@ export default function OffersPage() {
 
             {/* CTA Section */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 p-8 sm:p-12">
-                    <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-
-                    <div className="relative text-center">
+                <div className="rounded-xl bg-purple-600 p-8 sm:p-12">
+                    <div className="text-center">
                         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
                             Don't Miss Out!
                         </h2>
-                        <p className="text-white/80 max-w-xl mx-auto mb-6">
+                        <p className="text-white max-w-xl mx-auto mb-6">
                             These exclusive offers are available for a limited time. Take advantage of our partner deals today.
                         </p>
 
-                        <div className="flex items-center justify-center gap-2 text-white/60 text-sm">
+                        <div className="flex items-center justify-center gap-2 text-purple-100 text-sm">
                             <Clock className="w-4 h-4" />
                             <span>Offers updated regularly</span>
                         </div>

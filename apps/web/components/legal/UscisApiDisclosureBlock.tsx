@@ -6,7 +6,7 @@ export function UscisApiDisclosureBlock({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4 text-sm text-slate-700 dark:text-slate-300",
+        "rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-4 text-sm text-slate-700 dark:text-slate-300",
         className
       )}
     >

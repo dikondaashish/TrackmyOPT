@@ -121,9 +121,9 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
   };
 
   return (
-    <div className="my-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/30 p-6 sm:p-7">
+    <div className="my-10 rounded-xl bg-emerald-50 dark:bg-emerald-900 p-6 sm:p-7">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/25">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
           <Icon className="h-6 w-6" aria-hidden />
         </div>
         <div className="flex-1 min-w-0">

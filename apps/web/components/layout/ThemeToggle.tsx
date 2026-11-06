@@ -16,7 +16,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 
     if (!mounted) {
         return (
-            <div className={cn("w-[72px] h-9 bg-gray-100/10 rounded-full animate-pulse", className)} />
+            <div className={cn("w-[72px] h-9 bg-gray-100 rounded-full animate-pulse", className)} />
         )
     }
 

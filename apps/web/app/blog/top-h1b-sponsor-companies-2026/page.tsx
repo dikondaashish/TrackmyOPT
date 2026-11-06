@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Building2, BookOpen, FileText, TrendingUp, Search, ShieldAlert } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Building2, TrendingUp, Search, ShieldAlert } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
@@ -42,8 +42,7 @@ export default function TopH1BSponsorArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">H-1B</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />10 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />H-1B · 10 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     Top H-1B Sponsor Companies 2026: Data-Driven Rankings & Analysis
@@ -58,7 +57,7 @@ export default function TopH1BSponsorArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The top H-1B sponsor companies include Amazon, Infosys, TCS, Google, Meta, Microsoft, Apple, and Cognizant, based on the number of H-1B petitions filed and approved. Tech companies and consulting firms dominate the list, with approval rates varying significantly by employer.
@@ -66,9 +65,8 @@ export default function TopH1BSponsorArticle() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />Key Takeaway
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
                     The top 20 H-1B sponsors filed over <strong>40,000 petitions combined</strong> in FY2025. However, petition volume alone doesn&apos;t tell the full story — approval rates range from <strong>60% at IT staffing firms to 98% at top tech companies</strong>. Direct employers consistently outperform third-party staffing firms. Use approval rate + salary data + company type to evaluate sponsors, not just whether they &ldquo;sponsor H-1B.&rdquo;
@@ -76,9 +74,8 @@ export default function TopH1BSponsorArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                    <FileText className="w-5 h-5" />Table of Contents
+            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Table of Contents
                 </h2>
                 <nav className="grid sm:grid-cols-2 gap-2">
                     {[
@@ -138,7 +135,7 @@ export default function TopH1BSponsorArticle() {
                             </tbody>
                         </table>
                     </div>
-                    <p className="text-sm text-gray-500 mt-3 italic">
+                    <p className="text-sm text-gray-500 mt-3">
                         Total employer cost: approximately <strong>$5,000–$10,000+</strong> per H-1B petition. Fees updated as of FY2025. Source: USCIS fee schedule.
                     </p>
                 </section>
@@ -155,7 +152,7 @@ export default function TopH1BSponsorArticle() {
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-amber-50 dark:bg-amber-900/20">
+                                <tr className="bg-amber-50 dark:bg-amber-950">
                                     <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Rank</th>
                                     <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Company</th>
                                     <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Petitions</th>
@@ -205,7 +202,7 @@ export default function TopH1BSponsorArticle() {
                             </tbody>
                         </table>
                     </div>
-                    <p className="text-sm text-gray-500 mt-3 italic">
+                    <p className="text-sm text-gray-500 mt-3">
                         Note: Petition counts are approximate and compiled from USCIS H-1B Employer Data Hub (FY2025). Includes both initial and continuing petitions. For live, searchable data, use TrackMyOPT&apos;s <Link href="/features/sponsors" className="text-blue-600 underline">H-1B Sponsor Database</Link>.
                     </p>
                 </section>
@@ -216,7 +213,7 @@ export default function TopH1BSponsorArticle() {
                         3. Top H-1B Sponsors by Approval Rate
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        Petition volume tells you who sponsors the most, but <strong>approval rate</strong> tells you who sponsors most <em>successfully</em>. The following companies (with 500+ petitions) achieved the highest approval rates in FY2025.
+                        Petition volume tells you who sponsors the most, but <strong>approval rate</strong> tells you who sponsors most <strong>successfully</strong>. The following companies (with 500+ petitions) achieved the highest approval rates in FY2025.
                     </p>
 
                     <div className="grid md:grid-cols-2 gap-3 mb-6">
@@ -243,7 +240,7 @@ export default function TopH1BSponsorArticle() {
                         ))}
                     </div>
 
-                    <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl">
                         <p className="text-sm text-emerald-800 dark:text-emerald-200 flex items-start gap-2">
                             <TrendingUp className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <strong>Key insight:</strong> Direct employers (companies hiring for their own teams) consistently achieve 90-98% approval rates. IT staffing and consulting firms that place workers at third-party client sites typically see 65-80% rates due to increased USCIS scrutiny of the employer-employee relationship.
@@ -328,7 +325,7 @@ export default function TopH1BSponsorArticle() {
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <Building2 className="w-5 h-5 text-amber-500" />{sector.industry}
                                     </h3>
-                                    <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold">Avg. Approval: {sector.avgApproval}</span>
+                                    <span className="rounded-md px-2 py-0.5 text-xs font-medium bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Avg. Approval: {sector.avgApproval}</span>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm">
@@ -353,7 +350,7 @@ export default function TopH1BSponsorArticle() {
                             </div>
                         ))}
                     </div>
-                    <p className="text-sm text-gray-500 mt-3 italic">
+                    <p className="text-sm text-gray-500 mt-3">
                         Salary ranges are approximate and based on LCA (Labor Condition Application) data filed with the Department of Labor. Actual compensation may include bonuses, RSUs, and benefits not reflected here.
                     </p>
                 </section>
@@ -375,7 +372,7 @@ export default function TopH1BSponsorArticle() {
                             { flag: "No Physical Office or Virtual Addresses", detail: "Companies operating from virtual offices, co-working spaces, or PO boxes raise fraud flags with USCIS. Legitimate employers have established physical offices where employees work.", icon: AlertTriangle },
                             { flag: "DOL Violations or USCIS Fraud Findings", detail: "Check if the employer has been flagged by the Department of Labor for LCA violations or by USCIS for fraud. These findings significantly increase denial risk for future petitions.", icon: ShieldAlert },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-red-200 dark:border-red-800/50 flex items-start gap-3">
+                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-red-200 dark:border-red-900 flex items-start gap-3">
                                 <item.icon className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white">{item.flag}</h3>
@@ -419,7 +416,7 @@ export default function TopH1BSponsorArticle() {
                             { tool: "TrackMyOPT H-1B Sponsor Database", desc: "Our database combines USCIS petition data, DOL salary data, E-Verify enrollment status, fraud alerts, and year-over-year trends for 25,000+ employers. Filter by approval rate, location, industry, company size, and salary range. Includes a risk score for each employer.", highlight: true },
                             { tool: "E-Verify Search", desc: "Verify if a company is enrolled in E-Verify (required for STEM OPT employment). Search at: e-verify.gov. Note: not all H-1B sponsors are E-Verify enrolled — this matters if you plan to transition from STEM OPT to H-1B.", highlight: false },
                         ].map((item, i) => (
-                            <div key={i} className={`p-4 rounded-xl border flex items-start gap-3 ${item.highlight ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}>
+                            <div key={i} className={`p-4 rounded-xl border flex items-start gap-3 ${item.highlight ? "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}>
                                 <Search className={`w-5 h-5 mt-0.5 flex-shrink-0 ${item.highlight ? "text-blue-600" : "text-gray-400"}`} />
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white">{item.tool}</h3>
@@ -482,7 +479,7 @@ export default function TopH1BSponsorArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
@@ -501,7 +498,7 @@ export default function TopH1BSponsorArticle() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-amber-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Find Your Ideal H-1B Sponsor</h2>
                 <p className="text-amber-100 mb-6 max-w-lg mx-auto">Search 25,000+ employers with approval rates, salary data, E-Verify status, and fraud alerts in TrackMyOPT&apos;s Sponsor Database.</p>
                 <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-600 rounded-xl font-semibold hover:bg-amber-50 transition-colors">

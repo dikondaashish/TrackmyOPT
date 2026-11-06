@@ -48,7 +48,7 @@ function CollapsibleSection({
     <div className="border border-border rounded-lg overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 bg-card hover:bg-accent/50 transition-colors text-left"
+        className="w-full flex items-center justify-between p-4 bg-card hover:bg-accent transition-colors text-left"
       >
         <div className="flex items-center gap-3">
           {icon}
@@ -86,7 +86,7 @@ function FeatureCard({
       className="block p-4 bg-card border border-border rounded-lg hover:border-primary hover:shadow-md transition-all group"
     >
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+        <div className="w-10 h-10 rounded-lg bg-primary-soft flex items-center justify-center flex-shrink-0 group-hover:bg-primary-soft transition-colors">
           {icon}
         </div>
         <div>
@@ -189,7 +189,7 @@ export function HelpFeaturesTab() {
                 </ol>
               </div>
 
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
                   <strong>Tip:</strong> The calculator will automatically compute your filing window,
                   grace period dates, and STEM extension deadlines.
@@ -229,7 +229,7 @@ export function HelpFeaturesTab() {
                     <li>• Card Was Mailed To Me</li>
                   </ul>
                 </div>
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg">
                   <h5 className="font-medium text-sm mb-1 text-green-700 dark:text-green-300">Pro feature</h5>
                   <p className="text-xs text-green-600 dark:text-green-400">
                     Pro members get email alerts when USCIS posts a new status on their case.
@@ -259,7 +259,7 @@ export function HelpFeaturesTab() {
                 </ul>
               </div>
 
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <div className="p-3 bg-red-50 dark:bg-red-950 rounded-lg">
                 <p className="text-sm text-red-700 dark:text-red-300">
                   <strong>Warning:</strong> Exceeding your unemployment limit violates your F-1 status.
                   Use this tracker diligently to stay compliant.
@@ -294,7 +294,7 @@ export function HelpFeaturesTab() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
                   <h5 className="font-medium text-sm mb-1">Supported Documents</h5>
                   <ul className="text-xs text-muted-foreground space-y-0.5">
                     <li>• I-20, I-797, I-94</li>
@@ -304,7 +304,7 @@ export function HelpFeaturesTab() {
                     <li>• Tax Documents</li>
                   </ul>
                 </div>
-                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
                   <h5 className="font-medium text-sm mb-1">AI Extraction</h5>
                   <ul className="text-xs text-muted-foreground space-y-0.5">
                     <li>• Document type detection</li>
@@ -348,7 +348,7 @@ export function HelpFeaturesTab() {
                 </ul>
               </div>
 
-              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+              <div className="p-3 bg-amber-50 dark:bg-amber-950 rounded-lg">
                 <p className="text-sm text-amber-700 dark:text-amber-300">
                   Configure your notification preferences in <strong>Settings</strong> to choose
                   which alerts you want to receive.
@@ -402,7 +402,7 @@ export function HelpFeaturesTab() {
                 </p>
               </div>
 
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950 rounded-lg">
                 <h5 className="font-medium text-sm mb-2 text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5"><Rocket className="w-3.5 h-3.5 shrink-0" /> How To Use:</h5>
                 <ol className="text-sm space-y-1 text-emerald-600 dark:text-emerald-400 list-decimal list-inside">
                   <li>Go to <strong>Tax Filing</strong> from the sidebar</li>
@@ -460,7 +460,7 @@ export function HelpFeaturesTab() {
                 </p>
               </div>
 
-              <div className="p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+              <div className="p-3 bg-pink-50 dark:bg-pink-950 rounded-lg">
                 <h5 className="font-medium text-sm mb-2 text-pink-700 dark:text-pink-300 flex items-center gap-1.5"><Rocket className="w-3.5 h-3.5 shrink-0" /> How To Use:</h5>
                 <ol className="text-sm space-y-1 text-pink-600 dark:text-pink-400 list-decimal list-inside">
                   <li>Go to <strong>Insurance Finder</strong></li>
@@ -502,7 +502,7 @@ export function HelpFeaturesTab() {
                 </p>
               </div>
 
-              <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <div className="p-3 bg-orange-50 dark:bg-orange-950 rounded-lg">
                 <h5 className="font-medium text-sm mb-2 text-orange-700 dark:text-orange-300 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5 shrink-0" /> Current Offer Categories:</h5>
                 <ul className="text-sm text-orange-600 dark:text-orange-400 space-y-1">
                   <li>✓ Tax Preparation Services</li>
@@ -525,7 +525,7 @@ export function HelpFeaturesTab() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="p-4 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950 rounded-lg">
                   <h5 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-1.5"><Calendar className="w-4 h-4 shrink-0" /> OPT Apply Date Calculator</h5>
                   <p className="text-xs text-blue-700 dark:text-blue-400 mb-2">
                     <strong>What:</strong> Calculates your OPT application window (90 days before to 60 days after program end).
@@ -535,7 +535,7 @@ export function HelpFeaturesTab() {
                   </p>
                 </div>
 
-                <div className="p-4 border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <div className="p-4 border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 rounded-lg">
                   <h5 className="font-semibold text-red-800 dark:text-red-300 mb-2 flex items-center gap-1.5"><Clock className="w-4 h-4 shrink-0" /> OPT Clock Tracker</h5>
                   <p className="text-xs text-red-700 dark:text-red-400 mb-2">
                     <strong>What:</strong> Tracks your 90-day unemployment limit during initial OPT.
@@ -545,7 +545,7 @@ export function HelpFeaturesTab() {
                   </p>
                 </div>
 
-                <div className="p-4 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="p-4 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 rounded-lg">
                   <h5 className="font-semibold text-green-800 dark:text-green-300 mb-2 flex items-center gap-1.5"><GraduationCap className="w-4 h-4 shrink-0" /> STEM Apply Date Calculator</h5>
                   <p className="text-xs text-green-700 dark:text-green-400 mb-2">
                     <strong>What:</strong> Calculates your STEM OPT extension application window.
@@ -555,7 +555,7 @@ export function HelpFeaturesTab() {
                   </p>
                 </div>
 
-                <div className="p-4 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="p-4 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950 rounded-lg">
                   <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2 flex items-center gap-1.5"><Timer className="w-4 h-4 shrink-0" /> STEM Clock Tracker</h5>
                   <p className="text-xs text-purple-700 dark:text-purple-400 mb-2">
                     <strong>What:</strong> Tracks your separate 60-day unemployment limit during STEM OPT.
@@ -566,7 +566,7 @@ export function HelpFeaturesTab() {
                 </div>
               </div>
 
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-950 rounded-lg">
                 <p className="text-sm text-indigo-700 dark:text-indigo-300">
                   <strong className="inline-flex items-center gap-1"><BadgeCheck className="w-4 h-4 inline shrink-0" /> Free Access:</strong> All OPT Tools are available without login. Use them directly from
                   <strong> /dashboard/opt-tools</strong> or the Chrome extension.
@@ -608,7 +608,7 @@ export function HelpFeaturesTab() {
                 </ul>
               </div>
 
-              <div className="p-3 border border-cyan-200 dark:border-cyan-800 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
+              <div className="p-3 border border-cyan-200 dark:border-cyan-800 bg-cyan-50 dark:bg-cyan-950 rounded-lg">
                 <h5 className="font-medium text-sm mb-2 text-cyan-800 dark:text-cyan-300">
                   Application prefill safety
                 </h5>
@@ -624,7 +624,7 @@ export function HelpFeaturesTab() {
                 </ul>
               </div>
 
-              <div className="p-3 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="p-3 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950 rounded-lg">
                 <h5 className="font-medium text-sm mb-2 text-blue-800 dark:text-blue-300">
                   Free and Pro access
                 </h5>
@@ -633,7 +633,7 @@ export function HelpFeaturesTab() {
                 </p>
               </div>
 
-              <div className="p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
+              <div className="p-3 bg-cyan-50 dark:bg-cyan-950 rounded-lg">
                 <h5 className="font-medium text-sm mb-2 text-cyan-700 dark:text-cyan-300 flex items-center gap-1.5"><Rocket className="w-3.5 h-3.5 shrink-0" /> How To Install:</h5>
                 <ol className="text-sm space-y-1 text-cyan-600 dark:text-cyan-400 list-decimal list-inside">
                   <li>Visit Chrome Web Store and search "TrackMyOPT"</li>
@@ -703,7 +703,7 @@ export function HelpFeaturesTab() {
         </div>
 
         {/* Still Need Help */}
-        <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+        <Card className="p-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
           <div className="text-center">
             <h3 className="text-xl font-bold mb-2">Still Have Questions?</h3>
             <p className="text-muted-foreground mb-4">
