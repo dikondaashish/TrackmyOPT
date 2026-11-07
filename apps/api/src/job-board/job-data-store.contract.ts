@@ -203,5 +203,11 @@ export interface JobDataStore {
     sourceId: string,
     seenExternalJobIds: readonly string[],
     runStartedAt?: string,
+    /**
+     * allowEmpty: the caller verified that an empty list is authoritative
+     * (a confirmed-empty board, or every job is outside the US). Without it
+     * an empty list never changes lifecycle state.
+     */
+    options?: { allowEmpty?: boolean },
   ): Promise<void | JobStoreReconcileResult>;
 }

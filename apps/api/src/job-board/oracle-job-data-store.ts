@@ -701,11 +701,12 @@ export class OracleJobDataStore implements JobDataStore {
     sourceId: string,
     seenExternalJobIds: readonly string[],
     runStartedAt?: string,
+    options?: { allowEmpty?: boolean },
   ) {
-    // An empty authoritative response must be handled by the caller's
-    // empty-feed protection. Never turn an empty list into mass removals.
+    // An empty response is only reconciled when the caller's empty-feed
+    // protection confirmed it. Removal still waits out the missing window.
     const none: JobStoreReconcileResult = { staleCount: 0, removedCount: 0 };
-    if (!seenExternalJobIds.length) return none;
+    if (!seenExternalJobIds.length && !options?.allowEmpty) return none;
     const connection = await this.connection();
     try {
       const seen = new Set(seenExternalJobIds.map(String));
