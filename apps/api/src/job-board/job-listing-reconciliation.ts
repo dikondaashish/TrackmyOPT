@@ -1,3 +1,5 @@
+export const AMBIGUOUS_EMPTY_RESPONSE = 'Ambiguous empty ATS response';
+
 export type PersistedJobListing = {
   id: string;
   external_job_id: string;
@@ -27,6 +29,13 @@ export function planListingReconciliation(
      * response is not ambiguous, so it must not fail the source.
      */
     nonEmptyResponse?: boolean;
+    /**
+     * The previous complete fetch of this board was also empty. Two
+     * consecutive empty responses mean the employer has no open (US) roles,
+     * so the listings go through the normal stale -> removed lifecycle
+     * instead of staying open forever (TRACKMYOPT-27).
+     */
+    confirmedEmpty?: boolean;
   },
 ): ListingReconciliationPlan {
   if (!response.complete) {
@@ -36,10 +45,11 @@ export function planListingReconciliation(
   if (
     persistedJobs.length > 0 &&
     currentIds.size === 0 &&
-    !response.nonEmptyResponse
+    !response.nonEmptyResponse &&
+    !response.confirmedEmpty
   ) {
     throw new Error(
-      'Ambiguous empty ATS response; existing listings were left unchanged',
+      `${AMBIGUOUS_EMPTY_RESPONSE}; existing listings were left unchanged`,
     );
   }
   const plan: ListingReconciliationPlan = {

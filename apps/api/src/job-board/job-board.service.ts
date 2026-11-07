@@ -19,6 +19,7 @@ import {
 import { EmployerMatchService } from './employer-match.service';
 import { JobVisaSignalService } from './job-visa-signal.service';
 import {
+  AMBIGUOUS_EMPTY_RESPONSE,
   planListingReconciliation,
   type PersistedJobListing,
 } from './job-listing-reconciliation';
@@ -1015,6 +1016,38 @@ export class JobBoardService
       : null;
   }
 
+  /**
+   * True when this source's latest finished run before the current one also
+   * saw an empty board: it failed only on the empty-response guard, or it
+   * succeeded with no US jobs. A second empty response in a row is then
+   * authoritative, so the listings can go stale and later be removed
+   * (TRACKMYOPT-27). A retry within the same run never confirms itself.
+   */
+  private async previousRunReturnedEmptyBoard(
+    sourceId: string,
+    runStartedAt?: string,
+  ): Promise<boolean> {
+    let query = this.supabase
+      .from('ingestion_audit_log')
+      .select('status,error_message,jobs_found')
+      .eq('source_id', sourceId)
+      .in('status', ['succeeded', 'failed']);
+    if (runStartedAt) query = query.lt('run_at', runStartedAt);
+    const { data, error } = await query
+      .order('run_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error('Could not read the previous source audit');
+    const previous = data as {
+      status: string;
+      error_message: string | null;
+      jobs_found: number | null;
+    } | null;
+    if (!previous) return false;
+    if (previous.status === 'succeeded') return previous.jobs_found === 0;
+    return (previous.error_message ?? '').startsWith(AMBIGUOUS_EMPTY_RESPONSE);
+  }
+
   private async persistSourceJobs(
     source: AtsSource,
     scraped: ScrapedAtsJob[],
@@ -1058,11 +1091,23 @@ export class JobBoardService
     const existingByExternalId = new Map(
       persistedStoreJobs.map((job) => [job.externalJobId, job]),
     );
+    const confirmedEmpty =
+      responseComplete &&
+      ids.length === 0 &&
+      outsideUs.size === 0 &&
+      persistedJobs.some((job) => job.listing_status !== 'removed') &&
+      (await this.runStage(source.id, 'empty-board-check', () =>
+        this.previousRunReturnedEmptyBoard(source.id, runStartedAt),
+      ));
     const reconciliation = planListingReconciliation(persistedJobs, ids, {
       complete: responseComplete,
       runStartedAt,
       nonEmptyResponse: outsideUs.size > 0,
+      confirmedEmpty,
     });
+    // An empty list is authoritative once the plan accepted it.
+    const allowEmpty =
+      ids.length === 0 && (outsideUs.size > 0 || confirmedEmpty);
     const now = new Date().toISOString();
     const records = buildJobStoreRecords(
       source,
@@ -1096,7 +1141,11 @@ export class JobBoardService
     if (responseComplete) {
       committed =
         (await this.runStage(source.id, 'store-reconcile', () =>
-          this.jobStore.reconcileSource(source.id, ids, runStartedAt),
+          allowEmpty
+            ? this.jobStore.reconcileSource(source.id, ids, runStartedAt, {
+                allowEmpty: true,
+              })
+            : this.jobStore.reconcileSource(source.id, ids, runStartedAt),
         )) || undefined;
     }
     const employerMatchIds = await this.runStage(

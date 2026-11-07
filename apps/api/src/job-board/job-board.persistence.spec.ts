@@ -356,3 +356,118 @@ describe('Workday detail refresh bucketing', () => {
     expect(stableBucket('R1:20380', 14)).toBe(stableBucket('R1:20380', 14));
   });
 });
+
+describe('confirmed empty boards (TRACKMYOPT-27)', () => {
+  const runStartedAt = '2026-11-07T21:00:00.000Z';
+  function withOpenJob(previous: Record<string, unknown> | null) {
+    const ctx = setup();
+    ctx.store.listSourceJobsForIngestion.mockResolvedValue([
+      row({ id: 'open-job', externalJobId: 'gone' }),
+    ]);
+    const filters: unknown[][] = [];
+    type AuditQuery = {
+      select(): AuditQuery;
+      eq(...args: unknown[]): AuditQuery;
+      in(...args: unknown[]): AuditQuery;
+      lt(...args: unknown[]): AuditQuery;
+      order(): AuditQuery;
+      limit(): AuditQuery;
+      maybeSingle(): Promise<{ data: unknown; error: null }>;
+    };
+    const record =
+      (op: string) =>
+      (...args: unknown[]): AuditQuery => {
+        filters.push([op, ...args]);
+        return query;
+      };
+    const query: AuditQuery = {
+      select: () => query,
+      eq: record('eq'),
+      in: record('in'),
+      lt: record('lt'),
+      order: () => query,
+      limit: () => query,
+      maybeSingle: () => Promise.resolve({ data: previous, error: null }),
+    };
+    ctx.internals.supabase.from = jest.fn((table: string) => {
+      expect(table).toBe('ingestion_audit_log');
+      return query;
+    });
+    return { ...ctx, filters };
+  }
+
+  it('still refuses a first empty response and leaves listings unchanged', async () => {
+    const { internals, source, store } = withOpenJob({
+      status: 'succeeded',
+      error_message: null,
+      jobs_found: 4,
+    });
+    await expect(
+      internals.persistSourceJobs(source, [], true, runStartedAt),
+    ).rejects.toThrow('Ambiguous empty ATS response');
+    expect(store.reconcileSource).not.toHaveBeenCalled();
+  });
+
+  it('reconciles when the previous run also hit the empty-board guard', async () => {
+    const { internals, source, store, filters } = withOpenJob({
+      status: 'failed',
+      error_message:
+        'Ambiguous empty ATS response; existing listings were left unchanged',
+      jobs_found: 0,
+    });
+    await expect(
+      internals.persistSourceJobs(source, [], true, runStartedAt),
+    ).resolves.toMatchObject({ jobsStale: 1 });
+    expect(store.reconcileSource).toHaveBeenCalledWith(
+      'source',
+      [],
+      runStartedAt,
+      { allowEmpty: true },
+    );
+    // Only earlier runs count: a retry in this run cannot confirm itself.
+    expect(filters).toContainEqual(['lt', 'run_at', runStartedAt]);
+    expect(filters).toContainEqual(['in', 'status', ['succeeded', 'failed']]);
+  });
+
+  it('keeps reconciling after an accepted empty run (no fail/succeed alternation)', async () => {
+    const { internals, source, store } = withOpenJob({
+      status: 'succeeded',
+      error_message: null,
+      jobs_found: 0,
+    });
+    await internals.persistSourceJobs(source, [], true, runStartedAt);
+    expect(store.reconcileSource).toHaveBeenCalledWith(
+      'source',
+      [],
+      runStartedAt,
+      { allowEmpty: true },
+    );
+  });
+
+  it('does not treat other failures or a first run as confirmation', async () => {
+    for (const previous of [
+      { status: 'failed', error_message: 'greenhouse HTTP 503', jobs_found: 0 },
+      null,
+    ]) {
+      const { internals, source, store } = withOpenJob(previous);
+      await expect(
+        internals.persistSourceJobs(source, [], true, runStartedAt),
+      ).rejects.toThrow('Ambiguous empty ATS response');
+      expect(store.reconcileSource).not.toHaveBeenCalled();
+    }
+  });
+
+  it('reconciles a board whose jobs all moved outside the US', async () => {
+    const { internals, source, store } = withOpenJob(null);
+    await internals.persistSourceJobs(source, [], true, runStartedAt, [
+      'paris',
+    ]);
+    expect(store.reconcileSource).toHaveBeenCalledWith(
+      'source',
+      [],
+      runStartedAt,
+      { allowEmpty: true },
+    );
+    expect(internals.supabase.from).not.toHaveBeenCalled();
+  });
+});

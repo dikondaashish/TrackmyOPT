@@ -1173,6 +1173,14 @@ describe('OracleJobDataStore shadow adapter', () => {
     const beforeEmpty = executed.length;
     await store.reconcileSource('source-1', []);
     expect(executed).toHaveLength(beforeEmpty);
+    // A caller-confirmed empty board (TRACKMYOPT-27) reconciles every row.
+    await store.reconcileSource('source-1', [], undefined, {
+      allowEmpty: true,
+    });
+    const emptyUpdates = executed
+      .slice(beforeEmpty)
+      .filter((entry) => entry.sql.includes('UPDATE jobs SET'));
+    expect(emptyUpdates.length).toBeGreaterThan(0);
   });
 
   it('returns the lifecycle transitions it actually committed', async () => {

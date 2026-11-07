@@ -80,6 +80,17 @@ describe('job listing reconciliation', () => {
     });
   });
 
+  it('reconciles an empty response once a second consecutive run confirms it (TRACKMYOPT-27)', () => {
+    const plan = planListingReconciliation(jobs, [], {
+      complete: true,
+      confirmedEmpty: true,
+    });
+    expect(plan.staleJobIds).toEqual(
+      jobs.filter((job) => job.listing_status === 'open').map((job) => job.id),
+    );
+    expect(plan.reopenedJobIds).toEqual([]);
+  });
+
   it('rejects an incomplete response before changing lifecycle state', () => {
     expect(() =>
       planListingReconciliation(jobs, ['current'], { complete: false }),
