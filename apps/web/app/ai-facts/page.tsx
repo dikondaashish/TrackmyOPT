@@ -290,25 +290,25 @@ export default function AIFactsPage() {
             />
 
             {/* Hero */}
-            <section className="py-16 sm:py-24">
+            <section className="-mt-4 pt-14 pb-10 sm:pt-20 bg-surface">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
                         OPT & F-1 Visa Facts Database
                     </h1>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">
+                    <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
                         A structured, machine-readable collection of {totalFacts}+ verified
                         facts about Optional Practical Training, STEM OPT, F-1
                         student visas, H-1B transitions, taxes, and US
                         immigration — designed for accuracy and citation.
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                         Last Updated: February 2026
                     </p>
                 </div>
             </section>
 
             {/* Category Navigation */}
-            <section className="pb-12">
+            <section className="pb-12 sm:pb-16 bg-surface border-b border-border">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-wrap justify-center gap-3">
                         {categories.map((cat) => {
@@ -316,10 +316,10 @@ export default function AIFactsPage() {
                                 <a
                                     key={cat.id}
                                     href={`#${cat.id}`}
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-300 transition-colors hover:border-gray-300 dark:hover:border-zinc-700"
+                                    className="inline-flex h-10 items-center gap-2 px-4 rounded-lg text-sm font-medium border border-border bg-card text-foreground shadow-card transition-colors hover:border-primary-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                 >
                                     {cat.label}
-                                    <span className="text-gray-500 dark:text-gray-400">
+                                    <span className="text-muted-foreground">
                                         ({cat.facts.length})
                                     </span>
                                 </a>
@@ -330,31 +330,31 @@ export default function AIFactsPage() {
             </section>
 
             {/* Facts by Category */}
-            <section className="pb-20">
+            <section className="py-16 sm:py-20">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
                     {categories.map((cat) => {
                         return (
                             <div key={cat.id} id={cat.id} className="scroll-mt-28">
                                 <div className="mb-8">
                                     <div>
-                                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                                        <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                                             {cat.label}
                                         </h2>
-                                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                                        <p className="text-muted-foreground mt-1">
                                             {cat.description} —{" "}
                                             {cat.facts.length} facts
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-3">
+                                <div className="surface-card overflow-hidden divide-y divide-border">
                                     {cat.facts.map((fact, idx) => (
                                         <div
                                             key={idx}
-                                            className="fact-item flex items-start gap-4 p-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
+                                            className="fact-item flex items-start gap-4 p-5"
                                         >
                                             <span
-                                                className="w-6 flex-shrink-0 text-right text-sm font-semibold tabular-nums text-gray-400 dark:text-gray-500 leading-relaxed"
+                                                className="w-6 flex-shrink-0 text-right text-sm font-semibold tabular-nums text-primary leading-relaxed"
                                             >
                                                 {idx + 1}
                                             </span>
@@ -371,9 +371,9 @@ export default function AIFactsPage() {
             </section>
 
             {/* Summary Stats */}
-            <section className="py-16 bg-gray-50 dark:bg-zinc-900 border-t border-gray-200 dark:border-gray-800">
+            <section className="py-16 sm:py-20 bg-surface border-y border-border">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-10">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center mb-10">
                         Facts at a Glance
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
@@ -383,12 +383,12 @@ export default function AIFactsPage() {
                             return (
                                 <div
                                     key={cat.id}
-                                    className="text-center p-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
+                                    className="surface-card text-center p-5"
                                 >
                                     <Icon
                                         className={`w-6 h-6 ${styles.icon} mx-auto mb-2`}
                                     />
-                                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    <div className="text-3xl font-bold text-foreground">
                                         {cat.facts.length}
                                     </div>
                                     <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -399,7 +399,7 @@ export default function AIFactsPage() {
                         })}
                     </div>
                     <div className="text-center mt-8">
-                        <p className="font-semibold text-gray-700 dark:text-gray-300">
+                        <p className="font-semibold text-foreground">
                             {totalFacts} Total Verified Facts
                         </p>
                     </div>
@@ -407,22 +407,22 @@ export default function AIFactsPage() {
             </section>
 
             {/* Related Resources */}
-            <section className="py-16">
+            <section className="py-16 sm:py-20">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center mb-4">
                         Explore More Resources
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400 text-center max-w-2xl mx-auto mb-10">
+                    <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-10">
                         Dive deeper into OPT, F-1 visa, and immigration topics
                         with our detailed answers, glossary, and guides.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <Link
                             href="/answers"
-                            className="group flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                            className="surface-card-interactive group flex flex-col p-6"
                         >
-                            <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300"><BookOpen className="w-5 h-5" /></span>
+                            <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                 OPT & F-1 Answers
                             </h3>
                             <p className="text-gray-500 dark:text-gray-400 text-sm flex-1">
@@ -431,41 +431,41 @@ export default function AIFactsPage() {
                             </p>
                             <span className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 mt-4 font-medium">
                                 Browse Answers
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-4 h-4" />
                             </span>
                         </Link>
                         <Link
                             href="/glossary"
-                            className="group flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+                            className="surface-card-interactive group flex flex-col p-6"
                         >
-                            <FileText className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                            <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-300"><FileText className="w-5 h-5" /></span>
+                            <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                 Immigration Glossary
                             </h3>
                             <p className="text-gray-500 dark:text-gray-400 text-sm flex-1">
                                 Definitions for every key immigration term —
                                 OPT, SEVIS, EAD, DSO, CPT, and more.
                             </p>
-                            <span className="inline-flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400 mt-4 font-medium">
+                            <span className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 mt-4 font-medium">
                                 Browse Glossary
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-4 h-4" />
                             </span>
                         </Link>
                         <Link
                             href="/blog"
-                            className="group flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-purple-300 dark:hover:border-purple-700 transition-colors"
+                            className="surface-card-interactive group flex flex-col p-6"
                         >
-                            <GraduationCap className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                            <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-950 dark:text-violet-300"><GraduationCap className="w-5 h-5" /></span>
+                            <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                 In-Depth Guides
                             </h3>
                             <p className="text-gray-500 dark:text-gray-400 text-sm flex-1">
                                 Comprehensive guides on OPT applications, tax
                                 filing, health insurance, and career planning.
                             </p>
-                            <span className="inline-flex items-center gap-1 text-sm text-purple-600 dark:text-purple-400 mt-4 font-medium">
+                            <span className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 mt-4 font-medium">
                                 Read Guides
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-4 h-4" />
                             </span>
                         </Link>
                     </div>

@@ -44,7 +44,7 @@ export default function AdminBillingEvidencePage() {
 
   return (
     <main className="max-w-3xl mx-auto p-8 space-y-6">
-      <h1 className="text-2xl font-bold">Billing dispute evidence</h1>
+      <h1 className="text-2xl font-semibold">Billing dispute evidence</h1>
       <p className="text-sm text-muted-foreground">
         Export consent logs, transactions, and billing emails for Stripe disputes. Do not commit ADMIN_SECRET.
       </p>
@@ -70,7 +70,7 @@ export default function AdminBillingEvidencePage() {
         )}
       </div>
       {result && (
-        <pre className="text-xs bg-muted p-4 rounded-lg overflow-auto max-h-[60vh]">{result}</pre>
+        <pre className="text-xs bg-card border border-border shadow-card p-4 rounded-xl overflow-auto max-h-[60vh]">{result}</pre>
       )}
     </main>
   );

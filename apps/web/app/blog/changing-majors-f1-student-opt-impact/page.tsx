@@ -61,7 +61,7 @@ export default function ChangingMajorsPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/changing-majors-f1-student-opt-impact.png" alt="Academic desk with a Change of Major Request form, I-20 document, and a course catalog" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -83,7 +83,7 @@ export default function ChangingMajorsPage() {
                     Your major is the most important factor in your future Optional Practical Training (OPT). Why? Because DHS strictly mandates that <strong>any job you take on OPT must be directly related to your major field of study.</strong>
                 </p>
 
-                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl my-6">
+                <div className="border border-border p-6 rounded-xl my-6 bg-card shadow-card">
                     <h4 className="font-bold text-lg mt-0 mb-3">Scenario: The Pivot</h4>
                     <p className="mb-0 text-sm">
                         Let's say you started as a Marketing major, but halfway through, you switched to Data Science. When you graduate and apply for your 12-month standard OPT, you can <strong>only</strong> accept jobs related to Data Science. You cannot take a Marketing job, even though you spent two years studying it, because Marketing is no longer the active major on your final I-20.
@@ -100,7 +100,7 @@ export default function ChangingMajorsPage() {
                     What if you double major? If you have one STEM major (e.g., Mathematics) and one non-STEM major (e.g., Art History), you are fully eligible for the STEM OPT extension—<strong>as long as the job you take is directly related to the STEM major.</strong> You cannot use a STEM extension to work as an art curator.
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         CIP Code Verification
@@ -118,7 +118,7 @@ export default function ChangingMajorsPage() {
                     <strong>No.</strong> Your degree has already been conferred. You cannot retroactively change your major to a STEM field just to get an extension. If you want to study a new major, you must enroll in a new degree program, which will require a SEVIS update and will <strong>instantly cancel</strong> your current OPT authorization.
                 </p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Keep Track of Your Old I-20s
                     </h3>
@@ -140,7 +140,7 @@ export default function ChangingMajorsPage() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Never Lose an I-20 Again
                 </h3>
@@ -150,7 +150,7 @@ export default function ChangingMajorsPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Access the Document Safe
                     </Link>
@@ -161,7 +161,7 @@ export default function ChangingMajorsPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/opt-job-related-to-degree" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 OPT Job Relevance
                             </h4>
@@ -174,7 +174,7 @@ export default function ChangingMajorsPage() {
                         </div>
                     </Link>
                     <Link href="/blog/stem-opt-extension-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 STEM OPT Extension Guide
                             </h4>

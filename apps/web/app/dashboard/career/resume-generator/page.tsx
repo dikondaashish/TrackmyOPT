@@ -504,7 +504,7 @@ export default function ResumeGeneratorPage() {
 
     return (
         <>
-        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-gray-950">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
             <ResumeGeneratorHeader
                 usageLimit={usageLimit}
                 onBuyCredits={() => setShowCreditModal(true)}

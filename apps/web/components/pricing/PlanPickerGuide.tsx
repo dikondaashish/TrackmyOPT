@@ -9,8 +9,8 @@ export function PlanPickerGuide({ compact = false }: { compact?: boolean }) {
     <div
       className={
         compact
-          ? "rounded-xl border border-border bg-muted p-3 md:p-3.5 text-left"
-          : "rounded-xl border border-border bg-muted p-6 text-left"
+          ? "rounded-xl border border-border bg-card p-3 md:p-3.5 text-left"
+          : "rounded-xl border border-border bg-surface p-6 text-left"
       }
     >
       <h3
@@ -32,8 +32,8 @@ export function PlanPickerGuide({ compact = false }: { compact?: boolean }) {
         }
       >
         <div className="flex gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-50">
-            <Crown className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-soft">
+            <Crown className="h-4 w-4 text-primary" />
           </div>
           <p className={compact ? "text-xs text-muted-foreground leading-snug" : "text-sm text-muted-foreground"}>
             <span className="font-semibold text-foreground">Pro — </span>
@@ -42,7 +42,7 @@ export function PlanPickerGuide({ compact = false }: { compact?: boolean }) {
         </div>
         {showDedicated ? (
           <div className="flex gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950">
               <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
             <p className={compact ? "text-xs text-muted-foreground leading-snug" : "text-sm text-muted-foreground"}>

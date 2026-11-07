@@ -178,7 +178,7 @@ export function AutoBlogPostsDialog({
         <div className="max-h-[60vh] overflow-y-auto px-6 py-5">
           {posts.length === 0 ? (
             <div className="flex flex-col items-center px-4 py-10 text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary dark:text-blue-300">
                 <Clock className="h-6 w-6" aria-hidden />
               </div>
               <p className="font-medium text-gray-900 dark:text-gray-100">No automatic posts yet</p>
@@ -237,7 +237,7 @@ export function AutoBlogPostsDialog({
                         value={post.reviewedAt ? "vinay_kumar" : "news_desk"}
                         disabled={saving !== null}
                         onChange={(event) => onByline(post.slug, event.target.value as Byline)}
-                        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 shadow-card"
                       >
                         <option value="news_desk">TrackMyOPT News Desk</option>
                         <option value="vinay_kumar">Written by Vinay Kumar</option>

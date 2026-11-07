@@ -49,7 +49,7 @@ export default function CapGapArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The H-1B cap-gap automatically extends your F-1 status and OPT work authorization from April 1 through September 30 if your employer files a timely H-1B cap-subject petition. This prevents any gap in your legal status between OPT expiration and H-1B start date.
@@ -67,7 +67,7 @@ export default function CapGapArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Is the H-1B Cap-Gap?</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">The cap-gap is a regulation (<strong>8 CFR 214.2(f)(5)(vi)</strong>) that fills the timing gap between:</p>
                     <div className="flex flex-col md:flex-row items-center gap-4 my-6">
-                        <div className="flex-1 p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 text-center">
+                        <div className="flex-1 p-4 rounded-xl border text-center border-primary-muted bg-primary-soft">
                             <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Your OPT Expires</p>
                             <p className="text-lg font-bold text-blue-900 dark:text-blue-100">e.g., June 15</p>
                         </div>
@@ -77,9 +77,9 @@ export default function CapGapArticle() {
                             <p className="text-lg font-bold text-gray-900 dark:text-white">Auto-Extended</p>
                         </div>
                         <ArrowRight className="w-6 h-6 text-gray-400 rotate-90 md:rotate-0" />
-                        <div className="flex-1 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800 text-center">
-                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">H-1B Starts</p>
-                            <p className="text-lg font-bold text-green-900 dark:text-green-100">October 1</p>
+                        <div className="flex-1 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-200 dark:border-emerald-800 text-center">
+                            <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">H-1B Starts</p>
+                            <p className="text-lg font-bold text-emerald-900 dark:text-emerald-100">October 1</p>
                         </div>
                     </div>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Without the cap-gap, you'd have to leave the US after your OPT ends and return on October 1 when the H-1B starts. The cap-gap eliminates that disruption.</p>
@@ -87,12 +87,12 @@ export default function CapGapArticle() {
 
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Cap-Gap Timeline 2026</h2>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Date</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Event</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Your Status</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Date</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Event</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Your Status</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -103,7 +103,7 @@ export default function CapGapArticle() {
                                     ["Until Oct 1", "Cap-gap period", "Can work; F-1 status extended"],
                                     ["October 1, 2026", "H-1B start date", "Status changes to H-1B"],
                                 ].map(([date, event, status], i) => (
-                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{date}</td><td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{event}</td><td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{status}</td></tr>
+                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{date}</td><td className="p-3 border border-border text-gray-700 dark:text-gray-300">{event}</td><td className="p-3 border border-border text-gray-600 dark:text-gray-400">{status}</td></tr>
                                 ))}
                             </tbody>
                         </table>
@@ -113,9 +113,9 @@ export default function CapGapArticle() {
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Can You Work During the Cap-Gap?</h2>
                     <div className="space-y-3">
-                        <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800 flex items-start gap-3">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                            <div><h3 className="font-semibold text-green-900 dark:text-green-100">Yes — if H-1B petition filed as change of status</h3><p className="text-sm text-green-800 dark:text-green-200">If your employer filed an H-1B petition requesting change of status (not consular processing), your EAD work authorization is automatically extended until October 1.</p></div>
+                        <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-start gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div><h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Yes — if H-1B petition filed as change of status</h3><p className="text-sm text-emerald-800 dark:text-emerald-200">If your employer filed an H-1B petition requesting change of status (not consular processing), your EAD work authorization is automatically extended until October 1.</p></div>
                         </div>
                         <div className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800 flex items-start gap-3">
                             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
@@ -149,7 +149,7 @@ export default function CapGapArticle() {
                             { question: "Can I travel during the cap-gap?", answer: "Travel is risky during the cap-gap. If you leave the US, you may not be able to re-enter on F-1 status. Most immigration attorneys recommend NOT traveling during this period." },
                             { question: "Do I need a new EAD card for the cap-gap?", answer: "No. Your existing EAD card is automatically extended by regulation. USCIS does not issue a new card, but your I-20 should show the cap-gap extension. Keep your original EAD and the updated I-20 together." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -158,7 +158,7 @@ export default function CapGapArticle() {
                 </section>
             </div>
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
@@ -173,10 +173,10 @@ export default function CapGapArticle() {
             </div>
 
             <AuthorBio />
-            <div className="bg-orange-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your H-1B Timeline & Cap-Gap Status</h2>
-                <p className="text-orange-100 mb-6 max-w-lg mx-auto">TrackMyOPT monitors your H-1B registration, lottery results, and cap-gap dates — all in one dashboard.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT monitors your H-1B registration, lottery results, and cap-gap dates — all in one dashboard.</p>
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is the H-1B cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "An automatic extension of F-1 status and OPT work authorization bridging OPT expiration and October 1 H-1B start date." } }, { "@type": "Question", "name": "Can I travel during cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "Travel is risky. If you leave the US, re-entry on F-1 may not be possible. Most attorneys recommend not traveling." } }, { "@type": "Question", "name": "Do I need a new EAD for cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "No. Your existing EAD is automatically extended. Keep your original EAD and updated I-20 together." } }] }) }} />
         </article>

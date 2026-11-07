@@ -197,7 +197,7 @@ export default function ExtensionUninstallPage() {
     };
 
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+        <main className="min-h-screen bg-surface">
             <LandingNavbar />
 
             <div className="pt-28 pb-20">
@@ -243,7 +243,7 @@ export default function ExtensionUninstallPage() {
                                             <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 pl-1">
                                                 {category.category}
                                             </h3>
-                                            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden divide-y divide-gray-100 dark:divide-zinc-800">
+                                            <div className="surface-card overflow-hidden divide-y divide-border">
                                                 {category.options.map((option) => {
                                                     const isSelected = selectedReasons.has(option.id);
                                                     return (
@@ -344,7 +344,7 @@ export default function ExtensionUninstallPage() {
                                         <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 pl-1">
                                             Anything else?
                                         </h3>
-                                        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5">
+                                        <div className="surface-card p-5">
                                             <label className="text-sm text-gray-600 dark:text-gray-400 mb-2 block">
                                                 How else can we improve the TrackMyOPT Extension?
                                             </label>
@@ -363,11 +363,11 @@ export default function ExtensionUninstallPage() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.7 }}
-                                        className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
+                                        className="surface-card p-6"
                                     >
                                         <div className="flex gap-4">
                                             <div className="flex-shrink-0">
-                                                <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
+                                                <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
                                                     <Image
                                                         src="/TrackMyOPT Logo/Favicon.png"
                                                         alt="TrackMyOPT"
@@ -405,7 +405,7 @@ export default function ExtensionUninstallPage() {
                                         <button
                                             onClick={handleSubmit}
                                             disabled={isSubmitting || selectedReasons.size === 0}
-                                            className="flex items-center justify-center gap-2 px-8 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-zinc-700 text-white rounded-xl font-semibold transition-colors w-full sm:w-auto"
+                                            className="flex items-center justify-center gap-2 px-8 py-3.5 bg-blue-600 shadow-button hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-zinc-700 text-white rounded-xl font-semibold transition-colors w-full sm:w-auto"
                                         >
                                             {isSubmitting ? (
                                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -438,9 +438,9 @@ export default function ExtensionUninstallPage() {
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                                    className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 dark:bg-green-950 mb-8"
+                                    className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950 mb-8"
                                 >
-                                    <Heart className="w-10 h-10 text-green-600 dark:text-green-400" />
+                                    <Heart className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
                                 </motion.div>
 
                                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -455,14 +455,14 @@ export default function ExtensionUninstallPage() {
                                     <Link
                                         href="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb"
                                         target="_blank"
-                                        className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors"
+                                        className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 shadow-button hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors"
                                     >
                                         <Chrome className="w-5 h-5" />
                                         Reinstall Extension
                                     </Link>
                                     <Link
                                         href="/"
-                                        className="inline-flex items-center gap-2 px-8 py-4 text-gray-700 dark:text-gray-300 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all"
+                                        className="inline-flex items-center gap-2 px-8 py-4 text-gray-700 dark:text-gray-300 bg-card border border-border shadow-card rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all"
                                     >
                                         Go to TrackMyOPT
                                         <ArrowRight className="w-4 h-4" />
@@ -482,7 +482,7 @@ export default function ExtensionUninstallPage() {
                                             <Link
                                                 key={link.label}
                                                 href={link.href}
-                                                className="px-4 py-3 bg-gray-50 dark:bg-zinc-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                                                className="px-4 py-3 bg-card border border-border shadow-card rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-primary-muted hover:text-primary transition-colors"
                                             >
                                                 {link.label}
                                             </Link>

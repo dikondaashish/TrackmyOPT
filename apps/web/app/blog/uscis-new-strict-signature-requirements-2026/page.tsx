@@ -86,7 +86,7 @@ export default function USCISSignaturePage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/uscis-new-strict-signature-requirements-2026.png" alt="Fountain pen signing a government document" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -98,7 +98,7 @@ export default function USCISSignaturePage() {
                     Previously, if a signature was missing or improper, USCIS might issue a Request for Evidence (RFE) to give the applicant a chance to correct it. Under the new policy, USCIS will <strong>outright reject or deny</strong> the petition. 
                 </p>
 
-                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 my-8 rounded-r-xl">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 my-8 rounded-r-xl">
                     <h3 className="text-red-800 dark:text-red-300 m-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5" />
                         The Risk to OPT Students
@@ -119,7 +119,7 @@ export default function USCISSignaturePage() {
                 </ul>
 
                 <div className="grid sm:grid-cols-2 gap-6 my-8 not-prose">
-                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-950 p-6 rounded-xl shadow-sm">
+                    <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 p-6 rounded-r-xl shadow-sm">
                         <XCircle className="w-8 h-8 text-red-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2 text-red-900 dark:text-red-300">Invalid Signatures (DO NOT USE)</h3>
                         <ul className="text-sm space-y-2 text-red-800 dark:text-red-200">
@@ -129,10 +129,10 @@ export default function USCISSignaturePage() {
                             <li>• Signatures by a parent, spouse, or DSO</li>
                         </ul>
                     </div>
-                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-950 p-6 rounded-xl shadow-sm">
-                        <CheckCircle2 className="w-8 h-8 text-green-600 mb-4" />
-                        <h3 className="font-bold text-lg mb-2 text-green-900 dark:text-green-300">Valid Signatures</h3>
-                        <ul className="text-sm space-y-2 text-green-800 dark:text-green-200">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-950 p-6 rounded-xl shadow-sm">
+                        <CheckCircle2 className="w-8 h-8 text-emerald-600 mb-4" />
+                        <h3 className="font-bold text-lg mb-2 text-emerald-900 dark:text-emerald-300">Valid Signatures</h3>
+                        <ul className="text-sm space-y-2 text-emerald-800 dark:text-emerald-200">
                             <li>• Wet ink signature (black ink preferred) on paper forms</li>
                             <li>• Typing your name in the designated electronic signature box on myUSCIS (when filing online)</li>
                         </ul>
@@ -151,12 +151,12 @@ export default function USCISSignaturePage() {
                     <li><strong>Form I-983 (STEM OPT only):</strong> The Training Plan must be signed in wet ink or using a compliant e-signature software by both you and your employer.</li>
                 </ol>
 
-                <div className="bg-blue-600 rounded-xl p-8 text-white my-12">
+                <div className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
                     <h3 className="text-2xl font-bold text-white mb-4 mt-0">Prepare for Your OPT Successfully</h3>
-                    <p className="text-blue-100 mb-6 text-lg">
+                    <p className="text-ink-muted mb-6 text-lg">
                         Use TrackMyOPT to track your application status, manage deadlines, and stay on top of the latest USCIS rules.
                     </p>
-                    <Link href="/login" className="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors">
+                    <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                         Create Your Free Account <ArrowRight className="w-5 h-5" />
                     </Link>
                 </div>
@@ -165,7 +165,7 @@ export default function USCISSignaturePage() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>

@@ -38,14 +38,14 @@ export default function FirstPaycheckPage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/first-us-paycheck-deductions-w4.jpg" alt="Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You started your OPT job, worked hard for two weeks, and excitedly opened your first pay stub. The gross pay says $3,000, but the net pay (what you actually received) is only $2,100. Where did the other $900 go? Let's break down every single deduction line by line.</p>
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Your Pay Stub Decoded</h2>
-                <div className="overflow-x-auto my-8">
+                <div className="overflow-x-auto my-8 surface-card [&>table]:border-hidden [&>table]:my-0">
                     <table className="min-w-full text-sm">
                         <thead><tr className="border-b border-gray-200 dark:border-zinc-700">
                             <th className="text-left py-3 px-4 font-bold">Line Item</th>
@@ -67,7 +67,7 @@ export default function FirstPaycheckPage() {
                 <p>This is the most important thing to know: <strong>F-1 students who are classified as Nonresident Aliens (NRA) are exempt from FICA taxes</strong> (Social Security + Medicare). This saves you 7.65% of every paycheck.</p>
                 <p>To be classified as NRA, you must have been in the US for fewer than 5 calendar years in F-1/J-1/M-1/Q-1 status. If you started your degree in 2022, you remain NRA through at least 2026.</p>
 
-                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2"><AlertTriangle className="w-6 h-6" /> Is Your Employer Deducting FICA Incorrectly?</h3>
                     <p className="mb-0 text-red-800 dark:text-red-200">Many employers' payroll systems are not configured to recognize the F-1 FICA exemption. If you see Social Security and Medicare deductions on your pay stub, <strong>immediately contact your HR/payroll department</strong> and show them IRS Publication 519 and Internal Revenue Code Section 3121(b)(19). They must correct it and refund the over-withheld amount. If they refuse, you can claim a refund by filing Form 843 and Form 8316 with the IRS.</p>
                 </div>
@@ -80,7 +80,7 @@ export default function FirstPaycheckPage() {
                     <li>You are generally only allowed to claim 1 allowance (unless a tax treaty allows more).</li>
                 </ul>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Don't Let Payroll Mistakes Cost You</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">Between FICA exemptions, W-4 complexities, and SEVIS reporting, starting your first OPT job is overwhelming. <strong>TrackMyOPT</strong> helps you stay compliant by tracking your employment start dates, unemployment counters, and SEVIS reporting deadlines—so you can focus on understanding your pay stub instead of worrying about deportation.</p>
                 </div>
@@ -89,25 +89,25 @@ export default function FirstPaycheckPage() {
                 <p>If you can choose where to work, consider these 9 states with no state income tax: <strong>Alaska, Florida, Nevada, New Hampshire, South Dakota, Tennessee, Texas, Washington, and Wyoming.</strong> Working in one of these states means one less deduction from your paycheck.</p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Start Your OPT Journey Right</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Your first paycheck is just the beginning. TrackMyOPT ensures you stay compliant from Day 1 with automated employment tracking, SEVIS alerts, and secure document storage.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Create Your TrackMyOPT Account</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Create Your TrackMyOPT Account</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">OPT Tax Guide</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">The complete guide to filing your taxes as an international student on OPT.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/investing-stocks-crypto-401k-opt-tax" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Investing Your Paycheck</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Now that you understand your paycheck, learn how to invest your after-tax income wisely.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

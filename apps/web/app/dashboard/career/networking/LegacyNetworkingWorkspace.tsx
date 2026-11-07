@@ -264,7 +264,7 @@ function ContactCard({
 
   return (
     <article
-      className="space-y-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6"
+      className="space-y-5 rounded-xl border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-slate-900 sm:p-6"
       aria-label={`Contact ${index + 1}`}
     >
       <ContactLookupForm

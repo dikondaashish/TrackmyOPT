@@ -10,46 +10,46 @@ export function PricingDetailedComparison() {
     const colClass = showDedicated ? "grid-cols-4" : "grid-cols-3";
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900">
+        <section className="py-24 bg-background">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
                         Complete Plan Comparison
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                         {showDedicated
                             ? "Every feature across Free, Pro, and Dedicated"
                             : "Every feature across Free and Pro"}
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
-                    <div className={`grid ${colClass} gap-0 bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 p-4`}>
-                        <div className="font-semibold text-gray-900 dark:text-white">
+                <div className="surface-card overflow-hidden">
+                    <div className={`grid ${colClass} gap-0 bg-surface-strong border-b border-border p-4`}>
+                        <div className="font-semibold text-foreground">
                             Feature
                         </div>
                         <div className="text-center">
-                            <div className="font-semibold text-gray-900 dark:text-white">
+                            <div className="font-semibold text-foreground">
                                 Free
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-muted-foreground">
                                 $0/forever
                             </div>
                         </div>
                         <div className="text-center">
-                            <div className="font-semibold text-blue-600">
+                            <div className="font-semibold text-primary">
                                 Pro
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-muted-foreground">
                                 ${PLAN_PRICES.pro.month.toFixed(2)}/mo
                             </div>
                         </div>
                         {showDedicated ? (
                             <div className="text-center">
-                                <div className="font-semibold text-purple-600">
+                                <div className="font-semibold text-amber-700 dark:text-amber-300">
                                     Dedicated
                                 </div>
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-muted-foreground">
                                     ${PLAN_PRICES.dedicated.month.toFixed(2)}/mo
                                 </div>
                             </div>
@@ -58,8 +58,8 @@ export function PricingDetailedComparison() {
 
                     {comparisonFeatures.map((category) => (
                         <div key={category.category}>
-                            <div className="bg-gray-50 dark:bg-zinc-900 px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
-                                <span className="font-semibold text-sm text-gray-700 dark:text-gray-300">
+                            <div className="bg-surface px-4 py-3 border-b border-border">
+                                <span className="font-semibold text-sm text-foreground">
                                     {category.category}
                                 </span>
                             </div>
@@ -70,7 +70,7 @@ export function PricingDetailedComparison() {
                                 return (
                                 <div
                                     key={feature.name}
-                                    className={`grid ${colClass} gap-0 px-4 py-3 border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors`}
+                                    className={`grid ${colClass} gap-0 px-4 py-3 border-b border-border last:border-b-0 hover:bg-muted transition-colors`}
                                 >
                                     <div className="text-sm text-gray-700 dark:text-gray-300">
                                         {feature.name}
@@ -83,12 +83,12 @@ export function PricingDetailedComparison() {
                                                 {typeof value ===
                                                 "boolean" ? (
                                                     value ? (
-                                                        <Check className="w-5 h-5 text-green-500 mx-auto" />
+                                                        <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mx-auto" />
                                                     ) : (
                                                         <X className="w-5 h-5 text-gray-300 dark:text-zinc-600 mx-auto" />
                                                     )
                                                 ) : (
-                                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                    <span className="text-sm font-medium text-foreground">
                                                         {value}
                                                     </span>
                                                 )}

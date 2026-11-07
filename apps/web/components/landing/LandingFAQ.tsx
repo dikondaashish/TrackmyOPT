@@ -50,7 +50,7 @@ export function LandingFAQ() {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-        <section id="faq" className="py-24 relative">
+        <section id="faq" className="py-24 bg-surface border-t border-border relative">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-16">
@@ -67,7 +67,7 @@ export function LandingFAQ() {
                     {faqs.map((faq, index) => (
                         <div
                             key={index}
-                            className="bg-gray-50 dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700 overflow-hidden"
+                            className="surface-card overflow-hidden"
                             itemScope
                             itemType="https://schema.org/Question"
                         >

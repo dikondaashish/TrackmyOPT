@@ -157,7 +157,7 @@ export default function OptApplicationServicesResearchPage() {
           like relief. But before paying an auto-apply or apply-for-you service, ask what you are
           handing over: your resume, your screening answers, and sometimes access to your accounts.
         </p>
-        <div className="not-prose my-8 rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+        <div className="not-prose my-8 rounded-r-xl border-l-4 border-l-amber-500 bg-amber-50 p-6 text-amber-950 dark:bg-amber-950 dark:text-amber-100">
           <p className="font-bold">Our recommendation</p>
           <p className="mt-2 leading-relaxed">
             Avoid services that submit applications you cannot review, guess your sponsorship
@@ -206,7 +206,7 @@ export default function OptApplicationServicesResearchPage() {
             screening responses that the recruiter received.
           </li>
         </ol>
-        <div className="not-prose my-8 rounded-xl border border-indigo-200 bg-indigo-50 p-5 text-indigo-950 dark:border-indigo-800 dark:bg-indigo-950 dark:text-indigo-100">
+        <div className="not-prose my-8 rounded-xl border border-primary-muted bg-primary-soft p-5 text-foreground">
           <p className="font-semibold">The lesson from Arjun’s story</p>
           <p className="mt-2 leading-relaxed">
             The question is not whether a service uses a human or AI. The question is whether Arjun
@@ -240,7 +240,7 @@ export default function OptApplicationServicesResearchPage() {
           {providers.map((provider) => (
             <article
               key={provider.name}
-              className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-zinc-800 dark:bg-zinc-900"
+              className="surface-card p-5"
             >
               <h3 className="!mt-0 !text-lg">
                 <a href={provider.href}>{provider.name}</a>
@@ -255,7 +255,7 @@ export default function OptApplicationServicesResearchPage() {
             </article>
           ))}
         </div>
-        <div className="hidden overflow-x-auto rounded-lg border border-gray-200 dark:border-zinc-800 md:block">
+        <div className="surface-card hidden overflow-x-auto md:block [&_thead]:bg-surface [&_th]:text-foreground">
           <table className="!my-0 text-sm">
             <caption className="px-4 py-3 text-left text-sm text-gray-500 dark:text-gray-400">
               Public materials reviewed September 13, 2026. Service descriptions can change.
@@ -383,7 +383,7 @@ export default function OptApplicationServicesResearchPage() {
           for him, he should ask whether applications use shared or data-center infrastructure and
           whether each submission record includes the exact employer-facing resume and answers.
         </p>
-        <div className="not-prose my-8 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="not-prose my-8 rounded-xl border border-border bg-surface p-5">
           <p className="font-semibold text-gray-900 dark:text-white">What this does not mean</p>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
             <li>• An India-based IP is not automatically rejected.</li>

@@ -15,7 +15,7 @@ export function PasswordVisibilityButton({
       onClick={onToggle}
       aria-label={label ?? (visible ? "Hide password" : "Show password")}
       aria-pressed={visible}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground"
+      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {visible ? (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

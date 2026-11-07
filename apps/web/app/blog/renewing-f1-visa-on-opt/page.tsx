@@ -61,7 +61,7 @@ export default function RenewF1VisaPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <Image
                     src="/blog/renewing-f1-visa-on-opt.png"
                     alt="Passport with a US visa stamp next to a DS-160 confirmation page and an EAD card"
@@ -84,7 +84,7 @@ export default function RenewF1VisaPage() {
                     However, applying for an F-1 visa while on OPT is heavily scrutinized by consular officers for one main reason: <strong>Immigrant Intent</strong>. 
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         The 214(b) Denial Risk
@@ -116,7 +116,7 @@ export default function RenewF1VisaPage() {
                     This is significantly less stressful, but be warned: <strong>Administrative Processing (221g)</strong> is still possible. The consulate can hold your passport for weeks if they decide they need to verify your employer or background, stranding you outside the US and potentially causing you to lose your job.
                 </p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Protect Your Status with TrackMyOPT
                     </h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">
@@ -145,7 +145,7 @@ export default function RenewF1VisaPage() {
 
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Don't Risk Your SEVIS Record
                 </h3>
@@ -155,7 +155,7 @@ export default function RenewF1VisaPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Secure Your OPT Status Now
                     </Link>
@@ -166,7 +166,7 @@ export default function RenewF1VisaPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/can-you-travel-on-opt-complete-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 OPT Travel Checklist
                             </h4>
@@ -179,7 +179,7 @@ export default function RenewF1VisaPage() {
                         </div>
                     </Link>
                     <Link href="/blog/h1b-cap-gap-extension" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Cap-Gap and Travel
                             </h4>

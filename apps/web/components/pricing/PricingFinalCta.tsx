@@ -76,34 +76,34 @@ export function PricingFinalCta() {
   }, []);
 
   return (
-    <section className="py-24">
+    <section className="bg-ink py-20 sm:py-24 text-ink-foreground">
       <div className="max-w-4xl mx-auto px-4 text-center">
-        <div className="bg-blue-600 rounded-xl p-12 text-white">
-          <h2 className="text-3xl font-bold mb-4">
+        <div>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
             Track Every OPT Deadline Before It Becomes a Problem
           </h2>
-          <p className="text-blue-100 mb-8 max-w-xl mx-auto">
+          <p className="text-ink-muted mb-8 max-w-xl mx-auto">
             Join F-1 students who use TrackMyOPT for daily reminders,
             unemployment alerts, and case monitoring.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={PRO_CHECKOUT_HREF}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-violet-700 rounded-xl font-semibold hover:bg-violet-50 transition-colors"
+              className="inline-flex min-h-12 items-center justify-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow-button hover:bg-blue-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             >
               {ctaText} <ArrowRight className="w-4 h-4" />
             </Link>
             {shouldShowDedicatedPlanForSale() ? (
               <Link
                 href={DEDICATED_CHECKOUT_HREF}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors border border-blue-400"
+                className="inline-flex min-h-12 items-center justify-center gap-2 px-8 py-3 text-ink-foreground rounded-lg font-semibold border border-ink-border hover:bg-white hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
               >
                 Get Dedicated + Attorney Consultation
                 <ArrowRight className="w-4 h-4" />
               </Link>
             ) : null}
           </div>
-          <p className="text-sm text-blue-100 mt-4">
+          <p className="text-sm text-ink-muted mt-4">
             {shouldShowDedicatedPlanForSale()
               ? `Pro from $${formatMonthlyEquivalentFromYearly(PLAN_PRICES.pro.year)}/mo billed yearly · Dedicated includes one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation`
               : `Pro from $${formatMonthlyEquivalentFromYearly(PLAN_PRICES.pro.year)}/mo billed yearly · cancel anytime`}

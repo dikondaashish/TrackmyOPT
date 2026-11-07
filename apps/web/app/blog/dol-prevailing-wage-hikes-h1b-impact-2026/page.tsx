@@ -69,18 +69,18 @@ export default function PrevailingWageArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 13, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/prevailing-wage-hikes.png" alt="Financial chart showing wage increases on a corporate desk" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     A March 2026 DOL proposal seeks to raise the statistical percentiles used to calculate prevailing wages for H-1B and PERM workers. If implemented, entry-level H-1B roles could see mandatory salary minimums spike by over 30%, potentially pricing recent international graduates out of the U.S. job market.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Table of Contents
                 </h2>
@@ -125,7 +125,7 @@ export default function PrevailingWageArticle() {
                 </section>
 
                 <section id="impact-on-graduates" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
+                    <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Impact on Recent Graduates
@@ -141,7 +141,7 @@ export default function PrevailingWageArticle() {
                         </p>
                     </div>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 border rounded-xl flex items-center justify-between border-primary-muted bg-primary-soft">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
                                 Free Prevailing Wage Estimator
@@ -150,7 +150,7 @@ export default function PrevailingWageArticle() {
                                 Download our Excel tool to compare current OES wages vs. the proposed 2026 hiked wages for top tech roles.
                             </p>
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap shadow-button">
                             Download Excel
                         </button>
                     </div>
@@ -164,7 +164,7 @@ export default function PrevailingWageArticle() {
                             { question: "Does this wage hike apply to STEM OPT?", answer: "No. STEM OPT workers must be paid wages commensurate with U.S. workers in similar roles, but they are not strictly bound by the formal LCA/Prevailing Wage system used for H-1B and PERM." },
                             { question: "Will this affect my pending PERM application?", answer: "If finalized, it would affect any new Prevailing Wage Determinations (PWDs) issued by the DOL. If your PWD is already approved, it generally remains valid for its stated duration." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>

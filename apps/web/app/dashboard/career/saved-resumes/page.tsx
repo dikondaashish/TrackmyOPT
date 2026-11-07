@@ -326,9 +326,9 @@ export default function HistoryPage() {
     };
 
     return (
-        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-gray-950">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+            <div className="sticky top-0 z-10 bg-surface border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
                     <div className="flex items-center justify-between">
                         <Link
@@ -340,7 +340,7 @@ export default function HistoryPage() {
                         </Link>
 
                         <div className="text-center">
-                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                            <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
                                 Resume History
                             </h1>
                         </div>
@@ -388,9 +388,9 @@ export default function HistoryPage() {
                         <Button onClick={() => handleFetch()}>Try Again</Button>
                     </div>
                 ) : resumes.length === 0 ? (
-                    <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <div className="bg-blue-100 dark:bg-blue-950 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    <div className="text-center py-16 px-4 bg-card rounded-xl border border-border shadow-card">
+                        <div className="bg-violet-50 dark:bg-violet-950 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <FileText className="w-6 h-6 text-violet-600 dark:text-violet-300" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{search ? "No results found" : "No history yet"}</h3>
                         <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
@@ -398,7 +398,7 @@ export default function HistoryPage() {
                         </p>
                         {!search && (
                             <Link href="/dashboard/career/resume-generator">
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                                <Button className="gap-2">
                                     <Plus className="w-4 h-4" />
                                     Create New Resume
                                 </Button>
@@ -413,7 +413,7 @@ export default function HistoryPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {resumes.map((resume, index) => (
-                            <div key={resume.id} className={`group bg-white dark:bg-slate-800 rounded-xl border ${index === 0 ? 'border-blue-500 shadow-md ring-1 ring-blue-500' : 'border-gray-200 dark:border-slate-600'} hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 overflow-hidden`}>
+                            <div key={resume.id} className={`group bg-card shadow-card rounded-xl border ${index === 0 ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200 dark:border-slate-600'} hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-elevated transition-[box-shadow,border-color] duration-200 overflow-hidden`}>
                                 {/* Modern Header */}
                                 <div className={`p-4 ${index === 0 ? 'bg-blue-100 dark:bg-blue-900' : 'bg-blue-50 dark:bg-blue-950'}`}>
                                     <div className="flex items-center justify-between">
@@ -447,7 +447,7 @@ export default function HistoryPage() {
                                         )}
                                         {/* Generated Badge */}
                                         {(resume.structuredData?.latexCode || resume.structuredData?.generatedLatex) && (
-                                            <div className="ml-2 flex items-center text-xs rounded-md px-2 py-0.5 font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                                            <div className="ml-2 flex items-center text-xs rounded-md px-2 py-0.5 font-medium bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
                                                 <span>Generated</span>
                                             </div>
                                         )}
@@ -473,7 +473,7 @@ export default function HistoryPage() {
                                         <Button
                                             onClick={() => handleLoadResume(resume)}
                                             disabled={loadingId === resume.id}
-                                            className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium hover:shadow-md h-9"
+                                            className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium hover:shadow-elevated h-9"
                                         >
                                             {loadingId === resume.id ? (
                                                 <>

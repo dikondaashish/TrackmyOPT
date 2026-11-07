@@ -178,19 +178,19 @@ export default function NotGettingInterviewsPage() {
       <div className="not-prose mt-10 flex flex-wrap gap-3">
         <Link
           href="/features/job-tracker"
-          className="inline-flex items-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+          className="inline-flex h-11 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover"
         >
           Open Job Tracker
         </Link>
         <Link
           href="/features/resume-ai"
-          className="inline-flex items-center rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-800"
+          className="inline-flex h-11 items-center rounded-lg border border-border bg-background px-5 text-sm font-semibold text-foreground shadow-card transition-colors hover:bg-muted"
         >
           Resume tools
         </Link>
         <Link
           href="/dashboard/career/h1b-sponsors"
-          className="inline-flex items-center rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-800"
+          className="inline-flex h-11 items-center rounded-lg border border-border bg-background px-5 text-sm font-semibold text-foreground shadow-card transition-colors hover:bg-muted"
         >
           H-1B sponsor search
         </Link>

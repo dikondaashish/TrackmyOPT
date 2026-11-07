@@ -30,12 +30,12 @@ export function OptDatesLoadingSkeleton() {
 
 export function OptDatesHeader() {
   return (
-    <header className="flex items-center justify-between gap-4 rounded-xl bg-blue-800 px-4 py-4 text-blue-50 dark:bg-blue-950 sm:px-5 sm:py-5">
+    <header className="flex items-center justify-between gap-4">
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-semibold sm:text-3xl">
+        <h1 className="text-2xl font-semibold text-foreground">
           OPT Dates
         </h1>
-        <p className="mt-1 text-sm leading-6 text-blue-100">
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">
           Track filing windows, OPT dates, and employment history in one place.
         </p>
       </div>

@@ -61,7 +61,7 @@ export default function BuildingCreditPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/building-credit-international-students-opt.png" alt="Leather wallet with a credit card, next to a smartphone showing a financial dashboard" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -84,7 +84,7 @@ export default function BuildingCreditPage() {
                 </p>
 
                 <div className="space-y-6 my-8">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-blue-600 dark:text-blue-400">
                             Deserve EDU Mastercard
                         </h3>
@@ -94,7 +94,7 @@ export default function BuildingCreditPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-orange-600 dark:text-orange-400">
                             Discover it® Student Cash Back
                         </h3>
@@ -104,7 +104,7 @@ export default function BuildingCreditPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-emerald-600 dark:text-emerald-400">
                             Secured Credit Cards (from your bank)
                         </h3>
@@ -121,8 +121,8 @@ export default function BuildingCreditPage() {
                 </p>
 
                 <div className="grid md:grid-cols-3 gap-6 my-8">
-                    <div className="bg-gray-50 dark:bg-zinc-800 p-6 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
-                        <div className="mx-auto w-12 h-12 bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-4">
+                    <div className="border p-6 rounded-xl border-border text-center bg-surface">
+                        <div className="mx-auto w-12 h-12 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
                             <CheckCircle2 className="w-6 h-6" />
                         </div>
                         <h4 className="font-bold mb-2">Pay in Full</h4>
@@ -130,7 +130,7 @@ export default function BuildingCreditPage() {
                             <strong>Never carry a balance.</strong> Set up AutoPay to pay your full statement balance every single month. Never pay interest.
                         </p>
                     </div>
-                    <div className="bg-gray-50 dark:bg-zinc-800 p-6 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
+                    <div className="border p-6 rounded-xl border-border text-center bg-surface">
                         <div className="mx-auto w-12 h-12 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mb-4">
                             <TrendingUp className="w-6 h-6" />
                         </div>
@@ -139,7 +139,7 @@ export default function BuildingCreditPage() {
                             Keep your spending below <strong>10%</strong> of your limit. If your limit is $1,000, never let your statement balance exceed $100.
                         </p>
                     </div>
-                    <div className="bg-gray-50 dark:bg-zinc-800 p-6 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
+                    <div className="border p-6 rounded-xl border-border text-center bg-surface">
                         <div className="mx-auto w-12 h-12 bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center mb-4">
                             <Clock className="w-6 h-6" />
                         </div>
@@ -150,7 +150,7 @@ export default function BuildingCreditPage() {
                     </div>
                 </div>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         A Warning About Hard Inquiries
@@ -171,7 +171,7 @@ export default function BuildingCreditPage() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Ready to Apply for your SSN?
                 </h3>
@@ -181,7 +181,7 @@ export default function BuildingCreditPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/blog/how-to-get-ssn-on-opt"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Read the SSN Guide
                     </Link>
@@ -192,7 +192,7 @@ export default function BuildingCreditPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/renting-apartment-without-us-credit-history" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Renting Without US Credit
                             </h4>
@@ -205,7 +205,7 @@ export default function BuildingCreditPage() {
                         </div>
                     </Link>
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 F-1 Student Tax Filing Guide
                             </h4>

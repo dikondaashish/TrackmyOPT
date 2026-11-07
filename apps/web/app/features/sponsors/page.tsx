@@ -22,6 +22,15 @@ import { FeatureCTA } from '@/components/features/FeatureCTA';
 
 import { H2, Lead, P } from '@/components/ui/typography';
 
+// Icon tiles coded by meaning (emerald = sponsor outcomes, amber = needs
+// attention, blue = scores/status, slate = neutral reference data).
+const signalTiles: Record<string, string> = {
+  emerald: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+  amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  blue: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300',
+  slate: 'bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300',
+};
+
 // Signal Grid Component
 function SignalGrid() {
   const signals = [
@@ -41,7 +50,7 @@ function SignalGrid() {
       icon: Scale,
       title: 'Representative data',
       description: 'Review the listed top representative law firm when available',
-      color: 'purple',
+      color: 'slate',
     },
     {
       icon: TrendingUp,
@@ -60,19 +69,19 @@ function SignalGrid() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.1 }}
-          className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
+          className="surface-card p-6"
         >
           <div
-            className={`w-12 h-12 rounded-xl bg-${signal.color}-100 dark:bg-${signal.color}-900/30 flex items-center justify-center mb-4`}
+            className={`w-10 h-10 rounded-lg ${signalTiles[signal.color]} flex items-center justify-center mb-4`}
           >
             <signal.icon
-              className={`w-6 h-6 text-${signal.color}-600 dark:text-${signal.color}-400`}
+              className="w-5 h-5"
             />
           </div>
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+          <h4 className="font-semibold text-foreground mb-2">
             {signal.title}
           </h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {signal.description}
           </p>
         </motion.div>
@@ -102,14 +111,14 @@ function DataStats() {
           className="text-center"
         >
           <motion.div
-            className="text-4xl font-bold text-emerald-600"
+            className="text-4xl font-bold text-emerald-700 dark:text-emerald-400"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
             {stat.value}
           </motion.div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {stat.label}
           </p>
         </motion.div>
@@ -121,7 +130,7 @@ function DataStats() {
 export default function SponsorsPage() {
   return (
     <>
-      <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+      <main className="min-h-screen bg-background">
         <FeatureServiceSchema
           name="H-1B Sponsor Database & Research Tool"
           description="Browse H-1B sponsor profiles with historical activity, calculated trends, and LCA filing details. Use it as research, not a guarantee that an employer will sponsor your visa."
@@ -184,7 +193,7 @@ export default function SponsorsPage() {
         />
 
         {/* Data Stats */}
-        <section className="py-16 border-b border-gray-100 dark:border-zinc-800">
+        <section className="py-16 border-b border-border bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <DataStats />
           </div>
@@ -215,7 +224,7 @@ export default function SponsorsPage() {
                       key={i}
                       className="flex items-center gap-3 text-gray-700 dark:text-gray-300"
                     >
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -227,8 +236,8 @@ export default function SponsorsPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-8 dark:border-emerald-900 dark:bg-emerald-950">
-                  <h3 className="font-semibold text-gray-950 dark:text-white">What a profile can show</h3>
+                <div className="surface-card border-t-[3px] border-t-emerald-600 p-8 dark:border-t-emerald-500">
+                  <h3 className="font-semibold text-foreground">What a profile can show</h3>
                   <ul className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-300">
                     <li>Historical H-1B activity for 2021–2025</li>
                     <li>A calculated score and year-over-year trend</li>
@@ -242,7 +251,7 @@ export default function SponsorsPage() {
         </section>
 
         {/* Feature 2: Intelligence Signals */}
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
+        <section className="py-24 border-y border-border bg-surface relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -270,7 +279,7 @@ export default function SponsorsPage() {
                 viewport={{ once: true }}
                 className="order-2 lg:order-1"
               >
-                <div className="rounded-xl border border-amber-100 bg-amber-50 p-8 dark:border-amber-900 dark:bg-amber-950">
+                <div className="rounded-xl border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 p-8 dark:border-amber-900 dark:border-l-amber-500 dark:bg-amber-950">
                   <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Research checklist</p>
                   <ol className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-300">
                     <li>1. Use historical activity to identify employers to research.</li>
@@ -292,7 +301,7 @@ export default function SponsorsPage() {
                 </P>
                 <Link
                   href="/blog/stem-opt-employer-requirements"
-                  className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold hover:gap-3 transition-all"
+                  className="inline-flex items-center gap-2 text-amber-700 dark:text-amber-300 font-semibold hover:underline"
                 >
                   Read our STEM OPT employer guide
                   <ExternalLink className="w-4 h-4" />
@@ -302,23 +311,23 @@ export default function SponsorsPage() {
           </div>
         </section>
 
-        <section className="border-y border-blue-100 bg-blue-50 py-10 dark:border-blue-950 dark:bg-blue-950">
+        <section className="border-y border-primary-muted bg-primary-soft py-10">
           <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-5 px-4 sm:px-6 md:flex-row md:items-center lg:px-8">
             <div>
               <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                 Planning for STEM OPT?
               </p>
-              <h2 className="mt-1 text-2xl font-bold text-gray-950 dark:text-white">
+              <h2 className="mt-1 text-2xl font-bold text-foreground">
                 Check an employer in the official E-Verify database
               </h2>
-              <p className="mt-2 max-w-2xl text-gray-600 dark:text-gray-300">
+              <p className="mt-2 max-w-2xl text-muted-foreground">
                 Use the E-Verify search, then confirm the employer&apos;s Company ID
                 with HR.
               </p>
             </div>
             <Link
               href="/e-verify-employer-search"
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white shadow-button transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
             >
               Search E-Verify
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

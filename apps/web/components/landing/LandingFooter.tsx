@@ -21,19 +21,19 @@ const CloudflareLogo = () => (
 );
 
 const StripeBadge = () => (
-  <span className="text-xs text-gray-500 dark:text-gray-400">
+  <span className="text-xs text-ink-muted">
     Payments by Stripe
   </span>
 );
 
 const SslLogo = () => (
-  <span className="text-xs text-gray-500 dark:text-gray-400">
+  <span className="text-xs text-ink-muted">
     SSL secure
   </span>
 );
 
 const linkClass =
-  "inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white";
+  "inline-flex min-h-[44px] items-center text-base text-ink-muted transition-colors hover:text-white max-md:py-1 md:min-h-0 md:inline md:text-sm";
 
 export function LandingFooter() {
   const footerLinks = {
@@ -82,7 +82,7 @@ export function LandingFooter() {
   };
 
   return (
-    <footer className="bg-gray-50 dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800">
+    <footer className="bg-ink text-ink-foreground border-t border-ink-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-5 md:gap-8 lg:gap-12">
           <div className="md:col-span-1">
@@ -94,15 +94,15 @@ export function LandingFooter() {
                 height={40}
                 className="h-10 w-10 shrink-0 object-contain"
               />
-              <span className="text-xl font-bold text-gray-900 dark:text-white">TrackMyOPT</span>
+              <span className="text-xl font-bold text-white">TrackMyOPT</span>
             </Link>
-            <p className="max-w-xs text-base text-gray-600 dark:text-gray-400 md:text-sm">
+            <p className="max-w-xs text-base text-ink-muted md:text-sm">
               OPT deadlines, USCIS case status, AI resumes, Document Vault, and H-1B sponsors — built for F-1 students. 3,500+ signed up · 10,000+ use free tools.
             </p>
           </div>
 
           <div>
-            <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">Product</h4>
+            <h4 className="mb-4 font-semibold text-white">Product</h4>
             <ul className="space-y-1 md:space-y-3">
               {footerLinks.product.map((link, index) => (
                 <li key={index}>
@@ -126,7 +126,7 @@ export function LandingFooter() {
           </div>
 
           <div>
-            <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">Guides</h4>
+            <h4 className="mb-4 font-semibold text-white">Guides</h4>
             <ul className="space-y-1 md:space-y-3">
               {footerLinks.guides.map((link, index) => (
                 <li key={index}>
@@ -139,7 +139,7 @@ export function LandingFooter() {
           </div>
 
           <div>
-            <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">Resources</h4>
+            <h4 className="mb-4 font-semibold text-white">Resources</h4>
             <ul className="space-y-1 md:space-y-3">
               {footerLinks.resources.map((link, index) => (
                 <li key={index}>
@@ -152,7 +152,7 @@ export function LandingFooter() {
           </div>
 
           <div>
-            <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">Legal</h4>
+            <h4 className="mb-4 font-semibold text-white">Legal</h4>
             <ul className="space-y-1 md:space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
@@ -168,7 +168,7 @@ export function LandingFooter() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-12 pt-8 border-t border-ink-border flex flex-col md:flex-row items-center justify-between gap-6">
           <FooterCopyright />
 
           <div className="flex flex-wrap justify-center items-center gap-4 opacity-90">

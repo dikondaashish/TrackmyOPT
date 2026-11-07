@@ -511,7 +511,7 @@ export function SettingsSection() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Manage your account settings and preferences.
         </p>
@@ -527,7 +527,7 @@ export function SettingsSection() {
               className={`
                 flex items-center gap-2 max-md:min-h-11 max-md:px-3 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors
                 ${activeTab === tab.id
-                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                  ? 'border-primary text-primary dark:text-blue-300'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}
@@ -535,7 +535,7 @@ export function SettingsSection() {
               {tab.icon}
               {tab.label}
               {tab.isPro && (
-                <span className="px-1.5 py-0.5 text-xs font-medium text-purple-800 bg-purple-100 dark:bg-purple-950 dark:text-purple-300 rounded-md">
+                <span className="px-1.5 py-0.5 text-xs font-medium text-violet-800 bg-violet-100 dark:bg-violet-950 dark:text-violet-300 rounded-md">
                   Pro
                 </span>
               )}
@@ -559,7 +559,7 @@ export function SettingsSection() {
       )}
 
       {/* Tab Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-card">
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (

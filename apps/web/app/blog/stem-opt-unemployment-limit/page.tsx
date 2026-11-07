@@ -61,7 +61,7 @@ export default function StemOPTUnemploymentArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     STEM OPT recipients are allowed a total of 150 cumulative days of unemployment across both their initial 12-month OPT and the 24-month STEM extension. This is more generous than the 90-day limit for regular OPT.
@@ -86,13 +86,13 @@ export default function StemOPTUnemploymentArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         STEM OPT vs Regular OPT: Unemployment Comparison
                     </h2>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Factor</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Regular OPT</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">STEM OPT</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Factor</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Regular OPT</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">STEM OPT</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -105,9 +105,9 @@ export default function StemOPTUnemploymentArticle() {
                                     ["Reporting", "Basic SEVP Portal", "I-983 + 6-month validations"],
                                 ].map(([factor, opt, stem], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{factor}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{opt}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{stem}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{factor}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{opt}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{stem}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -124,11 +124,11 @@ export default function StemOPTUnemploymentArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <h3 className="font-semibold text-green-900 dark:text-green-100">What Stops the Clock on STEM OPT</h3>
-                                <ul className="mt-2 space-y-1 text-sm text-green-800 dark:text-green-200">
+                                <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">What Stops the Clock on STEM OPT</h3>
+                                <ul className="mt-2 space-y-1 text-sm text-emerald-800 dark:text-emerald-200">
                                     <li>• Paid employment ≥20 hours/week at an E-Verify employer</li>
                                     <li>• Position directly related to your STEM degree</li>
                                     <li>• Valid I-983 training plan on file with your DSO</li>
@@ -166,7 +166,7 @@ export default function StemOPTUnemploymentArticle() {
                             { title: "10-Day Change Reporting", detail: "Report any changes to employment (new job, termination, address change) to your DSO within 10 days." },
                             { title: "Annual Wage Confirmation", detail: "Your employer must confirm that your compensation is commensurate with similarly situated U.S. workers." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{i + 1}. {item.title}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.detail}</p>
                             </div>
@@ -183,7 +183,7 @@ export default function StemOPTUnemploymentArticle() {
                             { question: "Does volunteer work count as employment on STEM OPT?", answer: "No. Unlike regular OPT where volunteer positions (20+ hours/week) can count, STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock during STEM OPT." },
                             { question: "What happens if I exceed 150 days on STEM OPT?", answer: "Exceeding 150 days of unemployment during the OPT + STEM OPT period can result in SEVIS termination and loss of F-1 status. Your DSO is required to report excess unemployment days to SEVP." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -193,18 +193,18 @@ export default function StemOPTUnemploymentArticle() {
             </div>
 
             {/* CTA */}
-            <div className="bg-purple-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your STEM OPT Unemployment Days</h2>
-                <p className="text-purple-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     TrackMyOPT monitors your unemployment days, sends alerts before you hit the 150-day limit, and tracks your reporting deadlines.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day OPT Unemployment Rule</Link>

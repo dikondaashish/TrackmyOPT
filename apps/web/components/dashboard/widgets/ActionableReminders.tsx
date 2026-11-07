@@ -22,7 +22,7 @@ const DEFAULT_REMINDERS: Omit<Reminder, "id" | "createdAt">[] = [
 const CATEGORY_COLORS: Record<Reminder["category"], string> = {
   employment: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
   document: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
-  filing: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400",
+  filing: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-400",
   general: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
 };
 
@@ -118,7 +118,7 @@ export function ActionableReminders() {
   });
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden h-full">
+    <div className="bg-card border border-border rounded-xl overflow-hidden h-full shadow-card">
       {/* Header */}
       <button
         type="button"

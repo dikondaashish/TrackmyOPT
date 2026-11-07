@@ -15,10 +15,10 @@ import { CountUp } from "@/components/ui/count-up";
 function SuccessStatsVisual() {
     return (
         <div className="relative">
-            <div className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
+            <div className="relative rounded-xl border border-border bg-card p-8 shadow-elevated">
                 <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Success Metrics</span>
+                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                    <span className="text-sm font-medium text-muted-foreground">Success Metrics</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
@@ -26,34 +26,34 @@ function SuccessStatsVisual() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-green-50 dark:bg-green-950 rounded-xl p-4 text-center"
+                        className="rounded-lg border border-violet-100 bg-violet-50 p-4 text-center dark:border-violet-900 dark:bg-violet-950"
                     >
-                        <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                        <div className="text-2xl font-bold text-violet-700 dark:text-violet-300">
                             <CountUp value={500} suffix="+" />
                         </div>
-                        <p className="text-xs text-green-600 dark:text-green-400">Jobs Landed</p>
+                        <p className="text-xs text-violet-700 dark:text-violet-300">Jobs Landed</p>
                     </motion.div>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 text-center"
+                        className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-center dark:border-emerald-900 dark:bg-emerald-950"
                     >
-                        <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                        <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                             <CountUp value={85} suffix="%" />
                         </div>
-                        <p className="text-xs text-blue-600 dark:text-blue-400">Found H-1B</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-300">Found H-1B</p>
                     </motion.div>
                 </div>
 
                 <div className="flex items-center justify-center gap-1 mb-4">
                     {[1, 2, 3, 4, 5].map((i) => (
                         <motion.div key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.1 }}>
-                            <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                            <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
                         </motion.div>
                     ))}
                 </div>
-                <p className="text-center text-gray-600 dark:text-gray-400 text-sm"><span className="font-bold text-gray-900 dark:text-white">4.9/5</span> from 500+ reviews</p>
+                <p className="text-center text-muted-foreground text-sm"><span className="font-bold text-foreground">4.9/5</span> from 500+ reviews</p>
             </div>
         </div>
     );
@@ -62,23 +62,23 @@ function SuccessStatsVisual() {
 // Stats Section
 function StatsSection() {
     const stats = [
-        { value: "3,500+", label: "Users Signed Up" },
-        { value: "500+", label: "Jobs Landed" },
-        { value: "85%", label: "Found H-1B" },
-        { value: "4.9/5", label: "Rating" },
+        { value: "3,500+", label: "Users Signed Up", color: "text-blue-600 dark:text-blue-400", accent: "border-t-blue-600" },
+        { value: "500+", label: "Jobs Landed", color: "text-violet-600 dark:text-violet-400", accent: "border-t-violet-600" },
+        { value: "85%", label: "Found H-1B", color: "text-emerald-600 dark:text-emerald-400", accent: "border-t-emerald-600" },
+        { value: "4.9/5", label: "Rating", color: "text-amber-600 dark:text-amber-400", accent: "border-t-amber-500" },
     ];
     return (
-        <section className="py-24">
+        <section className="py-24 bg-background">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-green-600 rounded-xl p-8 md:p-12">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
+                <div>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-center mb-12">
                         Proven Track Record
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                         {stats.map((stat, index) => (
-                            <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="text-center">
-                                <p className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.value}</p>
-                                <p className="text-green-100 text-sm">{stat.label}</p>
+                            <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className={`surface-card border-t-[3px] p-6 text-center ${stat.accent}`}>
+                                <p className={`text-3xl md:text-5xl font-bold mb-2 ${stat.color}`}>{stat.value}</p>
+                                <p className="text-muted-foreground text-sm">{stat.label}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -91,23 +91,23 @@ function StatsSection() {
 // Submit Story Section
 function SubmitStory() {
     return (
-        <section className="py-24">
+        <section className="py-24 bg-surface border-t border-border">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8 md:p-12 text-center"
+                    className="surface-card p-8 md:p-12 text-center"
                 >
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
                         Share Your Success Story
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-xl mx-auto">
+                    <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
                         Did TrackMyOPT help you land your dream job or stay compliant? We'd love to hear your story!
                     </p>
                     <Link
                         href="/contact"
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                        className="inline-flex min-h-12 items-center gap-2 px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                         Submit Your Story
                         <ArrowRight className="w-5 h-5" />
@@ -120,7 +120,7 @@ function SubmitStory() {
 
 export default function SuccessStoriesPage() {
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+        <main className="min-h-screen bg-background">
             <LandingNavbar />
 
             {/* Hero */}

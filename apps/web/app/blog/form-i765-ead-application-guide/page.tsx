@@ -75,7 +75,7 @@ export default function FormI765GuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Published: February 21, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/form-i765.png" alt="Form I-765 Application for Employment Authorization document with EAD card on office desk" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -91,7 +91,7 @@ export default function FormI765GuidePage() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Table of Contents
                 </h2>
@@ -144,7 +144,7 @@ export default function FormI765GuidePage() {
                         { title: "DACA Recipients", desc: "Deferred Action for Childhood Arrivals recipients seeking work authorization renewal" },
                         { title: "J-2 Dependents", desc: "Spouses of J-1 visa holders who are authorized to work independently" },
                     ].map((item) => (
-                        <div key={item.title} className="flex gap-3 p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl">
+                        <div key={item.title} className="border flex gap-3 p-4 border-border rounded-xl bg-card shadow-card">
                             <CheckCircle className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
                             <div>
                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.title}</p>
@@ -161,35 +161,35 @@ export default function FormI765GuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                     Question 27 on Form I-765 asks for your eligibility category. This is a critical field — getting it wrong can result in your application being rejected. Here are the F-1 student categories:
                 </p>
-                <div className="overflow-x-auto mb-6">
+                <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-4 border border-gray-200 dark:border-zinc-700 font-semibold text-gray-900 dark:text-white">OPT Type</th>
-                                <th className="text-left p-4 border border-gray-200 dark:border-zinc-700 font-semibold text-gray-900 dark:text-white">Category Code</th>
-                                <th className="text-left p-4 border border-gray-200 dark:border-zinc-700 font-semibold text-gray-900 dark:text-white">Duration</th>
+                            <tr className="bg-surface-strong">
+                                <th className="text-left p-4 border border-border font-semibold text-gray-900 dark:text-white">OPT Type</th>
+                                <th className="text-left p-4 border border-border font-semibold text-gray-900 dark:text-white">Category Code</th>
+                                <th className="text-left p-4 border border-border font-semibold text-gray-900 dark:text-white">Duration</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Pre-Completion OPT (before graduation)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 font-mono font-bold text-indigo-600 dark:text-indigo-400">(c)(3)(A)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Up to 12 months (counts against total OPT)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Pre-Completion OPT (before graduation)</td>
+                                <td className="p-4 border border-border font-mono font-bold text-indigo-600 dark:text-indigo-400">(c)(3)(A)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Up to 12 months (counts against total OPT)</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Post-Completion OPT (after graduation) ← Most Common</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 font-mono font-bold text-indigo-600 dark:text-indigo-400">(c)(3)(B)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">12 months</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Post-Completion OPT (after graduation) ← Most Common</td>
+                                <td className="p-4 border border-border font-mono font-bold text-indigo-600 dark:text-indigo-400">(c)(3)(B)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">12 months</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">STEM OPT Extension (24-month extension)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 font-mono font-bold text-indigo-600 dark:text-indigo-400">(c)(3)(C)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">24 months additional</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">STEM OPT Extension (24-month extension)</td>
+                                <td className="p-4 border border-border font-mono font-bold text-indigo-600 dark:text-indigo-400">(c)(3)(C)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">24 months additional</td>
             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-5">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">The category code must match the OPT type your DSO recommended in your I-20. If there is a mismatch, USCIS may reject or deny your application. Always confirm with your DSO (Designated School Official) before filing.</p>
@@ -211,7 +211,7 @@ export default function FormI765GuidePage() {
                         { step: "7", title: "Part 6 — Applicant's Statement & Signature", desc: "Read the certification carefully. Sign and date the form. The form cannot be processed without your signature." },
                         { step: "8", title: "Prepare your packet", desc: "Assemble: completed I-765, copy of I-20 with DSO OPT recommendation, copy of SEVIS I-20, copy of passport bio page, copy of current US visa, copy of I-94, and two passport-style photos. For STEM OPT: also include Form I-983 and copy of current EAD." },
                     ].map((item) => (
-                        <div key={item.step} className="flex gap-4 p-5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl">
+                        <div key={item.step} className="border flex gap-4 p-5 border-border rounded-xl bg-card shadow-card">
                             <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">{item.step}</div>
                             <div>
                                 <p className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</p>
@@ -225,26 +225,26 @@ export default function FormI765GuidePage() {
             {/* Section 5 */}
             <section id="fees" className="mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">5. Filing Fees for Form I-765</h2>
-                <div className="overflow-x-auto mb-6">
+                <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-4 border border-gray-200 dark:border-zinc-700 font-semibold text-gray-900 dark:text-white">Applicant Type</th>
-                                <th className="text-left p-4 border border-gray-200 dark:border-zinc-700 font-semibold text-gray-900 dark:text-white">Fee (as of April 1, 2024)</th>
+                            <tr className="bg-surface-strong">
+                                <th className="text-left p-4 border border-border font-semibold text-gray-900 dark:text-white">Applicant Type</th>
+                                <th className="text-left p-4 border border-border font-semibold text-gray-900 dark:text-white">Fee (as of April 1, 2024)</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Standard I-765 (most applicants)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 font-bold text-gray-900 dark:text-white">$520</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Standard I-765 (most applicants)</td>
+                                <td className="p-4 border border-border font-bold text-gray-900 dark:text-white">$520</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Online filing (eligible categories)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 font-bold text-gray-900 dark:text-white">$470 (reduced online fee)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Online filing (eligible categories)</td>
+                                <td className="p-4 border border-border font-bold text-gray-900 dark:text-white">$470 (reduced online fee)</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">STEM OPT (c)(3)(C) — filed concurrently with pending I-485</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 font-bold text-gray-900 dark:text-white">$0 (fee waived)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">STEM OPT (c)(3)(C) — filed concurrently with pending I-485</td>
+                                <td className="p-4 border border-border font-bold text-gray-900 dark:text-white">$0 (fee waived)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -266,7 +266,7 @@ export default function FormI765GuidePage() {
                         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                             {["Completed Form I-765 (signed)", "Two passport-style photos (2x2 inches)", "Copy of current I-20 with OPT recommendation page", "Copy of all previous I-20s", "Copy of passport bio-data page", "Copy of current US visa", "Copy of I-94 arrival/departure record", "Filing fee ($520 check or MO payable to USDHS)"].map(item => (
                                 <li key={item} className="flex gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                                    <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                                     <span>{item}</span>
                                 </li>
                             ))}
@@ -292,7 +292,7 @@ export default function FormI765GuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                     USCIS processing times for Form I-765 vary significantly by year and filing volume. As of 2026:
                 </p>
-                <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-6">
+                <div className="border border-border rounded-xl p-6 mb-6 bg-surface">
                     <div className="grid sm:grid-cols-2 gap-4 text-sm">
                         <div><p className="text-gray-500 dark:text-gray-400">Average Processing Time (OPT)</p><p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">3–5 months</p></div>
                         <div><p className="text-gray-500 dark:text-gray-400">Earliest You Can Apply</p><p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">90 days before OPT start</p></div>
@@ -303,7 +303,7 @@ export default function FormI765GuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                     After mailing your packet, you will receive a Form I-797C (Receipt Notice) by mail in 2–4 weeks. Use the receipt number (starts with EAC, WAC, LIN, etc.) to track your case at <a href="https://egov.uscis.gov" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">egov.uscis.gov</a> or via the myUSCIS mobile app.
                 </p>
-                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-5">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                         <p className="text-sm text-yellow-800 dark:text-yellow-300"><strong>Apply early!</strong> Because processing times average 3–5 months, students who apply at the last minute often experience gaps in their work authorization. Most DSOs recommend submitting your I-765 no later than 3 months before your program end date.</p>
@@ -325,8 +325,8 @@ export default function FormI765GuidePage() {
                         "The 540-day clock begins on the day your old EAD expires",
                         "If USCIS approves or denies your renewal before 540 days, the extension ends on that date",
                     ].map((item, i) => (
-                        <div key={i} className="flex gap-3 p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm text-gray-700 dark:text-gray-300">
-                            <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" />
+                        <div key={i} className="border flex gap-3 p-4 border-border rounded-xl text-sm text-gray-700 dark:text-gray-300 bg-card shadow-card">
+                            <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
                             <span>{item}</span>
                         </div>
                     ))}
@@ -348,7 +348,7 @@ export default function FormI765GuidePage() {
                     ].map((item, i) => (
                         <div key={i} className="border border-red-200 dark:border-red-900 rounded-xl p-5">
                             <p className="font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center gap-1.5"><XCircle className="w-4 h-4" /> Mistake: {item.mistake}</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5"><CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" /> <span><strong>Fix:</strong> {item.fix}</span></p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5"><CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" /> <span><strong>Fix:</strong> {item.fix}</span></p>
                         </div>
                     ))}
                 </div>
@@ -369,7 +369,7 @@ export default function FormI765GuidePage() {
 
             
             {/* Internal Linking for SEO */}
-            <div className="my-12 p-8 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-950">
+            <div className="my-12 p-8 rounded-xl border dark:border-blue-950 border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Guides & Resources</h3>
                 <ul className="space-y-4 list-disc pl-5">
                     <li><Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">OPT Processing Times & Tips to Avoid Delays</Link></li>\n                    <li><Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">OPT Application Checklist 2026</Link></li>\n                    <li><Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">Complete STEM OPT Guide: Extension & Application</Link></li>
@@ -384,7 +384,7 @@ export default function FormI765GuidePage() {
             />
 
             {/* Sources */}
-            <div className="mt-12 p-6 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl">
+            <div className="border mt-12 p-6 border-border rounded-xl bg-surface">
                 <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">
                     Official Resources & Sources
                 </h3>

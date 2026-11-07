@@ -62,7 +62,7 @@ function MapSegment() {
 
             {/* Active User Pings */}
             <Ping x={70} y={80} color="bg-blue-500" delay={0} />
-            <Ping x={220} y={70} color="bg-purple-500" delay={1} />
+            <Ping x={220} y={70} color="bg-violet-600" delay={1} />
             <Ping x={320} y={90} color="bg-emerald-500" delay={2} />
             <Ping x={120} y={160} color="bg-amber-500" delay={3} />
         </div>

@@ -61,12 +61,12 @@ export default function TnVisaPage() {
                 </div>
             </header>
 
-            <aside className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+            <aside className="border-l-4 border-l-amber-500 mb-8 rounded-r-xl bg-amber-50 p-5 text-amber-950 dark:bg-amber-950 dark:text-amber-100">
                 <p className="font-semibold">October 12, 2026 update: online presence review expanded to TN and TD visa applicants on October 1. The announcement addresses consular visa applicants; verify the procedure for your nationality and application route.</p>
                 <Link href="/blog/tn-td-visa-social-media-screening-october-2026" className="mt-2 inline-block font-semibold underline">Read the TN/TD screening update</Link>
             </aside>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/tn-visa-canadian-mexican-students-opt.png" alt="Canadian and Mexican passports next to a USMCA Professional classification document" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -75,7 +75,7 @@ export default function TnVisaPage() {
                     Every March, hundreds of thousands of international students anxiously await the results of the H-1B lottery. But if you are a citizen of Canada or Mexico, you have a massive advantage: the <strong>TN Visa</strong>. Created under the NAFTA agreement (now the USMCA), the TN classification allows North American professionals to work in the US indefinitely without ever entering a lottery.
                 </p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-10">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl mb-10">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">The TN Visa Advantage
                     </h3>
                     <ul className="mb-0 text-gray-700 dark:text-gray-200">
@@ -119,7 +119,7 @@ export default function TnVisaPage() {
                     </div>
                 </div>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         The "Software Engineer" Trap
@@ -135,7 +135,7 @@ export default function TnVisaPage() {
                 </p>
 
                 <div className="space-y-6 my-8">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-blue-600 dark:text-blue-400">
                             <MapPin className="w-6 h-6" /> For Canadian Citizens
                         </h3>
@@ -147,7 +147,7 @@ export default function TnVisaPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                             <Briefcase className="w-6 h-6" /> For Mexican Citizens
                         </h3>
@@ -173,7 +173,7 @@ export default function TnVisaPage() {
 
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Track Your Visa Transitions
                 </h3>
@@ -183,7 +183,7 @@ export default function TnVisaPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Create Free Account
                     </Link>
@@ -194,7 +194,7 @@ export default function TnVisaPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/answers/what-is-h1b-lottery" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 H-1B vs TN Visa
                             </h4>
@@ -207,7 +207,7 @@ export default function TnVisaPage() {
                         </div>
                     </Link>
                     <Link href="/blog/l1-visa-transfer-after-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 L-1 Visa Transfer Guide
                             </h4>

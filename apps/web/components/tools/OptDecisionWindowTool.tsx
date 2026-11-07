@@ -125,10 +125,10 @@ export function OptDecisionWindowTool() {
     <div className="mx-auto max-w-xl space-y-6">
       <form
         onSubmit={onSubmit}
-        className="rounded-xl border border-emerald-200 bg-white p-6 dark:border-emerald-900 dark:bg-zinc-950 sm:p-7"
+        className="rounded-xl border border-border bg-card p-6 shadow-elevated sm:p-7"
       >
-        <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-600 text-white">
+        <div className="mb-6 flex items-center gap-3 border-b border-border pb-5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
             <Search className="h-5 w-5" aria-hidden />
           </div>
           <div>
@@ -157,10 +157,10 @@ export function OptDecisionWindowTool() {
                   key={value}
                   type="button"
                   onClick={() => setCaseKind(value)}
-                  className={`min-h-11 rounded-xl border px-3 text-sm font-semibold transition-colors ${
+                  className={`min-h-11 rounded-lg border px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                     caseKind === value
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100'
-                      : 'border-border bg-card text-muted-foreground hover:bg-muted'
+                      ? 'border-primary bg-primary-soft text-blue-800 ring-1 ring-primary dark:text-blue-200'
+                      : 'border-input bg-background text-muted-foreground shadow-card hover:bg-muted hover:text-foreground'
                   }`}
                 >
                   {label}
@@ -183,7 +183,7 @@ export function OptDecisionWindowTool() {
               max={clientDate ? todayIsoLocal(clientDate) : undefined}
               value={received}
               onChange={(e) => setReceived(e.target.value)}
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+              className="min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground shadow-card transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring"
             />
             <p className="mt-1.5 text-xs text-muted-foreground">
               From your I-797C receipt notice — the date USCIS received your
@@ -214,7 +214,7 @@ export function OptDecisionWindowTool() {
                   e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3)
                 )
               }
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 font-mono text-sm text-foreground"
+              className="min-h-11 w-full font-mono placeholder:text-muted-foreground rounded-lg border border-input bg-background px-3 text-sm text-foreground shadow-card transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring"
             />
             <p className="mt-1.5 text-xs text-muted-foreground">
               First 3 letters only (IOE, EAC, WAC…). Never enter your full
@@ -223,7 +223,7 @@ export function OptDecisionWindowTool() {
           </div>
 
           {error && (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-200">
+            <p className="rounded-lg border-l-4 border-l-red-500 bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
               {error}
             </p>
           )}
@@ -231,7 +231,7 @@ export function OptDecisionWindowTool() {
           <button
             type="submit"
             disabled={loading || !received}
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-60"
           >
             {loading ? (
               <>
@@ -249,13 +249,13 @@ export function OptDecisionWindowTool() {
       </form>
 
       {result && (
-        <div className="rounded-xl border border-border bg-card p-6 sm:p-7">
+        <div className="surface-card p-6 sm:p-7">
           {estimate && low != null && high != null ? (
             <>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm font-medium text-muted-foreground">
                 Where you stand
               </p>
-              <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
+              <p className="mt-1 text-4xl font-bold tabular-nums text-foreground">
                 Day {daysIn}
                 <span className="ml-2 text-base font-medium text-muted-foreground">
                   of your wait
@@ -263,27 +263,27 @@ export function OptDecisionWindowTool() {
               </p>
 
               <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg bg-muted p-4">
+                <div className="rounded-lg border border-border bg-surface p-4">
                   <dt className="text-xs text-muted-foreground">
                     Typical decision wait
                   </dt>
-                  <dd className="mt-1 text-2xl font-semibold tabular-nums">
+                  <dd className="mt-1 text-2xl font-semibold tabular-nums text-foreground">
                     {estimate.medianDays}
                     <span className="ml-1 text-sm font-medium">days</span>
                   </dd>
                 </div>
-                <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900">
-                  <dt className="text-xs text-emerald-800 dark:text-emerald-200">
+                <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
+                  <dt className="text-xs font-medium text-blue-800 dark:text-blue-200">
                     Decision window · middle 50%
                   </dt>
-                  <dd className="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                  <dd className="mt-1 text-2xl font-semibold tabular-nums text-blue-900 dark:text-blue-100">
                     {low}–{high}
                     <span className="ml-1 text-sm font-medium">days</span>
                   </dd>
                 </div>
               </dl>
 
-              <p className="mt-4 text-[9px] leading-snug text-muted-foreground">
+              <p className="mt-4 text-xs leading-5 text-muted-foreground">
                 Based on {estimate.cohortSize.toLocaleString()} completed
                 community reports for similar cases. Planning estimate only —
                 not a USCIS decision date.
@@ -296,7 +296,7 @@ export function OptDecisionWindowTool() {
             </p>
           )}
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
             <Link
               href="/login?next=/dashboard/case-status"
               onClick={() =>
@@ -305,14 +305,14 @@ export function OptDecisionWindowTool() {
                   case_kind: caseKind,
                 })
               }
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Track live status free
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
               href="/features/case-status"
-              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-border px-4 text-sm font-semibold text-foreground hover:bg-muted"
+              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-semibold text-foreground shadow-card transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               How alerts work
             </Link>

@@ -48,9 +48,9 @@ const CATEGORY_COPY: Record<ConsentCategory, { title: string; description: strin
 };
 
 const buttonBase =
-  'min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900';
-const primaryButton = `${buttonBase} bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500`;
-const secondaryButton = `${buttonBase} border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 focus-visible:ring-gray-400 dark:border-zinc-600 dark:bg-zinc-900 dark:text-gray-100 dark:hover:bg-zinc-800`;
+  'min-h-11 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-card';
+const primaryButton = `${buttonBase} bg-primary text-primary-foreground shadow-button hover:bg-primary-hover focus-visible:ring-ring`;
+const secondaryButton = `${buttonBase} border border-input bg-background text-foreground shadow-card hover:bg-muted focus-visible:ring-ring`;
 
 function CategoryRow({
   category,
@@ -69,27 +69,27 @@ function CategoryRow({
   const copy = CATEGORY_COPY[category];
   const services = servicesInCategory(category).map((service) => service.name);
   return (
-    <li className="rounded-xl border border-gray-200 p-4 dark:border-zinc-700">
+    <li className="rounded-lg border border-border bg-surface p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <label htmlFor={id} className="text-sm font-semibold text-gray-900 dark:text-white">
+          <label htmlFor={id} className="text-sm font-semibold text-foreground">
             {copy.title}
           </label>
-          <p id={`${id}-description`} className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+          <p id={`${id}-description`} className="mt-1 text-sm text-muted-foreground">
             {copy.description}
           </p>
           {services.length > 0 ? (
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Used for: {services.join(', ')}
             </p>
           ) : null}
           {note ? (
-            <p className="mt-2 text-xs font-medium text-gray-700 dark:text-gray-200">{note}</p>
+            <p className="mt-2 text-xs font-medium text-foreground">{note}</p>
           ) : null}
         </div>
         <div className="flex min-h-11 shrink-0 items-center gap-2">
           {locked ? (
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden>
+            <span className="text-xs font-medium text-muted-foreground" aria-hidden>
               {checked ? 'Always on' : 'Off'}
             </span>
           ) : null}
@@ -201,15 +201,15 @@ export function PrivacySettingsDialog() {
       <DialogContent
         aria-labelledby="privacy-settings-title"
         aria-describedby="privacy-settings-description"
-        className="max-w-xl bg-white p-6 dark:bg-zinc-900"
+        className="max-w-xl bg-card p-6"
       >
         <DialogHeader className="pr-8">
-          <DialogTitle id="privacy-settings-title" className="text-gray-900 dark:text-white">
+          <DialogTitle id="privacy-settings-title" className="text-foreground">
             Your Privacy Choices
           </DialogTitle>
           <DialogDescription
             id="privacy-settings-description"
-            className="text-gray-600 dark:text-gray-300"
+            className="text-muted-foreground"
           >
             Choose which optional technologies TrackMyOPT may use. Essential
             technology always stays on so the site works.{' '}

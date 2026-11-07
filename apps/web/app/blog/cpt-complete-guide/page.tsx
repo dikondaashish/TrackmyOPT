@@ -94,8 +94,8 @@ export default function CPTCompleteGuide() {
 
             {/* Hero Image */}
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/cpt-complete-guide.png" alt="University bulletin board with CPT application forms and internship flyers" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/cpt-complete-guide.png" alt="University bulletin board with CPT application forms and internship flyers" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     CPT allows F-1 students to gain practical work experience while still enrolled in their degree program.
@@ -103,7 +103,7 @@ export default function CPTCompleteGuide() {
             </figure>
 
             {/* TL;DR */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>CPT is work authorization for F-1 students to do internships, co-ops, or practicums that are an integral part of their curriculum.</strong> You need to be enrolled full-time for at least one academic year first (unless your program requires immediate participation). Part-time CPT does NOT affect your OPT — but 12+ months of full-time CPT will make you ineligible for post-completion OPT.
@@ -111,7 +111,7 @@ export default function CPTCompleteGuide() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -124,7 +124,7 @@ export default function CPTCompleteGuide() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
@@ -161,7 +161,7 @@ export default function CPTCompleteGuide() {
                         Unlike <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 underline">OPT</Link>, which is authorized by USCIS and used after (or just before) completing your degree, CPT is authorized <strong>by your school's Designated School Official (DSO)</strong> and is used while you are still actively enrolled in your program.
                     </p>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             &quot;CPT must be an integral part of the student&apos;s curriculum — either required by the program or for which academic credit is given.&quot;
                         </p>
@@ -171,9 +171,9 @@ export default function CPTCompleteGuide() {
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4 mt-6">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                 CPT Can Be Used For
                             </h3>
                             <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
@@ -184,7 +184,7 @@ export default function CPTCompleteGuide() {
                                 <li>• Work-study programs for credit</li>
                             </ul>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                                 <AlertTriangle className="w-4 h-4 text-red-500" />
                                 CPT Cannot Be Used For
@@ -216,8 +216,8 @@ export default function CPTCompleteGuide() {
                             { title: "Integral to Curriculum", desc: "The work experience must be required by your program, a course requirement, or offered as a for-credit cooperative education component. Your academic advisor must confirm this." },
                             { title: "Registered for Relevant Course", desc: "Most schools require you to be simultaneously enrolled in the internship/co-op course that corresponds to your CPT. Check with your international office." },
                         ].map((req, i) => (
-                            <div key={i} className="flex items-start gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                            <div key={i} className="border flex items-start gap-3 p-4 rounded-xl border-border bg-card shadow-card">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white">{req.title}</h3>
                                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{req.desc}</p>
@@ -235,41 +235,41 @@ export default function CPTCompleteGuide() {
                         The distinction between part-time and full-time CPT is <strong>critical</strong> because it directly affects your future OPT eligibility.
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm mt-4">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Feature</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Part-Time CPT</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Full-Time CPT</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Feature</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Part-Time CPT</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Full-Time CPT</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Hours per Week</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">20 hours or less</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">More than 20 hours</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Hours per Week</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">20 hours or less</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">More than 20 hours</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">During Classes?</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Yes — while enrolled full-time</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Typically during summer or final semester</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">During Classes?</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Yes — while enrolled full-time</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Typically during summer or final semester</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Impact on OPT</td>
-                                    <td className="p-3 border dark:border-zinc-700 font-semibold text-green-700 dark:text-green-400">No impact ✓</td>
-                                    <td className="p-3 border dark:border-zinc-700 font-semibold text-red-700 dark:text-red-400">12+ months = No OPT ✗</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Impact on OPT</td>
+                                    <td className="p-3 border border-border font-semibold text-emerald-700 dark:text-emerald-400">No impact ✓</td>
+                                    <td className="p-3 border border-border font-semibold text-red-700 dark:text-red-400">12+ months = No OPT ✗</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Duration Limit</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">No practical limit</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Keep under 12 months to preserve OPT</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Duration Limit</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">No practical limit</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Keep under 12 months to preserve OPT</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mt-6">
+                    <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mt-6">
                         <h3 className="text-lg font-bold text-red-900 dark:text-red-100 mb-2 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Critical Warning: The 12-Month Rule
@@ -297,7 +297,7 @@ export default function CPTCompleteGuide() {
                             { step: "5", title: "Receive Updated I-20", desc: "Your DSO issues a new I-20 with CPT authorization noted on page 2, including your employer name, employment dates, and whether it's part-time or full-time. This is your work authorization." },
                             { step: "6", title: "Start Work on the Authorized Date", desc: "You may ONLY begin work on the start date printed on your I-20. Starting even one day early is considered unauthorized employment and violates your F-1 status." },
                         ].map((item) => (
-                            <div key={item.step} className="flex items-start gap-4 p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.step} className="border flex items-start gap-4 p-5 rounded-xl border-border bg-card shadow-card">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-lg font-bold flex-shrink-0">
                                     {item.step}
                                 </span>
@@ -327,7 +327,7 @@ export default function CPTCompleteGuide() {
                                 DSO processing: 1-3 weeks (varies by school)
                             </p>
                             <p className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                 Total: <strong>2-5 weeks from offer to authorization</strong>
                             </p>
                         </div>
@@ -343,11 +343,11 @@ export default function CPTCompleteGuide() {
                     </p>
 
                     <div className="space-y-4 mb-6">
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <h3 className="font-semibold text-green-900 dark:text-green-100">Part-Time CPT (≤20 hours/week)</h3>
-                                <p className="text-sm text-green-800 dark:text-green-200 mt-1">
+                                <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Part-Time CPT (≤20 hours/week)</h3>
+                                <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
                                     <strong>No impact on OPT.</strong> You can do unlimited part-time CPT and still qualify for the full 12 months of post-completion OPT plus STEM OPT extension.
                                 </p>
                             </div>
@@ -383,7 +383,7 @@ export default function CPTCompleteGuide() {
                         &quot;Day 1 CPT&quot; programs allow students to begin CPT from their very first day of enrollment, bypassing the standard one-academic-year requirement. While <strong>technically legal</strong> at certain schools whose programs require immediate CPT participation, these programs carry significant immigration risks.
                     </p>
 
-                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold text-lg">
                             &quot;USCIS has increased scrutiny of Day 1 CPT programs. Multiple H-1B petitions have been denied based on concerns about the legitimacy of prior CPT employment.&quot;
                         </p>
@@ -409,7 +409,7 @@ export default function CPTCompleteGuide() {
                         ))}
                     </div>
 
-                    <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800 mt-6">
+                    <div className="p-5 rounded-xl border mt-6 border-primary-muted bg-primary-soft">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Our Recommendation</h3>
                         <p className="text-blue-800 dark:text-blue-200 text-sm">
                             If you're considering a Day 1 CPT program, consult an immigration attorney first. Understand the risks to your future H-1B and green card petitions. Read our <Link href="/blog/day-1-cpt-vs-opt" className="underline font-medium">Day 1 CPT vs OPT comparison</Link> for a deeper dive.
@@ -425,13 +425,13 @@ export default function CPTCompleteGuide() {
                         CPT and OPT are both F-1 work authorizations, but they serve different purposes and have different rules:
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Feature</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">CPT</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">OPT</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Feature</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">CPT</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">OPT</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -446,9 +446,9 @@ export default function CPTCompleteGuide() {
                                     ["EAD Card Required?", "No — I-20 is authorization", "Yes — EAD card required"],
                                 ].map(([feature, cpt, opt], i) => (
                                     <tr key={i} className={i % 2 === 1 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">{feature}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{cpt}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{opt}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">{feature}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{cpt}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{opt}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -469,7 +469,7 @@ export default function CPTCompleteGuide() {
                             { tip: "Maintain full-time enrollment", detail: "You must remain a full-time student while on CPT (unless it's your final semester and you need fewer credits to graduate)." },
                             { tip: "Renew CPT each semester", detail: "CPT authorization is typically granted per semester. Submit renewal paperwork before each new term if continuing." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{i + 1}. {item.tip}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.detail}</p>
                             </div>
@@ -478,27 +478,27 @@ export default function CPTCompleteGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-blue-600 rounded-xl p-8 my-12 text-white">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <GraduationCap className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Planning OPT After CPT? Track It All</h3>
                         </div>
-                        <p className="text-blue-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             TrackMyOPT helps you monitor your OPT timeline, unemployment days, and USCIS case status — so you can transition smoothly from CPT to OPT.
                         </p>
                         <ul className="space-y-3 mb-8">
-                            <li className="flex items-center gap-3 text-blue-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>Real-time OPT unemployment day tracking</span>
                             </li>
-                            <li className="flex items-center gap-3 text-blue-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>Automated USCIS case status monitoring</span>
                             </li>
-                            <li className="flex items-center gap-3 text-blue-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>100% Free for F-1 International Students</span>
                             </li>
@@ -506,7 +506,7 @@ export default function CPTCompleteGuide() {
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Link
                                 href="/login"
-                                className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors"
+                                className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                             >
                                 Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                             </Link>
@@ -527,7 +527,7 @@ export default function CPTCompleteGuide() {
                             { question: "Can I do CPT and OPT at the same time?", answer: "No. CPT is for students still enrolled in their program. OPT is for students who have completed or are about to complete their degree. They cannot overlap." },
                             { question: "How long does CPT authorization take?", answer: "CPT is authorized by your DSO, not USCIS, so it typically takes 1-3 weeks depending on your school's processing time. You receive an updated I-20 with CPT noted on page 2." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -539,7 +539,7 @@ export default function CPTCompleteGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/day-1-cpt-vs-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Day 1 CPT vs OPT: Key Differences</Link>
@@ -558,12 +558,12 @@ export default function CPTCompleteGuide() {
             <AuthorBio />
 
             {/* Bottom CTA */}
-            <div className="bg-purple-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Planning Your OPT After CPT?</h2>
-                <p className="text-purple-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     Join 3,500+ people who have signed up for TrackMyOPT. Use it to track deadlines, monitor unemployment days, and research H-1B sponsors.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

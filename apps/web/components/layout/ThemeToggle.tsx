@@ -22,15 +22,15 @@ export function ThemeToggle({ className }: { className?: string }) {
 
     return (
         <div className={cn(
-            "flex items-center p-1 bg-gray-100 dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 shadow-inner",
+            "flex items-center p-1 bg-gray-100 dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700",
             className
         )}>
             <button
                 onClick={() => setTheme("light")}
                 className={cn(
-                    "max-md:min-h-11 max-md:min-w-11 max-md:w-11 max-md:h-11 w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200",
+                    "max-md:min-h-11 max-md:min-w-11 max-md:w-11 max-md:h-11 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200",
                     theme === 'light'
-                        ? "bg-white text-yellow-500 shadow-sm scale-110"
+                        ? "bg-white text-amber-500 shadow-sm"
                         : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 )}
                 aria-label="Light mode"
@@ -40,9 +40,9 @@ export function ThemeToggle({ className }: { className?: string }) {
             <button
                 onClick={() => setTheme("dark")}
                 className={cn(
-                    "max-md:min-h-11 max-md:min-w-11 max-md:w-11 max-md:h-11 w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200",
+                    "max-md:min-h-11 max-md:min-w-11 max-md:w-11 max-md:h-11 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200",
                     theme === 'dark'
-                        ? "bg-gray-700 text-blue-400 shadow-sm scale-110"
+                        ? "bg-gray-700 text-blue-300 shadow-sm"
                         : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 )}
                 aria-label="Dark mode"

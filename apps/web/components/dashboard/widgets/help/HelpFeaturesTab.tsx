@@ -83,7 +83,7 @@ function FeatureCard({
   return (
     <a
       href={link}
-      className="block p-4 bg-card border border-border rounded-lg hover:border-primary hover:shadow-md transition-all group"
+      className="block p-4 bg-card border border-border rounded-lg hover:border-primary hover:shadow-elevated transition-all group shadow-card"
     >
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-lg bg-primary-soft flex items-center justify-center flex-shrink-0 group-hover:bg-primary-soft transition-colors">
@@ -131,7 +131,7 @@ export function HelpFeaturesTab() {
               link="/dashboard/opt-tools"
             />
             <FeatureCard
-              icon={<FileText className="w-5 h-5 text-purple-600" />}
+              icon={<FileText className="w-5 h-5 text-violet-600" />}
               title="Document Vault"
               description="Securely store and organize your OPT documents with AI-powered analysis."
               link="/dashboard/documents"
@@ -270,7 +270,7 @@ export function HelpFeaturesTab() {
 
           <CollapsibleSection
             title="Document Vault (Pro)"
-            icon={<FileText className="w-5 h-5 text-purple-600" />}
+            icon={<FileText className="w-5 h-5 text-violet-600" />}
           >
             <div className="pt-4 space-y-4">
               <div className="flex items-center gap-2 mb-2">
@@ -294,7 +294,7 @@ export function HelpFeaturesTab() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                <div className="p-3 bg-violet-50 dark:bg-violet-950 rounded-lg">
                   <h5 className="font-medium text-sm mb-1">Supported Documents</h5>
                   <ul className="text-xs text-muted-foreground space-y-0.5">
                     <li>• I-20, I-797, I-94</li>
@@ -304,7 +304,7 @@ export function HelpFeaturesTab() {
                     <li>• Tax Documents</li>
                   </ul>
                 </div>
-                <div className="p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                <div className="p-3 bg-violet-50 dark:bg-violet-950 rounded-lg">
                   <h5 className="font-medium text-sm mb-1">AI Extraction</h5>
                   <ul className="text-xs text-muted-foreground space-y-0.5">
                     <li>• Document type detection</li>
@@ -555,12 +555,12 @@ export function HelpFeaturesTab() {
                   </p>
                 </div>
 
-                <div className="p-4 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950 rounded-lg">
-                  <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2 flex items-center gap-1.5"><Timer className="w-4 h-4 shrink-0" /> STEM Clock Tracker</h5>
-                  <p className="text-xs text-purple-700 dark:text-purple-400 mb-2">
+                <div className="p-4 border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950 rounded-lg">
+                  <h5 className="font-semibold text-violet-800 dark:text-violet-300 mb-2 flex items-center gap-1.5"><Timer className="w-4 h-4 shrink-0" /> STEM Clock Tracker</h5>
+                  <p className="text-xs text-violet-700 dark:text-violet-400 mb-2">
                     <strong>What:</strong> Tracks your separate 60-day unemployment limit during STEM OPT.
                   </p>
-                  <p className="text-xs text-purple-700 dark:text-purple-400">
+                  <p className="text-xs text-violet-700 dark:text-violet-400">
                     <strong>How:</strong> Enter STEM start date + employment → Track compliance.
                   </p>
                 </div>
@@ -723,7 +723,7 @@ export function HelpFeaturesTab() {
                 href="https://uscis.gov"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium shadow-card"
               >
                 <ExternalLink className="w-4 h-4" />
                 USCIS Official Site

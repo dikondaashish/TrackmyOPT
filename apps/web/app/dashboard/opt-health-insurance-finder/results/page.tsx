@@ -108,9 +108,9 @@ function ResultsContent() {
   };
 
   return (
-    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
       {/* Header */}
-      <div className="border-b border-slate-100 dark:border-border bg-white dark:bg-background sticky top-0 z-10">
+      <div className="border-b border-border bg-surface sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <button
             onClick={() => router.back()}
@@ -124,7 +124,7 @@ function ResultsContent() {
 
       {/* Title */}
       <div className="max-w-6xl mx-auto px-4 pt-6 pb-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">
           Your Recommended Plans
         </h1>
         <p className="text-slate-600 dark:text-muted-foreground mt-1 text-sm">
@@ -139,7 +139,7 @@ function ResultsContent() {
           {/* STATE ELIGIBILITY CARD - Always show first */}
           {showEligibleCard ? (
             /* Eligible State Plan Card (Under 19 or Pregnant) */
-            <div className="group relative overflow-hidden bg-emerald-50 dark:bg-emerald-900 rounded-xl border-2 border-emerald-200 dark:border-emerald-700 p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+            <div className="group relative overflow-hidden bg-emerald-50 dark:bg-emerald-900 rounded-xl border-2 border-emerald-200 dark:border-emerald-700 p-5 hover:shadow-elevated transition-all duration-300">
                 <div className="relative z-10">
                 <div className="absolute top-0 right-0">
                   <span className="bg-emerald-600 text-white text-xs font-medium px-2 py-0.5 rounded-md">
@@ -172,7 +172,7 @@ function ResultsContent() {
 
                 <button
                   onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : eligibility.stateConfig.programLink, eligibility.stateConfig.programName)}
-                  className="w-full mt-5 h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5"
+                  className="w-full mt-5 h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
                 >
                   Apply Now
                   <ExternalLink className="w-4 h-4" />
@@ -181,7 +181,7 @@ function ResultsContent() {
             </div>
           ) : showPossibleCard ? (
             /* Possibly Eligible Card */
-            <div className="group relative overflow-hidden bg-blue-50 dark:bg-blue-900 rounded-xl border-2 border-blue-200 dark:border-blue-700 p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+            <div className="group relative overflow-hidden bg-blue-50 dark:bg-blue-900 rounded-xl border-2 border-blue-200 dark:border-blue-700 p-5 hover:shadow-elevated transition-all duration-300">
 
               <div className="relative z-10">
                 <div className="absolute top-0 right-0">
@@ -279,7 +279,7 @@ function ResultsContent() {
           )}
 
           {/* ISO Card */}
-          <div className="group relative overflow-hidden bg-white dark:bg-rose-900 rounded-xl border border-slate-200 dark:border-rose-800 p-5 hover:shadow-xl hover:scale-[1.02] hover:border-[#8B1538]/50 dark:hover:border-rose-700 transition-all duration-300">
+          <div className="group relative overflow-hidden bg-white dark:bg-rose-900 rounded-xl border border-slate-200 dark:border-rose-800 p-5 hover:shadow-elevated hover:border-[#8B1538]/50 dark:hover:border-rose-700 transition-all duration-300 shadow-card">
             <div className="relative z-10">
               {/* ISO Logo */}
               <div className="mb-4 flex items-center">
@@ -326,7 +326,7 @@ function ResultsContent() {
 
               <button
                 onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt", "ISO")}
-                className="w-full mt-5 h-11 bg-[#8B1538] hover:bg-[#6d1029] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5"
+                className="w-full mt-5 h-11 bg-[#8B1538] hover:bg-[#6d1029] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
               >
                 View Plans
                 <ExternalLink className="w-4 h-4" />
@@ -335,7 +335,7 @@ function ResultsContent() {
           </div>
 
           {/* ISI Card */}
-          <div className="group relative overflow-hidden bg-white dark:bg-indigo-900 rounded-xl border border-slate-200 dark:border-indigo-800 p-5 hover:shadow-xl hover:scale-[1.02] hover:border-[#3D4F8F]/50 dark:hover:border-indigo-700 transition-all duration-300">
+          <div className="group relative overflow-hidden bg-white dark:bg-indigo-900 rounded-xl border border-slate-200 dark:border-indigo-800 p-5 hover:shadow-elevated hover:border-[#3D4F8F]/50 dark:hover:border-indigo-700 transition-all duration-300 shadow-card">
             <div className="relative z-10">
               {/* ISI Logo */}
               <div className="mb-4 flex items-center">
@@ -377,7 +377,7 @@ function ResultsContent() {
 
               <button
                 onClick={() => handleApply("https://www.internationalstudentinsurance.com/?Trackmyopt", "ISI")}
-                className="w-full mt-5 h-11 bg-[#3D4F8F] hover:bg-[#2d3a6b] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5"
+                className="w-full mt-5 h-11 bg-[#3D4F8F] hover:bg-[#2d3a6b] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
               >
                 View Plans
                 <ExternalLink className="w-4 h-4" />
@@ -386,7 +386,7 @@ function ResultsContent() {
           </div>
 
           {/* Kimber Health Card */}
-          <div className="group relative overflow-hidden bg-white dark:bg-cyan-900 rounded-xl border border-slate-200 dark:border-cyan-800 p-5 hover:shadow-xl hover:scale-[1.02] hover:border-cyan-400 dark:hover:border-cyan-700 transition-all duration-300">
+          <div className="group relative overflow-hidden bg-white dark:bg-cyan-900 rounded-xl border border-slate-200 dark:border-cyan-800 p-5 hover:shadow-elevated hover:border-cyan-400 dark:hover:border-cyan-700 transition-all duration-300 shadow-card">
             <div className="relative z-10">
               {/* Kimber Health Logo */}
               <div className="mb-4 flex items-center">
@@ -421,7 +421,7 @@ function ResultsContent() {
 
               <button
                 onClick={() => handleApply("https://www.kimberhealth.com/", "Kimber Health")}
-                className="w-full mt-5 h-11 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5"
+                className="w-full mt-5 h-11 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
               >
                 View Plans
                 <ExternalLink className="w-4 h-4" />
@@ -458,7 +458,7 @@ function ResultsContent() {
             <h4 className="font-semibold text-slate-900 dark:text-white">Instant ID Card</h4>
             <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Digital card after payment</p>
           </div>
-          <div className="bg-slate-50 dark:bg-purple-900 dark:border dark:border-purple-800 rounded-xl p-5">
+          <div className="bg-slate-50 dark:bg-violet-900 dark:border dark:border-violet-800 rounded-xl p-5">
             <h4 className="font-semibold text-slate-900 dark:text-white">No SSN Required</h4>
             <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Passport & visa docs accepted</p>
           </div>
@@ -504,7 +504,7 @@ function ResultsContent() {
           ].map((item, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden"
+              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden shadow-card"
             >
               <button
                 onClick={() => setExpandedInfo(expandedInfo === i ? null : i)}
@@ -531,7 +531,7 @@ function ResultsContent() {
         <h3 className="text-lg font-bold text-slate-900 dark:text-foreground mb-4 text-center">Our Trusted Partners</h3>
         <div className="grid sm:grid-cols-3 gap-4">
           {/* Kimber Health */}
-          <div className="bg-cyan-50 dark:bg-cyan-900 rounded-xl p-5 border border-cyan-100 dark:border-cyan-800 text-center hover:shadow-lg transition-all">
+          <div className="bg-cyan-50 dark:bg-cyan-900 rounded-xl p-5 border border-cyan-100 dark:border-cyan-800 text-center hover:shadow-elevated transition-all">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
@@ -546,7 +546,7 @@ function ResultsContent() {
           </div>
 
           {/* ISO */}
-          <div className="bg-rose-50 dark:bg-rose-900 rounded-xl p-5 border border-rose-100 dark:border-rose-800 text-center hover:shadow-lg transition-all">
+          <div className="bg-rose-50 dark:bg-rose-900 rounded-xl p-5 border border-rose-100 dark:border-rose-800 text-center hover:shadow-elevated transition-all">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/logo.svg"
@@ -561,7 +561,7 @@ function ResultsContent() {
           </div>
 
           {/* ISI */}
-          <div className="bg-indigo-50 dark:bg-indigo-900 rounded-xl p-5 border border-indigo-100 dark:border-indigo-800 text-center hover:shadow-lg transition-all">
+          <div className="bg-indigo-50 dark:bg-indigo-900 rounded-xl p-5 border border-indigo-100 dark:border-indigo-800 text-center hover:shadow-elevated transition-all">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/Logo-ISI.png"
@@ -580,7 +580,7 @@ function ResultsContent() {
       {/* Exit Modal */}
       {
         showExitModal && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-card rounded-xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ExternalLink className="w-6 h-6 text-blue-600" />

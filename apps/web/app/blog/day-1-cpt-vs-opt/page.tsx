@@ -46,14 +46,14 @@ export default function Day1CPTArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Day-1 CPT programs allow F-1 students to work from the first day of enrollment in a new program, while OPT is available after program completion. Day-1 CPT is legal but faces increased USCIS scrutiny, especially for students who enroll primarily for work authorization.
                 </p>
             </div>
 
-            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2"><AlertTriangle className="w-5 h-5" />Important Disclaimer</h2>
                 <p className="text-amber-800 dark:text-amber-200 font-medium">This article provides factual information about Day 1 CPT and OPT for educational purposes. <strong>Day 1 CPT is a legal gray area</strong> with significant immigration risks. Always consult a qualified immigration attorney before making decisions about work authorization.</p>
             </div>
@@ -61,12 +61,12 @@ export default function Day1CPTArticle() {
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Quick Comparison: Day 1 CPT vs OPT</h2>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Factor</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Day 1 CPT</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">OPT</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Factor</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Day 1 CPT</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">OPT</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -82,7 +82,7 @@ export default function Day1CPTArticle() {
                                     ["Effect on Future OPT", "12+ months FT CPT = NO OPT", "Does not affect CPT"],
                                     ["H-1B Impact", "May face extra scrutiny", "Standard pathway"],
                                 ].map(([factor, cpt, opt], i) => (
-                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{factor}</td><td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{cpt}</td><td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{opt}</td></tr>
+                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{factor}</td><td className="p-3 border border-border text-gray-700 dark:text-gray-300">{cpt}</td><td className="p-3 border border-border text-gray-700 dark:text-gray-300">{opt}</td></tr>
                                 ))}
                             </tbody>
                         </table>
@@ -98,7 +98,7 @@ export default function Day1CPTArticle() {
                             { label: "Common degrees", detail: "MBA, MS in Computer Science, MS in Information Technology, MS in Data Science at specific universities offering Day 1 CPT." },
                             { label: "School examples", detail: "Several smaller private universities offer Day 1 CPT programs. Popular ones include programs in the MBA and tech space." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{item.label}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p>
                             </div>
@@ -127,9 +127,9 @@ export default function Day1CPTArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">When OPT Is the Better Choice</h2>
                     <div className="space-y-2">
                         {["You want the standard, safest immigration pathway (OPT → STEM OPT → H-1B)", "You have a STEM degree and want 36 months of work authorization", "You plan to pursue long-term immigration (green card, O-1)", "You don't want additional tuition costs for a second masters program", "You want no extra scrutiny on future USCIS applications"].map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                                <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                <p className="text-sm text-green-800 dark:text-green-200">{item}</p>
+                            <div key={i} className="flex items-start gap-3 p-3 bg-emerald-50 dark:bg-emerald-950 rounded-lg">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                                <p className="text-sm text-emerald-800 dark:text-emerald-200">{item}</p>
                             </div>
                         ))}
                     </div>
@@ -143,7 +143,7 @@ export default function Day1CPTArticle() {
                             { question: "Does Day 1 CPT affect OPT eligibility?", answer: "Yes. If you use 12 or more months of full-time CPT from ANY program, you become INELIGIBLE for post-completion OPT. Part-time CPT does not count toward this limit." },
                             { question: "Can I do Day 1 CPT after OPT?", answer: "Yes, you can enroll in a new program with Day 1 CPT after your OPT ends. However, be aware of the cumulative CPT limit and its effect on any future OPT eligibility." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -152,7 +152,7 @@ export default function Day1CPTArticle() {
                 </section>
             </div>
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule</Link>
@@ -166,10 +166,10 @@ export default function Day1CPTArticle() {
             </div>
 
             <AuthorBio />
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Choosing OPT? Track Every Day That Matters</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT helps you manage OPT deadlines, unemployment days, and H-1B transition — all in one place.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT helps you manage OPT deadlines, unemployment days, and H-1B transition — all in one place.</p>
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
         </article>
     );

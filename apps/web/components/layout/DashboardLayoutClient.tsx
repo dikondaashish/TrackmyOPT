@@ -108,7 +108,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
     };
 
     return (
-        <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
+        <div className="h-screen overflow-hidden bg-surface">
             <PostHogIdentify />
             <ExtensionAnalyticsTracker />
             <DashboardViewTracker />
@@ -153,14 +153,13 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
                     "left-0"
                 )}
             >
-                {/* Outer Padding Container */}
-                <div className="h-full p-1 sm:p-4 overflow-hidden">
-                    {/* White Container - THIS IS THE SCROLLABLE AREA */}
-                    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm h-full overflow-x-hidden overflow-y-auto">
-                        {/* Inner Padding */}
-                        <div className="p-3 sm:p-6 min-w-0">
-                            {children}
-                        </div>
+                {/* App canvas — THIS IS THE SCROLLABLE AREA. Content sits directly
+                    on the tinted surface so white cards (bg-card + shadow-card)
+                    read as raised panels. */}
+                <div className="h-full overflow-x-hidden overflow-y-auto bg-surface">
+                    {/* Inner Padding */}
+                    <div className="min-w-0 p-3 sm:p-6 lg:px-8">
+                        {children}
                     </div>
                 </div>
             </main>

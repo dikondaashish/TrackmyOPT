@@ -21,21 +21,14 @@ interface FeatureCTAProps {
     badge?: string;
 }
 
-const gradients = {
-    blue: "bg-blue-600",
-    emerald: "bg-emerald-600",
-    purple: "bg-purple-600",
-    amber: "bg-amber-500",
-    cyan: "bg-cyan-500",
-};
-
-// Solid accents that sit on each background colour (icon tile, outline button).
+// The closing band is always deep ink; the accent colour only marks the
+// feature's meaning on the icon tile and trust icons.
 const accents = {
-    blue: { tile: "bg-blue-500", outline: "border-blue-400 hover:bg-blue-700" },
-    emerald: { tile: "bg-emerald-500", outline: "border-emerald-400 hover:bg-emerald-700" },
-    purple: { tile: "bg-purple-500", outline: "border-purple-400 hover:bg-purple-700" },
-    amber: { tile: "bg-amber-400", outline: "border-amber-300 hover:bg-amber-600" },
-    cyan: { tile: "bg-cyan-400", outline: "border-cyan-300 hover:bg-cyan-600" },
+    blue: { tile: "bg-blue-600 text-white", icon: "text-blue-300" },
+    emerald: { tile: "bg-emerald-600 text-white", icon: "text-emerald-300" },
+    purple: { tile: "bg-violet-600 text-white", icon: "text-violet-300" },
+    amber: { tile: "bg-amber-500 text-ink", icon: "text-amber-300" },
+    cyan: { tile: "bg-cyan-600 text-white", icon: "text-cyan-300" },
 };
 
 export function FeatureCTA({
@@ -48,10 +41,7 @@ export function FeatureCTA({
     badge,
 }: FeatureCTAProps) {
     return (
-        <section className="py-24 relative overflow-hidden">
-            {/* Background */}
-            <div className={`absolute inset-0 ${gradients[gradient]}`} />
-
+        <section className="relative overflow-hidden bg-ink py-24 text-ink-foreground">
             <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -61,7 +51,7 @@ export function FeatureCTA({
                 >
                     {/* Badge */}
                     {badge && (
-                        <p className="mb-4 text-sm font-medium text-white">
+                        <p className="mb-4 text-sm font-medium text-ink-muted">
                             {badge}
                         </p>
                     )}
@@ -76,12 +66,12 @@ export function FeatureCTA({
                     )}
 
                     {/* Headline */}
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ink-foreground mb-6 leading-tight">
                         {headline}
                     </h2>
 
                     {/* Subheadline */}
-                    <p className="text-lg sm:text-xl text-white mb-10 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg sm:text-xl text-ink-muted mb-10 max-w-2xl mx-auto leading-relaxed">
                         {subheadline}
                     </p>
 
@@ -89,7 +79,7 @@ export function FeatureCTA({
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Link
                             href={primaryCTA.href}
-                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                            className="inline-flex min-h-12 items-center justify-center px-8 py-3 text-base font-semibold bg-blue-600 text-white rounded-lg shadow-button hover:bg-blue-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
                         >
                             {primaryCTA.text}
                             <ArrowRight className="ml-2 w-5 h-5" />
@@ -98,7 +88,7 @@ export function FeatureCTA({
                         {secondaryCTA && (
                             <Link
                                 href={secondaryCTA.href}
-                                className={`inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white border-2 rounded-lg transition-colors ${accents[gradient].outline}`}
+                                className="inline-flex min-h-12 items-center justify-center px-8 py-3 text-base font-semibold text-ink-foreground border border-ink-border rounded-lg transition-colors hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
                             >
                                 {secondaryCTA.text}
                             </Link>
@@ -106,13 +96,13 @@ export function FeatureCTA({
                     </div>
 
                     {/* Trust indicators */}
-                    <div className="mt-10 flex items-center justify-center gap-6 text-white text-sm">
+                    <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-ink-muted text-sm">
                         <div className="flex items-center gap-2">
-                            <Shield className="w-4 h-4" />
+                            <Shield className={`w-4 h-4 ${accents[gradient].icon}`} />
                             <span>No credit card required</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
+                            <Clock className={`w-4 h-4 ${accents[gradient].icon}`} />
                             <span>Setup in 2 minutes</span>
                         </div>
                     </div>

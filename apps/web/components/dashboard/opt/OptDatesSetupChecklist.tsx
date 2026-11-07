@@ -72,7 +72,7 @@ export function OptDatesSetupChecklist({
   }
 
   return (
-    <section className="rounded-xl border border-blue-100 bg-card p-4 dark:border-blue-950 sm:p-5">
+    <section className="rounded-xl border border-blue-100 bg-card p-4 dark:border-blue-950 sm:p-5 shadow-card">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <div>

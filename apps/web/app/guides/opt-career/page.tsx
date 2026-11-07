@@ -59,7 +59,7 @@ const faqItems = [
 
 export default function OPTCareerPillarGuide() {
     return (
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <article>
             {/* Schema Markup */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
@@ -192,34 +192,41 @@ export default function OPTCareerPillarGuide() {
                 ]
             })}} />
 
+            <div className="border-b border-border bg-surface">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pt-12 sm:pb-14">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
+            <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Guides</Link><span>/</span>
-                <span className="text-gray-900 dark:text-white">F-1 Career Guide</span>
+                <span className="text-foreground">F-1 Career Guide</span>
             </nav>
 
             {/* Hero */}
-            <header className="mb-12">
+            <header>
                 <p className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Pillar Guide</span>
+                    <span className="font-medium text-primary">Pillar Guide</span>
                     <span aria-hidden>·</span>
                     <span>2026 Edition</span>
                     <span aria-hidden>·</span>
                     <span>35 min read</span>
                 </p>
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">
                     F-1 Career Guide 2026: From OPT Application to H-1B and Beyond
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-xl text-muted-foreground leading-relaxed">
                     The definitive career resource for F-1 international students. Everything you need to land a job, navigate sponsorship,
                     negotiate your worth, and build a long-term career in the United States.
                 </p>
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 12, 2026 • Written by Vinay Kumar</div>
             </header>
+                </div>
+            </div>
+
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway</h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
                     Over <strong>200,000 F-1 students</strong> apply for OPT each year, all competing for positions at companies willing to sponsor H-1B visas. Your career success depends on <strong>three things</strong>: starting early (6+ months before graduation), targeting the right employers (confirmed H-1B sponsors), and presenting yourself strategically (ATS-optimized resume, confident interview answers about work authorization).
@@ -227,7 +234,7 @@ export default function OPTCareerPillarGuide() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <div className="grid sm:grid-cols-2 gap-2">
                     {tocSections.map((s, i) => (
@@ -258,7 +265,7 @@ export default function OPTCareerPillarGuide() {
                             { stat: "~25%", label: "H-1B lottery selection rate", icon: Target },
                             { stat: "3-6 mo", label: "Recommended job search lead time", icon: Clock },
                         ].map((item, i) => (
-                            <div key={i} className="text-center p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border text-center p-4 rounded-xl border-border bg-card shadow-card">
                                 <item.icon className="w-6 h-6 text-blue-500 mx-auto mb-2" />
                                 <div className="text-2xl font-bold text-gray-900 dark:text-white">{item.stat}</div>
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.label}</div>
@@ -278,12 +285,12 @@ export default function OPTCareerPillarGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         Before you start job searching, you must understand the three main work authorization pathways available to F-1 students. Each has different eligibility requirements, durations, and employer obligations.
                     </p>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
+                                <tr className="bg-surface-strong">
                                     {["", "CPT", "OPT (Post-Completion)", "STEM OPT Extension"].map(h => (
-                                        <th key={h} className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">{h}</th>
+                                        <th key={h} className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -297,9 +304,9 @@ export default function OPTCareerPillarGuide() {
                                     ["Multiple Employers", "Yes, with DSO approval", "Yes", "Yes, with I-983 for each"],
                                 ].map(([label, ...cols], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{label}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{label}</td>
                                         {cols.map((c, j) => (
-                                            <td key={j} className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{c}</td>
+                                            <td key={j} className="p-3 border border-border text-gray-700 dark:text-gray-300">{c}</td>
                                         ))}
                                     </tr>
                                 ))}
@@ -337,14 +344,14 @@ export default function OPTCareerPillarGuide() {
                             ].map((item, i) => (
                                 <div key={i} className="flex items-start gap-2 text-sm">
                                     {item.do
-                                        ? <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                        ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         : <XCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />}
                                     <span className="text-gray-700 dark:text-gray-300">{item.text}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 mb-6">
+                    <div className="border rounded-xl border-border p-5 mb-6 bg-card shadow-card">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">The XYZ Bullet Formula</h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">Structure every bullet point as: <strong>Accomplished [X] as measured by [Y], by doing [Z]</strong></p>
                         <div className="space-y-2">
@@ -425,7 +432,7 @@ export default function OPTCareerPillarGuide() {
                                 ],
                             },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                                     <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-700 dark:text-blue-300 text-sm font-bold">{i + 1}</div>
                                     {item.phase}
@@ -433,7 +440,7 @@ export default function OPTCareerPillarGuide() {
                                 <ul className="space-y-1.5">
                                     {item.tips.map((tip, j) => (
                                         <li key={j} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />{tip}
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />{tip}
                                         </li>
                                     ))}
                                 </ul>
@@ -454,7 +461,7 @@ export default function OPTCareerPillarGuide() {
                         Not all employers sponsor H-1B visas, and among those who do, approval rates vary dramatically. Your job search must be data-driven. Here's how to find and evaluate potential sponsors.
                     </p>
                     <div className="space-y-4 mb-6">
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">How to Research H-1B Sponsors</h3>
                             <ul className="space-y-1.5">
                                 {[
@@ -465,7 +472,7 @@ export default function OPTCareerPillarGuide() {
                                     "MyVisaJobs.com — aggregates H-1B data with job listings and green card sponsor info",
                                 ].map((tip, i) => (
                                     <li key={i} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />{tip}
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />{tip}
                                     </li>
                                 ))}
                             </ul>
@@ -481,17 +488,17 @@ export default function OPTCareerPillarGuide() {
                             { industry: "Academia & Research", examples: "Universities, research labs, teaching hospitals", rate: "Cap-Exempt", approx: "No lottery required" },
                             { industry: "Manufacturing & Energy", examples: "Intel, GM, ExxonMobil, Caterpillar, Boeing", rate: "Moderate", approx: "~4% of filings" },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h4 className="font-semibold text-gray-900 dark:text-white">{item.industry}</h4>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.examples}</p>
                                 <div className="flex items-center gap-2 mt-2">
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300">Sponsorship: {item.rate}</span>
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Sponsorship: {item.rate}</span>
                                     <span className="text-xs text-gray-400">{item.approx}</span>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <div className="border rounded-xl p-4 border-primary-muted bg-primary-soft">
                         <p className="text-blue-800 dark:text-blue-200 text-sm flex items-start gap-2">
                             <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <span><strong>Pro tip:</strong> Cap-exempt employers (universities, nonprofit research organizations, government research labs) can sponsor H-1B visas year-round — no lottery required. If you're in STEM or research, this path bypasses lottery risk entirely.</span>
@@ -538,9 +545,9 @@ export default function OPTCareerPillarGuide() {
                                     note: "Shows you understand the timeline and have a path forward.",
                                 },
                             ].map((item, i) => (
-                                <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                                <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                     <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">{item.question}</p>
-                                    <p className="text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 rounded-lg p-3 mb-2">{item.answer}</p>
+                                    <p className="text-sm text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950 rounded-lg p-3 mb-2">{item.answer}</p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">{item.note}</p>
                                 </div>
                             ))}
@@ -568,12 +575,12 @@ export default function OPTCareerPillarGuide() {
                             { type: "Technical", tips: ["Practice on LeetCode/HackerRank (2+ months)", "Study system design for senior roles", "Prepare 2-3 project deep-dives with metrics", "Know your tech stack inside and out"] },
                             { type: "Behavioral", tips: ["Use STAR method (Situation, Task, Action, Result)", "Prepare 8-10 stories covering leadership, conflict, failure, teamwork", "Practice with mock interviews (Pramp, Interviewing.io)", "Research company values and weave them into answers"] },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{item.type} Preparation</h4>
                                 <ul className="space-y-1">
                                     {item.tips.map((t, j) => (
                                         <li key={j} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />{t}
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />{t}
                                         </li>
                                     ))}
                                 </ul>
@@ -609,7 +616,7 @@ export default function OPTCareerPillarGuide() {
                                 desc: "If base salary is firm, negotiate sign-on bonus, stock/RSUs, relocation assistance, start date flexibility, PTO, or professional development budget. Total compensation matters more than base.",
                             },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                     <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-xs font-bold">{i + 1}</div>
                                     {item.title}
@@ -685,7 +692,7 @@ export default function OPTCareerPillarGuide() {
                             { visa: "E-2: Treaty Investor", desc: "For nationals of treaty countries who invest a substantial amount in a US business. Does not lead directly to a green card but is renewable indefinitely.", fit: "Entrepreneurs from treaty countries with capital to invest" },
                             { visa: "TN: USMCA Professional", desc: "For Canadian and Mexican citizens in specific professional occupations. No cap, no lottery, renewable indefinitely. Much simpler process than H-1B.", fit: "Canadian/Mexican citizens in qualifying professions (engineers, accountants, scientists, etc.)" },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{item.visa}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2"><strong>Best for:</strong> {item.fit}</p>
@@ -719,12 +726,12 @@ export default function OPTCareerPillarGuide() {
                         ))}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Timeline Expectations by Country of Birth</h3>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
+                                <tr className="bg-surface-strong">
                                     {["Country of Birth", "EB-2 Wait", "EB-3 Wait", "EB-1 Wait"].map(h => (
-                                        <th key={h} className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">{h}</th>
+                                        <th key={h} className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -735,10 +742,10 @@ export default function OPTCareerPillarGuide() {
                                     ["All other countries", "Current (no wait)", "Current (no wait)", "Current (no wait)"],
                                 ].map(([country, eb2, eb3, eb1], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{country}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{eb2}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{eb3}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{eb1}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{country}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{eb2}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{eb3}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{eb1}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -770,7 +777,7 @@ export default function OPTCareerPillarGuide() {
                             { mistake: "Failing to file STEM OPT extension on time", fix: "File up to 90 days before your OPT expires. Missing the deadline means losing work authorization and potentially your status." },
                             { mistake: "Not consulting an immigration attorney for complex situations", fix: "Free advice online has limits. For multi-employer situations, status gaps, or alternative visas, invest in legal counsel." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex gap-3">
+                            <div key={i} className="border p-4 rounded-xl border-border flex gap-3 bg-card shadow-card">
                                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center text-red-600 dark:text-red-400 text-xs font-bold">{i + 1}</div>
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{item.mistake}</h3>
@@ -797,7 +804,7 @@ export default function OPTCareerPillarGuide() {
                             { name: "H-1B Sponsor Database", desc: "Search 25,000+ verified H-1B sponsors with approval rates, salary data, and fraud indicators.", href: "/features/sponsors", icon: Building2 },
                             { name: "OPT Unemployment Clock", desc: "Real-time countdown of your 90-day (OPT) or 150-day (STEM OPT) cumulative unemployment limit.", href: "/tools/opt-clock", icon: Clock },
                         ].map((tool, i) => (
-                            <Link key={i} href={tool.href} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors group block">
+                            <Link key={i} href={tool.href} className="border p-4 rounded-xl border-border hover:border-blue-300 dark:hover:border-blue-700 transition-colors group block bg-card shadow-card">
                                 <div className="flex items-center gap-2 mb-1">
                                     <tool.icon className="w-4 h-4 text-blue-500" />
                                     <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{tool.name}</h4>
@@ -816,7 +823,7 @@ export default function OPTCareerPillarGuide() {
                             { name: "USCIS H-1B Employer Data Hub", desc: "Official data on H-1B petitions filed and approved by employer", url: "https://www.uscis.gov/tools/reports-and-studies/h-1b-employer-data-hub" },
                             { name: "MyVisaJobs", desc: "H-1B and green card sponsor data with job listings", url: "https://www.myvisajobs.com" },
                         ].map((item, i) => (
-                            <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors block">
+                            <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" className="border p-3 rounded-xl border-border hover:border-blue-300 dark:hover:border-blue-700 transition-colors block bg-card shadow-card">
                                 <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{item.name}</h4>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.desc}</p>
                             </a>
@@ -834,7 +841,7 @@ export default function OPTCareerPillarGuide() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
                             </div>
@@ -844,7 +851,7 @@ export default function OPTCareerPillarGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/ats-resume-international-students-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ ATS Resume Guide for International Students</Link>
@@ -866,14 +873,14 @@ export default function OPTCareerPillarGuide() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Launch Your Career with TrackMyOPT</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">AI resume builder, H-1B sponsor database, job tracker, and unemployment clock — all the tools F-1 students need in one place.</p>
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">AI resume builder, H-1B sponsor database, job tracker, and unemployment clock — all the tools F-1 students need in one place.</p>
                 <div className="flex flex-wrap items-center justify-center gap-3">
-                    <Link href="/features/resume-ai" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                    <Link href="/features/resume-ai" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                         Build Your Resume <ArrowRight className="w-4 h-4" />
                     </Link>
-                    <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-400 transition-colors border border-blue-400">
+                    <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-400 transition-colors border border-blue-400 shadow-button">
                         Search H-1B Sponsors <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
@@ -909,6 +916,7 @@ export default function OPTCareerPillarGuide() {
                     })),
                 })
             }} />
+        </div>
         </article>
     );
 }

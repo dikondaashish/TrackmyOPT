@@ -133,9 +133,9 @@ export default function StemOptProcessingTime2026Page() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                     Use your USCIS receipt notice and account to identify the application and handling office. Select Form I-765 and the STEM OPT category in the official processing-times tool, then follow its case-inquiry instructions. We do not publish a fixed monthly average here: a general I-765 average, receipt prefix, or individual student report cannot establish when your case will finish.
                 </p>
-                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-zinc-800 mb-6">
+                <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-100 dark:bg-zinc-800">
+                        <thead className="bg-surface-strong">
                             <tr>
                                 <th className="p-3 text-left font-semibold text-gray-900 dark:text-white">Stage</th>
                                 <th className="p-3 text-left font-semibold text-gray-900 dark:text-white">What to Check</th>
@@ -171,7 +171,7 @@ export default function StemOptProcessingTime2026Page() {
             <section id="work-authorization" className="mb-12 scroll-mt-24">
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Initial OPT vs STEM OPT: Work Authorization While Waiting</h2>
                 <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                    <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-2">Initial Post-Completion OPT</h3>
                         <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 list-disc pl-4">
                             <li>Use the current USCIS estimate for your category</li>
@@ -226,7 +226,7 @@ export default function StemOptProcessingTime2026Page() {
                             detail: "Filing late can affect eligibility and continued work authorization. Prepare with your DSO early enough to address errors before your deadline.",
                         },
                     ].map((item) => (
-                        <div key={item.title} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                        <div key={item.title} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                             <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{item.title}</h3>
@@ -255,7 +255,7 @@ export default function StemOptProcessingTime2026Page() {
                         "Track the case and your separate work-authorization end date. Checking more often does not speed up USCIS review.",
                     ].map((tip) => (
                         <div key={tip} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-zinc-900">
-                            <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+                            <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
                             <p className="text-gray-700 dark:text-gray-300 text-sm">{tip}</p>
                         </div>
                     ))}
@@ -266,7 +266,7 @@ export default function StemOptProcessingTime2026Page() {
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                 <div className="space-y-4">
                     {FAQS.map((faq) => (
-                        <div key={faq.question} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div key={faq.question} className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                         </div>
@@ -288,7 +288,7 @@ export default function StemOptProcessingTime2026Page() {
                 <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Check the official estimate first, then compare community timelines with the free tool above. Choose STEM OPT in the tool and keep the estimate separate from your permission to work. General information; confirm your individual situation with your DSO or qualified counsel.</p>
             </section>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>

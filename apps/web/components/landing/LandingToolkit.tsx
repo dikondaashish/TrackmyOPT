@@ -2,7 +2,7 @@ import { HeartPulse, FileText, ArrowRight, Gift, Shield } from "lucide-react";
 
 export function LandingToolkit() {
     return (
-        <section className="py-24 bg-white dark:bg-black relative overflow-hidden">
+        <section className="py-24 bg-background relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="prose-longform mb-16 md:text-center max-w-3xl mx-auto">
                     <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
@@ -15,12 +15,12 @@ export function LandingToolkit() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Health Insurance Card */}
-                    <div className="prose-longform group relative overflow-hidden rounded-xl bg-gray-50 dark:bg-zinc-900 p-8">
+                    <div className="prose-longform group relative overflow-hidden surface-card p-8">
                         <div className="flex items-start justify-between mb-8">
-                            <div className="w-14 h-14 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center text-red-600 dark:text-red-400">
+                            <div className="w-14 h-14 rounded-lg bg-rose-50 dark:bg-rose-950 flex items-center justify-center text-rose-600 dark:text-rose-300">
                                 <HeartPulse className="w-8 h-8" />
                             </div>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Dashboard tool</span>
+                            <span className="rounded-md bg-surface-strong px-2 py-0.5 text-xs font-medium text-muted-foreground">Dashboard tool</span>
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                             Health Insurance Finder
@@ -34,12 +34,12 @@ export function LandingToolkit() {
                     </div>
 
                     {/* Tax Filing Card */}
-                    <div className="prose-longform group relative overflow-hidden rounded-xl bg-gray-50 dark:bg-zinc-900 p-8">
+                    <div className="prose-longform group relative overflow-hidden surface-card p-8">
                         <div className="flex items-start justify-between mb-8">
-                            <div className="w-14 h-14 rounded-lg bg-green-100 dark:bg-green-950 flex items-center justify-center text-green-600 dark:text-green-400">
+                            <div className="w-14 h-14 rounded-lg bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
                                 <FileText className="w-8 h-8" />
                             </div>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Dashboard tool</span>
+                            <span className="rounded-md bg-surface-strong px-2 py-0.5 text-xs font-medium text-muted-foreground">Dashboard tool</span>
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                             Tax Filing Assistant
@@ -53,12 +53,12 @@ export function LandingToolkit() {
                     </div>
 
                     {/* Partner Perks Card */}
-                    <div className="prose-longform group relative overflow-hidden rounded-xl bg-gray-50 dark:bg-zinc-900 p-8">
+                    <div className="prose-longform group relative overflow-hidden surface-card p-8">
                         <div className="flex items-start justify-between mb-8">
-                            <div className="w-14 h-14 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                            <div className="w-14 h-14 rounded-lg bg-amber-50 dark:bg-amber-950 flex items-center justify-center text-amber-600 dark:text-amber-300">
                                 <Gift className="w-8 h-8" />
                             </div>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Exclusive deals</span>
+                            <span className="rounded-md bg-surface-strong px-2 py-0.5 text-xs font-medium text-muted-foreground">Exclusive deals</span>
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                             Student Savers Club
@@ -72,12 +72,12 @@ export function LandingToolkit() {
                     </div>
 
                     {/* Document Vault Card (New 4th Card) */}
-                    <div className="prose-longform group relative overflow-hidden rounded-xl bg-gray-50 dark:bg-zinc-900 p-8">
+                    <div className="prose-longform group relative overflow-hidden surface-card p-8">
                         <div className="flex items-start justify-between mb-8">
-                            <div className="w-14 h-14 rounded-lg bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                            <div className="w-14 h-14 rounded-lg bg-violet-50 dark:bg-violet-950 flex items-center justify-center text-violet-600 dark:text-violet-300">
                                 <Shield className="w-8 h-8" />
                             </div>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Compliance tool</span>
+                            <span className="rounded-md bg-surface-strong px-2 py-0.5 text-xs font-medium text-muted-foreground">Compliance tool</span>
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                             Smart Document Vault

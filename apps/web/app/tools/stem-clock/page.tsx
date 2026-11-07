@@ -118,28 +118,30 @@ export default function StemClockPage() {
         title="STEM OPT Unemployment Calculator"
         description="Record STEM extension employment dates and use this planning tool to monitor the unemployment time that may apply to your F-1 status."
       >
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Understand the combined limit
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             STEM OPT adds up to 60 days of unemployment time. Across regular OPT
             and the STEM extension, the combined unemployment limit is 150 days.
             Keep your initial OPT history in mind when planning.
           </p>
         </div>
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Keep your records current
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Track employment changes promptly and retain supporting information.
             Your DSO is the right source for how a particular role, start date,
             or reporting update affects your SEVIS record and STEM OPT status.
           </p>
         </div>
       </PublicOptToolPageIntro>
-      <StemClockTool />
+      <div className="bg-surface pb-12 pt-3">
+        <StemClockTool />
+      </div>
     </>
   );
 }

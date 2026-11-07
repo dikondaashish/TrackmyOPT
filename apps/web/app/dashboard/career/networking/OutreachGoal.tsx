@@ -58,7 +58,7 @@ export function OutreachGoal({
         rows={3}
         maxLength={1000}
         placeholder="Choose a goal above or write your own…"
-        className="w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-base sm:text-sm text-slate-950 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400"
+        className="w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-base sm:text-sm text-slate-950 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 shadow-card"
       />
     </div>
   );

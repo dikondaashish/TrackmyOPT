@@ -64,7 +64,7 @@ export function AddColumnModal({ isOpen, onClose }: AddColumnModalProps) {
                     <div className="space-y-2">
                         <Label>Color Code</Label>
                         <div className="flex gap-2">
-                            {['bg-blue-100', 'bg-purple-100', 'bg-pink-100', 'bg-orange-100', 'bg-emerald-100', 'bg-indigo-100'].map(c => (
+                            {['bg-blue-100', 'bg-violet-100', 'bg-pink-100', 'bg-orange-100', 'bg-emerald-100', 'bg-indigo-100'].map(c => (
                                 <button
                                     type="button"
                                     key={c}

@@ -86,7 +86,7 @@ export default function OPTProcessingTimeArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last reviewed: October 10, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>OPT processing time varies by case and workload.</strong> Check the current estimate for your I-765 category on the{" "}
@@ -124,13 +124,13 @@ export default function OPTProcessingTimeArticle() {
                     </p>
 
                     {/* Timeline */}
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Stage</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Timeline</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Notes</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Stage</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Timeline</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Notes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,9 +142,9 @@ export default function OPTProcessingTimeArticle() {
                                     ["EAD production and delivery", "Separate from adjudication", "Check the card status, mailing address, and USPS tracking when available"],
                                 ].map(([stage, time, note], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">{stage}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{time}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400 text-xs">{note}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">{stage}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{time}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400 text-xs">{note}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -171,8 +171,8 @@ export default function OPTProcessingTimeArticle() {
                             { title: "Use Correct Photos", detail: "Follow the photo requirements for your filing method and verify that every uploaded document is readable." },
                             { title: "Track Your Case", detail: "Keep your USCIS notices and receipt number together. TrackMyOPT offers manual status refreshes; Pro adds daily automatic checks." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
-                                <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white">{item.title}</h3>
                                     <p className="text-sm text-gray-600 dark:text-gray-400">{item.detail}</p>
@@ -196,7 +196,7 @@ export default function OPTProcessingTimeArticle() {
                             { title: "Prepare for STEM OPT", desc: "If eligible, start researching E-Verify employers and the I-983 form early." },
                             { title: "Monitor your case", desc: "Check your case-inquiry eligibility in the USCIS tool. Premium processing and discretionary expedite requests are separate processes." },
                         ].map((item) => (
-                            <div key={item.title} className="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.title} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
                             </div>
@@ -216,7 +216,7 @@ export default function OPTProcessingTimeArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {OPT_PROCESSING_FAQS.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -239,7 +239,7 @@ export default function OPTProcessingTimeArticle() {
             </section>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
@@ -257,7 +257,7 @@ export default function OPTProcessingTimeArticle() {
 
             
             {/* Internal Linking for SEO */}
-            <div className="my-12 p-8 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-950">
+            <div className="my-12 p-8 rounded-xl border dark:border-blue-950 border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Guides & Resources</h3>
                 <ul className="space-y-4 list-disc pl-5">
                     <li><Link href="/blog/form-i765-ead-application-guide" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">Form I-765: The Complete EAD Application Guide</Link></li>

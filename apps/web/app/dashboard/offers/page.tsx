@@ -34,19 +34,19 @@ export default function OffersPage() {
     };
 
     return (
-        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-background">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
 
             {/* Hero Section */}
             <div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
                     <div className="text-center">
-                        <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+                        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-3">
                             Special Offers
                         </h1>
 
-                        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
                             Use your college email to save up to{" "}
-                            <strong className="tabular-nums text-green-600 dark:text-green-400">{savingsLabel}</strong> across{" "}
+                            <strong className="tabular-nums text-emerald-700 dark:text-emerald-300">{savingsLabel}</strong> across{" "}
                             {catalogSavings.dealCount} deals for international students and OPT workers.
                         </p>
                     </div>
@@ -69,7 +69,7 @@ export default function OffersPage() {
                             href={offer.link}
                             target={offer.link.startsWith("http") ? "_blank" : "_self"}
                             rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                            className="group relative overflow-hidden rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 hover:scale-[1.02]"
+                            className="group relative overflow-hidden rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-elevated hover:border-violet-300 dark:hover:border-violet-700 transition-all duration-300 shadow-card"
                         >
                             {/* Content */}
                             <div className="flex items-start gap-4">
@@ -82,7 +82,7 @@ export default function OffersPage() {
                                         </span>
                                     </div>
 
-                                    <h3 className="text-lg font-bold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                    <h3 className="text-lg font-bold text-foreground group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                                         {offer.title}
                                     </h3>
 
@@ -91,11 +91,11 @@ export default function OffersPage() {
                                     </p>
 
                                     <div className="flex items-center justify-between mt-4">
-                                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                        <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
                                             {offer.discount}
                                         </span>
 
-                                        <span className="inline-flex items-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400 group-hover:gap-2 transition-all">
+                                        <span className="inline-flex items-center gap-1 text-sm font-medium text-violet-600 dark:text-violet-400 group-hover:gap-2 transition-all">
                                             Claim Offer
                                             <ExternalLink className="w-4 h-4" />
                                         </span>
@@ -117,7 +117,7 @@ export default function OffersPage() {
                         <button
                             key={deal.id}
                             onClick={() => setSelectedFuelDeal(deal)}
-                            className="group relative overflow-hidden rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-700 p-6 hover:shadow-2xl hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300 hover:scale-[1.02] text-left"
+                            className="group relative overflow-hidden rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-700 p-6 hover:shadow-elevated hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300 text-left"
                         >
                             {/* Content */}
                             <div className="flex items-start gap-4">
@@ -143,7 +143,7 @@ export default function OffersPage() {
 
                                     <div className="flex items-center justify-between mt-4">
                                         <div className="flex flex-col">
-                                            <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                            <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
                                                 {deal.discount}
                                             </span>
                                             {deal.maxSavings && (
@@ -194,7 +194,7 @@ export default function OffersPage() {
                                         href={offer.link}
                                         target={offer.link.startsWith("http") ? "_blank" : "_self"}
                                         rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                                        className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200 hover:scale-[1.02]"
+                                        className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-elevated hover:border-violet-300 dark:hover:border-violet-700 transition-all duration-200 shadow-card"
                                     >
                                         <div className="flex items-start gap-3">
                                             <OfferBrandLogo name={offer.title} domain={offer.logoDomain} />
@@ -203,7 +203,7 @@ export default function OffersPage() {
                                                 <span className="text-xs font-medium text-muted-foreground">
                                                     {offer.category} · {offer.badge}
                                                 </span>
-                                                <h3 className="font-semibold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                                <h3 className="font-semibold text-foreground group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                                                     {offer.title}
                                                 </h3>
                                             </div>
@@ -214,11 +214,11 @@ export default function OffersPage() {
                                         </p>
 
                                         <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                                            <span className="text-base font-bold text-green-600 dark:text-green-400">
+                                            <span className="text-base font-bold text-emerald-700 dark:text-emerald-300">
                                                 {offer.discount}
                                             </span>
 
-                                            <span className="inline-flex items-center gap-1 text-xs font-medium text-purple-600 dark:text-purple-400">
+                                            <span className="inline-flex items-center gap-1 text-xs font-medium text-violet-600 dark:text-violet-400">
                                                 Claim Offer
                                                 <ExternalLink className="w-3 h-3" />
                                             </span>
@@ -240,7 +240,7 @@ export default function OffersPage() {
                             href={offer.link}
                             target={offer.link.startsWith("http") ? "_blank" : "_self"}
                             rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                            className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200 hover:scale-[1.02]"
+                            className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-elevated hover:border-violet-300 dark:hover:border-violet-700 transition-all duration-200 shadow-card"
                         >
                             <div className="flex items-start gap-3">
                                 <OfferBrandLogo name={offer.title} domain={offer.logoDomain} />
@@ -249,7 +249,7 @@ export default function OffersPage() {
                                     <span className="text-xs font-medium text-muted-foreground">
                                         {offer.category} · {offer.badge}
                                     </span>
-                                    <h3 className="font-semibold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                    <h3 className="font-semibold text-foreground group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                                         {offer.title}
                                     </h3>
                                 </div>
@@ -260,11 +260,11 @@ export default function OffersPage() {
                             </p>
 
                             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                                <span className="text-base font-bold text-green-600 dark:text-green-400">
+                                <span className="text-base font-bold text-emerald-700 dark:text-emerald-300">
                                     {offer.discount}
                                 </span>
 
-                                <span className="inline-flex items-center gap-1 text-xs font-medium text-purple-600 dark:text-purple-400">
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-violet-600 dark:text-violet-400">
                                     View
                                     <ExternalLink className="w-3 h-3" />
                                 </span>
@@ -276,7 +276,7 @@ export default function OffersPage() {
 
             {/* CTA Section */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="rounded-xl bg-purple-600 p-8 sm:p-12">
+                <div className="rounded-xl bg-violet-600 p-8 sm:p-12">
                     <div className="text-center">
                         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
                             Don't Miss Out!
@@ -285,7 +285,7 @@ export default function OffersPage() {
                             These exclusive offers are available for a limited time. Take advantage of our partner deals today.
                         </p>
 
-                        <div className="flex items-center justify-center gap-2 text-purple-100 text-sm">
+                        <div className="flex items-center justify-center gap-2 text-violet-100 text-sm">
                             <Clock className="w-4 h-4" />
                             <span>Offers updated regularly</span>
                         </div>

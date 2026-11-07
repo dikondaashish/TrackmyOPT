@@ -37,9 +37,9 @@ export function JobStageColumn({
     return (
         <div className="flex flex-col h-full min-w-[85vw] w-[85vw] md:min-w-[320px] md:w-[320px] snap-start">
             {/* Clean Header */}
-            <div className="flex items-center justify-between p-4 rounded-t-xl bg-slate-50 dark:bg-slate-900 border border-b-0 border-slate-200 dark:border-slate-800 group">
+            <div className="flex items-center justify-between px-4 py-3 rounded-t-xl bg-surface-strong border border-b-0 border-border group">
                 <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-slate-700 dark:text-slate-200 text-[15px]">
+                    <h3 className="font-semibold text-foreground text-sm">
                         {column.title}
                     </h3>
                     {onDelete && (
@@ -53,7 +53,7 @@ export function JobStageColumn({
                         </button>
                     )}
                 </div>
-                <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium px-2 py-0.5 rounded-md">
+                <span className="bg-card border border-border text-muted-foreground text-xs font-medium px-2 py-0.5 rounded-md">
                     {applications.length} Job{applications.length !== 1 ? 's' : ''}
                 </span>
             </div>
@@ -63,11 +63,11 @@ export function JobStageColumn({
                 ref={setNodeRef}
                 className={cn(
                     "flex-1 p-3 rounded-b-xl transition-all duration-200 overflow-y-auto scrollbar-thin",
-                    "bg-dot-pattern bg-slate-50 dark:bg-slate-900", // Light dot background
-                    "border border-slate-200 dark:border-slate-800",
+                    "bg-surface-strong", // Lane background: white cards read as raised
+                    "border border-t-0 border-border",
                     "min-h-[75vh] max-h-[calc(100vh-190px)]",
                     // Drop target highlight
-                    isOver && "ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-950"
+                    isOver && "ring-2 ring-primary bg-primary-soft"
                 )}
             >
                 <SortableContext items={applications.map(a => a.id)} strategy={verticalListSortingStrategy}>

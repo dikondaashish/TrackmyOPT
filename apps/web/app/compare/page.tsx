@@ -309,11 +309,11 @@ type IconType = 'check' | 'x';
 function CellIcon({ type }: { type: IconType }) {
   if (type === 'check') {
     return (
-      <CheckCircle2 className="inline-block w-4 h-4 text-emerald-500 dark:text-emerald-400 mr-1.5 flex-shrink-0" />
+      <CheckCircle2 className="inline-block w-4 h-4 text-emerald-600 dark:text-emerald-400 mr-1.5 flex-shrink-0" />
     );
   }
   return (
-    <XCircle className="inline-block w-4 h-4 text-red-500 dark:text-red-400 mr-1.5 flex-shrink-0" />
+    <XCircle className="inline-block w-4 h-4 text-red-600 dark:text-red-400 mr-1.5 flex-shrink-0" />
   );
 }
 
@@ -348,29 +348,29 @@ function ComparisonTable({
     <section id={id} className="scroll-mt-24">
       <div className="mb-6">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
             {title}
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">{description}</p>
+          <p className="text-muted-foreground mt-1">{description}</p>
         </div>
       </div>
 
       <details
-        className="group rounded-xl border border-gray-200 dark:border-gray-700"
+        className="group surface-card overflow-hidden"
         open={id === 'opt-vs-cpt'}
       >
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 px-5 py-3 text-sm font-semibold text-blue-700 marker:content-none dark:text-blue-300">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 px-5 py-3 text-sm font-semibold text-blue-700 marker:content-none transition-colors hover:bg-muted dark:text-blue-300">
           View full comparison
           <ChevronDown
             className="h-4 w-4 transition-transform group-open:rotate-180"
             aria-hidden="true"
           />
         </summary>
-        <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-700">
+        <div className="overflow-x-auto border-t border-border">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-800">
-                <th className="text-left px-5 py-4 font-semibold text-gray-700 dark:text-gray-300 w-[200px]">
+              <tr className="border-b border-border bg-surface">
+                <th className="text-left px-5 py-4 font-semibold text-foreground w-[200px]">
                   Feature
                 </th>
                 <th
@@ -391,11 +391,11 @@ function ComparisonTable({
                   key={row.feature}
                   className={
                     i % 2 === 0
-                      ? 'bg-white dark:bg-zinc-950'
-                      : 'bg-gray-50 dark:bg-gray-900'
+                      ? 'border-b border-border bg-card last:border-b-0'
+                      : 'border-b border-border bg-surface last:border-b-0'
                   }
                 >
-                  <td className="px-5 py-4 font-medium text-gray-900 dark:text-white align-top">
+                  <td className="px-5 py-4 font-medium text-foreground align-top">
                     {row.feature}
                   </td>
                   <td className="px-5 py-4 text-gray-700 dark:text-gray-300 align-top">
@@ -542,19 +542,19 @@ export default function ComparePage() {
         }}
       />
 
-      <section className="py-16 sm:py-20">
+      <section className="border-b border-border bg-surface py-16 sm:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
               OPT vs CPT vs H-1B — Comparison Tables
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Detailed, side-by-side comparison tables for the immigration
               statuses and tax rules that matter most to F-1 international
               students in the United States.
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
+            <p className="text-sm text-muted-foreground mt-4">
               Last updated: February 2026
             </p>
           </div>
@@ -562,21 +562,25 @@ export default function ComparePage() {
           {/* Jump links */}
           <nav
             aria-label="Jump to comparison table"
-            className="flex flex-wrap items-center justify-center gap-2 mb-16"
+            className="flex flex-wrap items-center justify-center gap-2"
           >
             {jumpLinks.map((link) => (
               <a
                 key={link.id}
                 href={`#${link.id}`}
-                className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-border bg-card text-foreground shadow-card hover:border-primary-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {link.label}
               </a>
             ))}
           </nav>
+        </div>
+      </section>
 
+      <section className="bg-background py-16 sm:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Tables */}
-          <div className="space-y-20">
+          <div className="space-y-16 sm:space-y-20">
             <ComparisonTable
               id="opt-vs-cpt"
               title="OPT vs CPT Comparison"
@@ -595,7 +599,7 @@ export default function ComparePage() {
               col1Header="Regular OPT (12 Months)"
               col2Header="STEM OPT Extension (+24 Months)"
               rows={regularVsStemRows}
-              col1Color="text-purple-700 dark:text-purple-400"
+              col1Color="text-violet-700 dark:text-violet-400"
               col2Color="text-cyan-700 dark:text-cyan-400"
             />
 
@@ -607,7 +611,7 @@ export default function ComparePage() {
               col2Header="H-1B (Specialty Occupation)"
               rows={optVsH1bRows}
               col1Color="text-amber-700 dark:text-amber-400"
-              col2Color="text-rose-700 dark:text-rose-400"
+              col2Color="text-violet-700 dark:text-violet-400"
             />
 
             <ComparisonTable
@@ -618,16 +622,16 @@ export default function ComparePage() {
               col2Header="Resident Alien (RA)"
               rows={taxComparisonRows}
               col1Color="text-emerald-700 dark:text-emerald-400"
-              col2Color="text-indigo-700 dark:text-indigo-400"
+              col2Color="text-blue-700 dark:text-blue-400"
             />
           </div>
 
           {/* Key Takeaways */}
-          <div className="mt-20 bg-gray-50 dark:bg-gray-800 rounded-xl p-8 sm:p-10">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <div className="mt-20 rounded-xl border border-primary-muted bg-primary-soft p-8 sm:p-10">
+            <h2 className="text-2xl font-bold text-foreground mb-6">
               Key Takeaways
             </h2>
-            <ul className="list-disc pl-5 space-y-3 text-gray-700 dark:text-gray-300">
+            <ul className="list-disc pl-5 space-y-3 text-gray-700 marker:text-primary dark:text-gray-300">
               <li>
                 <span>
                   <strong>CPT is authorized by your school;</strong> OPT
@@ -660,9 +664,14 @@ export default function ComparePage() {
             </ul>
           </div>
 
+        </div>
+      </section>
+
+      <section className="border-y border-border bg-surface py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Related Resources */}
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground mb-6">
               Related Resources
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -670,14 +679,14 @@ export default function ComparePage() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-600 transition-all group"
+                  className="surface-card-interactive flex items-center gap-3 p-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500 flex-shrink-0 transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary flex-shrink-0 transition-colors" />
                   <div className="min-w-0">
-                    <span className="text-gray-800 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors block truncate">
+                    <span className="text-foreground font-medium group-hover:text-primary transition-colors block truncate">
                       {link.label}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       {link.category}
                     </span>
                   </div>
@@ -686,26 +695,31 @@ export default function ComparePage() {
             </div>
           </div>
 
+        </div>
+      </section>
+
+      <section className="bg-ink py-16 sm:py-20 text-ink-foreground">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* CTA */}
-          <div className="mt-20 text-center bg-blue-50 dark:bg-blue-950 rounded-xl p-10">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-ink-foreground mb-4">
               Track Your OPT Timeline for Free
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-lg mx-auto">
+            <p className="text-ink-muted mb-8 max-w-lg mx-auto">
               Never miss an unemployment day, reporting deadline, or STEM OPT
               milestone. TrackMyOPT keeps you compliant automatically.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                className="inline-flex min-h-11 items-center gap-2 px-8 py-2.5 bg-blue-600 text-white rounded-lg font-semibold shadow-button hover:bg-blue-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
               >
                 Get Started Free
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/glossary"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:border-blue-300 transition-colors"
+                className="inline-flex min-h-11 items-center gap-2 px-6 py-2.5 border border-ink-border rounded-lg font-semibold text-ink-foreground hover:bg-white hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
               >
                 <BookOpen className="w-4 h-4" />
                 Browse Glossary

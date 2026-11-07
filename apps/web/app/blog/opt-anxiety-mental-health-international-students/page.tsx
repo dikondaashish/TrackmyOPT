@@ -38,7 +38,7 @@ export default function OPTAnxietyPage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/opt-anxiety-mental-health-international-students.jpg" alt="A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -65,7 +65,7 @@ export default function OPTAnxietyPage() {
                     <li><strong>Can Control:</strong> Your daily networking outreach, upskilling, your resume quality, and your backup plans (O-1, Canada PR, L-1).</li>
                 </ul>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Automate the Anxiety Away</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">Constantly checking SEVP and manually calculating your unemployment days feeds anxiety. <strong>TrackMyOPT</strong> automates this. We track your days, remind you of deadlines, and store your documents securely, so you can stop obsessing over compliance and focus on your well-being.</p>
                 </div>
@@ -78,31 +78,31 @@ export default function OPTAnxietyPage() {
                     <li><strong>Crisis Text Line:</strong> Text HOME to 741741 to connect with a crisis counselor 24/7 (free and confidential in the US).</li>
                 </ul>
 
-                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-950 p-6 rounded-xl my-8">
+                <div className="border dark:border-blue-950 p-6 rounded-xl my-8 border-primary-muted bg-primary-soft">
                     <h4 className="font-bold text-blue-900 dark:text-blue-400 mt-0 mb-2">You Are Not Alone</h4>
                     <p className="text-blue-800 dark:text-blue-200 text-sm mb-0">Every single international student working in the US has felt this exact same anxiety. Reach out to F-1 alumni from your university. Build a community of people who understand what the H-1B struggle actually feels like.</p>
                 </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Regain Control of Your OPT</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Don't let compliance anxiety rule your life. TrackMyOPT provides the exact calculations and automated reminders you need to sleep soundly at night.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/60-day-grace-period-f1-students" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Understanding the 60-Day Grace Period</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Even if you run out of unemployment days, you still have a 60-day grace period to make a plan.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/h1b-alternatives-work-visas" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">H-1B Visa Alternatives</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Having a solid backup plan is the best way to reduce anxiety. Explore O-1, L-1, and Canada options.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

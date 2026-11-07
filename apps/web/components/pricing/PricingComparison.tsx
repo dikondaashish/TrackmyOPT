@@ -18,44 +18,44 @@ const proAtsScanLabel = `${PRO_ATS_SCAN_LIMIT_DISPLAY.toLocaleString("en-US")}/m
 export function PricingComparison() {
     const showDedicated = shouldShowDedicatedPlanForSale();
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900">
+        <section className="py-24 bg-background">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
                         Free vs Pro — Side by Side
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                         {showDedicated
                             ? `See what Pro adds. Dedicated includes everything below, higher career-tool capacity, priority support, and a complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation.`
                             : "See what Pro adds: daily USCIS auto-checks, status-change alerts, and higher career tool limits."}
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-x-auto">
+                <div className="surface-card overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="bg-gray-50 dark:bg-zinc-800">
+                            <tr className="bg-surface border-b border-border">
                                 <th
                                     scope="col"
-                                    className="text-left px-6 py-4 font-semibold text-gray-900 dark:text-white"
+                                    className="text-left px-6 py-4 font-semibold text-foreground"
                                 >
                                     Feature
                                 </th>
                                 <th
                                     scope="col"
-                                    className="text-center px-6 py-4 font-semibold text-gray-500 dark:text-gray-400"
+                                    className="text-center px-6 py-4 font-semibold text-muted-foreground"
                                 >
                                     Free
                                 </th>
                                 <th
                                     scope="col"
-                                    className="text-center px-6 py-4"
+                                    className="text-center px-6 py-4 bg-primary-soft border-t-[3px] border-t-primary"
                                 >
                                     <div className="inline-flex flex-col items-center">
-                                        <span className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                        <span className="mb-1 text-xs font-medium text-primary">
                                             Most popular
                                         </span>
-                                        <span className="font-semibold text-violet-600 dark:text-violet-400">
+                                        <span className="font-semibold text-foreground">
                                             Pro
                                         </span>
                                     </div>
@@ -78,27 +78,27 @@ export function PricingComparison() {
                             ].map((row, i) => (
                                 <tr
                                     key={i}
-                                    className="border-t border-gray-100 dark:border-zinc-800"
+                                    className="border-t border-border"
                                 >
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                                    <td className="px-6 py-4 text-sm font-medium text-foreground">
                                         {row.feature}
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         {row.free === false ? (
                                             <X className="w-5 h-5 text-gray-300 dark:text-zinc-600 mx-auto" />
                                         ) : row.free === true ? (
-                                            <Check className="w-5 h-5 text-green-500 mx-auto" />
+                                            <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mx-auto" />
                                         ) : (
-                                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            <span className="text-sm text-muted-foreground">
                                                 {row.free}
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 text-center bg-violet-50 dark:bg-violet-950">
+                                    <td className="px-6 py-4 text-center bg-primary-soft">
                                         {row.pro === true ? (
-                                            <Check className="w-5 h-5 text-violet-600 mx-auto" />
+                                            <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mx-auto" />
                                         ) : (
-                                            <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                                            <span className="text-sm font-medium text-foreground">
                                                 {row.pro}
                                             </span>
                                         )}
@@ -110,24 +110,24 @@ export function PricingComparison() {
                 </div>
 
                 {showDedicated ? (
-                <div className="mt-8 rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 p-6">
+                <div className="mt-8 rounded-xl border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 p-6 dark:border-amber-900 dark:border-l-amber-500 dark:bg-amber-950">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900">
                                 <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-gray-900 dark:text-white">
+                                <h3 className="font-semibold text-foreground">
                                     Need attorney access and priority support?
                                 </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
                                     Dedicated includes everything in Pro plus higher career-tool limits, priority email support, and one complimentary {DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation per account.
                                 </p>
                             </div>
                         </div>
                         <Link
                             href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Ddedicated%26interval%3Dyear"
-                            className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold transition-colors shrink-0"
+                            className="inline-flex min-h-11 items-center justify-center gap-2 px-5 py-2.5 shrink-0 border border-border bg-background text-foreground shadow-card hover:bg-muted rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                             View Dedicated
                             <ArrowRight className="w-4 h-4" />
@@ -143,12 +143,12 @@ export function PricingComparison() {
                 <div className="text-center mt-8">
                     <Link
                         href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear"
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors"
+                        className="inline-flex min-h-12 items-center gap-2 px-8 py-3 bg-primary text-primary-foreground shadow-button hover:bg-primary-hover rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                         Get Pro
                         <ArrowRight className="w-4 h-4" />
                     </Link>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+                    <p className="text-sm text-muted-foreground mt-3">
                         Eligible accounts pay ${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first {PRO_TRIAL_DAYS} days, then regular billing. Cancel anytime in Settings.
                     </p>
                 </div>

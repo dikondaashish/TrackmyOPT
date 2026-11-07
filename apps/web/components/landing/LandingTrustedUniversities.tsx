@@ -65,7 +65,7 @@ export function LandingTrustedUniversities() {
     );
 
     return (
-        <div className="w-full py-12 border-y border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden mb-12">
+        <div className="w-full py-12 border-b border-border bg-background overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center">
                 <p className="text-sm font-semibold text-muted-foreground">
                     Trusted by students from top universities and companies

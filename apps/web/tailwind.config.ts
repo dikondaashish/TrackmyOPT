@@ -27,6 +27,16 @@ const config: Config = {
           muted: 'hsl(var(--primary-muted))',
           hover: 'hsl(var(--primary-hover))',
         },
+        surface: {
+          DEFAULT: 'hsl(var(--surface))',
+          strong: 'hsl(var(--surface-strong))',
+        },
+        ink: {
+          DEFAULT: 'hsl(var(--ink))',
+          foreground: 'hsl(var(--ink-foreground))',
+          muted: 'hsl(var(--ink-muted))',
+          border: 'hsl(var(--ink-border))',
+        },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
@@ -58,6 +68,11 @@ const config: Config = {
           accent: 'hsl(var(--sidebar-accent))',
           'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
         },
+      },
+      boxShadow: {
+        card: '0 1px 2px 0 hsl(var(--shadow-color) / 0.05), 0 1px 3px 0 hsl(var(--shadow-color) / 0.06)',
+        elevated: '0 2px 4px -1px hsl(var(--shadow-color) / 0.06), 0 12px 24px -8px hsl(var(--shadow-color) / 0.14)',
+        button: '0 1px 2px 0 hsl(var(--shadow-color) / 0.12), inset 0 1px 0 0 hsl(0 0% 100% / 0.12)',
       },
       animation: {
         aurora: "aurora 60s linear infinite",

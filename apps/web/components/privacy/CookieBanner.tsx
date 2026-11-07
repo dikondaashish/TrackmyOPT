@@ -12,10 +12,10 @@ import {
 const BANNER_DELAY_MS = 1500;
 
 const choiceButton =
-  'min-h-11 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900';
+  'min-h-11 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-card';
 // Accept and Reject share one style so neither choice is visually favored.
-const primaryChoice = `${choiceButton} bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500`;
-const secondaryChoice = `${choiceButton} border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 focus-visible:ring-gray-400 dark:border-zinc-600 dark:bg-zinc-900 dark:text-gray-100 dark:hover:bg-zinc-800`;
+const primaryChoice = `${choiceButton} bg-primary text-primary-foreground shadow-button hover:bg-primary-hover focus-visible:ring-ring`;
+const secondaryChoice = `${choiceButton} border border-input bg-background text-foreground shadow-card hover:bg-muted focus-visible:ring-ring`;
 
 /**
  * First-layer notice for opt-in jurisdictions. Non-modal: the site stays
@@ -40,15 +40,15 @@ export function CookieBanner({ hidden = false }: { hidden?: boolean }) {
       aria-label="Privacy choices"
       aria-describedby="privacy-banner-description"
     >
-      <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-5 shadow-lg dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
+      <div className="mx-auto max-w-4xl rounded-xl border border-border bg-card p-5 shadow-elevated sm:p-6">
         <div className="flex items-start gap-4">
           <div className="min-w-0 flex-1">
-            <h2 className="mb-1 text-base font-semibold text-gray-900 dark:text-white">
+            <h2 className="mb-1 text-base font-semibold text-foreground">
               Your privacy choices
             </h2>
             <p
               id="privacy-banner-description"
-              className="text-sm leading-relaxed text-gray-600 dark:text-gray-300"
+              className="text-sm leading-relaxed text-muted-foreground"
             >
               We use essential cookies to keep TrackMyOPT working and secure.
               With your permission, we&apos;d also like to measure how the site

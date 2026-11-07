@@ -22,36 +22,37 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-950 dark:selection:text-blue-100">
+    <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-950 dark:selection:text-blue-100">
       <div>
         <LandingNavbar />
 
-        <div className="max-w-4xl mx-auto pt-8 pb-20 px-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors mb-8 group"
-          >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            Back to Home
-          </Link>
+        <header className="border-b border-border bg-surface">
+          <div className="mx-auto max-w-3xl px-4 pb-10 pt-8 sm:pb-12">
+            <Link
+              href="/"
+              className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+            <h1 className="text-4xl font-bold text-foreground sm:text-5xl">Terms & Conditions</h1>
 
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8 md:p-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">Terms & Conditions</h1>
-
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            <p className="mt-4 text-sm text-muted-foreground">
               Last Updated: {LEGAL_EFFECTIVE_DATE} · Version {LEGAL_VERSION_ID}
             </p>
+          </div>
+        </header>
 
-
-
-            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none 
-              prose-headings:text-gray-900 dark:prose-headings:text-white 
+        <div className="mx-auto max-w-3xl px-4 pb-20 pt-10">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none
+              prose-headings:text-foreground
               prose-headings:font-bold
-              prose-p:text-gray-600 dark:prose-p:text-gray-400
-              prose-li:text-gray-600 dark:prose-li:text-gray-400
-              prose-strong:text-gray-900 dark:prose-strong:text-white
-              prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-              prose-hr:border-gray-200 dark:prose-hr:border-zinc-800">
+              prose-h2:mt-12
+              prose-p:text-muted-foreground
+              prose-li:text-muted-foreground
+              prose-strong:text-foreground
+              prose-a:text-primary prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+              prose-hr:border-border">
 
               <h2>1. Acceptance of Terms</h2>
               <p>
@@ -73,8 +74,8 @@ export default function TermsPage() {
               </ul>
 
               <h2 id="immigration-disclaimer" className="direct-answer">2A. Important immigration and legal notice</h2>
-              <div className="bg-yellow-50 dark:bg-yellow-950 border-l-4 border-yellow-400 p-5 rounded-xl my-6">
-                <p className="m-0 text-yellow-900 dark:text-yellow-100">
+              <div className="my-6 rounded-lg border-l-4 border-l-amber-500 bg-amber-50 p-5 dark:bg-amber-950">
+                <p className="m-0 text-amber-900 dark:text-amber-100">
                   <strong>TrackMyOPT is not a law firm and does not provide legal or immigration advice.</strong> We are not affiliated with USCIS, DHS, SEVP, ICE, any university, any DSO, or any government agency. We do not guarantee any immigration outcome, approval, or deadline accuracy. You must verify all requirements with official sources, your DSO, your employer, and/or a licensed immigration attorney. See our <Link href="/disclaimer">Disclaimer</Link>.
                 </p>
               </div>
@@ -142,7 +143,7 @@ export default function TermsPage() {
 
               <h2>6. User Data and Privacy</h2>
               <p>
-                Your use of TrackMyOPT is also governed by our <a href="/privacy" className="text-blue-600 hover:text-blue-700">Privacy Policy</a>. By using our Service, you consent to our collection and use of your information as described in the Privacy Policy.
+                Your use of TrackMyOPT is also governed by our <a href="/privacy" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Privacy Policy</a>. By using our Service, you consent to our collection and use of your information as described in the Privacy Policy.
               </p>
 
               <h3>6.1 Personal Identifiable Information (PII)</h3>
@@ -179,7 +180,7 @@ export default function TermsPage() {
 
               <h2>8. Disclaimer of Warranties</h2>
 
-              <p className="font-semibold text-gray-900 dark:text-white">
+              <p className="font-semibold text-foreground">
                 IMPORTANT: TRACKMYOPT IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND.
               </p>
 
@@ -215,7 +216,7 @@ export default function TermsPage() {
 
               <h2>9. Limitation of Liability</h2>
 
-              <p className="font-semibold text-gray-900 dark:text-white">
+              <p className="font-semibold text-foreground">
                 TO THE MAXIMUM EXTENT PERMITTED BY LAW, TRACKMYOPT AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR:
               </p>
               <ul>
@@ -322,21 +323,20 @@ export default function TermsPage() {
 
               <hr className="my-8" />
 
-              <div className="bg-yellow-50 dark:bg-yellow-950 border-l-4 border-yellow-400 p-4 my-8 rounded-xl">
-                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+              <div className="my-8 rounded-lg border-l-4 border-l-amber-500 bg-amber-50 p-5 dark:bg-amber-950">
+                <p className="m-0 flex items-center gap-2 text-sm font-semibold text-amber-900 dark:text-amber-100">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   Disclaimer
                 </p>
-                <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-2 leading-relaxed">
+                <p className="mb-0 mt-2 text-sm leading-relaxed text-amber-900 dark:text-amber-100">
                   TrackMyOPT is an independent tool and is NOT affiliated with, endorsed by, or associated with the U.S. Citizenship and Immigration Services (USCIS), Department of Homeland Security (DHS), or any educational institution. Always verify information with your DSO and official USCIS resources.
                 </p>
               </div>
 
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 By creating an account and using TrackMyOPT, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
               </p>
             </div>
-          </div>
         </div>
 
         <LandingFooter />

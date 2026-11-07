@@ -57,7 +57,7 @@ export default function STEMOPTEmployerRequirementsArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     STEM OPT employers must be enrolled in E-Verify, provide a structured training experience documented in a Form I-983, and comply with all labor law protections including paying the actual or prevailing wage. The employer cannot replace or act as a staffing agency for placing students at third-party client sites.
@@ -72,7 +72,7 @@ export default function STEMOPTEmployerRequirementsArticle() {
                 <p className="text-purple-700 dark:text-purple-300 text-sm mt-2">Source: <a href="https://www.ice.gov/sevis/stemopt" target="_blank" rel="noopener noreferrer" className="underline">ICE.gov STEM OPT Hub</a> | <a href="https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-214/subpart-A/section-214.16" target="_blank" rel="noopener noreferrer" className="underline">8 CFR 214.16</a></p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="grid md:grid-cols-2 gap-2">
                     {[["#overview", "What Employers Must Know About STEM OPT"], ["#e-verify", "E-Verify Enrollment: The Non-Negotiable"], ["#i983", "Form I-983: The Training Plan"], ["#reporting", "Employer Reporting Requirements"], ["#wages", "Wage Requirements"], ["#non-compliant", "What If Your Employer Doesn't Meet Requirements?"], ["#consequences", "Consequences of Non-Compliance"], ["#checklist", "Employer Compliance Checklist"], ["#timeline", "Key Employer Deadlines"]].map(([href, text]) => (
@@ -99,7 +99,7 @@ export default function STEMOPTEmployerRequirementsArticle() {
                             { area: "Wage Compliance", desc: "Employer must pay a salary commensurate with what similarly situated U.S. workers earn in the same role and location." },
                             { area: "Supervision & Mentoring", desc: "Employer must provide structured oversight, not merely assign regular work duties." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                                 <Shield className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" />
                                 <div><h3 className="font-semibold text-gray-900 dark:text-white">{item.area}</h3><p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p></div>
                             </div>
@@ -119,7 +119,7 @@ export default function STEMOPTEmployerRequirementsArticle() {
                             { question: "What if my employer is not enrolled?", answer: "Your employer can enroll in E-Verify at e-verify.gov — the process typically takes 1-2 weeks. However, if they refuse, you cannot do STEM OPT at that company. You would need to find an E-Verify employer before your initial OPT expires." },
                             { question: "Does every company location need E-Verify?", answer: "The E-Verify enrollment must cover the specific worksite where the STEM OPT student will work. Some companies enroll all locations under one ID; others have separate IDs per site." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{item.question}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.answer}</p>
                             </div>
@@ -137,19 +137,19 @@ export default function STEMOPTEmployerRequirementsArticle() {
                         The I-983 is the centerpiece of STEM OPT. It transforms the employer-employee relationship from a standard job into a <strong>structured training opportunity</strong>. Both you and your employer must complete and sign it before your DSO can recommend STEM OPT. For a detailed walkthrough of every section, see our <Link href="/blog/i-983-training-plan-guide" className="text-blue-600 dark:text-blue-400 underline font-medium">complete I-983 guide</Link>.
                     </p>
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Employer Sections</h3>
                             <ul className="space-y-1">
                                 {["Company legal name, EIN, and address", "E-Verify Company Identification Number", "Detailed training objectives and goals", "Supervision and mentoring plan", "How training relates to the student's STEM degree", "Performance evaluation schedule", "Employer supervisor signature"].map((item, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />{item}</li>
+                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />{item}</li>
                                 ))}
                             </ul>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Student Sections</h3>
                             <ul className="space-y-1">
                                 {["Full legal name and contact info", "SEVIS ID number", "Degree program and CIP code", "Student certification and signature", "Acknowledgment of reporting requirements", "Acknowledgment of employment conditions"].map((item, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />{item}</li>
+                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />{item}</li>
                                 ))}
                             </ul>
                         </div>
@@ -164,12 +164,12 @@ export default function STEMOPTEmployerRequirementsArticle() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         STEM OPT employers have ongoing reporting obligations that extend throughout the entire 24-month extension period. Missing these deadlines can jeopardize the student's immigration status.
                     </p>
-                    <div className="overflow-x-auto mb-4">
+                    <div className="overflow-x-auto mb-4 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Obligation</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Deadline</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Details</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Obligation</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Deadline</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Details</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -180,9 +180,9 @@ export default function STEMOPTEmployerRequirementsArticle() {
                                     ["Annual wage review", "At each evaluation", "Confirm compensation is still commensurate with U.S. workers in the same position and location"],
                                 ].map(([obligation, deadline, details], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{obligation}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{deadline}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{details}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{obligation}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{deadline}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{details}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -206,8 +206,8 @@ export default function STEMOPTEmployerRequirementsArticle() {
                             { rule: "Unpaid STEM OPT is generally prohibited", detail: "Unlike initial OPT where unpaid internships or volunteer work may count as employment, STEM OPT must be paid employment. The only narrow exception is bona fide volunteer work at nonprofits, but this does not count as STEM OPT employment." },
                             { rule: "Part-time minimum", detail: "You must work at least 20 hours per week. Compensation must still be commensurate on a pro-rata basis for part-time positions." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
-                                <Building2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
+                                <Building2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                 <div><h3 className="font-semibold text-gray-900 dark:text-white">{item.rule}</h3><p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p></div>
                             </div>
                         ))}
@@ -226,7 +226,7 @@ export default function STEMOPTEmployerRequirementsArticle() {
                             { option: "Use the unemployment clock strategically", desc: "On STEM OPT, you have up to 150 total unemployment days (90 initial + 60 STEM extension). Use this window to search for a compliant employer, but don't wait until the limit is near.", timeline: "Track days carefully" },
                             { option: "Consider H-1B cap-gap or other status options", desc: "If you're approaching your STEM OPT expiration and employer issues persist, explore H-1B sponsorship, change of status, or other visa pathways before your authorization ends.", timeline: "Consult an attorney early" },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{item.option}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p>
                                 <p className="text-xs text-purple-600 dark:text-purple-400 mt-2 font-medium">Timeline: {item.timeline}</p>
@@ -265,13 +265,13 @@ export default function STEMOPTEmployerRequirementsArticle() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Use this checklist to verify your employer meets every STEM OPT requirement. Share it with your HR department or hiring manager.
                     </p>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700 w-8">#</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Requirement</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Category</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Priority</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border w-8">#</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Requirement</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Category</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Priority</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -287,10 +287,10 @@ export default function STEMOPTEmployerRequirementsArticle() {
                                     ["10", "Employer will respond to SEVP validation requests", "Compliance", "Required"],
                                 ].map(([num, req, category, priority], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-500 dark:text-gray-400 tabular-nums">{num}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-900 dark:text-white font-medium">{req}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{category}</td>
-                                        <td className="p-3 border dark:border-zinc-700"><span className="inline-flex items-center rounded-md px-2 py-0.5 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 text-xs font-medium">{priority}</span></td>
+                                        <td className="p-3 border border-border text-gray-500 dark:text-gray-400 tabular-nums">{num}</td>
+                                        <td className="p-3 border border-border text-gray-900 dark:text-white font-medium">{req}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{category}</td>
+                                        <td className="p-3 border border-border"><span className="inline-flex items-center rounded-md px-2 py-0.5 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 text-xs font-medium">{priority}</span></td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -333,7 +333,7 @@ export default function STEMOPTEmployerRequirementsArticle() {
                             { question: "Can I change employers on STEM OPT?", answer: "Yes. You can change employers on STEM OPT, but the new employer must also be enrolled in E-Verify. You need to submit a new I-983 with the new employer within 10 days of starting the new position. Report the change to your DSO within 10 days as well. There is no separate USCIS filing required — the transfer happens through your DSO and SEVIS." },
                             { question: "How often must employers evaluate STEM OPT employees?", answer: "Employers must complete two formal evaluations: one at the 12-month midpoint and one at the conclusion of the 24-month STEM OPT period. These evaluations assess training progress against the goals outlined in the I-983. The DSO submits these evaluations to SEVP. Missing evaluations can trigger compliance issues." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -342,7 +342,7 @@ export default function STEMOPTEmployerRequirementsArticle() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>
@@ -358,10 +358,10 @@ export default function STEMOPTEmployerRequirementsArticle() {
 
             <AuthorBio />
 
-            <div className="bg-purple-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Find E-Verify Employers for STEM OPT</h2>
-                <p className="text-purple-100 mb-6 max-w-lg mx-auto">Search our database of 25,000+ employers with E-Verify status, H-1B approval rates, and salary data — all free.</p>
-                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">Search our database of 25,000+ employers with E-Verify status, H-1B approval rates, and salary data — all free.</p>
+                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Search Employers <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

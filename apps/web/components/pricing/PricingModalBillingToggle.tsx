@@ -26,16 +26,16 @@ export function PricingModalBillingToggle({
       <button
         onClick={onToggle}
         className={cn(
-          'relative w-16 h-8 md:w-14 md:h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500',
+          'relative w-16 h-8 md:w-14 md:h-7 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2',
           isYearly
-            ? 'bg-violet-600'
+            ? 'bg-violet-600 shadow-button'
             : 'bg-muted border border-border'
         )}
         aria-label="Toggle billing period"
       >
         <div
           className={cn(
-            'absolute top-1 w-6 h-6 md:w-5 md:h-5 md:top-1 rounded-full bg-white shadow-md transition-all duration-300 ease-out',
+            'absolute top-1 w-6 h-6 md:w-5 md:h-5 md:top-1 rounded-full bg-white shadow-card transition-all duration-300 ease-out',
             isYearly ? 'left-[34px] md:left-[30px]' : 'left-1'
           )}
         />
@@ -50,7 +50,7 @@ export function PricingModalBillingToggle({
         >
           Annual
         </span>
-        <span className="text-xs md:text-[11px] font-medium text-green-700 dark:text-green-400">
+        <span className="text-xs md:text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
           Save up to {annualSavingsPercent('pro')}%
         </span>
       </div>

@@ -72,7 +72,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
             <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className={cn(
-                    "flex items-center gap-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 active:scale-[0.98] transition-colors text-left group",
+                    "flex items-center gap-3 rounded-lg hover:bg-sidebar-accent active:bg-sidebar-accent transition-colors text-left group",
                     isCollapsed ? "justify-center w-full py-2" : "px-2 py-1.5 w-full"
                 )}
                 aria-label="User menu"
@@ -80,11 +80,11 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                 {/* ... (button content same as before) ... */}
                 {/* Avatar with Badge */}
                 <div className="relative flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm border border-gray-200 dark:border-gray-700">
+                    <div className="w-9 h-9 rounded-full bg-primary-soft text-primary dark:text-blue-300 flex items-center justify-center font-semibold text-sm border border-primary-muted">
                         {getInitials(userName, userEmail)}
                     </div>
                     {isPremium && (
-                        <div className="absolute -bottom-3.5 -right-0.5 bg-blue-500 dark:bg-blue-400 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-white dark:border-gray-900">
+                        <div className="absolute -bottom-3.5 -right-0.5 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-md border-2 border-sidebar">
                             Pro
                         </div>
                     )}
@@ -127,7 +127,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                         exit={{ opacity: 0, y: 15, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className={cn(
-                            "absolute bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-52",
+                            "absolute bg-popover rounded-xl shadow-elevated border border-border py-2 z-50 w-52",
                             align === "end" ? "right-0" : "left-0",
                             side === "bottom"
                                 ? "bottom-full mb-3"

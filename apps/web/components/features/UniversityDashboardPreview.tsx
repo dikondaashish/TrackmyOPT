@@ -6,7 +6,7 @@ import { Users, AlertTriangle, BarChart3, Search, Bell, Settings, PieChart, Down
 export function UniversityDashboardPreview() {
     return (
         <motion.div
-            className="w-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden flex flex-col md:flex-row h-[500px] md:h-[600px] text-left"
+            className="w-full surface-card overflow-hidden flex flex-col md:flex-row h-[500px] md:h-[600px] text-left"
             initial={{ rotateX: 5, y: 20 }}
             whileInView={{ rotateX: 0, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -81,7 +81,7 @@ export function UniversityDashboardPreview() {
                     </div>
 
                     {/* Action Items / Table Mockup */}
-                    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                    <div className="surface-card overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-200 dark:border-zinc-800 flex justify-between items-center">
                             <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Urgent Compliance Alerts</h4>
                             <button className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
@@ -135,7 +135,7 @@ function StatCard({ title, value, change, trend, isBad, color = "blue" }: { titl
             <div className="flex items-end justify-between">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
                 <div className={`flex items-center text-xs font-bold ${color === 'red' ? 'text-red-500' :
-                        color === 'green' ? 'text-green-500' :
+                        color === 'green' ? 'text-emerald-600 dark:text-emerald-400' :
                             'text-blue-500'
                     }`}>
                     {change}

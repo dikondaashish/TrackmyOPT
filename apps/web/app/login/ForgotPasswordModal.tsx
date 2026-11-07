@@ -21,10 +21,10 @@ export function ForgotPasswordModal({
 }: ForgotPasswordModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-card rounded-xl shadow-2xl max-w-md w-full p-6 relative">
+      <div className="bg-card border border-border rounded-xl shadow-elevated max-w-md w-full p-6 sm:p-8 relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 dark:text-muted-foreground hover:text-gray-600 dark:hover:text-foreground"
+          className="absolute top-4 right-4 rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -36,21 +36,21 @@ export function ForgotPasswordModal({
           </svg>
         </button>
 
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
           Reset Password
         </h2>
-        <p className="text-gray-600 dark:text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-6">
           Enter your email address and we&apos;ll send you a link to reset your password.
         </p>
 
         {resetSuccess ? (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-700">
+          <div className="rounded-lg border-l-4 border-l-emerald-500 bg-emerald-50 p-4 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
             ✓ Password reset link sent! Check your email.
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Email Address
               </label>
               <input
@@ -59,13 +59,13 @@ export function ForgotPasswordModal({
                 onChange={(e) => onEmailChange(e.target.value)}
                 required
                 disabled={resetLoading}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
+                className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                 placeholder="your@email.com"
               />
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="p-3 rounded-lg border-l-4 border-l-red-500 bg-red-50 text-red-700 text-sm dark:bg-red-950 dark:text-red-300">
                 {error}
               </div>
             )}
@@ -75,14 +75,14 @@ export function ForgotPasswordModal({
                 type="button"
                 onClick={onClose}
                 disabled={resetLoading}
-                className="flex-1 px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-gray-700 dark:text-foreground font-medium hover:bg-gray-50 dark:hover:bg-muted transition disabled:opacity-50"
+                className="flex-1 min-h-12 px-4 py-3 border border-input bg-background rounded-lg text-foreground font-medium shadow-card hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={resetLoading}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
+                className="flex-1 min-h-12 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-semibold shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
               >
                 {resetLoading ? "Sending..." : "Send Reset Link"}
               </button>

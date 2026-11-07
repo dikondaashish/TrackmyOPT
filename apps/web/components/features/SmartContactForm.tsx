@@ -75,7 +75,7 @@ export function SmartContactForm() {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-12 text-center"
+                        className="surface-card p-12 text-center"
                     >
                         <motion.div
                             initial={{ scale: 0 }}
@@ -164,7 +164,7 @@ export function SmartContactForm() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         onSubmit={handleSubmit}
-                        className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8"
+                        className="surface-card p-8"
                     >
                         <div className="space-y-6">
                             <div className="grid md:grid-cols-2 gap-6">

@@ -88,17 +88,17 @@ export function PricingModalPlanCard({
       className={cn(
         'relative rounded-xl flex flex-col h-full',
         plan.popular
-          ? 'bg-card ring-2 ring-violet-500'
+          ? 'bg-card ring-2 ring-violet-500 shadow-elevated'
           : plan.id === 'dedicated'
-            ? 'bg-card ring-2 ring-amber-500'
-            : 'bg-card border',
+            ? 'bg-card ring-2 ring-amber-500 shadow-card'
+            : 'bg-card border shadow-card',
         plan.borderColor,
         isInitialPlan && 'ring-offset-2 ring-offset-background'
       )}
     >
       {plan.popular && (
         <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
-          <div className="rounded-md bg-violet-600 px-2 py-0.5 text-xs font-medium text-white">
+          <div className="rounded-md bg-violet-600 px-2.5 py-0.5 text-xs font-semibold text-white shadow-button">
             {salesMeta?.badge ?? 'Most popular'}
           </div>
         </div>
@@ -106,7 +106,7 @@ export function PricingModalPlanCard({
 
       {plan.id === 'dedicated' && (
         <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
-          <div className="rounded-md bg-amber-600 px-2 py-0.5 text-xs font-medium text-white">
+          <div className="rounded-md bg-amber-600 px-2.5 py-0.5 text-xs font-semibold text-white shadow-button">
             {salesMeta?.badge ?? 'Priority support'}
           </div>
         </div>
@@ -386,7 +386,7 @@ export function PricingModalPlanCard({
                   (plan.id === 'pro' ? !proConsent : !dedicatedConsent)
                 }
                 className={cn(
-                  'w-full h-9 md:h-8 text-xs md:text-[11px] font-semibold transition-colors',
+                  'w-full h-9 md:h-8 text-xs md:text-[11px] font-semibold shadow-button transition-colors',
                   plan.popular
                     ? 'bg-violet-600 hover:bg-violet-700'
                     : 'bg-amber-500 hover:bg-amber-600',
@@ -456,21 +456,13 @@ export function PricingModalPlanCard({
                 <div
                   className={cn(
                     'mt-0.5 flex-shrink-0 rounded-full p-0.5 md:p-px',
-                    plan.popular
-                      ? 'bg-violet-50'
-                      : plan.id === 'dedicated'
-                        ? 'bg-amber-50'
-                        : 'bg-muted'
+                    'bg-emerald-50 dark:bg-emerald-950'
                   )}
                 >
                   <Check
                     className={cn(
                       'w-2.5 h-2.5 md:w-2 md:h-2',
-                      plan.popular
-                        ? 'text-violet-600 dark:text-violet-400'
-                        : plan.id === 'dedicated'
-                          ? 'text-amber-600 dark:text-amber-400'
-                          : 'text-muted-foreground'
+                      'text-emerald-600 dark:text-emerald-400'
                     )}
                   />
                 </div>

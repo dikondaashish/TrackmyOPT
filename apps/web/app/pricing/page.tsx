@@ -74,7 +74,7 @@ export default function PricingPage() {
                 dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(reviewSchema) }}
             />
 
-            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+            <main className="min-h-screen bg-background">
                 <PricingHero />
                 
                 {/* Pricing Cards */}

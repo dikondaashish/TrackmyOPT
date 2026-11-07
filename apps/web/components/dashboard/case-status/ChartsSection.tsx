@@ -72,7 +72,7 @@ export function ChartsSection({
   if (!hasOptData) {
     return (
       <div className="grid grid-cols-1 gap-4">
-        <div className="bg-card border border-border rounded-xl p-6 text-center">
+        <div className="bg-card border border-border rounded-xl p-6 text-center shadow-card">
           <h3 className="font-semibold text-lg mb-2">OPT charts</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Add your OPT dates to see unemployment distribution and weekly trends.
@@ -91,7 +91,7 @@ export function ChartsSection({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div className="bg-card hover:bg-card border border-border rounded-xl p-6 transition-colors duration-200">
+      <div className="bg-card hover:bg-card border border-border rounded-xl p-6 transition-colors duration-200 shadow-card">
         <div className="mb-4">
           <h3 className="mb-1 font-semibold text-lg">Unemployment allowance</h3>
           <p className="text-sm text-muted-foreground">
@@ -135,7 +135,7 @@ export function ChartsSection({
         </div>
       </div>
 
-      <div className="bg-card hover:bg-card border border-border rounded-xl p-6 transition-colors duration-200">
+      <div className="bg-card hover:bg-card border border-border rounded-xl p-6 transition-colors duration-200 shadow-card">
         <div className="mb-4">
           <h3 className="mb-1 font-semibold text-lg">Unemployment trend</h3>
           <p className="text-sm text-muted-foreground">Cumulative days used — last 7 days</p>

@@ -148,7 +148,7 @@ export function LocationPicker({
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
         onClick={() => setOpen((current) => !current)}
-        className={`inline-flex min-h-11 max-w-56 items-center gap-1.5 rounded-lg border bg-white px-3 text-sm font-medium outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:bg-slate-950 ${selectedOptions.length ? 'border-blue-300 text-blue-800 dark:border-blue-800 dark:text-blue-200' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-100'}`}
+        className={`inline-flex min-h-11 max-w-56 items-center gap-1.5 rounded-lg border bg-white px-3 text-sm font-medium outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:bg-slate-950 ${selectedOptions.length ? 'border-blue-300 text-blue-800 dark:border-blue-800 dark:text-blue-200' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-100'} shadow-card`}
       >
         <MapPin className="size-4 shrink-0" aria-hidden="true" />
         <span className="truncate">{buttonLabel}</span>

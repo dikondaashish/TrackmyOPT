@@ -134,7 +134,7 @@ export function FollowupsNotification({ applications, onMarkDone, onClearAll }: 
                                     <div key={item.id} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
                                         <div className="flex items-start gap-3">
                                             {item.type === 'interview' ? (
-                                                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center shrink-0 text-purple-600 dark:text-purple-400">
+                                                <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-950 flex items-center justify-center shrink-0 text-violet-600 dark:text-violet-400">
                                                     <Video className="w-4 h-4" />
                                                 </div>
                                             ) : (

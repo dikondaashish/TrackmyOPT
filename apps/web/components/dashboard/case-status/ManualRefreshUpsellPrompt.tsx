@@ -33,7 +33,7 @@ export function ManualRefreshUpsellPrompt({
           <Button
             type="button"
             variant="link"
-            className="h-auto p-0 mt-2 text-purple-600 dark:text-purple-400 font-medium"
+            className="h-auto p-0 mt-2 text-violet-600 dark:text-violet-400 font-medium"
             onClick={onStartTrial}
           >
             {ctaLabel}

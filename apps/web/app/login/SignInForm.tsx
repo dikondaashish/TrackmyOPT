@@ -37,7 +37,7 @@ export function SignInForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Enter your email address
         </label>
         <input
@@ -46,13 +46,13 @@ export function SignInForm({
           onChange={(e) => onEmailChange(e.target.value)}
           required
           disabled={loading}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+          className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
           placeholder="your@email.com"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Enter your password
         </label>
         <div className="relative">
@@ -62,7 +62,7 @@ export function SignInForm({
             onChange={(e) => onPasswordChange(e.target.value)}
             required
             disabled={loading}
-            className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+            className="w-full px-4 py-3 pr-12 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
             placeholder="••••••••"
           />
           <PasswordVisibilityButton visible={showPassword} onToggle={onTogglePassword} />
@@ -75,14 +75,14 @@ export function SignInForm({
             type="checkbox"
             checked={rememberMe}
             onChange={(e) => onRememberMeChange(e.target.checked)}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="w-4 h-4 rounded border-input text-primary accent-blue-600 focus:ring-ring"
           />
-          <span className="ml-2 text-sm text-gray-700 dark:text-foreground">Remember me</span>
+          <span className="ml-2 text-sm text-foreground">Remember me</span>
         </label>
         <button
           type="button"
           onClick={onForgotPassword}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          className="text-sm text-primary hover:text-primary-hover font-medium"
         >
           Forgot password?
         </button>
@@ -92,12 +92,12 @@ export function SignInForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+          className="w-full min-h-12 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold py-3 px-4 rounded-lg shadow-button transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>
         {lastUsedMethod === "email" && (
-          <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-medium px-2 py-0.5 rounded-md">
+          <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.5 rounded-md shadow-card">
             Last used
           </span>
         )}
@@ -105,10 +105,10 @@ export function SignInForm({
 
       <div className="relative my-5 lg:my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
+          <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-gray-50 dark:bg-background text-gray-500 dark:text-muted-foreground">
+          <span className="px-3 bg-card text-muted-foreground">
             or login with
           </span>
         </div>
@@ -119,7 +119,7 @@ export function SignInForm({
           type="button"
           onClick={onGoogleSignIn}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-card border-2 border-gray-300 dark:border-border hover:border-gray-400 dark:hover:border-muted-foreground text-gray-700 dark:text-foreground font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full min-h-12 flex items-center justify-center gap-3 bg-background border border-input hover:bg-muted text-foreground font-semibold py-3 px-4 rounded-lg shadow-card transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -142,19 +142,19 @@ export function SignInForm({
           Google
         </button>
         {lastUsedMethod === "google" && (
-          <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-medium px-2 py-0.5 rounded-md">
+          <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.5 rounded-md shadow-card">
             Last used
           </span>
         )}
       </div>
 
       <div className="text-center mt-6">
-        <p className="text-sm text-gray-600 dark:text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <button
             type="button"
             onClick={onSwitchToSignup}
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-primary hover:text-primary-hover font-medium"
           >
             create account
           </button>
@@ -162,12 +162,12 @@ export function SignInForm({
       </div>
 
       <div className="text-center mt-4">
-        <p className="text-xs text-gray-500 dark:text-muted-foreground">
-          <a href="/privacy" className="hover:text-blue-600">
+        <p className="text-xs text-muted-foreground">
+          <a href="/privacy" className="hover:text-primary">
             Privacy Policy
           </a>
           {" · "}
-          <a href="/terms" className="hover:text-blue-600">
+          <a href="/terms" className="hover:text-primary">
             Terms & Conditions
           </a>
         </p>

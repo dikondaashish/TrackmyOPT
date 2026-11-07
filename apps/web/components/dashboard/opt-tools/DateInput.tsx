@@ -173,7 +173,7 @@ export function DateInput({ label, value, onChange, description, error, required
               ? 'border-red-500 focus:ring-red-500' 
               : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500'}
             focus:outline-none focus:ring-2
-            transition-colors
+            transition-colors shadow-card
           `}
         />
         <button

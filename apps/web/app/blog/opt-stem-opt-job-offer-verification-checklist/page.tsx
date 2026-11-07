@@ -116,14 +116,14 @@ export default function OPTSTEMOfferChecklistPage() {
         <div className="mt-6 text-sm text-gray-500">Last updated: April 23, 2026 • Written by Vinay Kumar</div>
       </header>
 
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+      <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
         <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
         <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
           Before accepting an OPT/STEM OPT job offer, confirm it is a W-2 degree-related role, verify E-Verify and I-983 readiness (for STEM OPT), and make sure DSO + SEVIS records match your EAD dates and real work location.
         </p>
       </div>
 
-      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+      <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
           <AlertTriangle className="w-5 h-5" />
           Why this matters
@@ -143,9 +143,9 @@ export default function OPTSTEMOfferChecklistPage() {
             {employerChecklist.map((item, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800"
+                className="border flex items-start gap-3 p-4 rounded-xl border-border bg-card shadow-card"
               >
-                <CheckCircle2 className="w-5 h-5 mt-0.5 text-green-600 dark:text-green-400 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <p className="text-sm text-gray-700 dark:text-gray-300">{item}</p>
               </div>
             ))}
@@ -161,9 +161,9 @@ export default function OPTSTEMOfferChecklistPage() {
             {dsoChecklist.map((item, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800"
+                className="border flex items-start gap-3 p-4 rounded-xl border-border bg-card shadow-card"
               >
-                <CheckCircle2 className="w-5 h-5 mt-0.5 text-green-600 dark:text-green-400 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <p className="text-sm text-gray-700 dark:text-gray-300">{item}</p>
               </div>
             ))}
@@ -179,9 +179,9 @@ export default function OPTSTEMOfferChecklistPage() {
             {sevisChecklist.map((item, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800"
+                className="border flex items-start gap-3 p-4 rounded-xl border-border bg-card shadow-card"
               >
-                <CheckCircle2 className="w-5 h-5 mt-0.5 text-green-600 dark:text-green-400 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <p className="text-sm text-gray-700 dark:text-gray-300">{item}</p>
               </div>
             ))}
@@ -208,7 +208,7 @@ export default function OPTSTEMOfferChecklistPage() {
                   "Yes. For STEM OPT, your DSO needs the employer's E-Verify information to correctly update SEVIS and issue an accurate I-20.",
               },
             ].map((faq, i) => (
-              <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+              <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
               </div>
@@ -217,20 +217,20 @@ export default function OPTSTEMOfferChecklistPage() {
         </section>
       </div>
 
-      <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+      <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
         <h2 className="text-2xl font-bold mb-3">Track Compliance Before It Becomes a Problem</h2>
-        <p className="text-blue-100 mb-6 max-w-lg mx-auto">
+        <p className="text-ink-muted mb-6 max-w-lg mx-auto">
           Use TrackMyOPT to monitor unemployment days, deadline windows, and STEM OPT requirements in one dashboard.
         </p>
         <Link
           href="/pricing"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
         >
           Protect Your OPT Status <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
-      <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+      <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
         <div className="grid sm:grid-cols-2 gap-3">
           <Link href="/blog/stem-opt-employer-requirements" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">

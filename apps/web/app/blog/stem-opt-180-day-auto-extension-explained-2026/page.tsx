@@ -216,7 +216,7 @@ export default function STEMOPTAutoExtensionPage() {
             {edges.map((item) => (
               <div
                 key={item.title}
-                className="p-5 rounded-xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800"
+                className="border p-5 rounded-xl border-border bg-card shadow-card"
               >
                 <p className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
                   {item.title}
@@ -287,7 +287,7 @@ export default function STEMOPTAutoExtensionPage() {
                 key={item}
                 className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 dark:border-zinc-800"
               >
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
                 <p className="text-sm text-gray-700 dark:text-gray-300">{item}</p>
               </div>
             ))}
@@ -361,7 +361,7 @@ export default function STEMOPTAutoExtensionPage() {
         </section>
 
         <section className="mb-12">
-          <div className="not-prose bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-xl p-6">
+          <div className="not-prose border rounded-xl p-6 border-primary-muted bg-primary-soft">
             <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
               <strong>Reminder:</strong> This guide describes the regulation and
               common practice. Your I-20, SEVIS record, and employer's I-9

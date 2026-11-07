@@ -178,7 +178,7 @@ export function ResumeInfoDrawer({
       <button
         type="button"
         aria-label="Close resume details"
-        className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/40"
         onClick={() => onOpenChange(false)}
       />
       <aside

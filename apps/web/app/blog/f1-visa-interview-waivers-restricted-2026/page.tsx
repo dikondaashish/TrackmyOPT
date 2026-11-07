@@ -86,7 +86,7 @@ export default function InterviewWaiverPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/f1-visa-interview-waivers-restricted-2026.png" alt="Exterior of a US Embassy or Consulate building" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -98,7 +98,7 @@ export default function InterviewWaiverPage() {
                     Following policy updates rolled out in late 2025 and early 2026, the U.S. State Department has severely restricted the eligibility criteria for nonimmigrant visa interview waivers (commonly known as drop-box appointments). 
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 my-8 rounded-r-xl">
+                <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-6 my-8 rounded-r-xl">
                     <h3 className="text-amber-800 dark:text-amber-300 m-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5" />
                         The Bottom Line
@@ -119,14 +119,14 @@ export default function InterviewWaiverPage() {
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-6 my-8 not-prose">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <Calendar className="w-8 h-8 text-blue-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2">Longer Wait Times</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
                             Because thousands of applicants are now forced into the in-person interview queue, appointment wait times at consulates in countries like India, China, and Brazil have spiked dramatically.
                         </p>
                     </div>
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <Plane className="w-8 h-8 text-blue-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2">Extended Trips Required</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -142,12 +142,12 @@ export default function InterviewWaiverPage() {
                     <li><strong>Gather Strong Documentation:</strong> In-person interviews mean higher scrutiny. Bring your valid EAD card, a recent employment verification letter, your I-20 endorsed for travel, and paystubs to prove you are legitimately employed on OPT.</li>
                 </ol>
 
-                <div className="bg-blue-600 rounded-xl p-8 text-white my-12">
+                <div className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
                     <h3 className="text-2xl font-bold text-white mb-4 mt-0">Track Your OPT Compliance</h3>
-                    <p className="text-blue-100 mb-6 text-lg">
+                    <p className="text-ink-muted mb-6 text-lg">
                         Don't let a travel delay cost you your OPT status. Use TrackMyOPT to monitor your unemployment days and critical deadlines.
                     </p>
-                    <Link href="/login" className="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors">
+                    <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                         Get Started <ArrowRight className="w-5 h-5" />
                     </Link>
                 </div>
@@ -156,7 +156,7 @@ export default function InterviewWaiverPage() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>

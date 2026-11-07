@@ -90,22 +90,22 @@ export default function GreenCardAfterOPT() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/green-card-after-opt.png" alt="Application for Permanent Residence documents and US passport on a wooden desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/green-card-after-opt.png" alt="Application for Permanent Residence documents and US passport on a wooden desk" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Understanding the immigration timeline and preparation steps is key to a successful transition.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     You can transition to a Green Card from OPT via <strong>Employment-based sponsorship</strong> (EB-2/EB-3), <strong>Self-petition</strong> (EB-2 National Interest Waiver for advanced degrees), <strong>Family/Marriage sponsorship</strong> (marrying a US citizen or LPR), or <strong>Investment</strong> (EB-5). Be careful: filing a green card petition shows immigrant intent, which restricts F-1 travel.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
@@ -135,7 +135,7 @@ export default function GreenCardAfterOPT() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         The F-1 student visa is a <strong>non-immigrant visa</strong>. When you apply for a visa or enter the US, you assert that you have no intention of permanently residing in the US.
                     </p>
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6 text-amber-950 dark:text-amber-100">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6 text-amber-950 dark:text-amber-100">
                         <div className="flex gap-2">
                             <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-600" />
                             <div>
@@ -152,7 +152,7 @@ export default function GreenCardAfterOPT() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         The EB-2 National Interest Waiver (NIW) is one of the best pathways for Master&apos;s and Ph.D. students. It allows you to skip the labor certification (PERM) process and self-petition for residency without an employer.
                     </p>
-                    <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                    <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                         <h4 className="font-bold text-gray-950 dark:text-white">Requirements to Qualify:</h4>
                         <ul className="text-sm text-gray-600 dark:text-gray-400 mt-2 space-y-1">
                             <li>• Must hold an advanced degree (Master&apos;s or Ph.D.) or have Exceptional Ability.</li>
@@ -176,7 +176,7 @@ export default function GreenCardAfterOPT() {
                             { step: "Stage 2", name: "Form I-140 Petition", desc: "The employer files the immigrant petition with USCIS showing they can pay the prevailing wage and that you meet all criteria." },
                             { step: "Stage 3", name: "Adjustment of Status (Form I-485)", desc: "When your priority date is current, you file to adjust your status to Permanent Resident." },
                         ].map((stage, i) => (
-                            <div key={i} className="flex gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border flex gap-4 p-4 rounded-xl border-border bg-card shadow-card">
                                 <span className="text-xs font-bold px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded self-start">{stage.step}</span>
                                 <div>
                                     <h4 className="font-semibold text-gray-950 dark:text-white">{stage.name}</h4>
@@ -194,7 +194,7 @@ export default function GreenCardAfterOPT() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         If you marry a US citizen, you are considered an Immediate Relative. This is the fastest green card route because visa numbers are always immediately available.
                     </p>
-                    <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                    <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                             <strong>Adjustment of Status:</strong> If you are physically inside the US on active OPT, you can file Forms I-130 and I-485 concurrently. You will receive an intermediate work permit (EAD) and travel document (Advance Parole) while waiting for the green card interview.
                         </p>
@@ -202,20 +202,20 @@ export default function GreenCardAfterOPT() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-emerald-600 rounded-xl p-8 my-12 text-white">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-emerald-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <UserCheck className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Plan Your Immigration Journey</h3>
                         </div>
-                        <p className="text-emerald-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             Ensure you track your OPT timeline, employment history, and updates safely. TrackMyOPT keeps your records consolidated and secure.
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold hover:bg-emerald-50 transition-colors"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -231,7 +231,7 @@ export default function GreenCardAfterOPT() {
                             { question: "Can I travel outside the US while my Green Card application is pending?", answer: "Only if you have an approved Advance Parole (AP) document. Traveling without AP before your Adjustment of Status is approved will result in the abandonment of your application." },
                             { question: "Does my OPT employer have to sponsor my Green Card?", answer: "No, anyone can sponsor your employment-based petition as long as they can prove the job offer is genuine and they have the ability to pay the wage." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -242,7 +242,7 @@ export default function GreenCardAfterOPT() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/eb2-niw-green-card-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ EB-2 NIW Self-Petition Guide</Link>

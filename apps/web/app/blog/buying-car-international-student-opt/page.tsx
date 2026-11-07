@@ -61,7 +61,7 @@ export default function BuyingCarPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/buying-car-international-student-opt.png" alt="Car keys on an auto loan agreement with a passport and smartphone showing insurance" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -77,14 +77,14 @@ export default function BuyingCarPage() {
                 
                 <h3 className="text-xl font-bold mt-6 mb-3">Alternative Financing Options</h3>
                 <div className="space-y-4 my-6">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <h4 className="font-bold mt-0 mb-2">Manufacturer "Foreign Professional" Programs</h4>
                         <p className="mb-0 text-sm">
                             Brands like Volkswagen, Ford, and Audi have special "Foreign Business Professional" or "International Student" financing programs. If you bring your OPT offer letter showing your salary, your EAD card, and your I-20, they will use your income to approve you for a Tier 1 (excellent) interest rate, completely ignoring your lack of credit.
                         </p>
                     </div>
                     
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <h4 className="font-bold mt-0 mb-2">Credit Unions</h4>
                         <p className="mb-0 text-sm">
                             Local credit unions (like DCU or PenFed) are non-profit banks. They are much more willing to manually underwrite a loan. If you can show them you have a high-paying OPT job and are putting down a 20% down payment, they will often approve you for a low-interest loan.
@@ -92,7 +92,7 @@ export default function BuyingCarPage() {
                     </div>
                 </div>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         The Visa Expiry Problem
@@ -118,7 +118,7 @@ export default function BuyingCarPage() {
                 <p>
                     When you buy a car, you will receive a mountain of paperwork: the Title, the Registration, the Bill of Sale, and your Insurance Policy. 
                 </p>
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl mb-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Organize Your Life with TrackMyOPT
                     </h3>
@@ -139,7 +139,7 @@ export default function BuyingCarPage() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Track Your OPT Days, Not Just Your Miles
                 </h3>
@@ -149,7 +149,7 @@ export default function BuyingCarPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Create Your TrackMyOPT Account
                     </Link>
@@ -160,7 +160,7 @@ export default function BuyingCarPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/building-credit-international-students-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Building US Credit
                             </h4>
@@ -173,7 +173,7 @@ export default function BuyingCarPage() {
                         </div>
                     </Link>
                     <Link href="/blog/90-day-unemployment-rule-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The 90-Day Unemployment Rule
                             </h4>

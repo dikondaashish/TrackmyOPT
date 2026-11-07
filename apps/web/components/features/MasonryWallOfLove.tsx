@@ -53,7 +53,7 @@ const TESTIMONIALS: Testimonial[] = [
         content: "My DSO was surprised I knew more about the 24-month extension rules than her! All thanks to the simplified guides here.",
         author: "Elena Rodriguez",
         role: "Biotech Researcher",
-        color: "bg-purple-50 dark:bg-purple-950 text-purple-900 dark:text-purple-100"
+        color: "bg-violet-50 dark:bg-violet-950 text-violet-900 dark:text-violet-100"
     },
     {
         type: "twitter",
@@ -122,7 +122,7 @@ export function MasonryWallOfLove() {
 
 function TwitterCard({ item }: { item: Testimonial }) {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 hover:shadow-md">
+        <div className="surface-card p-6">
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
@@ -142,7 +142,7 @@ function TwitterCard({ item }: { item: Testimonial }) {
 
 function LinkedinCard({ item }: { item: Testimonial }) {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 hover:shadow-md">
+        <div className="surface-card p-6">
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />

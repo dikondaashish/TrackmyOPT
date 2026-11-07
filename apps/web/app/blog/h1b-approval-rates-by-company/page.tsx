@@ -58,7 +58,7 @@ export default function H1BApprovalRatesArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     H-1B approval rates vary significantly by employer, with top tech companies achieving 95%+ approval rates while smaller or less established sponsors may see rates below 70%. Approval rates are publicly available through USCIS data and can help you evaluate potential employers.
@@ -89,15 +89,15 @@ export default function H1BApprovalRatesArticle() {
                         These major employers consistently achieve near-perfect H-1B approval rates. Data is based on FY2025 USCIS reporting for companies with 100+ petitions filed.
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Rank</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Company</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Approval Rate</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Petitions Filed</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Industry</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Rank</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Company</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Approval Rate</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Petitions Filed</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Industry</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,11 +114,11 @@ export default function H1BApprovalRatesArticle() {
                                     ["10", "Intel", "92%", "1,100+", "Semiconductors"],
                                 ].map(([rank, company, rate, petitions, industry], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-bold">{rank}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-900 dark:text-white font-medium">{company}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-emerald-700 dark:text-emerald-300 font-bold">{rate}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{petitions}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{industry}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-bold">{rank}</td>
+                                        <td className="p-3 border border-border text-gray-900 dark:text-white font-medium">{company}</td>
+                                        <td className="p-3 border border-border text-emerald-700 dark:text-emerald-300 font-bold">{rate}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{petitions}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{industry}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -138,13 +138,13 @@ export default function H1BApprovalRatesArticle() {
                         IT outsourcing and staffing companies tend to have significantly lower approval rates. USCIS has increased scrutiny on these employers since 2020.
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
                                 <tr className="bg-red-50 dark:bg-red-950">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Company Type</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Typical Approval Rate</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Common Issues</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Company Type</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Typical Approval Rate</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Common Issues</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -154,9 +154,9 @@ export default function H1BApprovalRatesArticle() {
                                     ["Companies <50 Employees", "65-80%", "Ability to pay concerns, less track record"],
                                 ].map(([type, rate, issues], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "" : "bg-gray-50 dark:bg-zinc-900"}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{type}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-red-600 dark:text-red-400 font-bold">{rate}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{issues}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{type}</td>
+                                        <td className="p-3 border border-border text-red-600 dark:text-red-400 font-bold">{rate}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{issues}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -175,7 +175,7 @@ export default function H1BApprovalRatesArticle() {
                             { title: "Look for Red Flags", desc: "Be cautious of companies with: very low salaries, virtual office addresses, high denial rates, or DOL investigations." },
                             { title: "Verify E-Verify Enrollment", desc: "If you plan to apply for STEM OPT extension, your employer must be E-Verify enrolled. Check on e-verify.gov." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white">{item.title}</h3>
@@ -194,7 +194,7 @@ export default function H1BApprovalRatesArticle() {
                             { question: "What is the average H-1B approval rate?", answer: "The overall H-1B approval rate across all employers in FY2025 was approximately 85%. However, this varies significantly — top tech companies see 95%+ while IT staffing firms may see 60-75%." },
                             { question: "Why do IT staffing companies have lower approval rates?", answer: "USCIS scrutinizes third-party worksite placements more heavily. Common denial reasons include: inability to prove a specialty occupation, employer-employee relationship issues, and wages below prevailing levels." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -204,7 +204,7 @@ export default function H1BApprovalRatesArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
@@ -219,10 +219,10 @@ export default function H1BApprovalRatesArticle() {
                 </div>
             </div>
 
-            <div className="bg-emerald-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Research H-1B Sponsors With Real Data</h2>
-                <p className="text-emerald-100 mb-6 max-w-lg mx-auto">Search 25,000+ employers with approval rates, salary data, fraud alerts, and E-Verify status.</p>
-                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition-colors">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">Search 25,000+ employers with approval rates, salary data, fraud alerts, and E-Verify status.</p>
+                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Search Sponsors Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

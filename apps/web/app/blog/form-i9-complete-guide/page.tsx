@@ -76,7 +76,7 @@ export default function FormI9GuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Published: February 23, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/form-i9.png" alt="Form I-9 Employment Eligibility Verification on a corporate desk with a US passport" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -84,7 +84,7 @@ export default function FormI9GuidePage() {
             </figcaption>
 
             {/* TL;DR */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Form I-9 is a federally-mandated form that every US employer must complete for every new hire. It verifies the employee&apos;s identity and work authorization. For OPT students, your EAD card (Form I-766) + passport is the standard combination. It must be completed within 3 business days of starting work.
@@ -92,7 +92,7 @@ export default function FormI9GuidePage() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Table of Contents
                 </h2>
@@ -118,7 +118,7 @@ export default function FormI9GuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                     Every employer in the United States — private companies, nonprofits, government agencies, and universities — must use Form I-9 to verify that <strong>every person they hire for pay after November 6, 1986</strong> is legally authorized to work in the United States.
                 </p>
-                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5 mb-4">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-5 mb-4">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
                         <div>
@@ -147,8 +147,8 @@ export default function FormI9GuidePage() {
                         { title: "H-1B, L-1, O-1 Workers", desc: "All nonimmigrant visa holders authorized to work" },
                         { title: "J-1 Exchange Visitors", desc: "J-1 scholars and researchers with work authorization" },
                     ].map((item) => (
-                        <div key={item.title} className="flex gap-3 p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl">
-                            <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                        <div key={item.title} className="border flex gap-3 p-4 border-border rounded-xl bg-card shadow-card">
+                            <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                             <div>
                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.title}</p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.desc}</p>
@@ -177,8 +177,8 @@ export default function FormI9GuidePage() {
                         </ul>
                     </div>
 
-                    <div className="border border-green-200 dark:border-green-800 rounded-xl p-6">
-                        <h3 className="text-xl font-bold text-green-700 dark:text-green-400 mb-3">Section 2: Employer Review and Verification</h3>
+                    <div className="border border-emerald-200 dark:border-emerald-800 rounded-xl p-6">
+                        <h3 className="text-xl font-bold text-emerald-700 dark:text-emerald-400 mb-3">Section 2: Employer Review and Verification</h3>
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3"><strong>Completed by:</strong> The employer or their authorized representative. <strong>Deadline:</strong> Within 3 business days of the employee&apos;s first day of work.</p>
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed">The employer physically examines the original documents the employee presents. The employer records the document title, issuing authority, document number, and expiration date in Section 2. The employer then signs and dates the form, attesting that the documents appeared genuine and related to the employee.</p>
                     </div>
@@ -198,7 +198,7 @@ export default function FormI9GuidePage() {
                     Employees must present <strong>original, unexpired</strong> documents. They may choose to present either <strong>one List A document</strong> OR <strong>one List B + one List C document</strong>.
                 </p>
                 <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
+                    <div className="border rounded-xl p-5 border-primary-muted bg-primary-soft">
                         <h3 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-3">List A — Identity + Work Auth</h3>
                         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                             <li>• U.S. Passport or Passport Card</li>
@@ -208,8 +208,8 @@ export default function FormI9GuidePage() {
                             <li>• Passport from a Federated State of Micronesia or the Marshall Islands with I-94</li>
                         </ul>
                     </div>
-                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-5">
-                        <h3 className="text-base font-bold text-green-800 dark:text-green-300 mb-3">List B — Identity Only</h3>
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+                        <h3 className="text-base font-bold text-emerald-800 dark:text-emerald-300 mb-3">List B — Identity Only</h3>
                         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                             <li>• State driver&apos;s license</li>
                             <li>• ID card issued by state/local government</li>
@@ -231,7 +231,7 @@ export default function FormI9GuidePage() {
                         </ul>
                     </div>
                 </div>
-                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-5">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">Employers <strong>cannot</strong> specify which documents an employee must present, as long as the documents are on the accepted list. Requiring specific documents (e.g., demanding a green card from a non-citizen) is discriminatory and violates federal law (8 U.S.C. § 1324b).</p>
@@ -253,7 +253,7 @@ export default function FormI9GuidePage() {
                         { step: "4", title: "STEM OPT Re-verification (Section 3)", desc: "When you transition from standard 12-month OPT to the 24-month STEM OPT extension, you will receive a new EAD card. Your employer MUST complete Section 3 of the I-9 using your new EAD card details before your old EAD expires." },
                         { step: "5", title: "Keep a copy for your records", desc: "Although employers are required to retain the I-9, you should also keep a personal copy for your own compliance records. TrackMyOPT can help you track when your re-verification is due." },
                     ].map((item) => (
-                        <div key={item.step} className="flex gap-4 p-5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl">
+                        <div key={item.step} className="border flex gap-4 p-5 border-border rounded-xl bg-card shadow-card">
                             <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">{item.step}</div>
                             <div>
                                 <p className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</p>
@@ -262,7 +262,7 @@ export default function FormI9GuidePage() {
                         </div>
                     ))}
                 </div>
-                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
+                <div className="border rounded-xl p-5 border-primary-muted bg-primary-soft">
                     <div className="flex gap-3">
                         <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                         <div>
@@ -276,34 +276,34 @@ export default function FormI9GuidePage() {
             {/* Section 6 */}
             <section id="deadlines" className="mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">6. Deadlines & Retention Requirements</h2>
-                <div className="overflow-x-auto mb-6">
+                <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-4 border border-gray-200 dark:border-zinc-700 font-semibold text-gray-900 dark:text-white">Requirement</th>
-                                <th className="text-left p-4 border border-gray-200 dark:border-zinc-700 font-semibold text-gray-900 dark:text-white">Deadline</th>
+                            <tr className="bg-surface-strong">
+                                <th className="text-left p-4 border border-border font-semibold text-gray-900 dark:text-white">Requirement</th>
+                                <th className="text-left p-4 border border-border font-semibold text-gray-900 dark:text-white">Deadline</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Section 1 completion</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">No later than the first day of employment</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Section 1 completion</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300 font-medium">No later than the first day of employment</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Section 2 completion</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Within 3 business days of the first day of work</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Section 2 completion</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300 font-medium">Within 3 business days of the first day of work</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Re-verification (Section 3)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Before the employee&apos;s current authorization expires</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Re-verification (Section 3)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300 font-medium">Before the employee&apos;s current authorization expires</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Employer document retention (active employee)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Duration of employment</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Employer document retention (active employee)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300 font-medium">Duration of employment</td>
                             </tr>
                             <tr>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">Employer document retention (after termination)</td>
-                                <td className="p-4 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Longer of: 3 years from hire date OR 1 year from termination</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300">Employer document retention (after termination)</td>
+                                <td className="p-4 border border-border text-gray-700 dark:text-gray-300 font-medium">Longer of: 3 years from hire date OR 1 year from termination</td>
                             </tr>
                         </tbody>
                     </table>
@@ -318,15 +318,15 @@ export default function FormI9GuidePage() {
                 </p>
                 <ul className="space-y-3 mb-6">
                     <li className="flex gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                         <span>Employers who are enrolled in <strong>E-Verify</strong> may use the <strong>E-Verify Identity Document Examination (IDEx)</strong> procedure to examine documents remotely via video call</span>
                     </li>
                     <li className="flex gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                         <span>The employee must upload images of their documents and participate in a live video session with an authorized HR representative</span>
                     </li>
                     <li className="flex gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                         <span>Employers not enrolled in E-Verify must continue to physically examine original documents in person (or use an authorized representative to do so on-site)</span>
                     </li>
                 </ul>
@@ -349,7 +349,7 @@ export default function FormI9GuidePage() {
                     ].map((item, i) => (
                         <div key={i} className="border border-red-200 dark:border-red-900 rounded-xl p-5">
                             <p className="font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center gap-1.5"><XCircle className="w-4 h-4" /> Mistake: {item.mistake}</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5"><CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" /> <span><strong>Fix:</strong> {item.fix}</span></p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5"><CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" /> <span><strong>Fix:</strong> {item.fix}</span></p>
                         </div>
                     ))}
                 </div>
@@ -373,18 +373,18 @@ export default function FormI9GuidePage() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-blue-600 rounded-xl p-8 text-white text-center">
+            <div className="not-prose rounded-xl p-8 text-ink-foreground text-center bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your OPT Compliance Deadlines Automatically</h2>
-                <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+                <p className="text-ink-muted mb-6 max-w-2xl mx-auto">
                     Never miss an I-9 re-verification deadline again. TrackMyOPT automatically alerts you when your EAD is expiring, when you need a STEM OPT extension, and when your employer needs to complete Section 3.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Get Free OPT Alerts <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
 
             {/* Official Sources */}
-            <div className="mt-12 p-6 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl">
+            <div className="border mt-12 p-6 border-border rounded-xl bg-surface">
                 <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">
                     Official Resources & Sources
                 </h3>

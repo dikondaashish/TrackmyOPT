@@ -173,13 +173,13 @@ export default function H1BSponsorsPage() {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-8">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <h1 className="text-2xl font-semibold text-foreground mb-1">
                     Sponsor Intelligence Dashboard
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 max-w-2xl mb-6">
+                <p className="text-sm text-muted-foreground max-w-2xl mb-6">
                     Research historical H-1B activity, calculated trends, and sponsor scores, then save target companies to your job tracker. Confirm current hiring and sponsorship directly with each employer.
                 </p>
 
@@ -298,12 +298,12 @@ export default function H1BSponsorsPage() {
                     )}
                 </>
             ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                        <Search className="w-8 h-8 text-gray-400" />
+                <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-card rounded-xl border border-dashed border-border">
+                    <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950 rounded-xl flex items-center justify-center mb-4">
+                        <Search className="w-6 h-6 text-emerald-600 dark:text-emerald-300" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No sponsors found</h3>
-                    <p className="text-gray-500 max-w-md mx-auto">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No sponsors found</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
                         {activeTab === "saved"
                             ? "You haven't saved any sponsors yet. Browse the full list and save companies to track them here."
                             : "Try adjusting your filters or search query to find more results."}
@@ -311,7 +311,7 @@ export default function H1BSponsorsPage() {
                     {activeTab === "saved" && (
                         <button
                             onClick={() => setActiveTab("all")}
-                            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+                            className="mt-6 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium shadow-button hover:bg-primary-hover transition-colors"
                         >
                             Browse All Sponsors
                         </button>

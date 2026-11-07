@@ -119,28 +119,30 @@ export default function OptClockPage() {
         title="OPT 90-Day Unemployment Calculator"
         description="Record employment periods and use this calculator to plan around the unemployment limit for post-completion OPT."
       >
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Track the dates that matter
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Add your OPT start date and each employment period so you can see a
             clear planning estimate. Save supporting records separately and
             report updates through the process required by your school.
           </p>
         </div>
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Use the 90-day limit carefully
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Post-completion OPT has a 90-day unemployment limit. This tool is a
             planning aid, not an official status determination, so confirm how
             your employment qualifies and any reporting deadlines with your DSO.
           </p>
         </div>
       </PublicOptToolPageIntro>
-      <OptClockTool />
+      <div className="bg-surface pb-12 pt-3">
+        <OptClockTool />
+      </div>
     </>
   );
 }

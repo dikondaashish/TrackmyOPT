@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function ATSScannerPage() {
     return (
-        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-background">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 max-md:px-3 py-4 sm:py-6 md:py-10">
                 {/* Back Link */}
                 <Link
@@ -32,13 +32,13 @@ export default function ATSScannerPage() {
                 {/* Placeholder Content */}
                 <div className="rounded-xl border border-dashed border-border bg-muted p-12 text-center">
                     <div className="flex justify-center gap-4 mb-6">
-                        <div className="p-3 rounded-xl bg-card border border-border">
+                        <div className="p-3 rounded-xl bg-card border border-border shadow-card">
                             <Percent className="w-6 h-6 text-amber-500" />
                         </div>
-                        <div className="p-3 rounded-xl bg-card border border-border">
+                        <div className="p-3 rounded-xl bg-card border border-border shadow-card">
                             <AlertTriangle className="w-6 h-6 text-red-500" />
                         </div>
-                        <div className="p-3 rounded-xl bg-card border border-border">
+                        <div className="p-3 rounded-xl bg-card border border-border shadow-card">
                             <Lightbulb className="w-6 h-6 text-emerald-500" />
                         </div>
                     </div>

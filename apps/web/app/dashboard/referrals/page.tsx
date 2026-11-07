@@ -92,7 +92,7 @@ export default function ReferralStatsPage() {
 
   if (!hasAccess) {
     return (
-      <div className="rounded-xl border bg-card p-6">
+      <div className="rounded-xl border bg-card p-6 shadow-card">
         <h1 className="text-xl font-semibold mb-2">Referral Stats</h1>
         <p className="text-sm text-muted-foreground">
           You do not have an active referral code assigned to your account.
@@ -111,27 +111,27 @@ export default function ReferralStatsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div className="rounded-xl border p-4 bg-card shadow-sm">
+        <div className="rounded-xl border p-4 bg-card shadow-card">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <MousePointerClick className="w-4 h-4" /> Total Clicks
           </div>
           <div className="text-2xl font-semibold mt-2">{totals.clicks}</div>
         </div>
-        <div className="rounded-xl border p-4 bg-card shadow-sm">
+        <div className="rounded-xl border p-4 bg-card shadow-card">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Users className="w-4 h-4" /> Total Signups
           </div>
           <div className="text-2xl font-semibold mt-2">{totals.signups}</div>
           <p className="text-xs text-muted-foreground mt-1">Signup rate: {formatRate(metrics.signupRate)}</p>
         </div>
-        <div className="rounded-xl border p-4 bg-card shadow-sm">
+        <div className="rounded-xl border p-4 bg-card shadow-card">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Crown className="w-4 h-4" /> Premium Conversions
           </div>
           <div className="text-2xl font-semibold mt-2">{totals.premium}</div>
           <p className="text-xs text-muted-foreground mt-1">Signup to premium: {formatRate(metrics.premiumRate)}</p>
         </div>
-        <div className="rounded-xl border p-4 bg-card shadow-sm">
+        <div className="rounded-xl border p-4 bg-card shadow-card">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <TrendingUp className="w-4 h-4" /> Best Performing Code
           </div>
@@ -142,7 +142,7 @@ export default function ReferralStatsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card p-4 sm:p-5">
+      <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-card">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h2 className="text-base font-semibold flex items-center gap-2">
@@ -169,7 +169,7 @@ export default function ReferralStatsPage() {
 
       <div className="md:hidden space-y-3">
         {rows.length === 0 ? (
-          <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground text-sm">
+          <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground text-sm shadow-card">
             No referral code found for your account yet.
           </div>
         ) : (
@@ -177,7 +177,7 @@ export default function ReferralStatsPage() {
             const link = `https://www.trackmyopt.com/?ref=${row.code}`;
             const rowSignupRate = row.clicks > 0 ? ((row.signups || 0) / row.clicks) * 100 : 0;
             return (
-              <div key={row.code} className="rounded-xl border bg-card p-4 shadow-sm space-y-3">
+              <div key={row.code} className="rounded-xl border bg-card p-4 shadow-card space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="font-semibold">{row.code}</div>
@@ -229,17 +229,17 @@ export default function ReferralStatsPage() {
         )}
       </div>
 
-      <div className="hidden md:block rounded-xl border bg-card overflow-x-auto shadow-sm">
+      <div className="hidden md:block rounded-xl border bg-card overflow-x-auto shadow-card">
         <table className="w-full text-sm">
-          <thead className="bg-muted">
+          <thead className="bg-surface-strong border-b border-border text-foreground">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Code</th>
-              <th className="text-left px-4 py-3 font-medium">Link</th>
-              <th className="text-right px-4 py-3 font-medium">Clicks</th>
-              <th className="text-right px-4 py-3 font-medium">Signups</th>
-              <th className="text-right px-4 py-3 font-medium">Premium</th>
-              <th className="text-right px-4 py-3 font-medium">CVR</th>
-              <th className="text-center px-4 py-3 font-medium">Status</th>
+              <th className="text-left px-4 py-3 font-semibold">Code</th>
+              <th className="text-left px-4 py-3 font-semibold">Link</th>
+              <th className="text-right px-4 py-3 font-semibold">Clicks</th>
+              <th className="text-right px-4 py-3 font-semibold">Signups</th>
+              <th className="text-right px-4 py-3 font-semibold">Premium</th>
+              <th className="text-right px-4 py-3 font-semibold">CVR</th>
+              <th className="text-center px-4 py-3 font-semibold">Status</th>
             </tr>
           </thead>
           <tbody>

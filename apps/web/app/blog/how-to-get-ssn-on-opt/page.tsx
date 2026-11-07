@@ -91,22 +91,22 @@ export default function HowToGetSSNOnOPT() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/ssn-opt-guide.png" alt="Passport, EAD card, and Form SS-5 application laid out on a desk for SSN application" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/ssn-opt-guide.png" alt="Passport, EAD card, and Form SS-5 application laid out on a desk for SSN application" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     You&apos;ll need to visit your local SSA office in person to apply — there is no online option for first-time applicants.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>Visit your nearest SSA office with your passport, I-20, EAD card, and I-94.</strong> Fill out Form SS-5 on-site. SSA verifies your SEVIS record with DHS (takes 48-72 hours after your I-20 is updated). Your SSN card arrives by mail in 2-4 weeks. You can start working with your EAD card before receiving your SSN.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -118,7 +118,7 @@ export default function HowToGetSSNOnOPT() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
@@ -156,9 +156,9 @@ export default function HowToGetSSNOnOPT() {
                             { title: "Banking & Credit", desc: "Required to open most bank accounts, apply for credit cards, and build US credit history." },
                             { title: "Housing & Utilities", desc: "Landlords and utility companies typically require an SSN for background checks and account setup." },
                         ].map((item) => (
-                            <div key={item.title} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.title} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                     {item.title}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
@@ -189,7 +189,7 @@ export default function HowToGetSSNOnOPT() {
                                 SSA verifies SEVIS record → <strong>48-72 hours (done automatically)</strong>
                             </p>
                             <p className="flex items-center gap-2">
-                                <MailOpen className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                <MailOpen className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                 SSN card arrives by mail → <strong>2-4 weeks after visit</strong>
                             </p>
                             <p className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function HowToGetSSNOnOPT() {
                         </div>
                     </div>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mt-6">
+                    <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mt-6">
                         <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Common Mistake: Applying Too Early
@@ -227,7 +227,7 @@ export default function HowToGetSSNOnOPT() {
                             { title: "Form SS-5 (Application)", desc: "You can fill this out at the SSA office or download and pre-fill from ssa.gov. It's a one-page form.", required: true },
                             { title: "Job Offer Letter (Recommended)", desc: "Not always required, but some SSA offices ask for proof of a job offer. Bring it just in case.", required: false },
                         ].map((doc, i) => (
-                            <div key={i} className="flex items-start gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border flex items-start gap-3 p-4 rounded-xl border-border bg-card shadow-card">
                                 <CheckCircle2 className={`w-5 h-5 mt-0.5 flex-shrink-0 ${doc.required ? 'text-green-600' : 'text-gray-400'}`} />
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -255,7 +255,7 @@ export default function HowToGetSSNOnOPT() {
                             { step: "5", title: "SEVIS Verification", desc: "SSA verifies your F-1 status and work authorization with DHS electronically. This usually takes 48-72 hours. If your SEVIS record hasn't been updated, SSA may ask you to come back." },
                             { step: "6", title: "Receive Your SSN Card by Mail", desc: "If approved, SSA mails your SSN card to the address on your application within 2-4 weeks. The card is a simple paper document — keep it safe and never carry it in your wallet." },
                         ].map((item) => (
-                            <div key={item.step} className="flex items-start gap-4 p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.step} className="border flex items-start gap-4 p-5 rounded-xl border-border bg-card shadow-card">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-400 text-lg font-bold flex-shrink-0">
                                     {item.step}
                                 </span>
@@ -272,13 +272,13 @@ export default function HowToGetSSNOnOPT() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         After Your SSA Visit: Timeline
                     </h2>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm mt-4">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Timeframe</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">What Happens</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Your Action</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Timeframe</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">What Happens</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Your Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -290,9 +290,9 @@ export default function HowToGetSSNOnOPT() {
                                     ["Week 4+", "If not received", "Call SSA at 1-800-772-1213"],
                                 ].map(([time, what, action], i) => (
                                     <tr key={i} className={i % 2 === 1 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">{time}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{what}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{action}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">{time}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{what}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{action}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -314,7 +314,7 @@ export default function HowToGetSSNOnOPT() {
                             { reason: "OPT Start Date Hasn't Arrived", fix: "Some SSA offices won't process applications until your OPT start date has passed. Return after your start date with the same documents." },
                             { reason: "Incorrect Form I-94", fix: "Print a fresh I-94 from i94.cbp.dhs.gov. Make sure it shows your most recent entry and F-1 admission class." },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4 text-amber-500" />
                                     {item.reason}
@@ -333,20 +333,20 @@ export default function HowToGetSSNOnOPT() {
                         If your start date arrives before your SSN card, you can still begin working legally:
                     </p>
                     <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <h3 className="font-semibold text-green-900 dark:text-green-100">Form I-9: Use EAD Card</h3>
-                                <p className="text-sm text-green-800 dark:text-green-200 mt-1">
+                                <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Form I-9: Use EAD Card</h3>
+                                <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
                                     Your EAD card (I-766) is a List A document for Form I-9. It proves both identity AND work authorization. Your employer can use the EAD receipt number until your SSN arrives.
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <h3 className="font-semibold text-green-900 dark:text-green-100">Payroll: Provide SSN When Received</h3>
-                                <p className="text-sm text-green-800 dark:text-green-200 mt-1">
+                                <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Payroll: Provide SSN When Received</h3>
+                                <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
                                     Tell HR you've applied and will provide your SSN as soon as you receive it. Employers are used to this with international employees. They can process your first paychecks and update the SSN later.
                                 </p>
                             </div>
@@ -355,34 +355,34 @@ export default function HowToGetSSNOnOPT() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-teal-600 rounded-xl p-8 my-12 text-white">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-teal-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <CreditCard className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Track Your OPT Timeline & EAD Status</h3>
                         </div>
-                        <p className="text-teal-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             Know exactly when your EAD arrives, track your OPT dates, and monitor USCIS case status — all in one dashboard.
                         </p>
                         <ul className="space-y-3 mb-8">
-                            <li className="flex items-center gap-3 text-teal-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>Real-time USCIS case status tracking</span>
                             </li>
-                            <li className="flex items-center gap-3 text-teal-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>OPT timeline and deadline alerts</span>
                             </li>
-                            <li className="flex items-center gap-3 text-teal-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>100% Free for F-1 International Students</span>
                             </li>
                         </ul>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-teal-700 font-bold hover:bg-teal-50 transition-colors"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -402,7 +402,7 @@ export default function HowToGetSSNOnOPT() {
                             { question: "Do I need an SSN to file taxes?", answer: "If you cannot get an SSN, you can apply for an ITIN using Form W-7. However, with OPT work authorization, you should be eligible for an SSN, which is preferred for tax filing." },
                             { question: "Can I apply for an SSN online?", answer: "No. First-time SSN applications for non-citizens must be done in person at a local SSA office. There is no online or mail option." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -413,7 +413,7 @@ export default function HowToGetSSNOnOPT() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/form-i9-complete-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Form I-9 Complete Guide</Link>
@@ -430,12 +430,12 @@ export default function HowToGetSSNOnOPT() {
 
             <AuthorBio />
 
-            <div className="bg-teal-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Card Status</h2>
-                <p className="text-teal-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     Know the moment your EAD is approved so you can apply for your SSN immediately. TrackMyOPT Pro runs daily USCIS auto-checks and can email you when status changes.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-teal-600 rounded-xl font-semibold hover:bg-teal-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

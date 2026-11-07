@@ -67,7 +67,7 @@ export function LandingPricing() {
   }
 
   return (
-    <section id="pricing" className="py-24 relative">
+    <section id="pricing" className="py-24 bg-surface border-y border-border relative">
       <PricingModule
         title="Simple, Transparent Pricing"
         subtitle={

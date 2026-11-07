@@ -62,126 +62,153 @@ export default async function BlogIndexPage() {
   const hasUnreviewed = autoArticles.some((a) => a.byline === 'automated');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="-mt-4">
       {/* Hero */}
-      <div className="text-center mb-16">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-          OPT & F-1 Visa Guides
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
-          Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors,
-          and USCIS tracking. Written by former F-1 students who've been through
-          it all.
-        </p>
-
-        {/* E-E-A-T / Editorial Density Section */}
-        <div className="max-w-3xl mx-auto bg-blue-50 dark:bg-blue-950 rounded-xl p-6 text-left">
-          <div className="flex flex-col sm:flex-row gap-6 items-start">
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-xl">
-                VK
-              </div>
-            </div>
+      <section className="border-b border-border bg-surface">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12 sm:pt-16 sm:pb-14">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:items-center">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
-                Editorial Independence & Accuracy
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
-                {hasUnreviewed ? 'Our guides are authored by' : 'Our content is exclusively authored by'}{' '}
-                <strong>Vinay Kumar</strong>, our Lead Content Writer and former
-                F-1 student. We regularly consult with immigration attorneys and
-                review DHS/USCIS policy updates to ensure our guides remain
-                accurate, objective, and up-to-date.
-                {hasUnreviewed && (
-                  <>
-                    {' '}Posts bylined <strong>TrackMyOPT News Desk</strong> are
-                    generated automatically from official government notices.
-                  </>
-                )}
+              <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-5 leading-tight">
+                OPT & F-1 Visa Guides
+              </h1>
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+                Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors,
+                and USCIS tracking. Written by former F-1 students who've been through
+                it all.
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                TrackMyOPT is not a law firm. The guides below provide general
-                educational information about the F-1 visa lifecycle and
-                should not be construed as legal advice.
-              </p>
+            </div>
+
+            {/* E-E-A-T / Editorial Density Section */}
+            <div className="surface-card p-6 text-left">
+              <div className="flex flex-col sm:flex-row gap-5 items-start">
+                <div className="flex-shrink-0">
+                  <div className="w-14 h-14 rounded-full bg-primary-soft border border-primary-muted flex items-center justify-center text-primary font-bold text-lg">
+                    VK
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-lg mb-2">
+                    Editorial Independence & Accuracy
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                    {hasUnreviewed ? 'Our guides are authored by' : 'Our content is exclusively authored by'}{' '}
+                    <strong className="text-foreground">Vinay Kumar</strong>, our Lead Content Writer and former
+                    F-1 student. We regularly consult with immigration attorneys and
+                    review DHS/USCIS policy updates to ensure our guides remain
+                    accurate, objective, and up-to-date.
+                    {hasUnreviewed && (
+                      <>
+                        {' '}Posts bylined <strong className="text-foreground">TrackMyOPT News Desk</strong> are
+                        generated automatically from official government notices.
+                      </>
+                    )}
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    TrackMyOPT is not a law firm. The guides below provide general
+                    educational information about the F-1 visa lifecycle and
+                    should not be construed as legal advice.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Featured Posts */}
-      <div className="grid md:grid-cols-2 gap-8 mb-16">
-        {featured.map((post) => (
-          <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
-            <article className="flex flex-col h-full bg-blue-50 dark:bg-zinc-900 rounded-xl hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-              <div className="relative w-full h-48 sm:h-56 bg-blue-100 dark:bg-zinc-800">
-                <BlogPostImage
-                  src={getPostImage(post)}
-                  alt={post.title}
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              </div>
-              <div className="p-8 flex flex-col flex-grow">
-                <p className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  <Clock className="w-3.5 h-3.5" />
-                  {post.category} · {post.readTime} · Featured
-                </p>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {post.title}
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed flex-grow">
-                  {post.description}
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-sm text-gray-500">{post.date}</span>
-                  <span className="flex items-center text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:gap-2 transition-all">
-                    Read Guide <ArrowRight className="w-4 h-4 ml-1" />
-                  </span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        {/* Featured Posts */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-16">
+          {featured.map((post) => (
+            <Link
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <article className="surface-card-interactive flex flex-col h-full overflow-hidden border-t-[3px] border-t-primary">
+                <div className="relative w-full h-48 sm:h-56 bg-muted border-b border-border">
+                  <BlogPostImage
+                    src={getPostImage(post)}
+                    alt={post.title}
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
                 </div>
-              </div>
-            </article>
-          </Link>
-        ))}
+                <div className="p-6 sm:p-8 flex flex-col flex-grow">
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mb-4">
+                    <span className="font-medium text-primary">{post.category}</span>
+                    <span aria-hidden>·</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" />
+                      {post.readTime} · Featured
+                    </span>
+                  </p>
+                  <h2 className="text-2xl font-bold text-foreground mb-3 leading-snug group-hover:text-primary transition-colors">
+                    {post.title}
+                  </h2>
+                  <p className="text-muted-foreground mb-6 leading-relaxed flex-grow">
+                    {post.description}
+                  </p>
+                  <div className="flex items-center justify-between border-t border-border pt-4 mt-auto">
+                    <span className="text-sm text-muted-foreground">{post.date}</span>
+                    <span className="flex items-center gap-1 text-primary font-semibold text-sm">
+                      Read Guide <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* All Posts */}
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-        All Guides
-      </h2>
-      <div className="grid md:grid-cols-2 gap-6">
-        {rest.map((post) => (
-          <PostCard key={post.slug} post={post} />
-        ))}
-      </div>
+      <section className="border-t border-border bg-surface">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-8">
+            All Guides
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {rest.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
 function PostCard({ post }: { post: (typeof blogPosts)[number] }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="group">
-      <article className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:shadow-lg transition-all duration-300 overflow-hidden">
-        <div className="relative w-full h-40 bg-gray-100 dark:bg-zinc-800">
+    <Link
+      href={`/blog/${post.slug}`}
+      className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <article className="surface-card-interactive flex flex-col h-full overflow-hidden">
+        <div className="relative w-full h-40 bg-muted border-b border-border">
           <BlogPostImage
             src={getPostImage(post)}
             alt={post.title}
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
         <div className="p-6 flex flex-col flex-grow">
-          <p className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mb-3">
-            <Clock className="w-3.5 h-3.5" />
-            {post.category} · {post.readTime}
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mb-3">
+            <span className="font-medium text-primary">{post.category}</span>
+            <span aria-hidden>·</span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" />
+              {post.readTime}
+            </span>
           </p>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          <h3 className="text-lg font-bold text-foreground mb-2 leading-snug group-hover:text-primary transition-colors">
             {post.title}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 flex-grow">
+          <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-grow">
             {post.description}
           </p>
-          <span className="text-sm text-gray-400 mt-auto">{post.date}</span>
+          <span className="text-sm text-muted-foreground border-t border-border pt-3 mt-auto">{post.date}</span>
         </div>
       </article>
     </Link>

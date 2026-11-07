@@ -61,7 +61,7 @@ export default function FallOutOfStatusPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/fall-out-of-f1-status-options.png" alt="Stressed student desk with passport, I-20, and phone showing missed deadlines" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -70,7 +70,7 @@ export default function FallOutOfStatusPage() {
                     "Falling out of status" means you have violated the terms of your F-1 visa, causing your Designated School Official (DSO) to terminate your SEVIS record. When this happens, you lose your legal right to remain in the United States. While this is a serious situation, acting quickly gives you several options to recover your status.
                 </p>
 
-                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl mb-10">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 rounded-r-xl mb-10">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-6 h-6" />
                         First Step: Stop Working Immediately
@@ -97,7 +97,7 @@ export default function FallOutOfStatusPage() {
                 </p>
 
                 <div className="space-y-8 my-8">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-8 shadow-sm">
+                    <div className="border border-border rounded-xl p-8 bg-card shadow-card">
                         <h3 className="text-2xl font-bold mt-0 mb-4 text-blue-600 dark:text-blue-400">
                             Option 1: Reinstatement (Within the US)
                         </h3>
@@ -117,7 +117,7 @@ export default function FallOutOfStatusPage() {
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-8 shadow-sm">
+                    <div className="border border-border rounded-xl p-8 bg-card shadow-card">
                         <h3 className="text-2xl font-bold mt-0 mb-4 text-indigo-600 dark:text-indigo-400">
                             Option 2: Travel and Reentry (New Initial I-20)
                         </h3>
@@ -132,7 +132,7 @@ export default function FallOutOfStatusPage() {
                         </ul>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-8 shadow-sm">
+                    <div className="border border-border rounded-xl p-8 bg-card shadow-card">
                         <h3 className="text-2xl font-bold mt-0 mb-4 flex items-center gap-2 text-gray-600 dark:text-gray-400">
                             <XCircle className="w-6 h-6" /> Option 3: Voluntary Departure
                         </h3>
@@ -163,7 +163,7 @@ export default function FallOutOfStatusPage() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Prevent Status Violations with TrackMyOPT
                 </h3>
@@ -173,7 +173,7 @@ export default function FallOutOfStatusPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Create Free Account
                     </Link>
@@ -184,7 +184,7 @@ export default function FallOutOfStatusPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/opt-reporting-requirements-dso" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 OPT Reporting Requirements
                             </h4>
@@ -197,7 +197,7 @@ export default function FallOutOfStatusPage() {
                         </div>
                     </Link>
                     <Link href="/blog/90-day-unemployment-rule-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The 90-Day Unemployment Rule
                             </h4>

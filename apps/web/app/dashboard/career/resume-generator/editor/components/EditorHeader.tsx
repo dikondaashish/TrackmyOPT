@@ -66,7 +66,7 @@ export function EditorHeader({
 
                     {/* Title + Status */}
                     <div className="text-center">
-                        <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
+                        <h1 className="text-lg sm:text-xl font-semibold text-foreground">
                             Resume Editor
                         </h1>
                         <div className="flex items-center justify-center gap-2 mt-0.5">

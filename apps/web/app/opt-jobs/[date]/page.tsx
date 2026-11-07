@@ -31,33 +31,33 @@ export default async function DailyOptJobsPage({ params }: PageProps) {
   return (
     <>
       <LandingNavbar />
-      <main className="min-h-screen bg-slate-50 px-4 pb-20 pt-28 text-slate-950 dark:bg-zinc-950 dark:text-white">
+      <main className="min-h-screen bg-surface px-4 pb-20 pt-28 text-foreground">
         <div className="mx-auto max-w-3xl">
-          <p className="text-sm text-slate-500 dark:text-zinc-400">{displayPostDate(date)}</p>
-          <h1 className="mt-2 text-3xl font-bold leading-tight">Jobs for OPT &amp; STEM OPT job seekers</h1>
-          <p className="mt-3 text-slate-600 dark:text-zinc-300">
+          <p className="text-sm text-muted-foreground">{displayPostDate(date)}</p>
+          <h1 className="mt-2 text-3xl font-bold leading-tight sm:text-4xl">Jobs for OPT &amp; STEM OPT job seekers</h1>
+          <p className="mt-3 text-muted-foreground">
             {post.items.length} fresh US openings from verified company career pages. Roles that rule out visa
             holders (citizenship, clearance or &quot;no sponsorship&quot;) are left out.
           </p>
 
           {groups.map((group) => (
             <section key={group.key} className="mt-8">
-              <h2 className="text-lg font-semibold">{group.label}</h2>
-              <ul className="mt-3 divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+              <h2 className="text-lg font-semibold text-foreground">{group.label}</h2>
+              <ul className="mt-3 divide-y divide-border overflow-hidden surface-card">
                 {group.items.map((item) => (
                   <li key={item.code}>
                     <Link
                       href={`/j/${item.code}`}
-                      className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800"
+                      className="group flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate font-medium">{item.title}</span>
-                        <span className="block truncate text-sm text-slate-500 dark:text-zinc-400">
+                        <span className="block truncate font-medium text-foreground">{item.title}</span>
+                        <span className="block truncate text-sm text-muted-foreground">
                           {item.companyName}
                           {item.location ? ` · ${item.location}` : ''}
                         </span>
                       </span>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+                      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" aria-hidden />
                     </Link>
                   </li>
                 ))}
@@ -65,11 +65,11 @@ export default async function DailyOptJobsPage({ params }: PageProps) {
             </section>
           ))}
 
-          <section className="mt-10 rounded-xl bg-blue-50 p-6 dark:bg-blue-950">
+          <section className="mt-10 rounded-xl border border-primary-muted bg-primary-soft p-6">
             <h2 className="font-semibold">
               Stand out for these roles
             </h2>
-            <p className="mt-2 text-sm text-slate-700 dark:text-zinc-300">
+            <p className="mt-2 text-sm text-muted-foreground">
               Tailor your resume to a job description with TrackMyOPT&apos;s AI resume builder, and browse thousands
               more openings on the free job board.
             </p>
@@ -86,7 +86,7 @@ export default async function DailyOptJobsPage({ params }: PageProps) {
             </div>
           </section>
 
-          <p className="mt-6 text-xs text-slate-500 dark:text-zinc-400">
+          <p className="mt-6 text-xs text-muted-foreground">
             Always confirm visa sponsorship and E-Verify enrollment (required for STEM OPT) with the employer.
           </p>
         </div>

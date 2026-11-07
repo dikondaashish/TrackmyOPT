@@ -160,7 +160,7 @@ export default function FY2027H1BNoSecondLotteryPage() {
         </div>
       </header>
 
-      <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+      <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mb-10">
         <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">
           Quick Answer
         </p>
@@ -199,7 +199,7 @@ export default function FY2027H1BNoSecondLotteryPage() {
                 enough selections converted into filings to fill the cap in one round.
               </p>
             </div>
-            <div className="p-5 rounded-xl border border-amber-200 dark:border-amber-950 bg-amber-50 dark:bg-amber-950">
+            <div className="border-l-4 border-l-amber-500 p-5 rounded-r-xl bg-amber-50 dark:bg-amber-950">
               <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed">
                 <strong>Do not rely on rumors.</strong> Sites that still suggest a
                 "possible" second FY 2027 selection are out of date. Plan as if
@@ -234,7 +234,7 @@ export default function FY2027H1BNoSecondLotteryPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="p-5 rounded-xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800"
+                className="border p-5 rounded-xl border-border bg-card shadow-card"
               >
                 <p className="font-semibold text-gray-900 dark:text-white text-sm mb-2">
                   {item.title}
@@ -278,19 +278,19 @@ export default function FY2027H1BNoSecondLotteryPage() {
             Cap-Exempt vs Cap-Subject — The Distinction That Matters
           </h2>
           <div className="not-prose grid md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950">
-              <CheckCircle2 className="w-5 h-5 text-green-600 mb-2" />
-              <p className="font-semibold text-green-900 dark:text-green-100 mb-2">
+            <div className="p-5 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 mb-2" />
+              <p className="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">
                 Cap-exempt employers
               </p>
-              <ul className="text-sm text-green-800 dark:text-green-200 space-y-1">
+              <ul className="text-sm text-emerald-800 dark:text-emerald-200 space-y-1">
                 <li>• Accredited U.S. universities</li>
                 <li>• Nonprofits affiliated with a university</li>
                 <li>• Nonprofit / government research organizations</li>
                 <li>• Can file H-1Bs year-round, not tied to the cap</li>
               </ul>
             </div>
-            <div className="p-5 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950">
+            <div className="border-l-4 border-l-red-500 p-5 rounded-r-xl bg-red-50 dark:bg-red-950">
               <AlertTriangle className="w-5 h-5 text-red-600 mb-2" />
               <p className="font-semibold text-red-900 dark:text-red-100 mb-2">
                 Cap-subject employers
@@ -371,7 +371,7 @@ export default function FY2027H1BNoSecondLotteryPage() {
         </section>
 
         <section className="mb-12">
-          <div className="not-prose bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-xl p-6">
+          <div className="not-prose border rounded-xl p-6 border-primary-muted bg-primary-soft">
             <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
               <strong>Reminder:</strong> TrackMyOPT guides are planning summaries —
               not legal advice. Cap-gap, STEM OPT, and H-1B strategy depends on

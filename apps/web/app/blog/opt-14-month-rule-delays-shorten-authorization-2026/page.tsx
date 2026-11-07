@@ -134,7 +134,7 @@ export default function Opt14MonthRuleDelaysPage() {
         </div>
       </header>
 
-      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+      <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
         <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">
           Quick Answer
         </p>
@@ -148,7 +148,7 @@ export default function Opt14MonthRuleDelaysPage() {
         </p>
       </div>
 
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+      <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
         <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
         </h2>
         <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -183,9 +183,9 @@ export default function Opt14MonthRuleDelaysPage() {
             Late approval compresses the middle.
           </p>
 
-          <div className="not-prose overflow-x-auto rounded-xl border border-gray-200 dark:border-zinc-800 mb-6">
+          <div className="not-prose overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
             <table className="w-full text-sm">
-              <thead className="bg-gray-100 dark:bg-zinc-800">
+              <thead className="bg-surface-strong">
                 <tr>
                   <th className="p-3 text-left font-semibold">Scenario</th>
                   <th className="p-3 text-left font-semibold">Program end</th>
@@ -325,9 +325,9 @@ export default function Opt14MonthRuleDelaysPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950 border border-green-100 dark:border-green-900"
+                className="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-100 dark:border-emerald-900"
               >
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-white text-sm">
                     {item.title}

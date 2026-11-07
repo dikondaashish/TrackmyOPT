@@ -68,22 +68,22 @@ export default function OPTStartupArticle() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/f1-opt-startup.png" alt="Young entrepreneur standing confidently in a modern coworking space" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/f1-opt-startup.png" alt="Young entrepreneur standing confidently in a modern coworking space" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     The initial 12-month OPT provides the only window where self-employment is explicitly permitted for F-1 students.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     During your first 12 months of post-completion OPT, you are explicitly allowed to be self-employed and work full-time for your own startup. The business <strong>must</strong> be directly related to your college degree, and you must work at least 20 hours a week to avoid unemployment days.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
@@ -110,7 +110,7 @@ export default function OPTStartupArticle() {
                 </section>
 
                 <section id="the-degree-rule" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
+                    <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             The "Directly Related" Rule
@@ -140,7 +140,7 @@ export default function OPTStartupArticle() {
                         <li>A log proving you are working at least 20 hours per week.</li>
                     </ul>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 border rounded-xl flex items-center justify-between border-primary-muted bg-primary-soft">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
                                 <Download className="w-5 h-5" /> Free Founder's Compliance Log
@@ -149,7 +149,7 @@ export default function OPTStartupArticle() {
                                 Download our Excel template to log your weekly 20+ hours of self-employment to satisfy OPT reporting requirements.
                             </p>
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap shadow-button">
                             Download Excel
                         </button>
                     </div>
@@ -163,7 +163,7 @@ export default function OPTStartupArticle() {
                             { question: "Can I raise VC funding on OPT?", answer: "Yes. You can pitch to Venture Capitalists and raise funding. However, many VCs prefer you to have a long-term visa strategy (like an O-1 or H-1B) before writing a check." },
                             { question: "Can I transition my OPT startup to STEM OPT?", answer: "This is where it gets very complicated. STEM OPT prohibits self-employment. To keep running your startup on STEM OPT, you must radically restructure your company. See Part 3 of this series." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -186,7 +186,7 @@ export default function OPTStartupArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-opt-visa")} />
             <AuthorBio />
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Read The Rest of the Series</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/start-company-f1-student-visa" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Part 1: Starting a Company on F-1 (Studying)</Link>

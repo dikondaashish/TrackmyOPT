@@ -153,7 +153,7 @@ export function CaseStatusSection() {
         currentStatus={caseStatus?.current_status ?? null}
       />
       {/* Minimal page title — no marketing copy */}
-      <h1 className="text-xl sm:text-2xl font-extrabold">
+      <h1 className="text-2xl font-semibold text-foreground">
         USCIS Case Status
       </h1>
 
@@ -422,7 +422,7 @@ export function CaseStatusSection() {
 
           {/* ── 5. ANALYTICS SECTION ── */}
           {isPremium === true && (
-            <Card className="p-4 sm:p-6 border-border shadow-sm">
+            <Card className="p-4 sm:p-6 border-border">
               <CaseStatusPanelErrorBoundary area="analytics">
                 {isPremium === true && isOptCase && (
                   <VerifiedForecastPanel caseId={caseStatus.id} lastCheckedAt={caseStatus.last_checked_at ?? null} />

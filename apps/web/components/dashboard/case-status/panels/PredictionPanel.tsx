@@ -165,7 +165,7 @@ export function PredictionPanel({
             {cohortSize.toLocaleString()} reported {cohortLabel} approvals
           </div>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card">
           <dt className="text-xs font-medium text-muted-foreground">
             Decision window · middle 50%
           </dt>

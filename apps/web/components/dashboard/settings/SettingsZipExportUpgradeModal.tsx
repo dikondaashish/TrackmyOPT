@@ -14,8 +14,8 @@ export function SettingsZipExportUpgradeModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
-        <div className="w-16 h-16 bg-purple-100 dark:bg-purple-950 rounded-xl flex items-center justify-center mx-auto mb-4">
-          <Download className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+        <div className="w-16 h-16 bg-violet-100 dark:bg-violet-950 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <Download className="w-8 h-8 text-violet-600 dark:text-violet-400" />
         </div>
 
         <h3 className="text-xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
@@ -53,7 +53,7 @@ export function SettingsZipExportUpgradeModal({
           </button>
           <a
             href="/pricing"
-            className="flex-1 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-medium text-center"
+            className="flex-1 py-3 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-all font-medium text-center"
           >
             Upgrade to Pro
           </a>

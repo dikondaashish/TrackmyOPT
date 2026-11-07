@@ -57,8 +57,8 @@ export function HelpGuideTab() {
         {/* OPT Timeline */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-950 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-950 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-violet-600 dark:text-violet-400" />
             </div>
             <h2 className="text-xl font-bold">OPT Timeline & Key Dates</h2>
           </div>
@@ -102,13 +102,13 @@ export function HelpGuideTab() {
               ].map((step, index) => (
                 <div key={index} className="relative pl-10 pb-6 last:pb-0">
                   <div className={`absolute left-2 w-5 h-5 rounded-full border-2 bg-background ${step.color === "blue" ? "border-blue-500" :
-                    step.color === "purple" ? "border-purple-500" :
+                    step.color === "purple" ? "border-violet-500" :
                       step.color === "amber" ? "border-amber-500" :
                         step.color === "green" ? "border-green-500" :
                           "border-red-500"
                     }`} />
                   <div className={`p-4 rounded-lg ${step.color === "blue" ? "bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800" :
-                    step.color === "purple" ? "bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800" :
+                    step.color === "purple" ? "bg-violet-50 dark:bg-violet-950 border border-violet-200 dark:border-violet-800" :
                       step.color === "amber" ? "bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800" :
                         step.color === "green" ? "bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800" :
                           "bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800"
@@ -290,7 +290,7 @@ export function HelpGuideTab() {
                 href="https://uscis.gov"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium shadow-card"
               >
                 <ExternalLink className="w-4 h-4" />
                 USCIS Official Site

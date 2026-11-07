@@ -44,16 +44,16 @@ function PlatformGrid() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.1 }}
-          className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 text-center group"
+          className="relative surface-card p-6 text-center group"
         >
           <div
-          className="w-12 h-12 mx-auto mb-3 rounded-lg flex items-center justify-center bg-blue-500"
+          className="w-10 h-10 mx-auto mb-3 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300"
           >
             <platform.icon
-              className="w-6 h-6 text-white"
+              className="w-5 h-5"
             />
           </div>
-          <p className="font-medium text-gray-900 dark:text-white">
+          <p className="font-medium text-foreground">
             {platform.name}
           </p>
         </motion.div>
@@ -72,13 +72,13 @@ function PrivacyChecklist() {
   ];
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
+    <div className="surface-card p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-emerald-500 flex items-center justify-center">
-          <Lock className="w-6 h-6 text-white" />
+        <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center">
+          <Lock className="w-5 h-5" />
         </div>
         <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white">
+          <h4 className="font-semibold text-foreground">
             Privacy First
           </h4>
           <p className="text-sm text-gray-500">Your data stays yours</p>
@@ -94,7 +94,7 @@ function PrivacyChecklist() {
             transition={{ delay: i * 0.1 }}
             className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-950 rounded-xl"
           >
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
             <span className="text-gray-700 dark:text-gray-300">{item}</span>
           </motion.div>
         ))}
@@ -106,7 +106,7 @@ function PrivacyChecklist() {
 export default function ExtensionPage() {
   return (
     <>
-      <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+      <main className="min-h-screen bg-background">
         <FeatureServiceSchema
           name="H-1B Sponsor Intel Chrome Extension"
           description="Save job listings, review the posting's explicit visa-sponsorship language, and prefill application details on supported career pages. TrackMyOPT never submits an application for you."
@@ -182,7 +182,7 @@ export default function ExtensionPage() {
                       key={i}
                       className="flex items-center gap-3 text-gray-700 dark:text-gray-300"
                     >
-                      <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -207,7 +207,7 @@ export default function ExtensionPage() {
         </section>
 
         {/* Platforms */}
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
+        <section className="py-24 border-y border-border bg-surface relative overflow-hidden">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}

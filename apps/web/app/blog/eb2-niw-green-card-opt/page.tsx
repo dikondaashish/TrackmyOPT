@@ -90,22 +90,22 @@ export default function EB2NIWGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/eb2-niw-green-card-opt.png" alt="Academic research papers, laptop showing academic paper, and Form I-140 folder on library desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/eb2-niw-green-card-opt.png" alt="Academic research papers, laptop showing academic paper, and Form I-140 folder on library desk" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Your academic papers, publications, and professional endeavor form the core of your EB-2 NIW petition.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The <strong>EB-2 NIW</strong> is a self-petition Green Card option for students with a Master&apos;s or Ph.D. (or Bachelor&apos;s + 5 years experience). You don&apos;t need an employer or job offer. You must prove your work is of <strong>national importance</strong>, you are qualified to execute it, and the US benefits from skipping the PERM labor market test.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -117,7 +117,7 @@ export default function EB2NIWGuide() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
@@ -151,7 +151,7 @@ export default function EB2NIWGuide() {
                             { title: "Prong 2: Well-Positioned to Advance the Endeavor", desc: "USCIS looks at your credentials, publication history, education, patents, research, and expert letters to see if you have the capability to succeed." },
                             { title: "Prong 3: Beneficial to Waive the Job Offer / PERM", desc: "You must argue that requiring a specific employer-sponsored job offer and labor certification would be impractical or would delay work of urgent national benefit." },
                         ].map((prong, i) => (
-                            <div key={i} className="flex gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border flex gap-3 p-4 rounded-xl border-border bg-card shadow-card">
                                 <Award className="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" />
                                 <div>
                                     <h4 className="font-semibold text-gray-950 dark:text-white">{prong.title}</h4>
@@ -189,7 +189,7 @@ export default function EB2NIWGuide() {
                             { step: "3", title: "Assemble Exhibits", desc: "Compile your CV, degree transcripts, publication history, citations, media mentions, and copy of patents or project portfolios." },
                             { step: "4", title: "File Form I-140", desc: "Submit the Form I-140 package to USCIS. If you want a quick decision, you can pay for Premium Processing to get an adjudication in 45 days." },
                         ].map((item) => (
-                            <div key={item.step} className="flex items-start gap-4 p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.step} className="border flex items-start gap-4 p-5 rounded-xl border-border bg-card shadow-card">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400 text-lg font-bold flex-shrink-0">
                                     {item.step}
                                 </span>
@@ -206,7 +206,7 @@ export default function EB2NIWGuide() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Important Caveats & F-1 Status Risks
                     </h2>
-                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
                         <div className="flex gap-2">
                             <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-600" />
                             <div>
@@ -217,20 +217,20 @@ export default function EB2NIWGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-purple-600 rounded-xl p-8 my-12 text-white">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-purple-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <Compass className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Consolidate Your Case Records</h3>
                         </div>
-                        <p className="text-purple-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             TrackMyOPT helps you manage status details during major transitions. Log employer histories, timeline requirements, and maintain active status seamlessly.
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-purple-700 font-bold hover:bg-purple-50 transition-colors"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -238,7 +238,7 @@ export default function EB2NIWGuide() {
                 </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/green-card-after-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Green Card After OPT Options</Link>

@@ -109,7 +109,7 @@ export function CaseHeroCard({
   };
 
   return (
-    <Card className="p-4 sm:p-6 border-border shadow-sm overflow-hidden">
+    <Card className="p-4 sm:p-6 border-border overflow-hidden">
       {/* Identity header */}
       <div className="mb-5">
         <div className="min-w-0">

@@ -119,22 +119,22 @@ export default function StemApplyPage() {
         title="STEM OPT Extension Application Guide"
         description="Use this planning tool to organize your STEM OPT extension deadline and prepare for the documents and employer details involved."
       >
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Confirm STEM OPT eligibility
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             STEM OPT extension eligibility includes a qualifying STEM degree, an
             E-Verify employer, and a completed Form I-983 training plan. Your
             DSO reviews the information and issues the required I-20
             recommendation.
           </p>
         </div>
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Build a complete filing plan
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             USCIS permits a STEM OPT extension filing up to 90 days before your
             current OPT expires. Use the date below to plan early, and verify
             current filing instructions, fees, and document requirements before
@@ -142,7 +142,9 @@ export default function StemApplyPage() {
           </p>
         </div>
       </PublicOptToolPageIntro>
-      <StemApplyTool />
+      <div className="bg-surface pb-12 pt-3">
+        <StemApplyTool />
+      </div>
     </>
   );
 }

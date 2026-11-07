@@ -88,7 +88,7 @@ export default function USCISCaseStatusTrackingGuide() {
                 </div>
             </header>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     You can track your USCIS case status online at egov.uscis.gov using your 13-character receipt number (e.g., IOE0123456789). TrackMyOPT Free provides manual tracking with plain-English status explanations; Pro adds daily auto-checks and email alerts when status changes.
@@ -103,7 +103,7 @@ export default function USCISCaseStatusTrackingGuide() {
             <AdSenseInArticle />
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -115,7 +115,7 @@ export default function USCISCaseStatusTrackingGuide() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -148,12 +148,12 @@ export default function USCISCaseStatusTrackingGuide() {
                         The first three characters of your receipt number indicate the service center or filing location that is processing your case:
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm mt-4">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Prefix</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Service Center / Location</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Prefix</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Service Center / Location</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -166,8 +166,8 @@ export default function USCISCaseStatusTrackingGuide() {
                                     ["MSC", "National Benefits Center"],
                                 ].map(([prefix, desc], i) => (
                                     <tr key={prefix} className={i % 2 === 1 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-mono font-semibold text-gray-900 dark:text-white">{prefix}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{desc}</td>
+                                        <td className="p-3 border border-border font-mono font-semibold text-gray-900 dark:text-white">{prefix}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{desc}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -194,8 +194,8 @@ export default function USCISCaseStatusTrackingGuide() {
                             { step: "3", title: "Enter Your Receipt Number", desc: "Type or paste your receipt number into the text field. Make sure there are no spaces or dashes — enter all 13 characters continuously." },
                             { step: "4", title: "Read Your Status", desc: "USCIS will display the most recent status update for your case, including the date of the update and a brief explanation of what it means." },
                         ].map((item) => (
-                            <div key={item.step} className="flex items-start gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center text-green-700 dark:text-green-300 font-bold text-sm flex-shrink-0">
+                            <div key={item.step} className="border flex items-start gap-4 p-4 rounded-xl border-border bg-card shadow-card">
+                                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold text-sm flex-shrink-0">
                                     {item.step}
                                 </div>
                                 <div>
@@ -206,7 +206,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         ))}
                     </div>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold">
                             Limitation: USCIS.gov only shows the most recent status update. It does not show a history of changes, and you won't know when the status changed unless you check manually every day.
                         </p>
@@ -221,13 +221,13 @@ export default function USCISCaseStatusTrackingGuide() {
                         USCIS status messages can be confusing. Here's a plain-English translation of the most common messages you'll see when tracking an I-765 (OPT/EAD) application:
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm mt-4">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">USCIS Status Message</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">What It Means</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Action Needed?</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">USCIS Status Message</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">What It Means</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Action Needed?</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -244,20 +244,20 @@ export default function USCISCaseStatusTrackingGuide() {
                                     ["Case Was Denied", "USCIS has denied your application.", "Review denial notice, consider appeal or motion to reopen"],
                                 ].map(([status, meaning, action], i) => (
                                     <tr key={i} className={i % 2 === 1 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{status}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{meaning}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{action}</td>
+                                        <td className="p-3 border border-border font-semibold text-gray-900 dark:text-white whitespace-nowrap">{status}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{meaning}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{action}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800 mt-6">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800 mt-6">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                         <div>
-                            <h3 className="font-semibold text-green-900 dark:text-green-100">Tip</h3>
-                            <p className="text-sm text-green-800 dark:text-green-200">
+                            <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Tip</h3>
+                            <p className="text-sm text-emerald-800 dark:text-emerald-200">
                                 The most exciting status to see is <strong>"New Card Is Being Produced"</strong> — this means your EAD is approved and will arrive within 7–10 business days.
                             </p>
                         </div>
@@ -279,9 +279,9 @@ export default function USCISCaseStatusTrackingGuide() {
                             { icon: FileText, title: "Plain-English Explanations", desc: "Each status update comes with a clear explanation of what it means and what action (if any) you need to take." },
                             { icon: Clock, title: "Full Status History", desc: "See a timeline of every status change your case has gone through — useful for congressional inquiries or if you need to prove processing delays." },
                         ].map((item) => (
-                            <div key={item.title} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.title} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                    <item.icon className="w-4 h-4 text-green-500" />
+                                    <item.icon className="w-4 h-4 text-emerald-500" />
                                     {item.title}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
@@ -289,11 +289,11 @@ export default function USCISCaseStatusTrackingGuide() {
                         ))}
                     </div>
 
-                    <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="mt-6 p-5 rounded-xl border border-primary-muted bg-primary-soft">
                         <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
                             Check your USCIS case status and plan your next step.
                         </p>
-                        <Link href="/login" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        <Link href="/login" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-button">
                             Track Your Case Free <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
@@ -308,28 +308,28 @@ export default function USCISCaseStatusTrackingGuide() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">1. Check Published Processing Times</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
                                 Visit the <a href="https://egov.uscis.gov/processing-times/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">USCIS Processing Times page</a> to see the current estimated timeframe for your form type and service center. If your case is still within the published window, it's not technically delayed.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">2. Submit an Outside Normal Processing Time Inquiry</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
                                 If your case has exceeded the published processing time, you can submit an e-Request through your myUSCIS account or call the USCIS Contact Center at <strong>1-800-375-5283</strong>. You'll need your receipt number and the date you filed.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">3. Contact Your Congressional Representative</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
                                 Your U.S. congressional representative's office can submit a formal inquiry to USCIS on your behalf. This is free and often effective at getting attention on stalled cases. Find your representative at <a href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">house.gov</a>.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">4. Contact the USCIS Ombudsman</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
                                 The <a href="https://www.dhs.gov/case-assistance" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">DHS Ombudsman</a> helps resolve problems with USCIS. You can submit a Case Assistance form online. This is typically used as a last resort when other channels haven't worked.
@@ -357,7 +357,7 @@ export default function USCISCaseStatusTrackingGuide() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-765 (Initial OPT)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
@@ -368,7 +368,7 @@ export default function USCISCaseStatusTrackingGuide() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-765 (STEM OPT Extension)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
@@ -379,7 +379,7 @@ export default function USCISCaseStatusTrackingGuide() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-140 (Immigrant Petition for Alien Workers)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
@@ -390,7 +390,7 @@ export default function USCISCaseStatusTrackingGuide() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-485 (Adjustment of Status)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
@@ -415,7 +415,7 @@ export default function USCISCaseStatusTrackingGuide() {
                             { tip: "Set up automated tracking", detail: "Use TrackMyOPT Free for manual refresh, or Pro for daily auto-checks and email alerts when status changes — so you do not have to check USCIS.gov every day." },
                             { tip: "Contact your DSO proactively", detail: "Your Designated School Official (DSO) can see your SEVIS record and may have information about your case that isn't visible on USCIS.gov. Keep them in the loop, especially if your case is delayed." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{i + 1}. {item.tip}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.detail}</p>
                             </div>
@@ -436,7 +436,7 @@ export default function USCISCaseStatusTrackingGuide() {
                             { question: "What should I do if I get an RFE?", answer: "A Request for Evidence (RFE) means USCIS needs additional documentation to decide your case. Read the RFE letter carefully — it specifies exactly what documents they need. Respond well before the deadline (usually 87 days), include a cover letter referencing your receipt number, and send copies of the requested evidence. Consider consulting your DSO or an immigration attorney for complex RFEs." },
                             { question: "Can I track multiple cases at once?", answer: "Yes. On USCIS.gov, you can only check one case at a time. However, TrackMyOPT allows you to add multiple receipt numbers and track them all from a single dashboard. Each case gets its own status history and email notifications, making it easy to monitor OPT applications alongside other petitions like I-140 or I-485." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -448,7 +448,7 @@ export default function USCISCaseStatusTrackingGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Processing Time 2026</Link>
@@ -465,12 +465,12 @@ export default function USCISCaseStatusTrackingGuide() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-green-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Never Miss a USCIS Status Update</h2>
-                <p className="text-green-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     Join 3,500+ people who have signed up for TrackMyOPT. Check your case status for free with manual refresh, or use Pro for daily auto-checks and email alerts.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-green-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

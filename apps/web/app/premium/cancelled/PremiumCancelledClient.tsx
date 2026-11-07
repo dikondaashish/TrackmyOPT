@@ -23,7 +23,7 @@ function FeatureTile({
   description: string;
 }) {
   return (
-    <div className="flex flex-col rounded-lg border border-border bg-card p-3.5 text-left">
+    <div className="flex flex-col rounded-lg bg-surface p-3.5 text-left">
       <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-md bg-primary-soft text-primary">
         <Icon className="h-4 w-4" strokeWidth={2} aria-hidden />
       </div>
@@ -70,13 +70,13 @@ export function PremiumCancelledClient() {
 
   return (
     <div className="flex w-full max-w-4xl flex-col px-2 sm:px-0">
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-elevated">
         <div className="grid min-h-[min(520px,85vh)] md:grid-cols-2">
           {/* Left — status */}
           <div
             className={cn(
               "relative flex flex-col justify-center border-b border-border p-8 sm:p-10",
-              "bg-muted md:border-b-0 md:border-r"
+              "bg-surface md:border-b-0 md:border-r"
             )}
           >
             <div className="relative z-10">

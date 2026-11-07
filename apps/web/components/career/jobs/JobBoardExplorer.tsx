@@ -117,7 +117,7 @@ function FilterSelect({ label, value, onChange, children }: {
         aria-label={label}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-11 max-w-56 cursor-pointer appearance-none truncate rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="min-h-11 max-w-56 cursor-pointer appearance-none truncate rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 shadow-card"
       >
         {children}
       </select>
@@ -200,7 +200,7 @@ function JobListItem({
   const sponsorEvidenced = hasPositiveSponsorshipEvidence(job);
 
   return (
-    <article className="relative rounded-xl border border-slate-200 bg-white transition-colors duration-200 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700">
+    <article className="relative rounded-xl border border-slate-200 bg-white transition-colors duration-200 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700 shadow-card">
       <div className="flex flex-col gap-3 p-3.5 sm:p-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <JobCompanyLogo companyName={companyName} website={job.company_website} />
@@ -236,7 +236,7 @@ function JobListItem({
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
             <div>
               <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white"><FileText className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Job description</h3>
-              <div className="mt-2 max-h-[34rem] overflow-y-auto rounded-lg border border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950 sm:px-5">
+              <div className="mt-2 max-h-[34rem] overflow-y-auto rounded-lg border border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950 sm:px-5 shadow-card">
                 {descriptionLoading ? (
                   <p className="text-sm text-slate-500">Loading description…</p>
                 ) : descriptionError === 'closed' ? (
@@ -434,7 +434,7 @@ export function JobBoardExplorer({
     <section className="space-y-3" aria-label="Verified job search">
       <ResumeJobMatcher savedResumes={savedResumes} activeMatch={activeResumeMatch} onMatch={applyResumeMatch} onClear={clearResumeMatch} />
       <form
-        className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-800 dark:bg-slate-950"
+        className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-800 dark:bg-slate-950 shadow-card"
         onSubmit={(event) => {
           event.preventDefault();
           setFilters(draft);
@@ -443,7 +443,7 @@ export function JobBoardExplorer({
         }}
       >
         <div className="flex flex-col gap-2">
-          <div className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600 dark:border-slate-700 dark:bg-slate-950">
+          <div className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 shadow-card">
             <FilterSelect label="Search scope" value={draft.searchScope} onChange={(value) => updateDraft('searchScope', value as JobFilters['searchScope'])}>
               <option value="title_description">Title + description</option>
               <option value="title">Title only</option>
@@ -477,7 +477,7 @@ export function JobBoardExplorer({
               <option value="all">Role</option><option value="engineering">Engineering</option><option value="data">Data & analytics</option><option value="product">Product</option><option value="design">Design</option><option value="operations">Operations</option><option value="sales">Sales</option><option value="other">Other</option>
             </FilterSelect>
             <details className="group w-full sm:w-auto sm:open:w-full" data-advanced-filters>
-              <summary className="inline-flex min-h-11 w-full cursor-pointer list-none items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900">
+              <summary className="inline-flex min-h-11 w-full cursor-pointer list-none items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900 shadow-card">
                 <SlidersHorizontal className="size-4" aria-hidden="true" /> More filters <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
               </summary>
               <div className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
@@ -531,13 +531,13 @@ export function JobBoardExplorer({
         <div role="alert" className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900">
           <h2 className="font-semibold text-slate-950 dark:text-white">{serverError}</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Your filters are kept. Try again in a moment.</p>
-          <button type="button" disabled={loading} onClick={() => void loadServerPage(currentPage, filters)} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Try again</button>
+          <button type="button" disabled={loading} onClick={() => void loadServerPage(currentPage, filters)} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800 shadow-card">Try again</button>
         </div>
       ) : visibleJobs.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900">
           <h2 className="font-semibold text-slate-950 dark:text-white">No verified jobs match these filters</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Try removing a filter or searching with a broader term. Only authorized employer-board listings appear here.</p>
-          <button type="button" onClick={() => clearFilters()} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Clear filters</button>
+          <button type="button" onClick={() => clearFilters()} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800 shadow-card">Clear filters</button>
         </div>
       ) : (
         <div className="space-y-2.5">

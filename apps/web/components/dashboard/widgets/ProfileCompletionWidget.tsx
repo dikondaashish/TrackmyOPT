@@ -76,12 +76,12 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile, r
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="border border-blue-100 dark:border-blue-950 bg-blue-50 dark:bg-blue-950 rounded-xl p-6 relative overflow-hidden">
+    <div className="border border-border bg-card shadow-card rounded-xl p-6 relative overflow-hidden">
       <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
         <div className="relative flex items-center justify-center shrink-0">
           <svg className="w-24 h-24 transform -rotate-90">
             <circle
-              className="text-blue-200 dark:text-blue-900"
+              className="text-blue-100 dark:text-blue-950"
               strokeWidth="8"
               stroke="currentColor"
               fill="transparent"
@@ -103,24 +103,24 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile, r
             />
           </svg>
           <div className="absolute flex flex-col items-center justify-center">
-            <span className="text-xl font-bold text-blue-900 dark:text-blue-100">{percentage}%</span>
+            <span className="text-xl font-semibold text-foreground">{percentage}%</span>
           </div>
         </div>
 
         <div className="flex-1 text-center md:text-left">
-          <h3 className="text-lg font-bold text-blue-950 dark:text-blue-100 mb-1">
+          <h3 className="text-lg font-semibold text-foreground mb-1">
             Complete your profile
           </h3>
-          <p className="text-sm text-blue-800 dark:text-blue-200 mb-4 max-w-md">
+          <p className="text-sm text-muted-foreground mb-4 max-w-md">
             You're almost there! Providing complete information ensures we can accurately track your OPT status and STEM eligibility without errors.
           </p>
 
           {nextAction && (
             <Link 
               href={nextAction.href}
-              className="inline-flex items-center gap-3 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-foreground px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm border border-gray-200 dark:border-gray-700 group"
+              className="inline-flex items-center gap-3 bg-background hover:bg-muted text-foreground px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-card border border-border group"
             >
-              <div className="text-blue-600 dark:text-blue-400">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-soft text-primary dark:text-blue-300">
                 {nextAction.icon}
               </div>
               <div className="flex flex-col text-left">

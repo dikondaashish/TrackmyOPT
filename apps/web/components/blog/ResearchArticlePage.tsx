@@ -48,19 +48,19 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         faqItems={article.faq}
       />
 
-      <header className="mb-10">
-        <p className="flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
-          <span>{article.category}</span>
+      <header className="mb-10 border-b border-border pb-8">
+        <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-4">
+          <span className="font-medium text-primary">{article.category}</span>
           <span aria-hidden>·</span>
           <span>{article.badgeLabel ?? 'Verified 2026 Guide'}</span>
         </p>
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
+        <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight mb-6">
           {article.title}
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+        <p className="text-xl text-muted-foreground leading-relaxed">
           {article.description}
         </p>
-        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span>{article.readTime}</span>
           <span aria-hidden>•</span>
           <span>Published {formatDate(article.publishedDate)}</span>
@@ -79,7 +79,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
       </header>
 
       <figure className="mb-10">
-        <div className="relative aspect-[1200/630] overflow-hidden rounded-xl">
+        <div className="relative aspect-[1200/630] overflow-hidden rounded-xl border border-border bg-muted shadow-card">
           <BlogPostImage
             src={image}
             alt={
@@ -91,14 +91,14 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
             className="object-cover"
           />
         </div>
-        <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
+        <figcaption className="mt-3 text-center text-sm text-muted-foreground">
           {article.imageCaption ??
             'A practical TrackMyOPT guide: confirm the rule, document your dates, and act before the deadline.'}
         </figcaption>
       </figure>
 
       {article.statusNote && (
-        <div className="mb-8 rounded-xl bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+        <div className="mb-8 rounded-r-xl border-l-4 border-l-amber-500 bg-amber-50 p-5 text-amber-950 dark:bg-amber-950 dark:text-amber-100">
           <p className="font-bold flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" /> Publication-status note
           </p>
@@ -106,11 +106,11 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </div>
       )}
 
-      <div className="mb-10 rounded-xl bg-emerald-50 p-6 dark:bg-emerald-950">
-        <p className="mb-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+      <div className="mb-10 rounded-xl border border-primary-muted bg-primary-soft p-6">
+        <p className="mb-2 text-sm font-semibold text-primary">
           Direct answer
         </p>
-        <p className="mb-0 text-lg font-medium leading-relaxed text-gray-900 dark:text-gray-100">
+        <p className="mb-0 text-lg font-medium leading-relaxed text-foreground">
           {article.directAnswer}
         </p>
       </div>
@@ -120,9 +120,9 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
       {article.showContents && (
         <nav
           aria-label="In this guide"
-          className="mb-10 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
+          className="mb-10 rounded-xl border border-border bg-surface p-5 sm:p-6"
         >
-          <p className="mb-3 font-bold text-gray-900 dark:text-white">
+          <p className="mb-3 font-bold text-foreground">
             In this guide
           </p>
           <ol className="grid gap-2 text-sm sm:grid-cols-2">
@@ -143,7 +143,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
       <div
         className={`${styles.reading} prose prose-lg dark:prose-invert max-w-none`}
       >
-        <section>
+        <section className="rounded-xl border border-primary-muted bg-primary-soft p-6 sm:p-7">
           <h2>What You Should Know First</h2>
           <ul>
             {article.keyTakeaways.map((item) => (
@@ -212,11 +212,11 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
               </ol>
             )}
             {section.note && (
-              <div className="not-prose my-7 rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-950">
-                <p className="mb-2 font-bold text-blue-900 dark:text-blue-100">
+              <div className="not-prose my-7 rounded-r-xl border-l-4 border-l-emerald-600 bg-emerald-50 p-5 dark:bg-emerald-950">
+                <p className="mb-2 font-bold text-emerald-900 dark:text-emerald-100">
                   Vinay&apos;s practical note
                 </p>
-                <p className="mb-0 leading-relaxed text-blue-900 dark:text-blue-100">
+                <p className="mb-0 leading-relaxed text-gray-800 dark:text-gray-200">
                   {section.note}
                 </p>
               </div>
@@ -229,11 +229,11 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           <div className="not-prose grid gap-3">
             {article.checklist.map((item) => (
               <div
-                className="flex gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950"
+                className="flex gap-3 rounded-lg border border-border bg-card p-4 shadow-card"
                 key={item}
               >
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-700 dark:text-green-400" />
-                <span className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-sm leading-relaxed text-foreground">
                   {item}
                 </span>
               </div>
@@ -260,7 +260,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         className={`${styles.reading} prose prose-lg dark:prose-invert max-w-none`}
       >
         {article.category.includes('Tax') && (
-          <aside className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+          <aside className="rounded-r-xl border-l-4 border-l-amber-500 bg-amber-50 p-6 text-sm text-amber-950 dark:bg-amber-950 dark:text-amber-100">
             <strong>Tax disclaimer:</strong> This educational guide is not tax,
             legal, or accounting advice. Tax residency, treaty eligibility, and
             filing obligations depend on individual facts. Verify the current
@@ -280,7 +280,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         <section id="faq">
           <h2>Frequently Asked Questions</h2>
           {article.faq.map((item) => (
-            <div className="mb-6" key={item.question}>
+            <div className="border-t border-border pt-1 mb-5 first-of-type:border-t-0" key={item.question}>
               <h3>{item.question}</h3>
               <p>{item.answer}</p>
             </div>

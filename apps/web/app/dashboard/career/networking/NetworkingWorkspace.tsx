@@ -156,7 +156,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
   return (
     <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
       <div className="min-w-0 space-y-5">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-7 shadow-card">
           {bundleId && bundle ? (
             <div className="space-y-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -218,10 +218,10 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
           )}
         </div>
 
-        {bundleId && !bundle && !error && <div role="status" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"><LoaderCircle className="mr-2 inline size-4 animate-spin" aria-hidden="true" />Loading saved outreach…</div>}
+        {bundleId && !bundle && !error && <div role="status" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 shadow-card"><LoaderCircle className="mr-2 inline size-4 animate-spin" aria-hidden="true" />Loading saved outreach…</div>}
         {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">{error}</p>}
         {bundle && <section className="space-y-5" aria-label="Outreach results">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6 shadow-card">
             <h3 className="font-semibold text-slate-950 dark:text-white">Research progress</h3>
             <ol className="mt-4 space-y-3" aria-live="polite" aria-atomic="true">
               {stages.map(([key, label], index) => {
@@ -243,7 +243,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
           {contacts.map((contact, index) => <ContactCard key={`${contact.id}-${contact.emailSubject}-${contact.emailBody}-${contact.linkedinNote}`} contact={contact} index={index} bundleId={bundle.id} targetRole={bundle.targetRole} userIntent={bundle.userIntent} />)}
         </section>}
       </div>
-      <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-6" aria-label="Recent outreach">
+      <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-6 shadow-card" aria-label="Recent outreach">
         <div className="flex items-center justify-between gap-2"><h2 className="font-semibold text-slate-950 dark:text-white">Recent outreach</h2><span className="text-xs text-slate-500 dark:text-slate-400">Saved</span></div>
         {history.length === 0 ? <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">Your searches appear here. Reopen anytime.</p> :
           <ul className="mt-4 space-y-1">{history.map((item) => <li key={item.id}><button type="button" onClick={() => openBundle(item.id)} className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-slate-800 ${item.id === bundleId ? 'bg-blue-50 dark:bg-blue-900' : ''}`}>
@@ -281,7 +281,7 @@ function ContactCard({ contact, index, bundleId, targetRole, userIntent }: { con
       captureClientEvent(kind, { contact_position: index + 1 });
     } catch { setNotice('Could not copy. Select the text and copy manually.'); }
   }
-  return <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6" aria-labelledby={`contact-${contact.id}`}>
+  return <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6 shadow-card" aria-labelledby={`contact-${contact.id}`}>
     <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
       <ContactAvatar name={contact.name} />
       <div className="min-w-0 flex-1"><p className="text-xs text-slate-500 dark:text-slate-400">Relevant contact {index + 1}</p><h3 id={`contact-${contact.id}`} className="mt-0.5 truncate text-lg font-semibold text-slate-950 dark:text-white">{contact.name}</h3><p className="text-sm text-slate-600 dark:text-slate-300">{contact.title} · {contact.company}</p></div>

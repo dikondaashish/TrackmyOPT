@@ -48,7 +48,7 @@ function InsuranceComparisonCards() {
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">{plan.name}</h4>
+                        <h4 className="font-bold text-foreground text-sm">{plan.name}</h4>
                         <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${
                             plan.highlight
                                 ? "bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-300"
@@ -56,13 +56,13 @@ function InsuranceComparisonCards() {
                         }`}>{plan.badge}</span>
                     </div>
                     <div className="flex items-baseline gap-1 mb-3">
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
+                        <span className="text-2xl font-bold text-foreground">{plan.price}</span>
                         <span className="text-sm text-gray-500">{plan.period}</span>
                     </div>
                     <div className="space-y-1.5">
                         {plan.features.map((f) => (
-                            <div key={f} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                            <div key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                                 {f}
                             </div>
                         ))}
@@ -77,28 +77,28 @@ const coverageTypes = [
     {
         title: "Marketplace / ACA",
         description: "Comprehensive plans through Healthcare.gov. Many OPT students qualify for subsidies, bringing costs to $0/month. Open enrollment Nov–Jan, or qualify for a Special Enrollment Period.",
-        icon: <ShieldCheck className="w-6 h-6" />,
+        icon: <ShieldCheck className="w-5 h-5" />,
         pros: ["Pre-existing conditions covered", "Preventive care included", "Subsidies may apply"],
         color: "rose",
     },
     {
         title: "Short-Term Plans",
         description: "Temporary coverage for gaps between plans. Fast enrollment, lower premiums, but limited benefits. Good for bridging the gap while waiting for employer coverage.",
-        icon: <Clock className="w-6 h-6" />,
+        icon: <Clock className="w-5 h-5" />,
         pros: ["Enroll anytime", "Lower monthly cost", "Fast approval"],
         color: "pink",
     },
     {
         title: "Catastrophic Plans",
         description: "Low-premium, high-deductible plans for those under 30. Covers worst-case scenarios like hospitalizations. Requires a hardship exemption if over 30.",
-        icon: <Hospital className="w-6 h-6" />,
+        icon: <Hospital className="w-5 h-5" />,
         pros: ["Lowest premiums", "3 free primary care visits", "Emergency coverage"],
         color: "fuchsia",
     },
     {
         title: "University SHIP Extension",
         description: "Some universities allow you to extend your Student Health Insurance Plan after graduation. Coverage is often comprehensive but may be more expensive than marketplace plans.",
-        icon: <GraduationCap className="w-6 h-6" />,
+        icon: <GraduationCap className="w-5 h-5" />,
         pros: ["Familiar coverage", "No enrollment gaps", "Campus health access"],
         color: "purple",
     },
@@ -141,7 +141,7 @@ const faqItems = [
 export default function HealthInsurancePage() {
     return (
         <>
-            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+            <main className="min-h-screen bg-background">
             <FeatureServiceSchema
                 name="OPT Health Insurance Finder & Comparison Tool"
                 description="Find affordable health insurance for OPT students. Compare Marketplace (ACA), short-term, catastrophic plans, and employer coverage. Many plans available from $0/month with subsidies."
@@ -169,7 +169,7 @@ export default function HealthInsurancePage() {
             />
 
             {/* Types of Coverage */}
-            <section className="py-24 relative overflow-hidden bg-white dark:bg-zinc-950">
+            <section className="py-24 relative overflow-hidden bg-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <H2>Health Insurance Options for OPT Students</H2>
@@ -184,17 +184,17 @@ export default function HealthInsurancePage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8"
+                                className="surface-card p-8"
                             >
-                                <div className="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
+                                <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mb-4">
                                     {item.icon}
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{item.title}</h3>
+                                <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
                                 <P className="mb-4">{item.description}</P>
                                 <ul className="space-y-2">
                                     {item.pros.map((pro) => (
                                         <li key={pro} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                                             {pro}
                                         </li>
                                     ))}
@@ -206,7 +206,7 @@ export default function HealthInsurancePage() {
             </section>
 
             {/* Coverage Transition Timeline */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
+            <section className="py-24 border-y border-border bg-surface relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -222,7 +222,7 @@ export default function HealthInsurancePage() {
                             </P>
                             <Link
                                 href="/dashboard/opt-health-insurance-finder"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                                className="inline-flex h-11 items-center gap-2 px-6 bg-primary text-primary-foreground font-semibold rounded-lg shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                                 Find Coverage Now
                                 <ArrowRight className="w-4 h-4" />
@@ -234,8 +234,8 @@ export default function HealthInsurancePage() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                            <div className="surface-card p-8">
+                                <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
                                     <HeartPulse className="w-5 h-5 text-rose-600" />
                                     Your Coverage Journey
                                 </h3>
@@ -264,7 +264,7 @@ export default function HealthInsurancePage() {
                                             </div>
                                             <div className="pb-4">
                                                 <p className="text-xs font-medium text-gray-400 mb-0.5">{step.period}</p>
-                                                <p className="text-sm font-bold text-gray-900 dark:text-white">{step.label}</p>
+                                                <p className="text-sm font-bold text-foreground">{step.label}</p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{step.detail}</p>
                                             </div>
                                         </div>
@@ -316,7 +316,7 @@ export default function HealthInsurancePage() {
                     text: "Compare Insurance Plans",
                     href: "/dashboard/opt-health-insurance-finder",
                 }}
-                gradient="amber"
+                gradient="emerald"
                 icon={<HeartPulse className="w-12 h-12 text-white" />}
                 badge="Free Tool"
             />

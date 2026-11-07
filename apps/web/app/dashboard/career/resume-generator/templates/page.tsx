@@ -86,7 +86,7 @@ export default function TemplateSelectionPage() {
     return (
         <div className="min-w-0 overflow-x-hidden">
             {/* Header */}
-            <div className="sticky top-0 z-10 -mx-3 sm:-mx-6 px-3 sm:px-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+            <div className="sticky top-0 z-10 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 bg-surface border-b border-border">
                 <div className="max-w-7xl mx-auto py-4">
                     <div className="flex items-center justify-between gap-3">
                         {/* Back Button */}
@@ -100,7 +100,7 @@ export default function TemplateSelectionPage() {
 
                         {/* Title + Progress */}
                         <div className="text-center min-w-0">
-                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                            <h1 className="text-xl sm:text-2xl font-semibold text-foreground truncate">
                                 Select Template
                             </h1>
                             <div className="flex items-center justify-center gap-2 mt-1">
@@ -142,7 +142,7 @@ export default function TemplateSelectionPage() {
                         <Card
                             key={template.id}
                             onClick={() => handleSelectTemplate(template.id)}
-                            className={`relative cursor-pointer overflow-hidden transition-shadow duration-300 hover:shadow-xl group min-w-0 ${selectedTemplateId === template.id
+                            className={`relative cursor-pointer overflow-hidden transition-shadow duration-300 hover:shadow-elevated group min-w-0 ${selectedTemplateId === template.id
                                 ? "ring-2 ring-blue-600 dark:ring-blue-400 shadow-xl"
                                 : "border-gray-200 dark:border-gray-800"
                                 }`}
@@ -161,7 +161,7 @@ export default function TemplateSelectionPage() {
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                     <Button
                                         onClick={(e) => handlePreview(e, template)}
-                                        className="bg-white text-gray-900 hover:bg-gray-100 hover:scale-105 transition-all shadow-lg"
+                                        className="bg-white text-gray-900 hover:bg-gray-100 transition-all shadow-lg"
                                     >
                                         <Eye className="w-4 h-4 mr-2" />
                                         Quick Preview

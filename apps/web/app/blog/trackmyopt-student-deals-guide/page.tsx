@@ -167,7 +167,7 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                     ].map((item) => (
                         <div
                             key={item.title}
-                            className="flex gap-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4"
+                            className="border flex gap-3 rounded-xl border-border p-4 bg-card shadow-card"
                         >
                             <item.icon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                             <div>

@@ -29,7 +29,7 @@ export function FuelDealModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/50"
                 onClick={onClose}
             />
 
@@ -113,7 +113,7 @@ export function FuelDealModal({
                     {showStepsPopup && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
                             <div
-                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                className="absolute inset-0 bg-black/60"
                                 onClick={onHideSteps}
                             />
                             <div className="relative w-full max-w-md bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -191,7 +191,7 @@ export function FuelDealModal({
 
                     <button
                         onClick={() => onClaim(deal.link)}
-                        className={`w-full py-3 px-6 ${deal.badgeColor} text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2`}
+                        className={`w-full py-3 px-6 ${deal.badgeColor} text-white font-semibold rounded-xl hover:shadow-elevated transition-all flex items-center justify-center gap-2`}
                     >
                         Claim This Offer
                         <ExternalLink className="w-4 h-4" />

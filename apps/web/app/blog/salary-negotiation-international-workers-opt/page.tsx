@@ -38,7 +38,7 @@ export default function SalaryNegotiationPage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/salary-negotiation-international-workers-opt.jpg" alt="A desk with an offer letter, a smartphone calculator, and financial documents" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -59,7 +59,7 @@ export default function SalaryNegotiationPage() {
                     <li><strong>Immigration Costs:</strong> Ensure the company pays for <strong>Premium Processing</strong> for your H-1B (a $2,805 fee). If they won't increase your salary, having them cover premium processing is a massive financial win.</li>
                 </ul>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2"><AlertTriangle className="w-5 h-5" /> The STEM OPT Training Plan Trap</h4>
                     <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">Under STEM OPT rules, your compensation must be "commensurate" with similarly situated US workers. If you accept a heavily low-balled offer just to get the job, it could raise red flags during your I-983 review or future H-1B processing.</p>
                 </div>
@@ -70,31 +70,31 @@ export default function SalaryNegotiationPage() {
                     "Thank you so much for this offer. I am thrilled about the opportunity to join [Company] and contribute to the [Team Name] team. I am fully committed to joining, but I was hoping we could discuss the base salary. Based on market research for this role in [City], and the specific [Skill] experience I bring, would you be open to increasing the base to [Target Salary]? If we can reach this number, I am ready to sign today."
                 </blockquote>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Don't Let the Clock Force Your Hand</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">The main reason students don't negotiate is because their 90-day unemployment clock is running out. <strong>TrackMyOPT</strong> helps you track your timeline so you know exactly how many days of leverage you actually have left.</p>
                 </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Negotiate with Confidence</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Know exactly how much time you have left to safely negotiate. Use TrackMyOPT's unemployment tracker to maintain your leverage during the hiring process.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/how-to-answer-sponsorship-question" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Answering Sponsorship Questions</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Before you can negotiate, you have to pass the HR screening. Learn how to answer the sponsorship question perfectly.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/h1b-alternatives-work-visas" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">H-1B Visa Alternatives</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">If they won't cover Premium Processing for the H-1B, you might need to look into alternatives if you don't get selected.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

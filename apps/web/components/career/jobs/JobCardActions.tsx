@@ -60,7 +60,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
           type="button"
           onClick={saveToTracker}
           disabled={saveState === 'saving' || saveState === 'saved'}
-          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 ${isList ? 'flex-1 lg:flex-none' : ''}`}
+          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 ${isList ? 'flex-1 lg:flex-none' : ''} shadow-card`}
         >
           {saveState === 'saving' ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <BookmarkPlus className="size-4" aria-hidden="true" />}
           {saveState === 'saved' ? (isList ? 'Added' : 'Saved') : (isList ? 'Add to tracker' : 'Save')}
@@ -112,7 +112,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
                     type="date"
                     value={followupDate}
                     onChange={(event) => setFollowupDate(event.target.value)}
-                    className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-white shadow-card"
                   />
                 </label>
                 <button

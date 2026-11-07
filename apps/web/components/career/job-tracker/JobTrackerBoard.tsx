@@ -423,11 +423,11 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-2">
                 {/* Title Section */}
                 <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900">
-                        <ClipboardList className="size-6 text-emerald-600 dark:text-emerald-400" />
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950">
+                        <ClipboardList className="size-5 text-violet-600 dark:text-violet-300" />
                     </div>
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Job Application Tracker</h1>
+                        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Job Application Tracker</h1>
                         <p className="text-sm text-muted-foreground">
                             Track applications, interviews, and offers in one place
                         </p>
@@ -513,7 +513,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
                                             setShowAddColumnModal(true);
                                         }
                                     }}
-                                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-dashed border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950 transition-colors font-medium h-[60px]"
+                                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-dashed border-primary-muted bg-card text-primary dark:text-blue-300 hover:bg-primary-soft transition-colors font-medium h-[60px]"
                                 >
                                     <Plus className="w-4 h-4" />
                                     Add Column

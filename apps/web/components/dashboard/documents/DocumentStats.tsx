@@ -108,7 +108,7 @@ function StatCard({
     orange: 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:border-orange-700',
     red: 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700',
     cyan: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900 dark:text-cyan-300 dark:border-cyan-700',
-    purple: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:border-purple-700',
+    purple: 'bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-900 dark:text-violet-300 dark:border-violet-700',
   };
 
   return (

@@ -82,24 +82,24 @@ const jsonLd = [
 
 export default function OptDecisionWindowPage() {
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-zinc-950">
+    <main className="min-h-screen bg-surface">
       <PublicOptToolPageIntro
         title="Stop refreshing. See your OPT decision window."
         description="Enter the date USCIS received your I-765. We’ll show where you stand against similar community cases — then you can track live status free."
       >
-        <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
+        <p className="text-sm leading-6 text-muted-foreground">
           Use the received date on your I-797C notice. Optional: first 3 letters
           of the receipt (IOE, EAC…) to tighten the match. Never paste your full
           receipt number into this public tool.
         </p>
-        <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
+        <p className="text-sm leading-6 text-muted-foreground">
           Ranges come from anonymized community timelines. Processing varies by
           service center and season. Confirm important dates with USCIS and your
           DSO.
         </p>
       </PublicOptToolPageIntro>
 
-      <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
         <OptDecisionWindowTool />
       </div>
 

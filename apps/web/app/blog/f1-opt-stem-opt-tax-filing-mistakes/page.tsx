@@ -117,7 +117,7 @@ export default function F1OptTaxMistakesBlogPage() {
 
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <section className="mb-10">
-                    <div className="p-5 rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950">
+                    <div className="p-5 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-0 mb-3">Quick Answer</h2>
                         <p className="text-gray-700 dark:text-gray-300 mb-0">
                             The biggest F-1 OPT/STEM OPT tax mistakes are filing the wrong form, skipping Form 8843, ignoring FICA errors, and misusing tax treaty claims. A correct return is not just about money; it is also a compliance record.
@@ -150,7 +150,7 @@ export default function F1OptTaxMistakesBlogPage() {
                             "Entering incorrect SSN/ITIN, address, or bank details.",
                             "Waiting until deadline week, leaving no time to fix errors.",
                         ].map((item, i) => (
-                            <div key={i} className="p-5 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950">
+                            <div key={i} className="border-l-4 border-l-red-500 p-5 rounded-r-xl bg-red-50 dark:bg-red-950">
                                 <h3 className="font-bold text-red-900 dark:text-red-200 mb-1 flex items-center gap-2">
                                     <FileWarning className="w-4 h-4" />
                                     Mistake #{i + 1}
@@ -172,7 +172,7 @@ export default function F1OptTaxMistakesBlogPage() {
                             "Review for treaty claims, FICA handling, and personal info accuracy.",
                             "Submit early and store PDFs + confirmation receipts in one folder.",
                         ].map((step, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-0">
                                     <strong>Step {i + 1}:</strong> {step}
                                 </p>
@@ -183,7 +183,7 @@ export default function F1OptTaxMistakesBlogPage() {
 
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">If You Already Made a Mistake</h2>
-                    <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950">
+                    <div className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
                         <ul className="space-y-2 text-blue-900 dark:text-blue-200 text-sm">
                             <li>Identify whether the issue is a form type error, missing schedule, or withholding issue.</li>
                             <li>Gather supporting documents and draft an amended filing plan.</li>
@@ -197,7 +197,7 @@ export default function F1OptTaxMistakesBlogPage() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -208,7 +208,7 @@ export default function F1OptTaxMistakesBlogPage() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Student Tax Filing Guide 2026</Link>
@@ -220,12 +220,12 @@ export default function F1OptTaxMistakesBlogPage() {
 
             <AuthorBio />
 
-            <div className="bg-green-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Stay Organized for Tax Season</h2>
-                <p className="text-green-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     Keep your OPT timeline, job records, and compliance docs in one place with TrackMyOPT so tax season is easier each year.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-700 rounded-xl font-semibold hover:bg-green-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Get Started <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

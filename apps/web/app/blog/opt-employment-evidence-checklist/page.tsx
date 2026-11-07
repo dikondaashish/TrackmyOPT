@@ -61,12 +61,12 @@ export default function OptEmploymentEvidenceChecklistPage() {
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
         <BlogPostImage src="/blog/opt-employment-evidence-checklist.png" alt="OPT evidence folder with pay stubs, W-2, EAD card, offer letter and evidence checklist on legal pad" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+      <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
         <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">Direct Answer</p>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed">
           For each OPT employer, collect and keep: signed offer letter, job description, start and
@@ -93,7 +93,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
           <li><strong>RFE responses:</strong> USCIS can issue an RFE for an H-1B petition asking for proof that prior OPT employment was related to the specialty occupation. A complete OPT evidence file turns a stressful RFE into a manageable response.</li>
         </ul>
 
-        <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
+        <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-5 rounded-r-xl my-6">
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -128,7 +128,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             ].map((row, i) => (
               <li key={i} className="text-gray-800 dark:text-gray-200">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-1" />
                   <div>
                     <p className="font-semibold text-sm">{row.item}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{row.why}</p>
@@ -151,7 +151,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             ].map((row, i) => (
               <li key={i} className="text-gray-800 dark:text-gray-200">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-1" />
                   <div>
                     <p className="font-semibold text-sm">{row.item}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{row.why}</p>
@@ -173,7 +173,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             ].map((row, i) => (
               <li key={i} className="text-gray-800 dark:text-gray-200">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-1" />
                   <div>
                     <p className="font-semibold text-sm">{row.item}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{row.why}</p>
@@ -195,7 +195,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             ].map((row, i) => (
               <li key={i} className="text-gray-800 dark:text-gray-200">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-1" />
                   <div>
                     <p className="font-semibold text-sm">{row.item}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{row.why}</p>
@@ -218,7 +218,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             ].map((row, i) => (
               <li key={i} className="text-gray-800 dark:text-gray-200">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-1" />
                   <div>
                     <p className="font-semibold text-sm">{row.item}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{row.why}</p>
@@ -244,7 +244,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             ].map((row, i) => (
               <li key={i} className="text-gray-800 dark:text-gray-200">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-1" />
                   <div>
                     <p className="font-semibold text-sm">{row.item}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{row.why}</p>
@@ -281,7 +281,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
                 OPT compliance categories above so your files are always where you need them.
               </p>
               <Link href="/features/compliance"
-                className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primary-hover transition-colors text-sm">
+                className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primary-hover transition-colors text-sm shadow-button">
                 Open Document Vault <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -289,12 +289,12 @@ export default function OptEmploymentEvidenceChecklistPage() {
         </div>
 
         <h2>Common Gaps and How to Fix Them</h2>
-        <div className="not-prose overflow-x-auto my-6">
+        <div className="not-prose overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-primary-soft">
-                <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">Gap</th>
-                <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">How to Address It</th>
+                <th className="text-left p-3 font-semibold border border-border">Gap</th>
+                <th className="text-left p-3 font-semibold border border-border">How to Address It</th>
               </tr>
             </thead>
             <tbody>
@@ -306,8 +306,8 @@ export default function OptEmploymentEvidenceChecklistPage() {
                 ["Lost EAD card", "Request a replacement through USCIS. Keep the approval notice, receipt notice, and any non-delivery inquiry records."],
               ].map(([gap, fix], i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white dark:bg-zinc-900" : "bg-gray-50 dark:bg-zinc-800"}>
-                  <td className="p-3 border border-gray-200 dark:border-zinc-700 text-red-700 dark:text-red-400 font-medium">{gap}</td>
-                  <td className="p-3 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">{fix}</td>
+                  <td className="p-3 border border-border text-red-700 dark:text-red-400 font-medium">{gap}</td>
+                  <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{fix}</td>
                 </tr>
               ))}
             </tbody>
@@ -344,7 +344,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
             },
           ].map((item, i) => (
             <div key={i} itemScope itemProp="mainEntity" itemType="https://schema.org/Question"
-              className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-5">
+              className="border border-border rounded-xl p-5 bg-card shadow-card">
               <p itemProp="name" className="font-bold text-gray-900 dark:text-white mb-2">{item.q}</p>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
                 <p itemProp="text" className="text-gray-600 dark:text-gray-300 text-sm">{item.a}</p>
@@ -363,14 +363,14 @@ export default function OptEmploymentEvidenceChecklistPage() {
             { label: "USCIS OPT Information", href: "https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-opt-for-f-1-students" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary transition-colors">
+              className="border flex items-center gap-2 p-3 border-border rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary-muted hover:shadow-elevated transition-[color,border-color,box-shadow] bg-card shadow-card">
               <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
               {s.label}
             </a>
           ))}
         </div>
 
-        <div className="not-prose mt-10 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl p-5">
+        <div className="border not-prose mt-10 border-border rounded-xl p-5 bg-card shadow-card">
           <div className="flex gap-3">
             <ShieldCheck className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -392,7 +392,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
               { href: "/blog/opt-to-h1b-transition", title: "OPT to H-1B Transition Guide", desc: "How your OPT employment record affects your H-1B petition." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
-                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                <div className="surface-card-interactive p-5 h-full">
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-base">{r.title}</h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{r.desc}</p>
                   <span className="text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

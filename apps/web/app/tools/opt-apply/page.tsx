@@ -114,11 +114,11 @@ export default function OptApplyPage() {
         title="OPT Application Guide & I-765 Deadline Calculator"
         description="Use the calculator to organize your post-completion OPT filing dates, then work through the steps below before you submit Form I-765."
       >
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Plan your filing window
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Start planning up to 90 days before your program end date. Current
             rules and transitional provisions can change the post-program filing
             window. Confirm your I-94 and applicable deadline with your DSO; the
@@ -126,11 +126,11 @@ export default function OptApplyPage() {
             date also limits when you can file.
           </p>
         </div>
-        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <h2 className="font-semibold text-slate-950 dark:text-white">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <h2 className="font-semibold text-foreground">
             Prepare before you file
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Review your I-20, coordinate the OPT recommendation with your DSO,
             and gather the identity, status, and prior authorization documents
             required for your application. Check the current USCIS instructions
@@ -138,7 +138,9 @@ export default function OptApplyPage() {
           </p>
         </div>
       </PublicOptToolPageIntro>
-      <OptApplyTool />
+      <div className="bg-surface pb-12 pt-3">
+        <OptApplyTool />
+      </div>
     </>
   );
 }

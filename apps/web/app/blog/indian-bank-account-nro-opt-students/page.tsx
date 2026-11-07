@@ -130,7 +130,7 @@ export default function IndianBankAccountNROPage() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -143,7 +143,7 @@ export default function IndianBankAccountNROPage() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -177,7 +177,7 @@ export default function IndianBankAccountNROPage() {
                         Under the <strong>Foreign Exchange Management Act (FEMA), 1999</strong>, a person is considered a Non-Resident Indian (NRI) if they have been outside India for more than <strong>182 days in the preceding financial year</strong> (April 1 – March 31). That is the only threshold that matters.
                     </p>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             "For most Indian F-1 students who start post-completion OPT in May or June, the 182-day threshold is crossed by October or November of that same year — well within the first OPT year."
                         </p>
@@ -231,11 +231,11 @@ export default function IndianBankAccountNROPage() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <h3 className="font-semibold text-green-900 dark:text-green-100">What You CAN Do as an NRI</h3>
-                                <ul className="mt-2 space-y-1 text-sm text-green-800 dark:text-green-200">
+                                <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">What You CAN Do as an NRI</h3>
+                                <ul className="mt-2 space-y-1 text-sm text-emerald-800 dark:text-emerald-200">
                                     <li>• Hold an NRO account (for India-sourced income like rent, dividends)</li>
                                     <li>• Hold an NRE account (for income earned abroad — fully repatriable)</li>
                                     <li>• Hold an FCNR(B) account in foreign currency (USD, GBP, EUR, etc.)</li>
@@ -254,26 +254,26 @@ export default function IndianBankAccountNROPage() {
                         This is where it gets serious. <strong>Section 13 of FEMA</strong> lays out the penalty structure for violations, and it applies directly to NRIs who continue operating resident accounts.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm mt-4">
                             <thead>
                                 <tr className="bg-red-100 dark:bg-red-900">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Violation Type</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Penalty</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Violation Type</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Penalty</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Holding a resident account as an NRI</td>
-                                    <td className="p-3 border dark:border-zinc-700 font-semibold text-red-700 dark:text-red-300">Up to 3× the account balance, or ₹2 lakh flat</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Holding a resident account as an NRI</td>
+                                    <td className="p-3 border border-border font-semibold text-red-700 dark:text-red-300">Up to 3× the account balance, or ₹2 lakh flat</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Continuing the violation after notice</td>
-                                    <td className="p-3 border dark:border-zinc-700 font-semibold text-red-700 dark:text-red-300">₹5,000 per day for every day of non-compliance</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Continuing the violation after notice</td>
+                                    <td className="p-3 border border-border font-semibold text-red-700 dark:text-red-300">₹5,000 per day for every day of non-compliance</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Bank identifies the issue proactively</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Account may be frozen or closed without prior notice</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Bank identifies the issue proactively</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Account may be frozen or closed without prior notice</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -294,13 +294,13 @@ export default function IndianBankAccountNROPage() {
                         As an OPT or STEM OPT student, you will likely need both at some point. Here is a clear breakdown:
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Feature</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">NRO Account</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">NRE Account</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Feature</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">NRO Account</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">NRE Account</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -313,9 +313,9 @@ export default function IndianBankAccountNROPage() {
                                     ["First step for OPT students", "✅ Convert existing savings account to NRO", "Open separately if needed"],
                                 ].map(([feature, nro, nre], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-700 dark:text-gray-300">{feature}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{nro}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{nre}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-700 dark:text-gray-300">{feature}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{nro}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{nre}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -363,15 +363,15 @@ export default function IndianBankAccountNROPage() {
                                 color: "blue",
                             },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                            <div key={i} className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
                                 <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">{item.step}</h3>
                                 <p className="text-blue-800 dark:text-blue-200 text-sm">{item.detail}</p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800">
-                        <p className="text-green-800 dark:text-green-200 text-sm">
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                        <p className="text-emerald-800 dark:text-emerald-200 text-sm">
                             <strong>✅ Power of Attorney option:</strong> If your parents or a trusted family member is in India, you can grant them a Power of Attorney (PoA) to visit the bank branch and handle the conversion in person on your behalf. PoA forms can be signed abroad and notarized at the Indian Consulate.
                         </p>
                     </div>
@@ -391,9 +391,9 @@ export default function IndianBankAccountNROPage() {
                             { title: "Recent Passport-Size Photograph", desc: "Some banks still require a physical photo for their records, especially for in-branch processing." },
                             { title: "PAN Card Copy", desc: "Required for tax deduction at source (TDS) purposes on NRO account interest. Self-attested copy." },
                         ].map((item) => (
-                            <div key={item.title} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.title} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                     {item.title}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
@@ -443,7 +443,7 @@ export default function IndianBankAccountNROPage() {
                                 linkLabel: "Kotak NRI Banking",
                             },
                         ].map((item) => (
-                            <div key={item.bank} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.bank} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{item.bank}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{item.process}</p>
                                 <a
@@ -494,7 +494,7 @@ export default function IndianBankAccountNROPage() {
                     </h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -506,7 +506,7 @@ export default function IndianBankAccountNROPage() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Student Tax Filing Guide 2026</Link>
@@ -527,12 +527,12 @@ export default function IndianBankAccountNROPage() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Stay Compliant on Both Sides of the Pacific</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     TrackMyOPT keeps your OPT unemployment days, employer updates, and USCIS deadlines organized — so you can focus on your career while staying fully compliant.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Track Your OPT Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

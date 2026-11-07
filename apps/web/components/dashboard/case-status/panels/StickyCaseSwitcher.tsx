@@ -63,7 +63,7 @@ export function StickyCaseSwitcher({
   );
 
   return (
-    <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-background backdrop-blur-sm border-b border-border">
+    <div className="sticky top-0 z-30 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 py-2 bg-surface border-b border-border">
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
         {sorted.map((c) => {
           const cfg = STATE_CONFIG[c.caseState];

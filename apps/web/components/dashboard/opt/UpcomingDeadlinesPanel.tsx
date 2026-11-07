@@ -212,7 +212,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
 
   if (!optStatus) {
     return (
-      <div className="bg-card border border-border rounded-xl p-6 h-full">
+      <div className="bg-card border border-border rounded-xl p-6 h-full shadow-card">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-primary-soft rounded-lg">
             <Calendar className="w-5 h-5 text-primary" />
@@ -237,7 +237,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6 h-full">
+    <div className="bg-card border border-border rounded-xl p-6 h-full shadow-card">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary-soft rounded-lg">

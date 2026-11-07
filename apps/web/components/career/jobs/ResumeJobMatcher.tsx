@@ -207,11 +207,11 @@ export function ResumeJobMatcher({
                 <div className="flex min-w-0 flex-1 gap-1.5">
                   <label className="min-w-0 flex-1">
                     <span className="sr-only">Saved resume</span>
-                    <select value={resumeId} onChange={(event) => { setResumeId(event.target.value); setPendingDeleteId(null); }} aria-label="Saved resume" disabled={loading} className="min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none focus-visible:ring-2 focus-visible:ring-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                    <select value={resumeId} onChange={(event) => { setResumeId(event.target.value); setPendingDeleteId(null); }} aria-label="Saved resume" disabled={loading} className="min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none focus-visible:ring-2 focus-visible:ring-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 shadow-card">
                       {availableResumes.map((resume) => <option key={resume.id} value={resume.id}>{resume.filename}</option>)}
                     </select>
                   </label>
-                  <button type="button" onClick={() => setPendingDeleteId(resumeId)} disabled={loading || !resumeId} aria-label={`Remove ${availableResumes.find((resume) => resume.id === resumeId)?.filename || 'saved resume'}`} className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-red-900 dark:hover:bg-red-950 dark:hover:text-red-300"><Trash2 className="size-4" aria-hidden="true" /></button>
+                  <button type="button" onClick={() => setPendingDeleteId(resumeId)} disabled={loading || !resumeId} aria-label={`Remove ${availableResumes.find((resume) => resume.id === resumeId)?.filename || 'saved resume'}`} className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-red-900 dark:hover:bg-red-950 dark:hover:text-red-300 shadow-card"><Trash2 className="size-4" aria-hidden="true" /></button>
                 </div>
                 <button type="button" onClick={matchSavedResume} disabled={loading || !resumeId} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3.5 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
                   {loading ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />} Analyze saved resume
@@ -219,14 +219,14 @@ export function ResumeJobMatcher({
                 <span className="text-center text-xs text-slate-400">or</span>
               </>
             ) : <p className="text-xs font-medium text-slate-500 dark:text-slate-400">No saved resumes yet</p>}
-            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900">
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900 shadow-card">
               {loading ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Upload className="size-4" aria-hidden="true" />}
               Upload PDF, DOCX, or TXT
               <input ref={inputRef} type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" disabled={loading} aria-label="Upload resume for job matching" className="sr-only" onChange={(event) => { setSelectedFile(event.target.files?.[0] || null); setError(null); }} />
             </label>
           </div>
           {selectedFile && (
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-blue-100 bg-white p-2 dark:border-blue-900 dark:bg-slate-950">
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-blue-100 bg-white p-2 dark:border-blue-900 dark:bg-slate-950 shadow-card">
               <p className="min-w-0 truncate text-xs font-medium text-slate-700 dark:text-slate-200">Ready: {selectedFile.name}</p>
               <button type="button" onClick={() => void matchUploadedResume(selectedFile)} disabled={loading} aria-label={`Analyze and save ${selectedFile.name}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 px-3.5 text-sm font-medium text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
                 {loading ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />} Analyze and save

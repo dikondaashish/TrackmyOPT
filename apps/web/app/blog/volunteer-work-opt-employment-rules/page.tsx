@@ -38,7 +38,7 @@ export default function VolunteerWorkPage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/volunteer-work-opt-employment-rules.jpg" alt="Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -53,7 +53,7 @@ export default function VolunteerWorkPage() {
                     <li><strong>Must Not Violate Labor Laws:</strong> You cannot "volunteer" to do a job that someone would normally be paid for at a for-profit company (this violates the Fair Labor Standards Act). Genuine unpaid internships or volunteering for a 501(c)(3) non-profit are the safest routes.</li>
                 </ol>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2"><AlertTriangle className="w-5 h-5" /> Document Everything</h4>
                     <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">Because there are no pay stubs or W-2s to prove you were employed, USCIS scrutinizes unpaid work. You must secure an official letter from the organization detailing your title, start/end dates, weekly hours, and a description of duties proving it relates to your degree.</p>
                 </div>
@@ -70,7 +70,7 @@ export default function VolunteerWorkPage() {
                     <li><strong>Startups:</strong> You can do an unpaid internship at a startup, provided it is designed as a training experience and doesn't displace a regular employee.</li>
                 </ul>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Track Your Unemployment Days Accurately</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">The 90-day unemployment clock is unforgiving. <strong>TrackMyOPT</strong> calculates your exact remaining days, factors in weekends and travel outside the US, and provides secure cloud storage for your volunteer offer letters so you are always ready for an H-1B RFE.</p>
                 </div>
@@ -79,25 +79,25 @@ export default function VolunteerWorkPage() {
                 <p>Once you secure a volunteer position, you must report it in the SEVP Portal (or via your DSO) within 10 days of starting. You will list the organization as your employer, enter the address, and clearly state in the job description that it is an unpaid volunteer/internship position related to your major.</p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Stop Stressing About the Clock</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">TrackMyOPT's precision unemployment calculator ensures you always know exactly how many days you have left. Store your volunteer documentation securely and never miss a reporting deadline.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your OPT Days</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT Days</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/fall-out-of-f1-status-options" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Falling Out of Status</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">What happens if you exceed 90 days of unemployment? Learn your options.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/freelance-gig-work-uber-doordash-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Freelance & Gig Work</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Instead of volunteering, can you freelance or do gig work? Read the rules first.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

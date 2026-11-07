@@ -107,7 +107,7 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
     return (
         <div className="flex flex-col lg:flex-row gap-6">
             {/* Calendar Grid */}
-            <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-card">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -212,7 +212,7 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
             </div>
 
             {/* Event Detail Panel */}
-            <div className="lg:w-80 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div className="lg:w-80 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-card">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                         {selectedDate ? format(selectedDate, "EEEE, MMM d") : "Select a date"}

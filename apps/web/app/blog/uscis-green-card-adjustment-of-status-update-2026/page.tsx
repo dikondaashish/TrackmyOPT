@@ -67,21 +67,21 @@ export default function GreenCardUpdateArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 27, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/green-card-processing.png" alt="USCIS green card resting on a passport" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
                 USCIS is instructing officers to treat Adjustment of Status as an act of discretionary grace.
             </figcaption>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     A May 2026 USCIS policy memorandum instructs adjudicators to treat Adjustment of Status (AOS) as an act of "discretionary grace." This means USCIS will now actively push most green card applicants to undergo Consular Processing abroad unless they can demonstrate extraordinary circumstances to stay in the U.S. during processing.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
@@ -124,7 +124,7 @@ export default function GreenCardUpdateArticle() {
                 </section>
 
                 <section id="impact-h1b" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
+                    <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Impact on H-1B Holders in the Backlog
@@ -137,7 +137,7 @@ export default function GreenCardUpdateArticle() {
                         </p>
                     </div>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 border rounded-xl flex items-center justify-between border-primary-muted bg-primary-soft">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
                                 <CheckCircle className="w-5 h-5" /> Free Consular Processing Checklist
@@ -146,7 +146,7 @@ export default function GreenCardUpdateArticle() {
                                 Download our step-by-step checklist to prepare your documentation in case you are pushed to Consular Processing.
                             </p>
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap shadow-button">
                             Download PDF
                         </button>
                     </div>
@@ -160,7 +160,7 @@ export default function GreenCardUpdateArticle() {
                             { question: "Will my pending I-485 be affected?", answer: "USCIS has stated that this guidance applies to all adjudications made after May 21, 2026. Therefore, even pending applications could be subject to this new discretionary review standard." },
                             { question: "Can I still apply for an EAD while my AOS is pending?", answer: "Yes, you can still apply for an EAD based on a pending I-485. However, if the I-485 is denied under the new discretionary rule, your EAD will be immediately invalidated." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>

@@ -90,7 +90,7 @@ export function PrivacyTab({
                         <Download className="w-4 h-4 mr-2" />
                       )}
                       Export as ZIP
-                      <span className="ml-2 px-1.5 py-0.5 text-xs font-medium text-purple-800 bg-purple-100 dark:bg-purple-950 dark:text-purple-300 rounded-md">
+                      <span className="ml-2 px-1.5 py-0.5 text-xs font-medium text-violet-800 bg-violet-100 dark:bg-violet-950 dark:text-violet-300 rounded-md">
                         Pro
                       </span>
                     </Button>
@@ -111,7 +111,7 @@ export function PrivacyTab({
                           value={zipExportOtp}
                           onChange={(e) => setZipExportOtp(e.target.value.replace(/\D/g, ''))}
                           placeholder="Enter 6-digit code"
-                          className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-center text-lg font-mono"
+                          className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-center text-lg font-mono shadow-card"
                         />
                         <Button
                           onClick={handleZipExportVerify}

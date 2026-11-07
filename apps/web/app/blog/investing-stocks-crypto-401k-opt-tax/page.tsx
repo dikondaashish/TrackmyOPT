@@ -38,7 +38,7 @@ export default function InvestingOnOPTPage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/investing-stocks-crypto-401k-opt-tax.jpg" alt="Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -60,7 +60,7 @@ export default function InvestingOnOPTPage() {
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Cryptocurrency</h2>
                 <p>Crypto is treated as <strong>property</strong> by the IRS. When you sell Bitcoin, Ethereum, or any crypto for a profit, it is a capital gains event. As an NRA on OPT, the same capital gains exemption generally applies. However, crypto-to-crypto trades (e.g., swapping ETH for SOL) are also taxable events.</p>
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2"><AlertTriangle className="w-5 h-5" /> FBAR Warning for Crypto</h4>
                     <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">If you hold cryptocurrency on a foreign exchange (e.g., Binance, not Binance.US), and the total value of all your foreign financial accounts exceeds $10,000 at any point during the year, you must file an <strong>FBAR (FinCEN Form 114)</strong> by April 15. Failure to file can result in penalties of $10,000 or more per violation.</p>
                 </div>
@@ -73,12 +73,12 @@ export default function InvestingOnOPTPage() {
                     <li><strong>Portability:</strong> If you leave the US, you can keep the 401(k) account open and let it grow. You can also roll it into an IRA.</li>
                 </ul>
 
-                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm my-8">
+                <div className="border border-border rounded-xl p-6 my-8 bg-card shadow-card">
                     <h4 className="font-bold text-lg mt-0 mb-3">What If You Leave the US?</h4>
                     <p className="mb-0 text-sm text-gray-600 dark:text-gray-400">If you eventually leave the US permanently, you can withdraw your 401(k) funds. The withdrawal will be subject to a mandatory 30% NRA withholding (unless reduced by a tax treaty). You will also owe a 10% early withdrawal penalty if you are under 59½. It's usually better to leave the money invested until retirement.</p>
                 </div>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Stay Compliant While You Invest</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">Investing is smart, but do not let financial planning distract you from your OPT compliance obligations. <strong>TrackMyOPT</strong> keeps your unemployment counter, SEVIS reporting, and employer updates on autopilot so you can focus on building wealth instead of worrying about deportation.</p>
                 </div>
@@ -93,25 +93,25 @@ export default function InvestingOnOPTPage() {
                 </ul>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Invest in Your Future—and Your Status</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Building wealth on OPT starts with staying compliant. Use TrackMyOPT to monitor your employment deadlines, SEVIS reporting, and unemployment days while you grow your portfolio.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">OPT Tax Guide</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Complete guide to filing taxes as an F-1 student on OPT.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/first-us-paycheck-deductions-w4" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Understanding Your First Paycheck</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Confused by all the deductions? Learn what FICA, W-4, and net pay mean.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

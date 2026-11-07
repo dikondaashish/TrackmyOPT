@@ -14,132 +14,136 @@ const features = [
     description: "Decision window from similar cases, live status tracking, and Pro alerts when your EAD moves.",
     href: "/features/case-status",
     icon: Activity,
-    color: "green",
+    color: "blue",
   },
   {
     title: "AI Resume Builder",
     description: "ATS-optimized resumes tailored for international students. Beat applicant tracking systems.",
     href: "/features/resume-ai",
     icon: FileText,
-    color: "purple",
+    color: "violet",
   },
   {
     title: "Document Vault",
     description: "Store I-20s, EAD copies, and USCIS notices with passcode lock and expiry reminders (Pro).",
     href: "/login?next=/dashboard/documents",
     icon: FolderLock,
-    color: "slate",
+    color: "amber",
   },
   {
     title: "H-1B Sponsor Database",
     description: "Search 25,000+ verified H-1B sponsors with approval rates, salaries, and E-Verify status.",
     href: "/features/sponsors",
     icon: Search,
-    color: "indigo",
+    color: "emerald",
   },
   {
     title: "Job Application Tracker",
     description: "Organize your job search with a built-in CRM. Track applications, interviews, and offers.",
     href: "/features/job-tracker",
     icon: Briefcase,
-    color: "amber",
+    color: "violet",
   },
   {
     title: "Chrome Extension",
     description: "Track OPT timelines and save jobs directly from your browser on LinkedIn, Indeed, and more.",
     href: "/features/extension",
     icon: Chrome,
-    color: "cyan",
+    color: "blue",
   },
   {
     title: "Tax Filing Guide",
     description: "Step-by-step tax filing guidance for F-1 students — federal, state, and treaty benefits.",
     href: "/features/tax-filing",
     icon: Clock,
-    color: "rose",
+    color: "amber",
   },
   {
     title: "Health Insurance Finder",
     description: "Compare health insurance options for OPT students. ACA, short-term, and university plans.",
     href: "/features/health-insurance",
     icon: Heart,
-    color: "red",
+    color: "emerald",
   },
   {
     title: "Student Community",
     description: "Explore tools and community resources for OPT, STEM OPT, and H-1B transitions.",
     href: "/features/community",
     icon: Users,
-    color: "teal",
+    color: "slate",
   },
 ];
 
+// Icon tiles are coded by meaning: blue = deadlines/status, violet = job
+// search and AI tools, amber = documents and paperwork, emerald = sponsors
+// and outcomes.
 const colorMap: Record<string, string> = {
-  blue: "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400",
-  green: "bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400",
-  purple: "bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400",
-  indigo: "bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400",
-  amber: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400",
-  cyan: "bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400",
-  rose: "bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400",
-  red: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
-  teal: "bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400",
-  slate: "bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-300",
+  blue: "bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300",
+  violet: "bg-violet-50 text-violet-600 dark:bg-violet-950 dark:text-violet-300",
+  amber: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  emerald: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  slate: "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300",
 };
 
 export default function FeaturesPage() {
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-          Your OPT career companion
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Deadlines and case status, AI resumes and Document Vault, H-1B sponsors
-          and job tracking — every tool to protect your status and land the next role.
-        </p>
-      </div>
+    <main>
+      <section className="border-b border-border bg-surface">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+            Your OPT career companion
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Deadlines and case status, AI resumes and Document Vault, H-1B sponsors
+            and job tracking — every tool to protect your status and land the next role.
+          </p>
+        </div>
+      </section>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {features.map((feature) => {
-          const Icon = feature.icon;
-          return (
-            <Link
-              key={feature.href}
-              href={feature.href}
-              className="group p-6 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all"
-            >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${colorMap[feature.color]}`}>
-                <Icon className="w-6 h-6" />
-              </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {feature.title}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {feature.description}
-              </p>
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400">
-                Learn more <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
-          );
-        })}
-      </div>
+      <section className="bg-background">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <Link
+                  key={feature.href}
+                  href={feature.href}
+                  className="surface-card-interactive group flex flex-col p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${colorMap[feature.color]}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-4 flex-1">
+                    {feature.description}
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                    Learn more <ArrowRight className="w-4 h-4" />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-      <div className="mt-16 text-center">
-        <div className="bg-blue-600 rounded-xl p-8 text-white">
-          <h2 className="text-2xl font-bold mb-3">Ready to protect your OPT status?</h2>
-          <p className="text-blue-100 mb-6 max-w-lg mx-auto">
+      <section className="bg-ink text-ink-foreground">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3">Ready to protect your OPT status?</h2>
+          <p className="text-ink-muted mb-8 max-w-lg mx-auto">
             Join 3,500+ people who have signed up for TrackMyOPT. Explore tools for OPT planning and your job search.
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+            className="inline-flex h-11 items-center gap-2 px-6 bg-blue-600 text-white rounded-lg font-semibold shadow-button hover:bg-blue-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
           >
             Get Started Free <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

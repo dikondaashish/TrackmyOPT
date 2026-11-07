@@ -51,7 +51,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-card mb-6">
             {/* Top Row: Search + Sort */}
             <div className="flex flex-col md:flex-row gap-4 mb-4">
                 <div className="flex-1 relative">
@@ -71,7 +71,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                     <select
                         value={filters.sort}
                         onChange={(e) => updateFilter("sort", e.target.value as SortOption)}
-                        className="w-full appearance-none pl-9 pr-10 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer"
+                        className="w-full appearance-none pl-9 pr-10 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer shadow-card"
                     >
                         {SORT_OPTIONS.map((option) => (
                             <option key={option} value={option}>{option}</option>
@@ -91,7 +91,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                     <select
                         value={filters.state}
                         onChange={(e) => updateFilter("state", e.target.value)}
-                        className="appearance-none pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer"
+                        className="appearance-none pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer shadow-card"
                     >
                         {US_STATES.map((state) => (
                             <option key={state} value={state}>
@@ -107,7 +107,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                     <select
                         value={filters.industry}
                         onChange={(e) => updateFilter("industry", e.target.value)}
-                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer"
+                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer shadow-card"
                     >
                         {displayIndustries.map((ind) => (
                             <option key={ind} value={ind}>
@@ -124,7 +124,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                     <select
                         value={filters.companySize}
                         onChange={(e) => updateFilter("companySize", e.target.value as CompanySizeFilter)}
-                        className="appearance-none pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer"
+                        className="appearance-none pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer shadow-card"
                     >
                         {COMPANY_SIZE_OPTIONS.map((size) => (
                             <option key={size} value={size}>
@@ -140,7 +140,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                     <select
                         value={filters.strength}
                         onChange={(e) => updateFilter("strength", e.target.value as StrengthFilter)}
-                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer"
+                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer shadow-card"
                     >
                         {STRENGTH_OPTIONS.map((strength) => (
                             <option key={strength} value={strength}>
@@ -156,7 +156,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                     <select
                         value={filters.status}
                         onChange={(e) => updateFilter("status", e.target.value as StatusFilter)}
-                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer"
+                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer shadow-card"
                     >
                         {STATUS_OPTIONS.map((status) => (
                             <option key={status} value={status}>
@@ -172,7 +172,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                     <select
                         value={filters.trend}
                         onChange={(e) => updateFilter("trend", e.target.value as TrendFilter)}
-                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer"
+                        className="appearance-none pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer shadow-card"
                     >
                         {TREND_OPTIONS.map((trend) => (
                             <option key={trend} value={trend}>
@@ -205,7 +205,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                         <span className="px-2 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">{filters.status}</span>
                     )}
                     {filters.trend !== "All" && (
-                        <span className="px-2 py-1 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300">{filters.trend}</span>
+                        <span className="px-2 py-1 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300">{filters.trend}</span>
                     )}
                     <button
                         onClick={clearAllFilters}

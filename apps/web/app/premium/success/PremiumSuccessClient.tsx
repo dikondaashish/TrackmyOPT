@@ -66,7 +66,7 @@ function FeatureCard({
       : "bg-primary-soft text-primary";
 
   return (
-    <div className="flex flex-col rounded-lg border border-border bg-card p-4 text-left">
+    <div className="flex flex-col rounded-lg bg-surface p-4 text-left">
       <div
         className={cn(
           "mb-3 flex h-9 w-9 items-center justify-center rounded-md",
@@ -93,7 +93,7 @@ function Stepper({
       {steps.map((step, i) => (
         <div key={i} className="flex gap-4">
           <div className="flex flex-col items-center">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-xs font-semibold text-foreground">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
               {i + 1}
             </div>
             {i < steps.length - 1 && (
@@ -294,10 +294,10 @@ export function PremiumSuccessClient() {
       ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-surface">
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:py-14">
         <div className="w-full max-w-md">
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-elevated sm:p-8">
             <SuccessHeroMark variant={variant} />
 
             <div className="text-center">
@@ -362,7 +362,7 @@ export function PremiumSuccessClient() {
               </div>
             </div>
 
-            <div className="mt-8 rounded-lg border border-border bg-muted p-4">
+            <div className="mt-8 rounded-lg bg-surface p-4">
               <p className="mb-4 text-xs font-medium text-muted-foreground">
                 Next steps
               </p>
@@ -387,7 +387,7 @@ export function PremiumSuccessClient() {
         </div>
       </main>
 
-      <footer className="border-t border-border bg-muted px-4 py-4">
+      <footer className="border-t border-border bg-background px-4 py-4">
         <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 text-center text-[10px] text-muted-foreground sm:flex-row sm:gap-6 sm:text-left">
           <a
             href="mailto:support@trackmyopt.com"

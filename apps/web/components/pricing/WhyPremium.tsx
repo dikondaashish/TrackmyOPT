@@ -6,13 +6,13 @@ import { whyPremiumReasons } from "./PricingData";
 
 export function WhyPremium() {
     return (
-        <section className="py-24">
+        <section className="border-y border-border bg-surface py-24">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
                         Why Students Choose Pro
                     </h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         Every feature exists because an F-1 student
                         needed it to avoid a real compliance risk.
                     </p>
@@ -27,19 +27,19 @@ export function WhyPremium() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 hover:shadow-lg transition-shadow"
+                                className="surface-card flex flex-col p-6"
                             >
-                                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center mb-4">
-                                    <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center mb-4">
+                                    <Icon className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                <h3 className="text-lg font-semibold text-foreground mb-2">
                                     {reason.title}
                                 </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                <p className="text-sm text-muted-foreground mb-4 flex-1">
                                     {reason.description}
                                 </p>
-                                <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950 rounded-lg p-3">
-                                    <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                                <div className="flex items-start gap-2 rounded-lg border-l-4 border-l-red-500 bg-red-50 p-3 dark:bg-red-950">
+                                    <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                                     <p className="text-xs text-red-700 dark:text-red-300 font-medium">
                                         {reason.risk}
                                     </p>

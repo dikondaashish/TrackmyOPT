@@ -69,7 +69,7 @@ export function CompanySearchInput({
           }
           onKeyDown={suggestions.onKeyDown}
           placeholder="Type a company name"
-          className="w-full min-w-0 rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-base text-slate-950 placeholder:text-slate-500 outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-blue-400 dark:focus:ring-blue-950 sm:text-sm"
+          className="w-full min-w-0 rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-base text-slate-950 placeholder:text-slate-500 outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-blue-400 dark:focus:ring-blue-950 sm:text-sm shadow-card"
         />
       </div>
       {suggestions.expanded && (

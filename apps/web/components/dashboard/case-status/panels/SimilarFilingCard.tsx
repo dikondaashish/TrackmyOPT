@@ -96,7 +96,7 @@ export function SimilarFilingCard({
   const copy = BASIS_COPY[peers.basis];
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <CalendarRange className="w-4 h-4 text-blue-600 dark:text-blue-400" />

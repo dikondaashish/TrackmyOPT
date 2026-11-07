@@ -25,8 +25,8 @@ export function UscisCaseStatusDisclaimer({
   return (
     <div
       className={cn(
-        "rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-950 dark:bg-amber-950 p-3 text-sm text-amber-950 dark:text-amber-100",
-        variant === "alert" && "border-blue-200 bg-blue-50 dark:border-blue-950 dark:bg-blue-950 text-blue-950 dark:text-blue-100",
+        "rounded-lg border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-3 text-sm text-amber-950 dark:text-amber-100",
+        variant === "alert" && "border-l-blue-600 bg-blue-50 dark:bg-blue-950 text-blue-950 dark:text-blue-100",
         className
       )}
       role="note"

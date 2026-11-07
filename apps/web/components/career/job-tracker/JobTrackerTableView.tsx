@@ -110,7 +110,7 @@ export function JobTrackerTableView({
             <button
                 type="button"
                 onClick={() => handleSort(field)}
-                className="flex w-full items-center gap-1 px-4 py-3 text-left text-xs font-semibold text-gray-500 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700"
+                className="flex w-full items-center gap-1 px-4 py-3 text-left text-xs font-semibold text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
             >
                 {label}
                 {sortField === field && (
@@ -125,10 +125,10 @@ export function JobTrackerTableView({
     if (applications.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-20 px-4">
-                <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                    <Briefcase className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+                <div className="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-950 flex items-center justify-center mb-4">
+                    <Briefcase className="w-6 h-6 text-violet-600 dark:text-violet-300" />
                 </div>
-                <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-1">No applications yet</p>
+                <p className="text-base font-semibold text-foreground mb-1">No applications yet</p>
                 <p className="text-sm text-gray-400 dark:text-gray-500 text-center">
                     Add your first job application to see it here
                 </p>
@@ -137,10 +137,10 @@ export function JobTrackerTableView({
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card">
             <div className="overflow-x-auto max-md:-mx-3 md:mx-0">
                 <table className="w-full min-w-[560px] lg:min-w-[900px]">
-                    <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                    <thead className="bg-surface-strong border-b border-border">
                         <tr>
                             {renderSortHeader("company", "Company")}
                             {renderSortHeader("role", "Role")}
@@ -149,10 +149,10 @@ export function JobTrackerTableView({
                             {renderSortHeader("applied", "Applied")}
                             {renderSortHeader("followup", "Follow-up", "hidden md:table-cell")}
                             {renderSortHeader("interviews", "Interviews", "hidden lg:table-cell")}
-                            <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-foreground">
                                 Status
                             </th>
-                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-foreground">
                                 Actions
                             </th>
                         </tr>
@@ -210,7 +210,7 @@ export function JobTrackerTableView({
                                                 }}
                                                 onBlur={() => setEditingStage(null)}
                                                 autoFocus
-                                                className="text-xs px-2 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                                className="text-xs px-2 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 shadow-card"
                                             >
                                                 {STAGES.map(stage => (
                                                     <option key={stage} value={stage}>{stage}</option>
@@ -275,7 +275,7 @@ export function JobTrackerTableView({
                                     {/* Offer Status */}
                                     <td className="hidden md:table-cell px-4 py-3">
                                         {isOffer ? (
-                                            <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400">
+                                            <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                                                 Offer
                                             </span>
                                         ) : (

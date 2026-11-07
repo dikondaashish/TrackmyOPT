@@ -68,22 +68,22 @@ export default function STEMOPTStartupArticle() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/f1-stem-opt-startup.png" alt="Tech startup founder presenting to investors in a modern boardroom" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/f1-stem-opt-startup.png" alt="Tech startup founder presenting to investors in a modern boardroom" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     To transition a startup to STEM OPT, you must restructure the entity so that you are supervised by an independent board or manager.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Self-employment is strictly prohibited on STEM OPT. To work for your own company, you must prove a <strong>bona fide employer-employee relationship</strong>. This requires restructuring your startup with an independent Board of Directors that has the authority to fire you, and your company must be enrolled in E-Verify and pay you a salary.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
@@ -124,7 +124,7 @@ export default function STEMOPTStartupArticle() {
                 </section>
 
                 <section id="i983-and-everify" className="mb-12">
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+                    <div className="border rounded-xl p-6 border-primary-muted bg-primary-soft">
                         <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
                             <Target className="w-5 h-5" />
                             E-Verify and the I-983 Training Plan
@@ -160,7 +160,7 @@ export default function STEMOPTStartupArticle() {
                             { question: "Can another international student be my supervisor?", answer: "Generally, no. The person signing the I-983 should ideally be a U.S. citizen, permanent resident, or someone with long-term work authorization who holds a senior managerial position over you." },
                             { question: "Is it easier to just apply for an O-1 visa?", answer: "For many founders, yes. If your startup has raised venture capital, been accepted into an accelerator (like Y Combinator), or you have strong press, pivoting to an O-1A 'Extraordinary Ability' visa often bypasses the strict STEM OPT employer rules." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -183,7 +183,7 @@ export default function STEMOPTStartupArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-stem-opt")} />
             <AuthorBio />
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Read The Rest of the Series</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/start-company-f1-student-visa" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Part 1: Starting a Company on F-1 (Studying)</Link>

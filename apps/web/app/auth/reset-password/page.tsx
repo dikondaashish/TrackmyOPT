@@ -133,17 +133,17 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
-        <div className="bg-white dark:bg-card rounded-xl shadow-xl p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+        <div className="bg-card border border-border rounded-xl shadow-elevated p-6 sm:p-8 max-w-md w-full">
           <div className="text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
-              <CheckCircle2 className="w-7 h-7 text-green-600 dark:text-green-400" />
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center">
+              <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-300" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Password Reset Successful!</h1>
-            <p className="text-gray-600 dark:text-muted-foreground mb-4">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Password Reset Successful!</h1>
+            <p className="text-muted-foreground mb-4">
               Your password has been successfully reset. You can now sign in with your new password.
             </p>
-            <p className="text-sm text-gray-500 dark:text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Redirecting to home page...
             </p>
           </div>
@@ -153,11 +153,11 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
-      <div className="bg-white dark:bg-card rounded-xl shadow-xl p-8 max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+      <div className="bg-card border border-border rounded-xl shadow-elevated p-6 sm:p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">Reset Your Password</h1>
-          <p className="text-gray-600 dark:text-muted-foreground">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Reset Your Password</h1>
+          <p className="text-muted-foreground">
             Enter your new password below
           </p>
         </div>
@@ -165,7 +165,7 @@ export default function ResetPasswordPage() {
         {error && (
           <div
             role="alert"
-            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+            className="mb-6 p-4 rounded-lg border-l-4 border-l-red-500 bg-red-50 text-red-700 text-sm dark:bg-red-950 dark:text-red-300"
           >
             {error}
           </div>
@@ -175,7 +175,7 @@ export default function ResetPasswordPage() {
           <div>
             <label
               htmlFor="new-password"
-              className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2"
+              className="block text-sm font-medium text-foreground mb-2"
             >
               New Password
             </label>
@@ -189,16 +189,16 @@ export default function ResetPasswordPage() {
               required
               disabled={loading || recoveryStatus !== 'ready'}
               minLength={6}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+              className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
               placeholder="••••••••"
             />
-            <p className="mt-1 text-xs text-gray-500 dark:text-muted-foreground">Must be at least 6 characters</p>
+            <p className="mt-1 text-xs text-muted-foreground">Must be at least 6 characters</p>
           </div>
 
           <div>
             <label
               htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2"
+              className="block text-sm font-medium text-foreground mb-2"
             >
               Confirm New Password
             </label>
@@ -212,7 +212,7 @@ export default function ResetPasswordPage() {
               required
               disabled={loading || recoveryStatus !== 'ready'}
               minLength={6}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+              className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
               placeholder="••••••••"
             />
           </div>
@@ -220,7 +220,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={loading || recoveryStatus !== 'ready'}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full min-h-12 py-3 px-4 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-lg shadow-button transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {recoveryStatus === 'checking'
               ? 'Verifying Reset Link...'
@@ -234,14 +234,14 @@ export default function ResetPasswordPage() {
           {recoveryStatus === 'invalid' && (
             <Link
               href="/login"
-              className="block mb-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="block mb-3 text-sm text-primary hover:text-primary-hover font-medium"
             >
               Request a new reset link
             </Link>
           )}
           <Link
             href="/"
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-primary hover:text-primary-hover font-medium"
           >
             ← Back to Home
           </Link>

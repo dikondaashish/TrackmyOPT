@@ -68,22 +68,22 @@ export default function F1StartupArticle() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/f1-startup.png" alt="F-1 student reviewing incorporation documents in a library" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/f1-startup.png" alt="F-1 student reviewing incorporation documents in a library" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     While studying on an F-1 visa, your involvement in any U.S. business must remain strictly passive.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Yes, you can incorporate a company (LLC or C-Corp) and own equity while on an F-1 visa. However, you can only be a <strong>passive investor</strong>. You cannot "work" for your own company (e.g., coding, marketing, sales) until you transition to OPT.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
@@ -119,7 +119,7 @@ export default function F1StartupArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Active vs. Passive Involvement
                     </h2>
-                    <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 mb-6">
+                    <div className="border p-5 rounded-xl border-border mb-6 bg-card shadow-card">
                         <h3 className="font-bold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Illegal: Active Work
@@ -128,8 +128,8 @@ export default function F1StartupArticle() {
                             Even if you are not taking a salary, you cannot actively run the business. You cannot write code for the app, pitch to clients, negotiate contracts, or hire employees. Doing "unpaid" work for your own company is considered unauthorized employment by USCIS.
                         </p>
                     </div>
-                    <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 mb-6">
-                        <h3 className="font-bold text-green-600 dark:text-green-400 mb-2 flex items-center gap-2">
+                    <div className="border p-5 rounded-xl border-border mb-6 bg-card shadow-card">
+                        <h3 className="font-bold text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-2">
                             <CheckCircle className="w-5 h-5" />
                             Legal: Passive Investment
                         </h3>
@@ -147,7 +147,7 @@ export default function F1StartupArticle() {
                         Some students attempt to use Curricular Practical Training (CPT) to work for their own company. While technically possible, it is incredibly risky and highly scrutinized by universities. Most DSOs will refuse to authorize CPT for a student's own company because CPT requires a formal employer-employee relationship and a supervisor to evaluate your learning. You cannot be your own supervisor.
                     </p>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+                    <div className="mt-8 p-6 border rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between border-primary-muted bg-primary-soft">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
                                 <Download className="w-5 h-5" /> Free F-1 Incorporation Checklist
@@ -162,7 +162,7 @@ export default function F1StartupArticle() {
                             download="TrackMyOPT-F1-Incorporation-Checklist.pdf"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center gap-2 shrink-0"
+                            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center gap-2 shrink-0 shadow-button"
                         >
                             <Download className="w-4 h-4" /> Download Free PDF
                         </a>
@@ -177,7 +177,7 @@ export default function F1StartupArticle() {
                             { question: "Do I need an SSN to incorporate a business?", answer: "No. You can incorporate a business and obtain an Employer Identification Number (EIN) from the IRS without a Social Security Number (SSN)." },
                             { question: "What happens if I get caught working for my startup?", answer: "Engaging in unauthorized work violates your F-1 status. You could face immediate deportation, cancellation of your visa, and severe bans from re-entering the United States." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -200,7 +200,7 @@ export default function F1StartupArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-student-visa")} />
             <AuthorBio />
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Read The Rest of the Series</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/start-company-f1-opt-visa" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Part 2: Starting a Company on OPT</Link>

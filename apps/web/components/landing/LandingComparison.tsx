@@ -46,31 +46,31 @@ export function LandingComparison() {
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative bg-red-50 dark:bg-red-950 rounded-xl p-8"
+                        className="relative rounded-xl border border-border bg-surface p-8"
                     >
                         <div className="relative z-10 prose-longform">
                             <div className="flex items-center gap-3 mb-8">
-                                <X className="w-6 h-6 text-red-600 dark:text-red-400" aria-hidden />
-                                <h3 className="text-xl font-bold text-red-900 dark:text-red-200">The Old Way</h3>
+                                <X className="w-6 h-6 text-red-500 dark:text-red-400" aria-hidden />
+                                <h3 className="text-xl font-bold text-muted-foreground">The Old Way</h3>
                             </div>
 
                             <ul className="space-y-6">
                                 {comparisonData.map((item, i) => (
-                                    <li key={i} className="flex gap-4 items-start opacity-75">
-                                        <X className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                                    <li key={i} className="flex gap-4 items-start">
+                                        <X className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                                         <div>
-                                            <p className="font-medium text-red-900 dark:text-red-300">{item.oldWay}</p>
+                                            <p className="font-medium text-muted-foreground">{item.oldWay}</p>
                                         </div>
                                     </li>
                                 ))}
                             </ul>
 
-                            <div className="mt-10 p-4 bg-red-100 dark:bg-red-900 rounded-lg">
-                                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-semibold mb-1">
+                            <div className="mt-10 rounded-lg border-l-4 border-l-red-500 bg-red-50 p-4 dark:bg-red-950">
+                                <div className="flex items-center gap-2 text-red-700 dark:text-red-300 font-semibold mb-1">
                                     <AlertTriangle className="w-4 h-4" />
                                     <span>Risk Level: High</span>
                                 </div>
-                                <p className="text-xs text-red-800 dark:text-red-300">
+                                <p className="text-xs text-red-800 dark:text-red-200">
                                     Keep important dates visible and plan ahead.
                                 </p>
                             </div>
@@ -82,18 +82,18 @@ export function LandingComparison() {
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative bg-blue-50 dark:bg-blue-950 rounded-xl p-8"
+                        className="relative rounded-xl border border-primary-muted bg-card p-8 shadow-elevated ring-1 ring-primary-muted"
                     >
                         <div className="relative z-10 prose-longform">
                             <div className="flex items-center gap-3 mb-8">
                                 <Check className="w-6 h-6 text-blue-600 dark:text-blue-400" aria-hidden />
-                                <h3 className="text-xl font-bold text-blue-900 dark:text-blue-200">The TrackMyOPT Way</h3>
+                                <h3 className="text-xl font-bold text-foreground">The TrackMyOPT Way</h3>
                             </div>
 
                             <ul className="space-y-6">
                                 {comparisonData.map((item, i) => (
                                     <li key={i} className="flex gap-4 items-start">
-                                        <Check className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                        <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                                         <div>
                                             <p className="font-semibold text-gray-900 dark:text-white">{item.newWay}</p>
                                         </div>
@@ -101,12 +101,12 @@ export function LandingComparison() {
                                 ))}
                             </ul>
 
-                            <div className="mt-10 p-4 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold mb-1">
+                            <div className="mt-10 rounded-lg border-l-4 border-l-emerald-500 bg-emerald-50 p-4 dark:bg-emerald-950">
+                                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-semibold mb-1">
                                     <Shield className="w-4 h-4" />
                                     <span>Risk Minimized</span>
                                 </div>
-                                <p className="text-xs text-blue-800 dark:text-blue-300">
+                                <p className="text-xs text-emerald-800 dark:text-emerald-200">
                                     Designed around official USCIS compliance rules.
                                 </p>
                             </div>

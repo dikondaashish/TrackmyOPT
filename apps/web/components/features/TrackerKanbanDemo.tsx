@@ -19,7 +19,7 @@ export function TrackerKanbanDemo() {
         {
             id: "interview",
             title: "Interview",
-            color: "bg-purple-500",
+            color: "bg-violet-600",
             cards: [
                 { id: 3, company: "Stripe", role: "Frontend Dev", date: "Tomorrow" }
             ]
@@ -83,7 +83,7 @@ export function TrackerKanbanDemo() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.1 }}
-                                    className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 group hover:border-blue-500 hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
+                                    className="bg-card p-3 rounded-lg border border-border shadow-card group hover:border-primary-muted hover:shadow-elevated transition-[box-shadow,border-color] cursor-grab active:cursor-grabbing"
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="w-8 h-8 rounded bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-400">

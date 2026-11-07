@@ -42,9 +42,9 @@ const TAX_PARTNERS = [
   {
     name: "Taxback",
     logo: null,
-    color: "bg-purple-500",
-    bgColor: "bg-purple-50 dark:bg-purple-900",
-    borderColor: "border-purple-200 dark:border-purple-800",
+    color: "bg-violet-500",
+    bgColor: "bg-violet-50 dark:bg-violet-900",
+    borderColor: "border-violet-200 dark:border-violet-800",
     tagline: "Maximum Refund Guarantee",
     description: "Experts in tax refunds for international students. They handle everything for you hussle free.",
     features: ["Full-service filing", "Refund maximization", "FICA recovery", "Multi-year filing"],
@@ -131,7 +131,7 @@ function TaxResultsContent() {
   };
 
   return (
-    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 pt-6 pb-4">
         <button
@@ -144,7 +144,7 @@ function TaxResultsContent() {
 
         <div className="mb-2">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground">Your Tax Filing Plan</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Your Tax Filing Plan</h1>
             <p className="text-sm text-slate-600 dark:text-muted-foreground">Based on your responses</p>
           </div>
         </div>
@@ -201,7 +201,7 @@ function TaxResultsContent() {
           {TAX_PARTNERS.map((partner, i) => (
             <div
               key={i}
-              className={`${partner.bgColor} rounded-xl border ${partner.borderColor} p-5 relative hover:shadow-lg transition-all`}
+              className={`${partner.bgColor} rounded-xl border ${partner.borderColor} p-5 relative hover:shadow-elevated transition-all`}
             >
               {partner.badge && (
                 <div className="absolute top-3 right-3">
@@ -240,7 +240,7 @@ function TaxResultsContent() {
                 </button>
                 <button
                   onClick={() => handleGetCoupon(partner)}
-                  className="w-full h-9 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm rounded-xl transition-all hover:border-emerald-300 dark:hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center justify-center gap-1.5"
+                  className="w-full h-9 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm rounded-xl transition-all hover:border-emerald-300 dark:hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center justify-center gap-1.5 shadow-card"
                 >
                   <Gift className="w-3.5 h-3.5" />
                   Get Free Coupon
@@ -300,7 +300,7 @@ function TaxResultsContent() {
           ].map((guide, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden"
+              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden shadow-card"
             >
               <button
                 onClick={() => setExpandedGuide(expandedGuide === i ? null : i)}
@@ -334,7 +334,7 @@ function TaxResultsContent() {
 
       {/* Exit Modal */}
       {showExitModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className={`bg-white dark:bg-slate-800 rounded-xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200 border ${selectedPartner?.borderColor || 'border-slate-200'}`}>
             <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${selectedPartner?.color || 'bg-emerald-500 '}`}>
               <ExternalLink className="w-6 h-6 text-white" />
@@ -363,7 +363,7 @@ function TaxResultsContent() {
 
       {/* Coupon Modal — Sprintax partner code available to all signed-in users */}
       {showCouponModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-card rounded-xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className={`w-14 h-14 ${selectedPartner?.color || 'bg-emerald-400 '} rounded-full flex items-center justify-center mx-auto mb-4`}>
               <Gift className="w-7 h-7 text-white" />

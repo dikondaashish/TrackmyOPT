@@ -87,7 +87,7 @@ const faqItems = [
 
 export default function OPTHealthInsurancePillarGuide() {
     return (
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <article>
             {/* Schema Markup */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
@@ -173,26 +173,28 @@ export default function OPTHealthInsurancePillarGuide() {
                 ]
             })}} />
 
+            <div className="border-b border-border bg-surface">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pt-12 sm:pb-14">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
+            <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
                 <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Home</Link>
                 <span>/</span>
                 <Link href="/blog" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Guides</Link>
                 <span>/</span>
-                <span className="text-gray-900 dark:text-white">OPT Health Insurance</span>
+                <span className="text-foreground">OPT Health Insurance</span>
             </nav>
 
             {/* Hero */}
-            <header className="mb-12">
+            <header>
                 <p className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Pillar Guide</span>
+                    <span className="font-medium text-primary">Pillar Guide</span>
                     <span aria-hidden>·</span>
                     <span>25 min read</span>
                 </p>
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">
                     OPT Health Insurance Guide 2026: Everything You Need to Know
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-xl text-muted-foreground leading-relaxed">
                     The definitive health insurance resource for F-1 students on OPT. From ACA marketplace enrollment to employer plans, COBRA, state-by-state options, and free resources — this guide covers every decision you need to make to stay covered and protected.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
@@ -201,20 +203,25 @@ export default function OPTHealthInsurancePillarGuide() {
                     <span>Written by Vinay Kumar</span>
                 </div>
             </header>
+                </div>
+            </div>
+
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
 
             {/* Key Takeaway */}
-            <div className="bg-rose-50 dark:bg-rose-950 border border-rose-200 dark:border-rose-800 rounded-xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-rose-900 dark:text-rose-100 mb-3">
+            <div className="rounded-xl border border-primary-muted bg-primary-soft p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     
                     Key Takeaway
                 </h2>
-                <p className="text-rose-800 dark:text-rose-200 font-medium leading-relaxed">
+                <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
                     F-1 students on OPT are <strong>legally eligible to buy ACA marketplace health insurance</strong> (HealthCare.gov). Losing your university plan triggers a <strong>60-day Special Enrollment Period</strong>. With income-based subsidies, many OPT students qualify for plans starting at <strong>$0/month</strong>. If your employer offers coverage, that&apos;s almost always the best deal — but plan ahead for the 30–90 day waiting period.
                 </p>
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     
                     In This Guide
@@ -283,34 +290,34 @@ export default function OPTHealthInsurancePillarGuide() {
                         There are six primary health insurance options available to F-1 students on OPT. Each has different costs, coverage levels, and eligibility requirements. Here&apos;s a side-by-side comparison.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Plan Type</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Cost Range</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Duration</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Network</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Pros</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Cons</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Plan Type</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Cost Range</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Duration</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Network</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Pros</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Cons</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {coverageOptionsTable.map((row, i) => (
                                     <tr key={row.type} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : "bg-white dark:bg-zinc-950"}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{row.type}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{row.cost}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{row.duration}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{row.network}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-green-700 dark:text-green-400 text-xs">{row.pros}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-red-600 dark:text-red-400 text-xs">{row.cons}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{row.type}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{row.cost}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{row.duration}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{row.network}</td>
+                                        <td className="p-3 border border-border text-emerald-700 dark:text-emerald-400 text-xs">{row.pros}</td>
+                                        <td className="p-3 border border-border text-red-600 dark:text-red-400 text-xs">{row.cons}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="bg-blue-50 dark:bg-blue-950 border-l-4 border-blue-500 p-4 rounded-r-xl">
+                    <div className="bg-blue-50 dark:bg-blue-950 border-l-4 border-l-blue-500 p-4 rounded-r-xl">
                         <p className="text-blue-900 dark:text-blue-100 text-sm">
                             <strong>Not sure where to start?</strong> If you have employer coverage available, start there — it&apos;s typically the best value. Otherwise, the ACA marketplace is your most comprehensive option. Use <Link href="/dashboard/opt-health-insurance-finder" className="underline font-medium">TrackMyOPT&apos;s Health Insurance Finder</Link> to get personalized recommendations.
                         </p>
@@ -358,7 +365,7 @@ export default function OPTHealthInsurancePillarGuide() {
                             { step: "Check for subsidies", detail: "If you're a resident alien for tax purposes with income between 100–400% of the Federal Poverty Level ($15,060–$60,240 for a single person), you may qualify for premium tax credits." },
                             { step: "Enroll and pay your first premium", detail: "Coverage typically starts the first of the month following enrollment. Pay your first premium to activate — unpaid first premiums cancel your enrollment." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
                                     <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-sm font-bold flex-shrink-0">{i + 1}</div>
                                     {item.step}
@@ -369,34 +376,34 @@ export default function OPTHealthInsurancePillarGuide() {
                     </div>
 
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Metal Tiers Comparison</h3>
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Tier</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Monthly Premium</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Deductible</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Out-of-Pocket Max</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Cost Split</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Best For</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Tier</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Monthly Premium</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Deductible</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Out-of-Pocket Max</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Cost Split</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Best For</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {metalTiers.map((row, i) => (
                                     <tr key={row.tier} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : "bg-white dark:bg-zinc-950"}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{row.tier}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{row.premium}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{row.deductible}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{row.oopMax}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{row.coverage}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400 text-xs">{row.bestFor}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{row.tier}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{row.premium}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{row.deductible}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{row.oopMax}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{row.coverage}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400 text-xs">{row.bestFor}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="bg-emerald-50 dark:bg-emerald-950 border-l-4 border-emerald-500 p-4 rounded-r-xl">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border-l-4 border-l-emerald-500 p-4 rounded-r-xl">
                         <p className="text-emerald-900 dark:text-emerald-100 font-semibold">
                             &quot;F-1 students on valid OPT are considered lawfully present and can purchase ACA marketplace plans. The 60-day SEP after losing university coverage is your best window to enroll.&quot;
                         </p>
@@ -431,7 +438,7 @@ export default function OPTHealthInsurancePillarGuide() {
                             { q: "What's the deductible and OOP max?", detail: "Ask for the Summary of Benefits (SBC)" },
                             { q: "What happens if I leave?", detail: "COBRA eligibility and continuation options" },
                         ].map((item) => (
-                            <div key={item.q} className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.q} className="border p-3 rounded-xl border-border bg-card shadow-card">
                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.q}</p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.detail}</p>
                             </div>
@@ -463,7 +470,7 @@ export default function OPTHealthInsurancePillarGuide() {
                             { title: "Cost reality", desc: "COBRA is expensive. If your employer was paying $500/month and you were paying $100/month, your COBRA cost would be approximately $612/month (($500 + $100) × 1.02). For many OPT students, a marketplace plan is more affordable." },
                             { title: "Duration limits", desc: "COBRA typically lasts up to 18 months for job loss. Some qualifying events allow 36 months. University SHIP plans generally do NOT offer COBRA — it only applies to employer-sponsored group plans." },
                         ].map((item) => (
-                            <div key={item.title} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.title} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
                             </div>
@@ -488,12 +495,12 @@ export default function OPTHealthInsurancePillarGuide() {
                     </p>
 
                     <div className="grid md:grid-cols-2 gap-4 mb-6">
-                        <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
+                        <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <h3 className="font-semibold text-emerald-900 dark:text-emerald-100 mb-2 flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4" />
                                 When Short-Term Works
                             </h3>
-                            <ul className="space-y-1 text-sm text-green-800 dark:text-green-200">
+                            <ul className="space-y-1 text-sm text-emerald-800 dark:text-emerald-200">
                                 <li>• Bridging a 1–3 month gap before employer coverage</li>
                                 <li>• You missed the marketplace enrollment window</li>
                                 <li>• You&apos;re healthy with no pre-existing conditions</li>
@@ -661,28 +668,28 @@ export default function OPTHealthInsurancePillarGuide() {
                         Health insurance rules, marketplaces, and available programs vary significantly by state. Here are the 15 states where F-1 students are most concentrated, with their marketplace names, Medicaid expansion status, and special considerations.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">State</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Marketplace</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Medicaid Expanded?</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Notes for F-1 Students</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">State</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Marketplace</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Medicaid Expanded?</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Notes for F-1 Students</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {stateGuideData.map((row, i) => (
                                     <tr key={row.state} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : "bg-white dark:bg-zinc-950"}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{row.state}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{row.marketplace}</td>
-                                        <td className="p-3 border dark:border-zinc-700">
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{row.state}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{row.marketplace}</td>
+                                        <td className="p-3 border border-border">
                                             <span className={`inline-flex items-center gap-1 text-xs font-medium ${row.expansion ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                                                 {row.expansion ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
                                                 {row.expansion ? "Yes" : "No"}
                                             </span>
                                         </td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400 text-xs">{row.notes}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400 text-xs">{row.notes}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -714,7 +721,7 @@ export default function OPTHealthInsurancePillarGuide() {
                             { step: "Network Type (HMO vs PPO vs EPO)", desc: "HMO: cheapest, need referrals, in-network only. PPO: most flexible, higher cost, any doctor. EPO: in-network only but no referrals needed. Check if your preferred doctors are in-network BEFORE enrolling." },
                             { step: "Prescription Formulary", desc: "Every plan has a list of covered medications organized into tiers. Check that any medications you take regularly are on the formulary and at what tier (Tier 1 = cheapest, Tier 4 = most expensive)." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
                                     <div className="w-7 h-7 rounded-full bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center text-cyan-700 dark:text-cyan-300 text-sm font-bold flex-shrink-0">{i + 1}</div>
                                     {item.step}
@@ -755,7 +762,7 @@ export default function OPTHealthInsurancePillarGuide() {
                             { mistake: "Not understanding deductible vs. copay vs. coinsurance", fix: "Deductible: what you pay before insurance kicks in. Copay: flat fee per visit ($20–$50). Coinsurance: your percentage share after deductible (usually 20–40%). Know all three before enrolling." },
                             { mistake: "Going uninsured to save money", fix: "One ER visit ($2,200+) or a hospital stay ($13,000/day) will cost far more than a year of insurance premiums. Even a catastrophic plan ($100–$250/month) provides critical protection." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-red-700 dark:text-red-400 mb-1 flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                                     {item.mistake}
@@ -813,7 +820,7 @@ export default function OPTHealthInsurancePillarGuide() {
                         ].map((item) => {
                             const Icon = item.icon;
                             return (
-                                <div key={item.title} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                                <div key={item.title} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                                         <Icon className="w-4 h-4 text-rose-500 flex-shrink-0" />
                                         {item.title}
@@ -840,7 +847,7 @@ export default function OPTHealthInsurancePillarGuide() {
                     </h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.q}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed" itemProp="text">{faq.a}</p>
@@ -852,7 +859,7 @@ export default function OPTHealthInsurancePillarGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-health-insurance-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1">
@@ -887,16 +894,16 @@ export default function OPTHealthInsurancePillarGuide() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-rose-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Find the Right Health Insurance Plan</h2>
-                <p className="text-rose-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     TrackMyOPT&apos;s Health Insurance Finder compares marketplace, employer, short-term, and catastrophic plans based on your state, income, and health needs — so you get the best coverage at the right price.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <Link href="/features/health-insurance" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-rose-600 rounded-xl font-semibold hover:bg-rose-50 transition-colors">
+                    <Link href="/features/health-insurance" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                         Compare Plans Free <ArrowRight className="w-4 h-4" />
                     </Link>
-                    <Link href="/dashboard/opt-health-insurance-finder" className="inline-flex items-center gap-2 px-6 py-3 bg-rose-700 text-white rounded-xl font-semibold hover:bg-rose-800 transition-colors border border-rose-500">
+                    <Link href="/dashboard/opt-health-insurance-finder" className="inline-flex items-center gap-2 px-6 py-3 border border-ink-border text-ink-foreground rounded-lg font-semibold hover:bg-white hover:text-ink transition-colors">
                         Open Insurance Finder <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
@@ -946,6 +953,7 @@ export default function OPTHealthInsurancePillarGuide() {
                     }),
                 }}
             />
+        </div>
         </article>
     );
 }
