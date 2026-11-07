@@ -285,6 +285,24 @@ LinkedIn URL without `https://`. Such values are now dropped or repaired before
 validation; a snapshot that still fails reports its schema paths and Zod issue
 codes (`extra.issues`, list indices as `#`), never values.
 
+The 2026-11-07 review dropped three more browser sources and made three server
+failures diagnosable. Another extension's `contentScript/inject.js` logging
+"chrome.runtime is not available." (TRACKMYOPT-2Z) counts as foreign script;
+`isForeignScriptEvent` now ignores the SDK's own captureConsole frames, so the
+event is dropped only when every remaining frame is foreign. A crypto-wallet
+extension's inline `window.ethereum` assignment (TRACKMYOPT-2X, `TypeError` with
+every frame on a page document) and a link scanner's frameless rejection
+"Object Not Found Matching Id:N, MethodName:…, ParamCount:N" (TRACKMYOPT-2W,
+Outlook Safe Links) are dropped by `isInjectedHostNoiseEvent`. A sign-in or
+confirmation link opened in a different browser has no PKCE verifier cookie
+(TRACKMYOPT-2V): the auth callbacks now log a warning and tell the visitor to
+open the link in the same browser instead of reporting an error. The
+retry-pending-emails query (TRACKMYOPT-2T/2S) and the USCIS enrollment audit
+write (TRACKMYOPT-2P, with 2R/2Q downstream) now report the database error code
+(`dbErrorCode`, for example `57014` for a statement timeout), never its message.
+`/api/cron/refresh-opt-forecasts` (TRACKMYOPT-2Y) now logs the static failing
+stage, for example "OPT forecast membership write failed", next to its HTTP 500.
+
 Promise rejections without a stack — `undefined` (TRACKMYOPT-1C), a synthetic
 `CustomEvent` of type `unhandledrejection`, and an empty object (TRACKMYOPT-X/Y,
 one page view) — cannot be attributed. TrackMyOPT's own source never dispatches

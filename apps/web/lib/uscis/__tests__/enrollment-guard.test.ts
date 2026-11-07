@@ -11,7 +11,7 @@ function mockSupabase(enrolled: boolean, error = false, audit: 'ok' | 'removed' 
     const query = {
       select: () => query, eq: () => query, insert: () => query,
       maybeSingle: async () => table === 'uscis_api_audit'
-        ? { data: audit === 'ok' ? { id: 'audit-1' } : null, error: audit === 'failed' ? { message: 'private' } : null }
+        ? { data: audit === 'ok' ? { id: 'audit-1' } : null, error: audit === 'failed' ? { message: 'private', code: '57014' } : null }
         : { data: enrolled ? { id: 'case-1' } : null, error: error ? { message: 'db' } : null },
     };
     return query;
@@ -109,7 +109,7 @@ describe('audit persistence boundary', () => {
   it('fails closed and reports no private message when the audit write fails', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(assertReceiptEnrolledByUser(mockSupabase(true, false, 'failed'), { receiptNumber: 'IOE9822487119', userId: 'user-a', callSite: 'test' })).rejects.toThrow('Could not record');
-    expect(errorSpy).toHaveBeenCalledWith('USCIS enrollment audit write failed');
+    expect(errorSpy).toHaveBeenCalledWith('USCIS enrollment audit write failed (code=57014)');
     expect(JSON.stringify(errorSpy.mock.calls)).not.toContain('private');
   });
 });

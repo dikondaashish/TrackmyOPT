@@ -142,17 +142,21 @@ export function scrubSentryEvent(
 // (TRACKMYOPT-1Y); our own scripts are always served from /_next/.
 // A `tracking_script.js` loading Google's apis.google.com/js/client.js
 // (TRACKMYOPT-2K) is likewise injected by the visitor's browser or a host app.
+// Another extension's `contentScript/inject.js` logs "chrome.runtime is not
+// available." through console.error (TRACKMYOPT-2Z); captureConsole adds the
+// SDK's own frames beside it, so those are ignored here.
 const FOREIGN_SCRIPT =
-  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$|^app:\/\/\/(?:scripts\/inpage|tracking_script)\.js$/i;
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$|^app:\/\/\/(?:scripts\/inpage|tracking_script|contentScript\/inject)\.js$/i;
 const EXPLICIT_FOREIGN_SCRIPT =
-  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^app:\/\/\/(?:scripts\/inpage|tracking_script)\.js$/i;
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^app:\/\/\/(?:scripts\/inpage|tracking_script|contentScript\/inject)\.js$/i;
 
-/** True when every stack frame belongs to injected third-party script. */
+/** True when every non-SDK stack frame belongs to injected third-party script. */
 export function isForeignScriptEvent(event: ErrorEvent): boolean {
   const files = (event.exception?.values ?? []).flatMap((exception) =>
     (exception.stacktrace?.frames ?? [])
       .map((frame) => frame.filename ?? frame.abs_path)
       .filter((file): file is string => Boolean(file))
+      .filter((file) => !SENTRY_SDK_FRAME.test(file))
   );
   return (
     files.length > 0 &&
@@ -538,6 +542,40 @@ export function isInAppBrowserBridgeEvent(event: ErrorEvent): boolean {
   );
 }
 
+// Crypto-wallet extensions inject an inline script that assigns
+// window.ethereum.selectedAddress; when no provider exists it throws on the
+// page document itself (TRACKMYOPT-2X). TrackMyOPT never touches window.ethereum.
+const WALLET_PROVIDER_ERROR = /\bwindow\.ethereum\b/;
+// Outlook Safe Links and similar link scanners render shared links in a
+// headless WebView whose host bridge rejects with this frameless string
+// (TRACKMYOPT-2W). It names no TrackMyOPT code.
+const LINK_SCANNER_REJECTION =
+  /^Non-Error promise rejection captured with value: Object Not Found Matching Id:\d+, MethodName:\w+, ParamCount:\d+$/;
+
+/** True for a wallet extension's injected-script error or a link scanner's bridge rejection. */
+export function isInjectedHostNoiseEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  if (values.length === 0) return false;
+  return values.every((v) => {
+    const frames = v.stacktrace?.frames ?? [];
+    if (
+      v.mechanism?.type === 'auto.browser.global_handlers.onunhandledrejection' &&
+      frames.length === 0 &&
+      LINK_SCANNER_REJECTION.test(v.value ?? '')
+    )
+      return true;
+    return (
+      v.type === 'TypeError' &&
+      WALLET_PROVIDER_ERROR.test(v.value ?? '') &&
+      frames.length > 0 &&
+      frames.every((frame) => {
+        const file = frame.filename ?? frame.abs_path ?? '';
+        return isPageDocumentFrame(file);
+      })
+    );
+  });
+}
+
 // Supabase auth-js logs a definitive refresh failure with console.error
 // (GoTrueClient _recoverAndRefresh). A refresh token that was already used or
 // revoked (TRACKMYOPT-1Z) signs the visitor out: an expected auth outcome.
@@ -619,6 +657,7 @@ export function sentryOptions(
         isPageUnloadAbortEvent(event) ||
         isRscStreamClosedEvent(event) ||
         isInAppBrowserBridgeEvent(event) ||
+        isInjectedHostNoiseEvent(event) ||
         isExpectedAuthRefreshEvent(event) ||
         isProviderOutageHttpEvent(event)
       )

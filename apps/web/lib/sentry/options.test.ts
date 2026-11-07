@@ -10,6 +10,7 @@ import {
   isInAppBrowserBridgeEvent,
   isProviderOutageHttpEvent,
   isRscStreamClosedEvent,
+  isInjectedHostNoiseEvent,
   isBrowserFeatureConsoleEvent,
   isNodeRuntimeNoticeEvent,
   isBrowserNetworkError,
@@ -981,5 +982,106 @@ describe('Sentry injected tracking script and RSC stream noise (2026-10-28 revie
     const frameless = rscClosed();
     frameless.exception!.values![0].stacktrace = undefined;
     expect(isRscStreamClosedEvent(frameless)).toBe(false);
+  });
+});
+
+describe('Sentry injected extension and link-scanner noise (2026-11-07 review)', () => {
+  const beforeSend = () => sentryOptions('https://public@example.ingest.sentry.io/1').beforeSend;
+
+  const foreignContentScript = (): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'Error',
+          value: 'chrome.runtime is not available.',
+          mechanism: { type: 'auto.core.capture_console', handled: true },
+          stacktrace: {
+            frames: [
+              { filename: 'node_modules/.pnpm/@sentry+core@11.6.0/node_modules/@sentry/core/src/integrations/captureconsole.ts', lineno: 38 },
+              { filename: 'node_modules/.pnpm/@sentry+browser-utils@11.6.0/node_modules/@sentry/browser-utils/src/instrumentation/performanceObserver.ts', lineno: 245 },
+              { filename: 'node_modules/.pnpm/@sentry+core@11.6.0/node_modules/@sentry/core/src/instrument/console.ts', lineno: 86 },
+              { filename: 'app:///contentScript/inject.js', lineno: 543, function: 'sendErrorMessageToExtensionUI' },
+              { filename: 'app:///contentScript/inject.js', lineno: 522 },
+            ],
+          },
+        },
+      ],
+    },
+  });
+
+  it("drops another extension's contentScript/inject.js console error (TRACKMYOPT-2Z)", () => {
+    expect(isForeignScriptEvent(foreignContentScript())).toBe(true);
+    expect(beforeSend()?.(foreignContentScript(), {})).toBeNull();
+  });
+
+  it('keeps it when one of our bundle frames is involved, or only SDK frames remain', () => {
+    const ours = foreignContentScript();
+    ours.exception!.values![0].stacktrace!.frames!.push({ filename: 'app:///_next/static/chunks/app.js' });
+    expect(isForeignScriptEvent(ours)).toBe(false);
+    const sdkOnly = foreignContentScript();
+    sdkOnly.exception!.values![0].stacktrace!.frames = sdkOnly.exception!.values![0].stacktrace!.frames!.slice(0, 3);
+    expect(isForeignScriptEvent(sdkOnly)).toBe(false);
+  });
+
+  const walletError = (): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'TypeError',
+          value: "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+          mechanism: { type: 'auto.browser.global_handlers.onerror', handled: false },
+          stacktrace: {
+            frames: [{ filename: 'app:///blog/real-id-domestic-flights-international-students', lineno: 1, colno: 16 }],
+          },
+        },
+      ],
+    },
+  });
+
+  it("drops a wallet extension's inline window.ethereum error (TRACKMYOPT-2X)", () => {
+    expect(isInjectedHostNoiseEvent(walletError())).toBe(true);
+    expect(beforeSend()?.(walletError(), {})).toBeNull();
+  });
+
+  it('keeps a window.ethereum error from a bundle, or a frameless one', () => {
+    const bundled = walletError();
+    bundled.exception!.values![0].stacktrace!.frames = [{ filename: 'app:///_next/static/chunks/app.js', lineno: 1 }];
+    expect(isInjectedHostNoiseEvent(bundled)).toBe(false);
+    const frameless = walletError();
+    frameless.exception!.values![0].stacktrace = undefined;
+    expect(isInjectedHostNoiseEvent(frameless)).toBe(false);
+    const otherError = walletError();
+    otherError.exception!.values![0].value = "undefined is not an object (evaluating 'window.trackmyopt.x')";
+    expect(isInjectedHostNoiseEvent(otherError)).toBe(false);
+  });
+
+  const scannerRejection = (): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'UnhandledRejection',
+          value:
+            'Non-Error promise rejection captured with value: Object Not Found Matching Id:4, MethodName:update, ParamCount:4',
+          mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection', handled: false },
+        },
+      ],
+    },
+  });
+
+  it("drops a link scanner's frameless bridge rejection (TRACKMYOPT-2W)", () => {
+    expect(isInjectedHostNoiseEvent(scannerRejection())).toBe(true);
+    expect(beforeSend()?.(scannerRejection(), {})).toBeNull();
+  });
+
+  it('keeps other unhandled rejections and ones with our frames', () => {
+    const other = scannerRejection();
+    other.exception!.values![0].value = 'Non-Error promise rejection captured with value: Object Not Found';
+    expect(isInjectedHostNoiseEvent(other)).toBe(false);
+    const framed = scannerRejection();
+    framed.exception!.values![0].stacktrace = { frames: [{ filename: 'app:///_next/static/chunks/app.js' }] };
+    expect(isInjectedHostNoiseEvent(framed)).toBe(false);
   });
 });

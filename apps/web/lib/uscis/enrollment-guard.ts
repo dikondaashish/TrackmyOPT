@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { dbErrorCode } from "@/lib/secure-logger";
 import { UnauthorizedReceiptLookupError } from "@/lib/uscis/errors";
 import { hashReceiptNumber, normalizeReceiptNumber } from "@/lib/uscis/receipt-hash";
 
@@ -69,6 +70,7 @@ async function writeAuditLog(
   userId: string | null,
   callSite: string
 ): Promise<void> {
+  let failure: unknown;
   try {
     const { data, error } = await supabase.from('uscis_api_audit').insert({
       user_id: userId,
@@ -77,15 +79,18 @@ async function writeAuditLog(
       reason: decision.reason,
       call_site: callSite,
     }).select('id').maybeSingle();
-    if (error) throw new Error('USCIS enrollment audit write failed');
+    if (error) failure = error;
     // The database trigger returns no row when the enrollment was removed
     // after the initial read. Do not call USCIS using that stale permission.
-    if (decision.allowed && !data) throw new UnauthorizedReceiptLookupError();
+    else if (decision.allowed && !data) throw new UnauthorizedReceiptLookupError();
   } catch (error) {
     if (error instanceof UnauthorizedReceiptLookupError) throw error;
-    console.error('USCIS enrollment audit write failed');
-    if (decision.allowed) throw new Error('Could not record USCIS enrollment audit');
+    failure = error;
   }
+  if (failure === undefined) return;
+  // The code only (TRACKMYOPT-2P): database messages can echo row values.
+  console.error(`USCIS enrollment audit write failed (code=${dbErrorCode(failure)})`);
+  if (decision.allowed) throw new Error('Could not record USCIS enrollment audit');
 }
 
 export async function assertReceiptEnrolledByUser(

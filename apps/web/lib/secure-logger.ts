@@ -178,3 +178,17 @@ export const secureLog = {
     console.info(...args.map((a) => (typeof a === 'string' ? redactString(a) : sanitize(a))));
   },
 };
+
+/**
+ * A database error's code (PostgreSQL SQLSTATE such as "57014", or PostgREST
+ * such as "PGRST301") for diagnostics. Codes never carry row data, unlike
+ * messages and details, so they are safe to put in an error report.
+ */
+export function dbErrorCode(error: unknown): string {
+  const code =
+    typeof error === 'object' && error !== null && 'code' in error
+      ? (error as { code: unknown }).code
+      : undefined;
+  if (typeof code === 'string' && /^[A-Za-z0-9_]{1,16}$/.test(code)) return code;
+  return error instanceof Error ? 'exception' : 'unknown';
+}
