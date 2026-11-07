@@ -14,6 +14,20 @@ import {
 } from './types';
 
 /** Static errors only: caught database errors can contain applicant data. */
+const STATIC_FORECAST_ERROR = /^OPT forecast [a-z ]+$/;
+
+/**
+ * The failing stage of a refresh as a static message, e.g. "OPT forecast
+ * membership write failed" (TRACKMYOPT-2Y). Any other error contributes only
+ * its class name, never its message.
+ */
+export function forecastFailureMessage(error: unknown): string {
+  if (error instanceof Error && STATIC_FORECAST_ERROR.test(error.message))
+    return error.message;
+  const name = error instanceof Error && /^\w{1,40}$/.test(error.name) ? error.name : 'unknown';
+  return `OPT forecast refresh failed (${name})`;
+}
+
 function checked<T>(result: { data: T; error: unknown }, operation: string): T {
   if (result.error) throw new Error(`OPT forecast ${operation} failed`);
   return result.data;
@@ -299,14 +313,14 @@ export async function refreshForecasts(
       modelVersion: MODEL_VERSION,
       promotionEligible: report.promotionEligible,
     };
-  } catch {
+  } catch (error) {
     const failure = await db
       .from('opt_forecast_runs')
       .update({ state: 'error', curves: null, report: null })
       .eq('id', run.id);
     if (failure.error)
       console.error('OPT forecast failure state persistence failed');
-    throw new Error('OPT forecast refresh failed');
+    throw new Error(forecastFailureMessage(error));
   }
 }
 

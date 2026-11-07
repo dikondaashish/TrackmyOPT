@@ -23,7 +23,7 @@ import {
   buildAtRiskReengagementEmailBodies,
 } from "@/lib/notifications/transactional/reengagement";
 import { getTransactionalEmailFromHeader } from "@/lib/notifications/transactional/queue";
-import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
+import { dbErrorCode, sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
@@ -197,7 +197,8 @@ async function handleGET(req: NextRequest) {
     .lt("created_at", cutoffIso);
 
   if (qErr) {
-    secureLog.error("retry-pending-emails query:", sanitizeError(qErr));
+    // Static message plus the error code only: queue rows hold email addresses.
+    console.error(`retry-pending-emails query failed (code=${dbErrorCode(qErr)})`);
     return NextResponse.json({ error: "query_failed" }, { status: 500 });
   }
 

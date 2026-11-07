@@ -4,6 +4,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { captureServerEvent, identifyServerUser } from '@/lib/posthog-server';
 import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
+import { isMissingPkceVerifier, MISSING_VERIFIER_LOGIN_ERROR } from '@/lib/auth/pkce-callback';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
@@ -60,6 +61,14 @@ export async function GET(req: NextRequest) {
 
     // Exchange the OAuth code for a session
     const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (exchangeError && isMissingPkceVerifier(exchangeError)) {
+      // Link opened in a different browser than the one that requested it.
+      secureLog.warn('Code exchange skipped: PKCE verifier cookie missing');
+      const login = new URL('/login', req.url);
+      login.searchParams.set('error', MISSING_VERIFIER_LOGIN_ERROR);
+      return NextResponse.redirect(login);
+    }
 
     if (exchangeError) {
       secureLog.error('Code exchange failed:', sanitizeError(exchangeError));

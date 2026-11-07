@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
-import { refreshForecasts } from '@/lib/opt-forecast/service';
+import {
+  forecastFailureMessage,
+  refreshForecasts,
+} from '@/lib/opt-forecast/service';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -12,7 +15,9 @@ async function handleGET(req: NextRequest) {
     return NextResponse.json(await refreshForecasts(), {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch {
+  } catch (error) {
+    // Name the failing stage; the HTTP 500 report alone does not (TRACKMYOPT-2Y).
+    console.error(forecastFailureMessage(error));
     return NextResponse.json(
       { ok: false, error: 'Daily forecast refresh failed' },
       { status: 500 }
