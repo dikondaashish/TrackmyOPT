@@ -20,8 +20,8 @@ export function RelatedPosts({
   if (!posts.length) return null;
 
   return (
-    <section className="mt-12 border-t border-gray-200 dark:border-zinc-800 pt-8">
-      <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+    <section className="not-prose mt-12 rounded-xl border border-border bg-surface p-6 sm:p-7">
+      <h2 className="text-lg font-bold text-foreground mb-4">
         {heading}
       </h2>
       <ul className="grid gap-3 sm:grid-cols-2">
@@ -29,9 +29,9 @@ export function RelatedPosts({
           <li key={post.href}>
             <Link
               href={post.href}
-              className="group flex h-full flex-col rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 p-4 transition-colors hover:border-blue-300 dark:hover:border-blue-700"
+              className="surface-card-interactive group flex h-full flex-col p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <span className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+              <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
                 {post.title}
               </span>
               {post.description ? (

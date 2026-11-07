@@ -8,7 +8,7 @@ import Image from "next/image";
 
 export function LandingGlobalReach() {
     return (
-        <section className="py-24 bg-white dark:bg-zinc-950 relative overflow-hidden">
+        <section className="py-24 bg-surface border-y border-border relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid lg:grid-cols-2 gap-16 items-center">
 
@@ -27,20 +27,20 @@ export function LandingGlobalReach() {
                             We have over 50,000 HR, technical leads, and managers' company email IDs to contact. This helps for cold emailing to navigate the complex US job market. Get referrals, share interview intel, and stay compliant together.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-6 mb-8">
-                            <div>
-                                <h4 className="text-3xl font-bold text-gray-900 dark:text-white">50k+</h4>
-                                <p className="text-sm text-gray-500">Active Company Emails</p>
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            <div className="surface-card p-5">
+                                <h4 className="text-3xl font-bold text-primary">50k+</h4>
+                                <p className="text-sm text-muted-foreground">Active Company Emails</p>
                             </div>
-                            <div>
-                                <h4 className="text-3xl font-bold text-gray-900 dark:text-white">120+</h4>
-                                <p className="text-sm text-gray-500">Companies Represented</p>
+                            <div className="surface-card p-5">
+                                <h4 className="text-3xl font-bold text-primary">120+</h4>
+                                <p className="text-sm text-muted-foreground">Companies Represented</p>
                             </div>
                         </div>
 
-                        <Link href="/features/community" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:gap-3 transition-all group">
+                        <Link href="/features/community" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-primary-foreground font-semibold shadow-button transition-colors hover:bg-primary-hover">
                             Join the Community
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight className="w-4 h-4" />
                         </Link>
                     </motion.div>
 
@@ -95,7 +95,7 @@ export function LandingGlobalReach() {
 
 function FloatingBadge({ domain, name }: { domain: string, name: string }) {
     return (
-        <div className="flex items-center gap-3 bg-white dark:bg-zinc-800 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center gap-3 bg-card px-4 py-2.5 rounded-lg border border-border shadow-card">
             <div className="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg bg-white">
                 <Image
                     src={`https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=256`}

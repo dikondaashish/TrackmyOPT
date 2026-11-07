@@ -46,7 +46,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
   const DocIcon = DOCUMENT_TYPE_ICONS[displayType] ?? DOCUMENT_TYPE_ICONS.other;
 
   return (
-    <article aria-label={document.filename} className="group flex min-w-0 flex-col bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none overflow-hidden">
+    <article aria-label={document.filename} className="group flex min-w-0 flex-col bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-elevated transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none overflow-hidden shadow-card">
       {/* Modern Header */}
       <div className={`p-4 ${getHeaderColor(expiryStatus)}`}>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -130,7 +130,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
         <div className="flex gap-2 mt-auto pt-2">
           <button
             onClick={onView}
-            className="min-h-11 flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium hover:shadow-md"
+            className="min-h-11 flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium hover:shadow-elevated"
           >
             View Document
           </button>

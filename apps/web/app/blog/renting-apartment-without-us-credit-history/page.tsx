@@ -61,7 +61,7 @@ export default function RentingWithoutCreditPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/renting-apartment-without-us-credit-history.png" alt="Printed apartment lease agreement with house keys and a passport" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -74,7 +74,7 @@ export default function RentingWithoutCreditPage() {
                 <p>
                     A guarantor (or co-signer) is someone who legally agrees to pay your rent if you default. If you don't have wealthy family members living in the US with excellent credit, you can pay a company to act as your guarantor.
                 </p>
-                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl my-6">
+                <div className="border border-border p-6 rounded-xl my-6 bg-card shadow-card">
                     <h4 className="font-bold text-lg mt-0 mb-3">Popular Guarantor Services</h4>
                     <ul className="mb-0">
                         <li><strong>The Guarantors:</strong> Very popular in major cities like NYC and San Francisco. They typically charge a one-time fee of about 50% to 100% of one month's rent.</li>
@@ -101,7 +101,7 @@ export default function RentingWithoutCreditPage() {
                 <p>
                     If a landlord is nervous about your lack of credit, money talks. By law, some states restrict how much a landlord can ask for (e.g., New York limits security deposits to one month's rent). However, in states where it is legal, offering to pay a larger deposit can instantly get you approved.
                 </p>
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-6">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-6">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         Beware of Scams
@@ -129,7 +129,7 @@ export default function RentingWithoutCreditPage() {
 
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Ready to Build Your Credit?
                 </h3>
@@ -139,7 +139,7 @@ export default function RentingWithoutCreditPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/blog/building-credit-international-students-opt"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Read the Credit Guide
                     </Link>
@@ -150,7 +150,7 @@ export default function RentingWithoutCreditPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/how-to-get-ssn-on-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 How to get an SSN on OPT
                             </h4>
@@ -163,7 +163,7 @@ export default function RentingWithoutCreditPage() {
                         </div>
                     </Link>
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 F-1 Student Tax Filing
                             </h4>

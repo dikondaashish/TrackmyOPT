@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function F1TaxFilingPillarGuide() {
     return (
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <article>
             {/* Schema Markup */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
@@ -114,28 +114,30 @@ export default function F1TaxFilingPillarGuide() {
                 ]
             })}} />
 
+            <div className="border-b border-border bg-surface">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pt-12 sm:pb-14">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
+            <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
                 <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">Home</Link>
                 <span>/</span>
                 <Link href="/blog" className="hover:text-blue-600 dark:hover:text-blue-400">Guides</Link>
                 <span>/</span>
-                <span className="text-gray-900 dark:text-white">F-1 Tax Filing</span>
+                <span className="text-foreground">F-1 Tax Filing</span>
             </nav>
 
             {/* Hero Section */}
-            <header className="mb-12">
+            <header>
                 <p className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Pillar Guide</span>
+                    <span className="font-medium text-primary">Pillar Guide</span>
                     <span aria-hidden>·</span>
                     <span>Tax & Finance</span>
                     <span aria-hidden>·</span>
                     <span>35 min read</span>
                 </p>
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">
                     The Ultimate F-1 Student Tax Guide (2026)
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-xl text-muted-foreground leading-relaxed">
                     The most comprehensive, step-by-step guide to US tax filing for international students on F-1 visas. Covers every form, every deadline, FICA refunds, tax treaties for 15+ countries, state taxes, software comparisons, and the mistakes that cost students thousands of dollars.
                 </p>
                 <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
@@ -146,23 +148,28 @@ export default function F1TaxFilingPillarGuide() {
                     <span>IRS-sourced & expert-reviewed</span>
                 </div>
             </header>
+                </div>
+            </div>
+
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
 
             {/* Key Takeaway Box */}
-            <div className="bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 rounded-xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-teal-900 dark:text-teal-100 mb-3">
+            <div className="rounded-xl border border-primary-muted bg-primary-soft p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     
                     Key Takeaway
                 </h2>
-                <p className="text-teal-800 dark:text-teal-200 font-medium">
+                <p className="text-blue-800 dark:text-blue-200 font-medium">
                     <strong>Every F-1 student in the United States must file at least Form 8843 — even if you earned zero income.</strong> If you had any US-source income (wages, scholarships, stipends, bank interest), you must also file Form 1040-NR. Most F-1 students are <strong>non-resident aliens</strong> for their first 5 calendar years and are exempt from FICA taxes (Social Security + Medicare = 7.65% of wages). Filing incorrectly — or not filing at all — can jeopardize future visa applications, green card petitions, and H-1B transfers.
                 </p>
-                <p className="text-teal-700 dark:text-teal-300 text-sm mt-3">
-                    Source: <a href="https://www.irs.gov/individuals/international-taxpayers/foreign-students-scholars-and-visitors" target="_blank" rel="noopener noreferrer" className="underline hover:text-teal-900 dark:hover:text-teal-100">IRS.gov — Foreign Students, Scholars & Visitors</a> &nbsp;|&nbsp; <a href="https://www.irs.gov/pub/irs-pdf/p519.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:text-teal-900 dark:hover:text-teal-100">IRS Publication 519</a>
+                <p className="text-blue-700 dark:text-blue-300 text-sm mt-3">
+                    Source: <a href="https://www.irs.gov/individuals/international-taxpayers/foreign-students-scholars-and-visitors" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900 dark:hover:text-blue-100">IRS.gov — Foreign Students, Scholars & Visitors</a> &nbsp;|&nbsp; <a href="https://www.irs.gov/pub/irs-pdf/p519.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900 dark:hover:text-blue-100">IRS Publication 519</a>
                 </p>
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents</h2>
                 <nav className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
                     {[
@@ -250,7 +257,7 @@ export default function F1TaxFilingPillarGuide() {
                         <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
                             You are a <strong>resident alien</strong> if your day count meets <strong>both</strong> conditions:
                         </p>
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 tabular-nums text-sm mb-4 border border-gray-200 dark:border-zinc-700">
+                        <div className="border rounded-lg p-4 tabular-nums text-sm mb-4 border-border bg-card shadow-card">
                             <p className="text-gray-900 dark:text-white">Days present in current year ≥ 31</p>
                             <p className="text-gray-900 dark:text-white mt-1"><strong>AND</strong></p>
                             <p className="text-gray-900 dark:text-white mt-1">(Days in current year × 1) + (Days in year-1 × ⅓) + (Days in year-2 × ⅙) ≥ 183</p>
@@ -265,13 +272,13 @@ export default function F1TaxFilingPillarGuide() {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Factor</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Non-Resident Alien (NRA)</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Resident Alien (RA)</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Factor</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Non-Resident Alien (NRA)</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Resident Alien (RA)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -286,9 +293,9 @@ export default function F1TaxFilingPillarGuide() {
                                     ["Earned Income Credit", "Not eligible", "May be eligible"],
                                 ].map(([factor, nra, ra], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{factor}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{nra}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{ra}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{factor}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{nra}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{ra}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -356,7 +363,7 @@ export default function F1TaxFilingPillarGuide() {
                                 icon: "gray",
                             },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <div className="flex items-start gap-3">
                                     <FileText className={`w-5 h-5 mt-0.5 flex-shrink-0 ${item.icon === "teal" ? "text-teal-600" : item.icon === "blue" ? "text-blue-600" : item.icon === "amber" ? "text-amber-600" : "text-gray-500"}`} />
                                     <div>
@@ -389,14 +396,14 @@ export default function F1TaxFilingPillarGuide() {
                             { part: "Part III — Students", instructions: "This is the key section for F-1 students. Enter your visa type (F-1), the date you entered the US, your university name, and your program of study. List all years you have been present in the US as a student (e.g., 2021, 2022, 2023, 2024, 2025). This establishes your 5-year exemption period." },
                             { part: "Part IV — Professional Athletes", instructions: "Skip this section. It applies to professional athletes only." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{item.part}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.instructions}</p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 p-5 mb-6">
+                    <div className="rounded-xl border p-5 mb-6 border-primary-muted bg-primary-soft">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">
                             
                             Where to Mail Form 8843
@@ -445,13 +452,13 @@ export default function F1TaxFilingPillarGuide() {
                     </ul>
 
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Income Types Reported on 1040-NR</h3>
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Income Type</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Source Document</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Where on 1040-NR</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Income Type</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Source Document</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Where on 1040-NR</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -463,9 +470,9 @@ export default function F1TaxFilingPillarGuide() {
                                     ["Capital gains", "1099-B", "Schedule NEC or Schedule D"],
                                 ].map(([type, doc, line], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{type}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{doc}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{line}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{type}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{doc}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{line}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -520,14 +527,14 @@ export default function F1TaxFilingPillarGuide() {
                             { step: "3. If employer refuses or cannot help, file Form 843", detail: "Submit IRS Form 843 ('Claim for Refund and Request for Abatement') with: (a) copy of W-2, (b) Form 8316 or written statement, (c) copy of I-20, (d) visa stamp copy, (e) I-94 arrival record, (f) letter explaining you are exempt under IRC § 3121(b)(19)." },
                             { step: "4. Mail Form 843 to the IRS", detail: "Send to the IRS service center where your employer files their 941 (check Form 843 instructions). Processing takes 6–12 weeks. You have up to 3 years from the filing deadline to claim the refund." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1">{item.step}</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.detail}</p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 p-5">
+                    <div className="rounded-xl border p-5 border-primary-muted bg-primary-soft">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">
                             
                             Sample IRS Letter Template
@@ -562,14 +569,14 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                         The US has income tax treaties with over 65 countries, and many include special provisions for students and trainees. These benefits are <strong>not automatic</strong> — you must claim them on your tax return using Schedule OI (Other Information) on Form 1040-NR and, for wages, by submitting Form 8233 to your employer. Check our <Link href="/glossary" className="text-blue-600 dark:text-blue-400 underline">glossary</Link> for treaty-related terms.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Country</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Treaty Article</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Exemption</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Applies To</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Country</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Treaty Article</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Exemption</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Applies To</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -591,10 +598,10 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                                     ["Philippines", "Article 22", "Entire scholarship", "Scholarships only"],
                                 ].map(([country, article, amount, applies], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{country}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{article}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-teal-700 dark:text-teal-300 font-medium">{amount}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{applies}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{country}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{article}</td>
+                                        <td className="p-3 border border-border text-teal-700 dark:text-teal-300 font-medium">{amount}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{applies}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -641,7 +648,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                             { state: "Illinois", note: "Requires Form IL-1040. IL has a flat 4.95% income tax. NRA students file as non-residents." },
                             { state: "Pennsylvania", note: "Requires Form PA-40. PA has a flat 3.07% rate. Relatively straightforward for NRAs." },
                         ].map((item, i) => (
-                            <div key={i} className="p-3 bg-gray-50 dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-3 rounded-lg border-border bg-card shadow-card">
                                 <p className="text-sm text-gray-700 dark:text-gray-300">
                                     <strong className="text-gray-900 dark:text-white">{item.state}:</strong> {item.note}
                                 </p>
@@ -663,14 +670,14 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                         This is one of the most important decisions F-1 students face during tax season. Using the wrong software can result in filing the wrong form entirely. Here is a detailed comparison.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Feature</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Sprintax</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">TurboTax</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Glacier Tax Prep</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Feature</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Sprintax</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">TurboTax</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Glacier Tax Prep</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -687,10 +694,10 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                                     ["Best for", "Non-resident aliens (NRA)", "Resident aliens / US citizens", "Simple NRA returns"],
                                 ].map(([feature, sprintax, turbotax, glacier], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{feature}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{sprintax}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{turbotax}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{glacier}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{feature}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{sprintax}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{turbotax}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{glacier}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -787,7 +794,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                                 fix: "Start gathering documents in January. File by mid-March. If you need more time, file Form 4868 for an extension to October 15.",
                             },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex items-start gap-3">
                                         <AlertTriangle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${item.impact === "Critical" ? "text-red-600" : item.impact === "High" ? "text-red-500" : item.impact === "Medium" ? "text-amber-500" : "text-gray-400"}`} />
@@ -825,7 +832,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                             { month: "June 15, 2026", tasks: ["Deadline for filing Form 8843 alone (no income, no 1040-NR)", "Also the automatic extension deadline for NRAs with no wage income"] },
                             { month: "October 15, 2026", tasks: ["Extended filing deadline (if Form 4868 was filed by April 15)", "Last chance to file without late-filing penalties for extension filers"] },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                                     <div className="w-7 h-7 rounded-full bg-teal-100 dark:bg-teal-950 flex items-center justify-center text-teal-700 dark:text-teal-300 text-xs font-bold">{i + 1}</div>
                                     {item.month}
@@ -879,7 +886,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                                 linkText: null,
                             },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{item.title}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{item.description}</p>
                                 {item.link ? (
@@ -950,7 +957,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                                 a: "Form 1040 is for US citizens and resident aliens — it taxes worldwide income and allows the standard deduction, education credits, and all filing statuses. Form 1040-NR is for non-resident aliens — it taxes only US-source income, generally does not allow the standard deduction, and limits filing status to Single or Married NRA.",
                             },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.q}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed" itemProp="text">{faq.a}</p>
@@ -962,7 +969,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides & Resources</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Tax Filing Quick-Start Guide (Blog)</Link>
@@ -983,16 +990,16 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-teal-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Stop Guessing — File Your F-1 Taxes Correctly</h2>
-                <p className="text-teal-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     TrackMyOPT's Tax Filing Tool determines your residency status, identifies every form you need, checks FICA eligibility, and walks you through the entire process — built by former F-1 students who have been through it.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Link href="/features/tax-filing" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-teal-600 rounded-xl font-semibold hover:bg-teal-50 transition-colors">
+                    <Link href="/features/tax-filing" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                         Try Tax Filing Tool Free <ArrowRight className="w-4 h-4" />
                     </Link>
-                    <Link href="/dashboard/tax-filing" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-teal-400 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors">
+                    <Link href="/dashboard/tax-filing" className="inline-flex items-center gap-2 px-6 py-3 border border-ink-border text-ink-foreground rounded-lg font-semibold hover:bg-white hover:text-ink transition-colors">
                         Go to Dashboard <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
@@ -1044,6 +1051,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                     }),
                 }}
             />
+        </div>
         </article>
     );
 }

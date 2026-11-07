@@ -29,6 +29,18 @@
     --primary-muted: 221 70% 85%;
     --primary-hover: 221 83% 37%;
 
+    /* Section and depth palette. `surface` is the cool tinted band used to
+       separate sections; `ink` is the deep navy used for the few sections
+       that deserve a stronger, darker character. Accents are purposeful:
+       violet = job search, amber = documents/attention, emerald = outcomes. */
+    --surface: 216 33% 97%;
+    --surface-strong: 216 30% 94%;
+    --ink: 222 47% 12%;
+    --ink-foreground: 210 40% 98%;
+    --ink-muted: 217 24% 72%;
+    --ink-border: 220 33% 22%;
+    --shadow-color: 222 40% 20%;
+
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
 
@@ -101,6 +113,14 @@
     --primary-soft: 220 40% 12%;
     --primary-muted: 219 45% 28%;
     --primary-hover: 217 85% 49%;
+
+    --surface: 230 12% 6.5%;
+    --surface-strong: 230 10% 10%;
+    --ink: 224 40% 9%;
+    --ink-foreground: 210 40% 98%;
+    --ink-muted: 217 20% 70%;
+    --ink-border: 222 30% 18%;
+    --shadow-color: 0 0% 0%;
 
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -241,6 +261,17 @@
 
   .glass-card {
     @apply bg-card;
+  }
+
+  /* Card depth: a hairline border plus a soft, neutral two-layer shadow.
+     Interactive cards lift slightly on hover through shadow and border
+     colour only (no movement). */
+  .surface-card {
+    @apply rounded-xl border border-border bg-card shadow-card;
+  }
+
+  .surface-card-interactive {
+    @apply surface-card transition-[box-shadow,border-color] duration-200 hover:border-primary-muted hover:shadow-elevated;
   }
 
   /* Formerly a dotted texture; kept as a plain surface so existing markup still works */

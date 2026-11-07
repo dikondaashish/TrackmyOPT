@@ -120,7 +120,7 @@ export default function OptEadPendingDelaysBlogPage() {
             </header>
 
             {/* Quick Answer */}
-            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     If your OPT I-765 is pending beyond USCIS's published processing time: file a service request (e-request) on USCIS.gov. If your case approaches your grace period end date without approval, contact your DSO immediately. If you are approaching 14 months after graduation, consult an immigration attorney — not a Reddit thread.
@@ -128,7 +128,7 @@ export default function OptEadPendingDelaysBlogPage() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">The Two Things That Actually Matter
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -140,7 +140,7 @@ export default function OptEadPendingDelaysBlogPage() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -193,7 +193,7 @@ export default function OptEadPendingDelaysBlogPage() {
                                 detail: "USCIS has issued more Requests for Evidence on OPT applications in recent cycles, asking for additional employer documentation, relationship-to-degree explanations, and other supporting materials — each of which adds weeks to months to processing.",
                             },
                         ].map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border flex items-start gap-3 p-4 rounded-xl border-border bg-card shadow-card">
                                 <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{item.reason}</h3>
@@ -203,7 +203,7 @@ export default function OptEadPendingDelaysBlogPage() {
                         ))}
                     </div>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             "My OPT application has now been pending for almost 12 months. I found out that applications from nationals of certain high-risk countries are effectively frozen. Premium processing did not help."
                         </p>
@@ -235,7 +235,7 @@ export default function OptEadPendingDelaysBlogPage() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="flex items-start gap-3 p-4 rounded-xl border border-primary-muted bg-primary-soft">
                             <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-blue-900 dark:text-blue-100">What you can do if affected</h3>
@@ -372,7 +372,7 @@ export default function OptEadPendingDelaysBlogPage() {
                             { action: "Provide regular updates", detail: "Check your USCIS case status weekly and proactively update your employer. Silence signals uncertainty; regular updates signal professionalism and good faith." },
                             { action: "Discuss remote / international options as a last resort", detail: "Some employers will allow a student to begin working from their home country until the US work authorization is resolved. This is legally complex — consult an attorney and your DSO before agreeing to this arrangement." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <div className="flex items-start gap-3">
                                     <CheckCircle2 className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
                                     <div>
@@ -402,7 +402,7 @@ export default function OptEadPendingDelaysBlogPage() {
                             { action: "Respond immediately to any USCIS correspondence", detail: "RFEs, notices, or requests have hard deadlines. Missing a USCIS deadline can result in denial even if your application was otherwise approvable." },
                             { action: "Do not let your passport expire", detail: "Your valid passport is required for your F-1 status. If your passport expires while OPT is pending, renew it immediately and update USCIS." },
                         ].map((item) => (
-                            <div key={item.action} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.action} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{item.action}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.detail}</p>
@@ -419,11 +419,11 @@ export default function OptEadPendingDelaysBlogPage() {
                         If you are applying for a STEM OPT extension (not initial OPT), the processing delay situation is materially different — and more manageable — because of the 180-day automatic employment authorization.
                     </p>
 
-                    <div className="flex items-start gap-3 p-5 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800 mb-4">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-3 p-5 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-200 dark:border-emerald-800 mb-4">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                         <div>
-                            <h3 className="font-semibold text-green-900 dark:text-green-100 text-lg">If you file on time: 180 days of automatic work authorization</h3>
-                            <p className="text-sm text-green-800 dark:text-green-200 mt-1">
+                            <h3 className="font-semibold text-emerald-900 dark:text-emerald-100 text-lg">If you file on time: 180 days of automatic work authorization</h3>
+                            <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
                                 If you file your STEM OPT I-765 extension before your current OPT EAD expiration date, you automatically receive up to <strong>180 days of continued employment authorization</strong> while USCIS processes your case. This protection is NOT affected by the October 2025 rule changes. You can continue working for your existing employer under the auto-extension while waiting.
                             </p>
                         </div>
@@ -448,14 +448,14 @@ export default function OptEadPendingDelaysBlogPage() {
                         Here are the escalation tools available to you in order of typical usefulness:
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Escalation Tool</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">When to Use</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">How to Do It</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Effectiveness</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Escalation Tool</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">When to Use</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">How to Do It</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Effectiveness</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -468,10 +468,10 @@ export default function OptEadPendingDelaysBlogPage() {
                                     ["USCIS Ombudsman", "For systemic delays or no-response situations", "dhs.gov/uscis-ombudsman", "Moderate — best for documented, unresponsive cases"],
                                 ].map(([tool, when, how, eff], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{tool}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400 text-xs">{when}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400 text-xs">{how}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400 text-xs">{eff}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{tool}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400 text-xs">{when}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400 text-xs">{how}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400 text-xs">{eff}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -485,7 +485,7 @@ export default function OptEadPendingDelaysBlogPage() {
                     </h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -496,7 +496,7 @@ export default function OptEadPendingDelaysBlogPage() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/spring-graduates-opt-application-timing-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Spring 2026 OPT Application Timing Guide</Link>

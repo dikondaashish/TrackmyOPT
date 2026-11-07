@@ -121,19 +121,19 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
   };
 
   return (
-    <div className="my-10 rounded-xl bg-emerald-50 dark:bg-emerald-900 p-6 sm:p-7">
+    <div className="not-prose my-10 rounded-xl border border-ink-border bg-ink p-6 text-ink-foreground shadow-elevated sm:p-7">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
           <Icon className="h-6 w-6" aria-hidden />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-lg font-bold text-gray-900 dark:text-white">
+          <p className="text-lg font-bold text-ink-foreground">
             {config.title}
           </p>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p className="mt-1 text-sm text-ink-muted leading-relaxed">
             {config.description}
           </p>
-          <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-xs text-ink-muted">
             Also see{' '}
             <Link
               href={
@@ -147,7 +147,7 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
                         ? '/tools/opt-decision-window'
                         : '/features/case-status'
               }
-              className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
+              className="text-blue-300 hover:text-blue-200 hover:underline font-medium"
               onClick={() =>
                 captureClientEvent('blog_product_cta_clicked', {
                   variant:
@@ -170,12 +170,12 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
             </Link>
           </p>
           {variant === 'case-status' && (
-            <p className="mt-1.5 text-[9px] leading-snug text-gray-400 dark:text-gray-500">
+            <p className="mt-1.5 text-[10px] leading-snug text-ink-muted">
               Decision windows are community planning estimates — not legal
               advice or a USCIS-guaranteed decision date.{' '}
               <Link
                 href="/disclaimer"
-                className="underline underline-offset-2 hover:text-gray-500 dark:hover:text-gray-400"
+                className="underline underline-offset-2 hover:text-ink-foreground"
               >
                 Terms
               </Link>
@@ -185,7 +185,7 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
         <Link
           href={config.href}
           onClick={handleClick}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 transition-colors"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-button transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
         >
           {config.cta}
           <ArrowRight className="h-4 w-4" aria-hidden />

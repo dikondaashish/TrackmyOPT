@@ -90,22 +90,22 @@ export default function RemoteWorkOPTGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/remote-work-opt.png" alt="Laptop on kitchen table showing video conference call with notebook and coffee mug" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/remote-work-opt.png" alt="Laptop on kitchen table showing video conference call with notebook and coffee mug" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Remote work is allowed on OPT — but you must remain physically in the US and keep your reporting up to date.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>Yes, you can work remotely on OPT.</strong> The same rules apply as in-office work: it must be related to your major, at least 20 hours/week, and reported to your DSO. The key restriction is you must remain <strong>physically in the United States</strong> — remote work from outside the US is not authorized.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
@@ -136,11 +136,11 @@ export default function RemoteWorkOPTGuide() {
                     </p>
 
                     <div className="space-y-4 mb-6">
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <h3 className="font-semibold text-green-900 dark:text-green-100">Allowed on OPT</h3>
-                                <ul className="mt-2 space-y-1 text-sm text-green-800 dark:text-green-200">
+                                <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Allowed on OPT</h3>
+                                <ul className="mt-2 space-y-1 text-sm text-emerald-800 dark:text-emerald-200">
                                     <li>• Full-time remote positions (20+ hours/week) related to your major</li>
                                     <li>• Hybrid roles (mix of in-office and remote)</li>
                                     <li>• Remote work from any US state (with address reporting)</li>
@@ -180,7 +180,7 @@ export default function RemoteWorkOPTGuide() {
                             { title: "State Tax Implications", desc: "Working from a different state may create tax obligations in both states. Some states (like CA, NY) tax remote workers who work for employers in that state. Consult a tax professional." },
                             { title: "Employer Compliance", desc: "Your employer may need to register in the state where you work remotely. Discuss with HR before relocating — some companies restrict remote work to certain states." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{i + 1}. {item.title}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
                             </div>
@@ -193,7 +193,7 @@ export default function RemoteWorkOPTGuide() {
                         Can You Work from Outside the US?
                     </h2>
 
-                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold text-lg">
                             &quot;No. OPT work authorization is only valid while you are physically present in the United States. Working remotely from abroad does not count as authorized employment.&quot;
                         </p>
@@ -229,12 +229,12 @@ export default function RemoteWorkOPTGuide() {
                         STEM OPT has <strong>additional requirements</strong> beyond standard OPT that make remote work more complex:
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm mt-4">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Requirement</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">How It Applies to Remote Work</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Requirement</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">How It Applies to Remote Work</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -246,8 +246,8 @@ export default function RemoteWorkOPTGuide() {
                                     ["Reporting Changes", "Any change to work location must be reported to your DSO and reflected in an updated I-983 within 10 days."],
                                 ].map(([req, detail], i) => (
                                     <tr key={i} className={i % 2 === 1 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">{req}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{detail}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">{req}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{detail}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -268,9 +268,9 @@ export default function RemoteWorkOPTGuide() {
                             { tip: "Document your employment", detail: "Keep pay stubs, offer letters, and employment verification in case USCIS or your DSO requests proof." },
                             { tip: "Track your unemployment days", detail: "Use TrackMyOPT to monitor your unemployment days automatically. Gaps between remote jobs count as unemployment." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                     {item.tip}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.detail}</p>
@@ -280,34 +280,34 @@ export default function RemoteWorkOPTGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-emerald-600 rounded-xl p-8 my-12 text-white">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-emerald-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <Laptop className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Stay Compliant While Working Remotely</h3>
                         </div>
-                        <p className="text-emerald-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             TrackMyOPT monitors your unemployment days, tracks your EAD expiration, and sends alerts before critical deadlines — whether you work in-office or remotely.
                         </p>
                         <ul className="space-y-3 mb-8">
-                            <li className="flex items-center gap-3 text-emerald-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>Automatic unemployment day tracking</span>
                             </li>
-                            <li className="flex items-center gap-3 text-emerald-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>OPT/STEM OPT deadline alerts</span>
                             </li>
-                            <li className="flex items-center gap-3 text-emerald-50">
+                            <li className="flex items-center gap-3 text-ink-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                 <span>100% Free for F-1 Students</span>
                             </li>
                         </ul>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold hover:bg-emerald-50 transition-colors"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -327,7 +327,7 @@ export default function RemoteWorkOPTGuide() {
                             { question: "Does remote work stop my unemployment clock?", answer: "Yes, as long as you meet the standard requirements: 20+ hours/week, related to your major, performed while physically in the US, and properly reported." },
                             { question: "Can I be a freelancer working remotely on OPT?", answer: "Self-employment is allowed on standard OPT (not STEM OPT) if the work is related to your major. You must have proper business registration and report it to your DSO." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -338,7 +338,7 @@ export default function RemoteWorkOPTGuide() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ 90-Day OPT Unemployment Rule</Link>
@@ -355,12 +355,12 @@ export default function RemoteWorkOPTGuide() {
 
             <AuthorBio />
 
-            <div className="bg-emerald-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your Remote OPT Employment</h2>
-                <p className="text-emerald-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     Stay compliant with automated unemployment tracking, deadline alerts, and USCIS case monitoring — wherever you work.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

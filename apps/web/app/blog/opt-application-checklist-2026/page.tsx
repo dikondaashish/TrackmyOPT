@@ -61,7 +61,7 @@ export default function OPTChecklistArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     To apply for OPT, you need Form I-765, a new I-20 with OPT recommendation from your DSO, passport copies, I-94, passport photos, and the $410 filing fee. You must file within 90 days before and 60 days after your program end date.
@@ -69,7 +69,7 @@ export default function OPTChecklistArticle() {
             </div>
 
             {/* Key Deadlines */}
-            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5" />
                     Critical Deadlines
@@ -105,7 +105,7 @@ export default function OPTChecklistArticle() {
                             "Wait for your DSO to issue a new I-20 with the OPT recommendation",
                             "Pay the SEVIS I-901 fee if required (varies by institution)",
                         ].map((item, i) => (
-                            <label key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                            <label key={i} className="border flex items-start gap-3 p-3 rounded-xl border-border cursor-pointer hover:bg-muted transition-colors bg-card shadow-card">
                                 <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                 <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
                             </label>
@@ -130,7 +130,7 @@ export default function OPTChecklistArticle() {
                             { doc: "Two passport-style photos", note: "2x2 inches, white background, taken within 30 days" },
                             { doc: "Filing fee: $410", note: "Check, money order, or online payment" },
                         ].map((item, i) => (
-                            <label key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                            <label key={i} className="border flex items-start gap-3 p-3 rounded-xl border-border cursor-pointer hover:bg-muted transition-colors bg-card shadow-card">
                                 <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                 <div>
                                     <span className="text-gray-900 dark:text-white text-sm font-medium">{item.doc}</span>
@@ -155,7 +155,7 @@ export default function OPTChecklistArticle() {
                             "Pay the $410 filing fee",
                             "Submit and save your receipt number (starts with IOE, EAC, WAC, etc.)",
                         ].map((item, i) => (
-                            <label key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                            <label key={i} className="border flex items-start gap-3 p-3 rounded-xl border-border cursor-pointer hover:bg-muted transition-colors bg-card shadow-card">
                                 <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                 <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
                             </label>
@@ -177,7 +177,7 @@ export default function OPTChecklistArticle() {
                             "Start tracking unemployment days from your OPT start date",
                             "Begin job searching using TrackMyOPT's H-1B sponsor database",
                         ].map((item, i) => (
-                            <label key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                            <label key={i} className="border flex items-start gap-3 p-3 rounded-xl border-border cursor-pointer hover:bg-muted transition-colors bg-card shadow-card">
                                 <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                 <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
                             </label>
@@ -217,7 +217,7 @@ export default function OPTChecklistArticle() {
                             { question: "How much does OPT cost in 2026?", answer: "The I-765 filing fee is $410. Premium processing is available for an additional $1,685. No additional SEVIS fee is required for OPT itself." },
                             { question: "Can I track my OPT application status?", answer: "Yes. Use your receipt number (from the I-797C notice) to check status at uscis.gov/case-status, or use TrackMyOPT for real-time alerts and timeline tracking." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -227,18 +227,18 @@ export default function OPTChecklistArticle() {
             </div>
 
             {/* CTA */}
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Ready to Apply for OPT?</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     TrackMyOPT guides you through every step — from I-765 filing to EAD tracking to your first job search.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Get Started Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Processing Time 2026</Link>

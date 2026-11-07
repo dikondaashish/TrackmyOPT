@@ -14,46 +14,46 @@ export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors 
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Total Sponsors - Blue */}
-            <div className="rounded-xl bg-[#EEF4FF] dark:bg-blue-950 border border-blue-100 dark:border-blue-900 p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#3B82F6] flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-white" />
+            <div className="rounded-xl bg-card border border-border shadow-card p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Sponsors</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{totalSponsors.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground font-medium">Total Sponsors</p>
+                    <p className="text-xl font-semibold text-foreground">{totalSponsors.toLocaleString()}</p>
                 </div>
             </div>
 
             {/* High Sponsors - Orange/Peach */}
-            <div className="rounded-xl bg-[#FFF4ED] dark:bg-orange-950 border border-orange-100 dark:border-orange-900 p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#F97316] flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-white" />
+            <div className="rounded-xl bg-card border border-border shadow-card p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-300" />
                 </div>
                 <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">High Sponsors</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{highSponsors.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground font-medium">High Sponsors</p>
+                    <p className="text-xl font-semibold text-foreground">{highSponsors.toLocaleString()}</p>
                 </div>
             </div>
 
             {/* Saved Sponsors - Purple */}
-            <div className="rounded-xl bg-[#F5F3FF] dark:bg-purple-950 border border-purple-100 dark:border-purple-900 p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#A855F7] flex items-center justify-center">
-                    <Bookmark className="w-5 h-5 text-white" />
+            <div className="rounded-xl bg-card border border-border shadow-card p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-violet-50 dark:bg-violet-950 flex items-center justify-center">
+                    <Bookmark className="w-5 h-5 text-violet-600 dark:text-violet-300" />
                 </div>
                 <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Saved Sponsors</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{savedSponsors.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground font-medium">Saved Sponsors</p>
+                    <p className="text-xl font-semibold text-foreground">{savedSponsors.toLocaleString()}</p>
                 </div>
             </div>
 
             {/* Updated - Yellow */}
-            <div className="rounded-xl bg-[#FEFCE8] dark:bg-yellow-950 border border-yellow-100 dark:border-yellow-900 p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#EAB308] flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-white" />
+            <div className="rounded-xl bg-card border border-border shadow-card p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-zinc-800 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-slate-600 dark:text-zinc-300" />
                 </div>
                 <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Updated</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">Monthly</p>
+                    <p className="text-xs text-muted-foreground font-medium">Updated</p>
+                    <p className="text-xl font-semibold text-foreground">Monthly</p>
                 </div>
             </div>
         </div>

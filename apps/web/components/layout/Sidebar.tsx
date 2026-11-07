@@ -130,21 +130,21 @@ const SidebarNavLink = memo(({
     };
 
     const commonClasses = cn(
-        "group relative z-20 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500",
+        "group relative z-20 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary",
         isActive
-            ? "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400"
-            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
+            ? "bg-primary-soft text-primary before:absolute before:inset-y-1.5 before:-left-3 before:w-[3px] before:rounded-r-full before:bg-primary dark:text-blue-300"
+            : "text-slate-600 dark:text-zinc-400 hover:bg-sidebar-accent hover:text-foreground",
         isCollapsed && "justify-center px-0 w-10 h-10 mx-auto"
     );
 
     const content = (
         <>
-            <Icon className={cn("w-5 h-5 flex-shrink-0", isActive && "text-blue-600 dark:text-blue-400")} />
+            <Icon className={cn("h-[18px] w-[18px] flex-shrink-0", isActive ? "text-primary dark:text-blue-300" : "text-slate-500 group-hover:text-foreground dark:text-zinc-500")} />
             {!isCollapsed && (
                 <>
                     <span className="flex-1">{link.label}</span>
                     {link.badge && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 rounded">
+                        <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                             {link.badge}
                         </span>
                     )}
@@ -246,8 +246,8 @@ const SidebarNavSection = memo(({
                 className={cn(
                     "w-full group relative flex items-center gap-1 rounded-lg text-sm font-medium",
                     hasActiveChild
-                        ? "text-blue-700 dark:text-blue-400"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
+                        ? "text-primary dark:text-blue-300"
+                        : "text-slate-600 dark:text-zinc-400 hover:bg-sidebar-accent hover:text-foreground",
                     isCollapsed && "justify-center w-11 h-11 mx-auto"
                 )}
             >
@@ -257,11 +257,11 @@ const SidebarNavSection = memo(({
                     aria-expanded={isExpanded}
                     aria-controls={submenuId}
                     className={cn(
-                        "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-blue-500",
+                        "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                         isCollapsed && "h-11 w-11 flex-none justify-center px-0"
                     )}
                 >
-                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <Icon className={cn("h-[18px] w-[18px] flex-shrink-0", hasActiveChild ? "text-primary dark:text-blue-300" : "text-slate-500 dark:text-zinc-500")} />
                     {!isCollapsed && <span className="flex-1">{section.label}</span>}
                 </button>
                 {!isCollapsed && (
@@ -271,7 +271,7 @@ const SidebarNavSection = memo(({
                         aria-expanded={isExpanded}
                         aria-controls={submenuId}
                         onClick={() => onToggle(section.label)}
-                        className="m-1 min-h-11 min-w-11 rounded-md transition-colors hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-gray-700"
+                        className="m-1 min-h-11 min-w-11 rounded-md text-slate-500 transition-colors hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary dark:text-zinc-500"
                     >
                         <ChevronDown className={cn(
                             "mx-auto w-4 h-4 transition-transform",
@@ -283,7 +283,7 @@ const SidebarNavSection = memo(({
 
             {/* Expanded Links */}
             {!isCollapsed && isExpanded && (
-                <div id={submenuId} className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
+                <div id={submenuId} className="ml-5 mt-0.5 space-y-0.5 border-l border-sidebar-border pl-3">
                     {section.links.map(link => (
                         <SidebarNavLink
                             key={link.href}
@@ -423,14 +423,14 @@ export function Sidebar({
             {/* Mobile Overlay */}
             {isMobileOpen && (
                 <div
-                    className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
+                    className="fixed inset-0 bg-black/40 z-40 lg:hidden"
                     onClick={onMobileClose}
                 />
             )}
             <aside
                 onMouseLeave={handleSidebarLeave}
                 className={cn(
-                    "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-transform duration-300 ease-out",
+                    "fixed bg-sidebar border-r border-sidebar-border z-50 transition-transform duration-300 ease-out",
                     // Desktop: below header, normal sizing
                     "lg:top-[calc(var(--tmopt-dashboard-promo,0px)+3.5rem)] lg:h-[calc(100vh-var(--tmopt-dashboard-promo,0px)-3.5rem)] lg:translate-x-0",
                     "lg:block",
@@ -444,11 +444,11 @@ export function Sidebar({
                 {/* Sidebar Flex Container — min-h-0 lets flex-1 nav scroll on mobile (see min-h-0 on scroll region) */}
                 <div className="flex h-full min-h-0 flex-col">
                     {/* Mobile Header with Close Button */}
-                    <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700 lg:hidden">
-                        <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
+                    <div className="flex flex-shrink-0 items-center justify-between border-b border-sidebar-border p-4 lg:hidden">
+                        <span className="text-lg font-semibold text-foreground">Menu</span>
                         <button
                             onClick={onMobileClose}
-                            className="min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center justify-center"
+                            className="min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-sidebar-accent text-muted-foreground flex items-center justify-center"
                             aria-label="Close menu"
                         >
                             <X className="w-5 h-5" />
@@ -456,10 +456,10 @@ export function Sidebar({
                     </div>
                     {/* Scrollable Navigation Area — min-h-0 required so flex child can shrink and overflow-y-auto works */}
                     <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
-                        <nav className="p-3 space-y-1">
+                        <nav className="p-3 space-y-0.5">
                             {filteredSidebarConfig.map((item, index) => {
                                 if (item.type === 'divider') {
-                                    return <div key={`divider-${index}`} className="my-3 border-t border-gray-200 dark:border-gray-700" />;
+                                    return <div key={`divider-${index}`} className="my-3 border-t border-sidebar-border" />;
                                 }
                                 if (item.type === 'link') {
                                     return (
@@ -499,7 +499,7 @@ export function Sidebar({
 
                     {/* Fixed bottom: profile — flex-shrink-0 keeps it visible while nav scrolls above */}
                     <div className={cn(
-                        "flex flex-shrink-0 border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 z-30",
+                        "flex flex-shrink-0 border-t border-sidebar-border bg-sidebar z-30",
                         effectiveCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
                     )}>
                         {/* Profile Menu */}
@@ -519,7 +519,7 @@ export function Sidebar({
                                 onClick={onToggleCollapse}
                                 onMouseEnter={(e) => handleTooltipEnter(e, isCollapsed ? "Expand" : "Collapse")}
                                 onMouseLeave={handleTooltipLeave}
-                                className="hidden lg:flex group relative min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
+                                className="hidden lg:flex group relative min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-slate-500 dark:text-zinc-400 hover:bg-sidebar-accent hover:text-foreground transition-colors"
                                 aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                             >
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className={cn("transition-transform duration-200", isCollapsed && "rotate-180")}>
@@ -555,7 +555,7 @@ export function Sidebar({
             {
                 submenu && effectiveCollapsed && (
                     <div
-                        className="fixed z-[100] min-w-[180px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-1 animate-in fade-in zoom-in-95 duration-100"
+                        className="fixed z-[100] min-w-[180px] bg-popover rounded-lg shadow-elevated border border-border p-1 animate-in fade-in zoom-in-95 duration-100"
                         style={{
                             top: submenu.top,
                             left: submenu.left,

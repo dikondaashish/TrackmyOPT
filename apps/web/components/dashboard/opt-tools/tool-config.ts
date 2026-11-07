@@ -54,10 +54,10 @@ export const toolThemes = {
   },
   'stem-clock': {
     surface:
-      'border-purple-200 bg-purple-50 dark:border-purple-900 dark:bg-purple-950',
+      'border-violet-200 bg-violet-50 dark:border-violet-900 dark:bg-violet-950',
     solid: 'border-violet-700 bg-violet-700 text-white hover:bg-violet-800',
-    text: 'text-violet-700 dark:text-purple-300',
-    focus: 'focus-visible:ring-purple-500',
+    text: 'text-violet-700 dark:text-violet-300',
+    focus: 'focus-visible:ring-violet-500',
   },
 } as const;
 export function toolButtonClass(slug: ToolSlug) {

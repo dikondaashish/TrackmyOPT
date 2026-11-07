@@ -24,41 +24,43 @@ interface MetricCardProps {
 }
 
 function MetricCard({ title, value, icon, status, subtitle }: MetricCardProps) {
+  // Cards stay white so they read as raised panels on the app canvas; meaning
+  // is carried by the icon tile, the status label and (for critical) the border.
   const statusStyles = {
-    good: "border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950",
-    warning: "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950",
-    critical: "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950",
-    neutral: "border-border bg-card",
+    good: "border-border",
+    warning: "border-border",
+    critical: "border-red-200 dark:border-red-900",
+    neutral: "border-border",
   };
 
   const iconStyles = {
-    good: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900",
-    warning: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900",
-    critical: "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900",
-    neutral: "text-muted-foreground bg-muted",
+    good: "text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-950",
+    warning: "text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-950",
+    critical: "text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-950",
+    neutral: "text-primary bg-primary-soft dark:text-blue-300",
   };
 
   const badgeStyles = {
-    good: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400",
-    warning: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400",
-    critical: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-400",
+    good: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+    warning: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+    critical: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
     neutral: "bg-muted text-muted-foreground",
   };
 
   return (
-    <div className={`group border rounded-xl p-5 ${statusStyles[status]}`}>
-      <div className="flex items-start justify-between mb-3">
-        <div className={`p-2.5 rounded-lg ${iconStyles[status]}`}>
+    <div className={`group rounded-xl border bg-card p-5 shadow-card ${statusStyles[status]}`}>
+      <div className="mb-4 flex items-start justify-between gap-2">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconStyles[status]}`}>
           {icon}
         </div>
         {subtitle && (
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${badgeStyles[status]}`}>
+          <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${badgeStyles[status]}`}>
             {subtitle}
           </span>
         )}
       </div>
-      <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
-      <p className="text-2xl font-bold text-foreground">{value}</p>
+      <p className="mb-1 text-sm font-medium text-muted-foreground">{title}</p>
+      <p className="text-2xl font-semibold text-foreground sm:text-[1.75rem] sm:leading-9">{value}</p>
     </div>
   );
 }
@@ -299,7 +301,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-card border border-border rounded-xl p-5 animate-pulse">
+          <div key={i} className="bg-card border border-border rounded-xl p-5 shadow-card animate-pulse">
             <div className="w-10 h-10 bg-muted rounded-lg mb-3" />
             <div className="h-4 bg-muted rounded w-24 mb-2" />
             <div className="h-8 bg-muted rounded w-16" />
@@ -358,7 +360,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
 
       {showBreakdown && (
         <div
-          className="rounded-xl border border-border bg-card p-4 text-sm space-y-2"
+          className="rounded-xl border border-border bg-card p-4 text-sm space-y-2 shadow-card"
           role="region"
           aria-label="OPT and STEM unemployment breakdown"
         >

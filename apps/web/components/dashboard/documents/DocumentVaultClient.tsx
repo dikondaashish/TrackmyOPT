@@ -222,10 +222,10 @@ export function DocumentVaultClient() {
   if (isPremium === false) {
     return (
       <div className="max-w-4xl mx-auto py-10 space-y-8">
-        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-100 dark:border-blue-800 rounded-xl p-8">
+        <div className="bg-card border border-border border-t-[3px] border-t-blue-600 shadow-card rounded-xl p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+              <h1 className="text-2xl font-semibold text-foreground flex items-center gap-2">
                 <Lock className="w-6 h-6 shrink-0 text-blue-600 dark:text-blue-400" />
                 Document Vault (Pro)
               </h1>
@@ -237,7 +237,7 @@ export function DocumentVaultClient() {
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <a
                 href="/premium/checkout?planId=pro&interval=year"
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition shadow-sm hover:shadow-md"
+                className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-button"
               >
                 Unlock with Pro
               </a>
@@ -252,7 +252,7 @@ export function DocumentVaultClient() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-card border border-border rounded-xl p-5 space-y-2">
+          <div className="bg-card border border-border rounded-xl p-5 space-y-2 shadow-card">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
               <FolderOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               All documents in one place
@@ -261,7 +261,7 @@ export function DocumentVaultClient() {
               Upload I-20s, EAD cards, passport, visa, I-983, offer letters, and paystubs with smart tags and filters.
             </p>
           </div>
-          <div className="bg-card border border-border rounded-xl p-5 space-y-2">
+          <div className="bg-card border border-border rounded-xl p-5 space-y-2 shadow-card">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
               <ScanLine className="w-5 h-5 text-violet-600 dark:text-violet-400" />
               AI-powered document analysis
@@ -270,7 +270,7 @@ export function DocumentVaultClient() {
               Gemini AI reads your documents to extract expiry dates, SEVIS IDs, receipt numbers, and key fields automatically.
             </p>
           </div>
-          <div className="bg-card border border-border rounded-xl p-5 space-y-2">
+          <div className="bg-card border border-border rounded-xl p-5 space-y-2 shadow-card">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
               <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               Smart expiry reminders
@@ -334,11 +334,13 @@ export function DocumentVaultClient() {
   return (
     <div className="space-y-4" data-document-vault data-ph-no-capture>
       {/* Modern Header with Email Notifications */}
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800 rounded-xl p-4 sm:p-5">
+      <div className="bg-card border border-border shadow-card rounded-xl p-4 sm:p-5">
         <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-              <Lock className="w-6 h-6 shrink-0 text-blue-600 dark:text-blue-400" />
+            <h1 className="text-2xl font-semibold text-foreground flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950">
+                <Lock className="w-5 h-5 text-amber-600 dark:text-amber-300" />
+              </span>
               Document Vault
             </h1>
             <p className="text-sm text-gray-600 dark:text-muted-foreground mt-1">
@@ -347,7 +349,7 @@ export function DocumentVaultClient() {
           </div>
           <button
             onClick={handleUploadClick}
-            className="min-h-11 shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+            className="min-h-11 shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-button"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

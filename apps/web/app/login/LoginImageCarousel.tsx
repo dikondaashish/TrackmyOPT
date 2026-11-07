@@ -17,7 +17,7 @@ export function LoginImageCarousel({
   onSelectIndex,
 }: LoginImageCarouselProps) {
   return (
-    <div className="hidden lg:flex lg:w-1/2 bg-slate-900 relative overflow-hidden p-16">
+    <div className="hidden lg:flex lg:w-1/2 bg-ink relative overflow-hidden p-16">
       <div className="flex-1 flex items-center justify-center relative">
         {images.map((img, index) => (
           <div
@@ -30,7 +30,7 @@ export function LoginImageCarousel({
                   : "opacity-0 transform translate-x-full scale-95"
             }`}
           >
-            <div className="bg-slate-800 border border-slate-700 rounded-xl p-12">
+            <div className="bg-slate-800 dark:bg-slate-900 border border-ink-border rounded-xl p-12">
               <div className="mb-10 flex items-center justify-center">
                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-xl bg-[#226BE7] flex items-center justify-center">
                   <Image
@@ -46,7 +46,7 @@ export function LoginImageCarousel({
 
               <div className="text-center text-white space-y-4">
                 <h2 className="text-3xl font-bold">{img.title}</h2>
-                <p className="text-lg text-blue-100 leading-relaxed">{img.description}</p>
+                <p className="text-lg text-ink-muted leading-relaxed">{img.description}</p>
               </div>
             </div>
           </div>
@@ -69,7 +69,7 @@ export function LoginImageCarousel({
       </div>
 
       <div className="absolute bottom-6 left-8 right-8 text-center">
-        <p className="text-gray-300 text-sm">Private, secure, and reliable.</p>
+        <p className="text-ink-muted text-sm">Private, secure, and reliable.</p>
       </div>
     </div>
   );

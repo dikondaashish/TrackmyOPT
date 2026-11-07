@@ -30,10 +30,10 @@ const accentColors = {
         hover: "hover:border-emerald-300 dark:hover:border-emerald-700",
     },
     purple: {
-        bg: "bg-purple-50 dark:bg-purple-950",
-        border: "border-purple-200 dark:border-purple-800",
-        icon: "text-purple-600 dark:text-purple-400",
-        hover: "hover:border-purple-300 dark:hover:border-purple-700",
+        bg: "bg-violet-50 dark:bg-violet-950",
+        border: "border-violet-200 dark:border-violet-800",
+        icon: "text-violet-600 dark:text-violet-400",
+        hover: "hover:border-violet-300 dark:hover:border-violet-700",
     },
     amber: {
         bg: "bg-amber-50 dark:bg-amber-950",
@@ -59,7 +59,7 @@ export function FeatureFAQ({
     const colors = accentColors[accentColor];
 
     return (
-        <section className="py-24 relative">
+        <section className="relative bg-background py-24">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <motion.div
@@ -68,10 +68,10 @@ export function FeatureFAQ({
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
                         {title}
                     </h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         {subtitle}
                     </p>
                 </motion.div>
@@ -88,10 +88,10 @@ export function FeatureFAQ({
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className={`w-full text-left p-6 rounded-xl border ${colors.border} ${colors.hover} bg-white dark:bg-gray-800 transition-all duration-200 group`}
+                                className={`surface-card w-full text-left p-6 ${colors.hover} transition-[border-color,box-shadow] duration-200 hover:shadow-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group`}
                             >
                                 <div className="flex items-center justify-between gap-4">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-200">
+                                    <h3 className="text-lg font-semibold text-foreground">
                                         {item.question}
                                     </h3>
                                     <motion.div
@@ -112,7 +112,7 @@ export function FeatureFAQ({
                                             transition={{ duration: 0.2 }}
                                             className="overflow-hidden"
                                         >
-                                            <p className="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+                                            <p className="mt-4 text-muted-foreground leading-relaxed">
                                                 {item.answer}
                                             </p>
                                         </motion.div>
@@ -130,7 +130,7 @@ export function FeatureFAQ({
                     viewport={{ once: true }}
                     className="mt-12 text-center"
                 >
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                         Still have questions?{" "}
                         <a href="mailto:support@trackmyopt.com" className={`font-semibold ${colors.icon} hover:underline`}>
                             Contact our support team

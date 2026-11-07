@@ -161,7 +161,7 @@ export default function August2026VisaBulletinPage() {
       </header>
 
       <figure className="mb-12">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden border border-border shadow-card">
           <Image
             src="/blog/august-2026-visa-bulletin-opt-workers.png"
             alt="Calendar and abstract employment-based priority-date timelines showing a stopped category"
@@ -177,7 +177,7 @@ export default function August2026VisaBulletinPage() {
         </figcaption>
       </figure>
 
-      <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+      <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mb-10">
         <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-2">
           Direct Answer
         </p>
@@ -192,7 +192,7 @@ export default function August2026VisaBulletinPage() {
       </div>
 
       <nav
-        className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12"
+        className="border border-border rounded-xl p-6 mb-12 bg-surface"
         aria-label="Table of contents"
       >
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
@@ -249,20 +249,20 @@ export default function August2026VisaBulletinPage() {
             students and early-career workers moving from F-1 status toward
             permanent residence.
           </p>
-          <div className="not-prose overflow-x-auto my-6">
+          <div className="not-prose overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-100 dark:bg-zinc-800">
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                <tr className="bg-surface-strong">
+                  <th className="text-left p-4 border border-border">
                     Category
                   </th>
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                  <th className="text-left p-4 border border-border">
                     Final Action
                   </th>
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                  <th className="text-left p-4 border border-border">
                     Dates for Filing
                   </th>
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                  <th className="text-left p-4 border border-border">
                     August 2026 note
                   </th>
                 </tr>
@@ -273,7 +273,7 @@ export default function August2026VisaBulletinPage() {
                     key={category}
                     className="odd:bg-white even:bg-gray-50 dark:odd:bg-zinc-950 dark:even:bg-zinc-900"
                   >
-                    <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
+                    <td className="p-4 border border-border font-semibold">
                       {category}
                     </td>
                     <td
@@ -281,10 +281,10 @@ export default function August2026VisaBulletinPage() {
                     >
                       {finalAction}
                     </td>
-                    <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                    <td className="p-4 border border-border">
                       {filing}
                     </td>
-                    <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                    <td className="p-4 border border-border">
                       {note}
                     </td>
                   </tr>
@@ -317,12 +317,12 @@ export default function August2026VisaBulletinPage() {
                 chart only when USCIS says so for that month.
               </p>
             </div>
-            <div className="p-6 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 rounded-xl">
-              <FileClock className="w-7 h-7 text-green-600 mb-3" />
-              <h3 className="font-bold text-green-900 dark:text-green-200 mb-2">
+            <div className="p-6 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 rounded-xl">
+              <FileClock className="w-7 h-7 text-emerald-600 mb-3" />
+              <h3 className="font-bold text-emerald-900 dark:text-emerald-200 mb-2">
                 Final Action Dates
               </h3>
-              <p className="text-sm text-green-800 dark:text-green-300 mb-0">
+              <p className="text-sm text-emerald-800 dark:text-emerald-300 mb-0">
                 Indicates when a visa number may be used for final approval or
                 immigrant-visa issuance, subject to eligibility and continued
                 number availability.
@@ -377,7 +377,7 @@ export default function August2026VisaBulletinPage() {
               while waiting.
             </li>
           </ul>
-          <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
+          <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-6 rounded-r-xl my-8">
             <div className="flex gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
@@ -470,9 +470,9 @@ export default function August2026VisaBulletinPage() {
             ].map(([title, description]) => (
               <div
                 key={title}
-                className="flex gap-3 p-5 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl"
+                className="border flex gap-3 p-5 border-border rounded-xl bg-card shadow-card"
               >
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-bold text-gray-900 dark:text-white mb-1">
                     {title}
@@ -492,7 +492,7 @@ export default function August2026VisaBulletinPage() {
             {faqItems.map((faq) => (
               <div
                 key={faq.question}
-                className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800"
+                className="border p-5 rounded-xl border-border bg-card shadow-card"
               >
                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">
                   {faq.question}
@@ -518,21 +518,21 @@ export default function August2026VisaBulletinPage() {
           </p>
         </section>
 
-        <section className="not-prose bg-indigo-600 rounded-xl p-8 text-white my-12">
+        <section className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
           <div className="flex items-start gap-4">
-            <CalendarDays className="w-9 h-9 text-indigo-100 flex-shrink-0" />
+            <CalendarDays className="w-9 h-9 text-ink-muted flex-shrink-0" />
             <div>
               <h2 className="text-2xl font-bold text-white mb-3 mt-0">
                 Keep Today’s Status Separate From Tomorrow’s Queue
               </h2>
-              <p className="text-indigo-100 mb-6 text-lg">
+              <p className="text-ink-muted mb-6 text-lg">
                 TrackMyOPT helps F-1 students monitor OPT milestones,
                 unemployment days, employment changes, and document deadlines
                 while long-term immigration plans develop.
               </p>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 bg-white text-indigo-700 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
               >
                 Create Your Free Account <ArrowRight className="w-5 h-5" />
               </Link>

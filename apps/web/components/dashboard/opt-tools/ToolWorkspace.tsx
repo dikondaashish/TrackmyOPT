@@ -63,7 +63,7 @@ export function ToolWorkspace({
             key={item.slug}
             href={`${base}/${item.slug}`}
             aria-current={slug === item.slug ? 'page' : undefined}
-            className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${toolThemes[item.slug].focus} ${slug === item.slug ? toolThemes[item.slug].solid : 'border-border bg-card text-foreground hover:bg-muted'}`}
+            className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${toolThemes[item.slug].focus} ${slug === item.slug ? toolThemes[item.slug].solid : 'border-border bg-card text-foreground hover:bg-muted'} shadow-card`}
           >
             <item.icon
               aria-hidden="true"

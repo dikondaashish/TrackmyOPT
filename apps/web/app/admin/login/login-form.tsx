@@ -51,8 +51,8 @@ export default function AdminLoginForm({
   }
 
   return (
-    <main className="flex min-h-[80vh] items-center justify-center bg-slate-50 px-5 py-12 dark:bg-background">
-      <div className="w-full max-w-md rounded-xl border bg-card p-7 sm:p-9">
+    <main className="flex min-h-[80vh] items-center justify-center px-5 py-12">
+      <div className="w-full max-w-md rounded-xl border bg-card p-7 sm:p-9 shadow-card">
         <p className="mb-8 font-semibold text-blue-600 dark:text-blue-400">
           TrackMyOPT{' '}
           <span className="ml-2 text-xs font-normal text-muted-foreground">

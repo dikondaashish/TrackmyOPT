@@ -62,7 +62,7 @@ export function EmploymentIncompleteCallout({
                 <button
                   type="button"
                   onClick={onBetweenJobs}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-medium text-amber-900 hover:bg-white dark:border-amber-700 dark:bg-amber-900 dark:text-amber-100"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-medium text-amber-900 hover:bg-white dark:border-amber-700 dark:bg-amber-900 dark:text-amber-100 shadow-card"
                 >
                   <Briefcase className="h-3.5 w-3.5" />
                   I&apos;m between jobs

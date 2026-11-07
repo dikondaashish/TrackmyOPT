@@ -102,7 +102,7 @@ export function LandingHero() {
     }, [activeTab]);
 
     return (
-        <section className="relative bg-background min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-8 lg:pt-12 pb-24">
+        <section className="relative bg-surface border-b border-border min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-8 lg:pt-12 pb-24">
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                     {/* Left Content */}
@@ -114,7 +114,7 @@ export function LandingHero() {
                     >
                         {/* Who This Is For - Trust Signals */}
                         <motion.div variants={fadeInUp} className="flex justify-center lg:justify-start mb-6">
-                            <p className="text-sm font-medium text-muted-foreground">
+                            <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
                                 3,500+ users have signed up
                             </p>
                         </motion.div>
@@ -140,14 +140,14 @@ export function LandingHero() {
                             <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:items-center">
                                 <Link
                                     href="/login"
-                                    className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-blue-700 px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-blue-800 sm:w-auto"
+                                    className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-blue-700 px-8 py-4 text-base font-semibold text-white shadow-button transition-colors hover:bg-blue-800 sm:w-auto"
                                 >
                                     Start free
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                                 <Link
                                     href="/tools/opt-decision-window"
-                                    className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-border bg-background px-6 py-4 text-base font-semibold text-foreground transition-colors hover:bg-muted sm:w-auto"
+                                    className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-border bg-card px-6 py-4 text-base font-semibold text-foreground shadow-card transition-colors hover:bg-muted sm:w-auto"
                                 >
                                     See decision window
                                 </Link>
@@ -181,7 +181,7 @@ export function LandingHero() {
 
                         {/* Mobile-only: one clear preview card (readable type; full mockup stays on lg+) */}
                         <motion.div variants={fadeInUp} className="mx-auto mt-10 w-full max-w-sm lg:hidden">
-                            <div className="rounded-xl border border-border bg-white p-5 dark:bg-zinc-900">
+                            <div className="rounded-xl border border-border bg-card p-5 shadow-elevated">
                                 <div className="mb-4 flex items-center gap-3">
                                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
                                         <Calendar className="h-6 w-6 text-white" aria-hidden />
@@ -214,7 +214,7 @@ export function LandingHero() {
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
                         >
-                                <div className="relative z-10 h-full">
+                                <div className="relative z-10 h-full rounded-xl shadow-elevated">
                                     <AnimatePresence mode="wait">
                                         {activeTab === "timeline" && (
                                             <motion.div
@@ -276,7 +276,7 @@ export function LandingHero() {
 
                         {/* Interactive Tab Triggers moved to Right Column */}
                         <motion.div variants={fadeInUp} className="mt-8 flex flex-col items-center z-20 relative">
-                            <div className="inline-flex flex-nowrap gap-1.5 p-1.5 rounded-xl bg-gray-100 dark:bg-zinc-800 justify-center overflow-hidden">
+                            <div className="inline-flex flex-nowrap gap-1.5 p-1.5 rounded-xl border border-border bg-surface-strong justify-center overflow-hidden">
                                 {tabsConfig.map((tab) => (
                                     <button
                                         key={tab.id}
@@ -287,7 +287,7 @@ export function LandingHero() {
                                             setProgress(0);
                                         }}
                                         className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === tab.id
-                                            ? "bg-white dark:bg-zinc-700 text-primary shadow-sm"
+                                            ? "bg-card dark:bg-zinc-700 text-primary shadow-card"
                                             : "text-muted-foreground hover:text-foreground hover:bg-white dark:hover:bg-zinc-700"
                                             }`}
                                     >
@@ -297,7 +297,7 @@ export function LandingHero() {
                                 ))}
                             </div>
                             {/* Progress Bar */}
-                            <div className="mt-3 h-1 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden w-full max-w-sm">
+                            <div className="mt-3 h-1 bg-border rounded-full overflow-hidden w-full max-w-sm">
                                 <motion.div
                                     className="h-full bg-blue-500 rounded-full"
                                     initial={{ width: "0%" }}

@@ -138,16 +138,16 @@ export default function HealthInsuranceFinderPage() {
   };
 
   return (
-    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
       {/* Hero */}
       <div>
         <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 sm:pt-8 sm:pb-8">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground mb-4">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-3">
               Get Health Insurance
               <span className="block">Starting from $0/month</span>
             </h1>
-            <p className="text-lg text-slate-600 dark:text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">
               Find affordable coverage based on your state and eligibility. No SSN required.
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-muted-foreground">
@@ -158,7 +158,7 @@ export default function HealthInsuranceFinderPage() {
           {/* Benefits */}
           <div className="flex flex-wrap justify-center gap-6 mt-10">
             <div className="flex items-center gap-2 text-slate-700 dark:text-foreground">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <span className="text-sm font-medium">No SSN Required</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700 dark:text-foreground">
@@ -175,7 +175,7 @@ export default function HealthInsuranceFinderPage() {
 
       {/* Form Card */}
       <div className="max-w-xl mx-auto px-4 -mt-2">
-        <div className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border p-6 sm:p-8">
+        <div className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border p-6 sm:p-8 shadow-card">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-foreground mb-6">Check Your Eligibility</h2>
 
           <div className="space-y-5 ph-mask" data-ph-mask>
@@ -341,7 +341,7 @@ export default function HealthInsuranceFinderPage() {
           {FAQ_ITEMS.map((item, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden"
+              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden shadow-card"
             >
               <button
                 onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}

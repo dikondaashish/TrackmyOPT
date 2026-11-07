@@ -42,7 +42,7 @@ export function BillingHistory() {
 
     if (isLoading) {
         return (
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-card">
                 <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
                 <div className="space-y-3">
                     {[1, 2, 3].map(i => (
@@ -54,7 +54,7 @@ export function BillingHistory() {
     }
 
     return (
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-card">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-gray-500" />

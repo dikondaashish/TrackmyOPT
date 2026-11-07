@@ -46,7 +46,7 @@ export function OfferBrandLogo({
       <span
         className={cn(
           SIZE_CLASSES[size],
-          'inline-flex shrink-0 items-center justify-center bg-purple-500 font-bold text-white',
+          'inline-flex shrink-0 items-center justify-center bg-violet-500 font-bold text-white',
           className
         )}
         aria-label={`${name} logo unavailable`}

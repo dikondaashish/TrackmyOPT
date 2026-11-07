@@ -37,10 +37,10 @@ export function OtpVerificationModal({
 }: OtpVerificationModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-card rounded-xl shadow-2xl max-w-md w-full p-8 relative">
+      <div className="bg-card border border-border rounded-xl shadow-elevated max-w-md w-full p-6 sm:p-8 relative">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -49,10 +49,10 @@ export function OtpVerificationModal({
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
             Verify Your Email
           </h2>
-          <p className="text-gray-600 dark:text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm">
             We&apos;ve sent a 6-digit verification code to <strong>{signupEmail}</strong>. Please
             check your inbox and enter the code below.
           </p>
@@ -74,20 +74,20 @@ export function OtpVerificationModal({
                 onChange={(e) => onDigitChange(index, e.target.value)}
                 onKeyDown={(e) => onDigitKeyDown(index, e)}
                 disabled={otpLoading || countdown === 0}
-                className="w-10 h-12 md:w-12 md:h-14 border-2 border-gray-300 dark:border-border rounded-lg text-center text-xl md:text-2xl font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
+                className="w-10 h-12 md:w-12 md:h-14 border border-input rounded-lg text-center text-xl md:text-2xl font-mono font-semibold shadow-card transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 bg-background text-foreground"
               />
             ))}
           </div>
 
           <div className="text-center space-y-1">
-            <p className="text-sm text-gray-500 dark:text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Code expires in{" "}
-              <span className="font-semibold text-gray-700 dark:text-foreground">
+              <span className="font-semibold text-foreground">
                 {formatTime(countdown)}
               </span>
             </p>
             {otpAttemptsLeft < 5 && (
-              <p className="text-xs text-gray-500 dark:text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Attempts remaining: <span className="font-semibold">{otpAttemptsLeft}</span>
               </p>
             )}
@@ -99,7 +99,7 @@ export function OtpVerificationModal({
           </div>
 
           {otpError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
+            <div className="p-3 rounded-lg border-l-4 border-l-red-500 bg-red-50 text-red-700 text-sm text-center dark:bg-red-950 dark:text-red-300">
               {otpError}
             </div>
           )}
@@ -109,7 +109,7 @@ export function OtpVerificationModal({
             disabled={
               otpLoading || otpCode.length !== 6 || countdown === 0 || otpAttemptsLeft === 0
             }
-            className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full min-h-12 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold py-3 px-4 rounded-lg shadow-button transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {otpLoading ? "Verifying..." : "Verify & Create Account"}
           </button>
@@ -118,7 +118,7 @@ export function OtpVerificationModal({
             <button
               type="button"
               onClick={onCancel}
-              className="text-gray-600 dark:text-muted-foreground hover:text-gray-800 dark:hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground"
             >
               Cancel
             </button>
@@ -128,8 +128,8 @@ export function OtpVerificationModal({
               disabled={!canResend || otpLoading}
               className={`font-medium ${
                 canResend
-                  ? "text-blue-600 hover:text-blue-700 cursor-pointer"
-                  : "text-gray-400 cursor-not-allowed"
+                  ? "text-primary hover:text-primary-hover cursor-pointer"
+                  : "text-muted-foreground opacity-60 cursor-not-allowed"
               }`}
             >
               Resend Code

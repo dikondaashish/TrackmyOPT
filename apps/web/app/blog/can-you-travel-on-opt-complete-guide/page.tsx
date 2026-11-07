@@ -103,7 +103,7 @@ export default function CanYouTravelOnOPTArticle() {
                 </div>
             </header>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     You can travel while OPT is pending or approved, but re-entry is not guaranteed. ICE advises caution while an application is pending. After approval, bring your EAD, travel-endorsed I-20, valid passport and F-1 visa (unless exempt), plus proof that you are returning to OPT employment.
@@ -111,7 +111,7 @@ export default function CanYouTravelOnOPTArticle() {
             </div>
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -124,7 +124,7 @@ export default function CanYouTravelOnOPTArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -155,7 +155,7 @@ export default function CanYouTravelOnOPTArticle() {
                         ICE says you <strong>may seek re-entry while OPT is pending</strong>, but travel should be undertaken with caution. USCIS may send a request for evidence while you are away, and an EAD can only be delivered to your U.S. address.
                     </p>
 
-                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold">
                             If USCIS approves OPT while you are abroad, ICE expects you to have the physical EAD in hand when you return. Plan how a trusted person would securely send the card to you, and discuss the trip with your DSO first.
                         </p>
@@ -177,7 +177,7 @@ export default function CanYouTravelOnOPTArticle() {
                         ))}
                     </div>
 
-                    <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">What if you must travel while OPT is pending?</h3>
                         <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
                             Ask your DSO to confirm that your SEVIS record and travel signature are current. Keep access to your USCIS account, arrange secure handling of mail and any EAD delivery, and carry evidence that the OPT application is pending.
@@ -195,14 +195,14 @@ export default function CanYouTravelOnOPTArticle() {
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">When is it Safe to Travel?</h3>
                     <div className="space-y-3 mb-6">
-                        <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <h4 className="font-bold text-green-900 dark:text-green-100 mb-1">After Approval Notice Received</h4>
-                            <p className="text-green-800 dark:text-green-200 text-sm">Approval alone is not the complete travel document set. ICE expects the physical EAD for re-entry after OPT approval.</p>
+                        <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <h4 className="font-bold text-emerald-900 dark:text-emerald-100 mb-1">After Approval Notice Received</h4>
+                            <p className="text-emerald-800 dark:text-emerald-200 text-sm">Approval alone is not the complete travel document set. ICE expects the physical EAD for re-entry after OPT approval.</p>
                         </div>
 
-                        <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <h4 className="font-bold text-green-900 dark:text-green-100 mb-1">After EAD Card Arrives</h4>
-                            <p className="text-green-800 dark:text-green-200 text-sm">Carry the EAD together with a travel-endorsed I-20, passport, required visa, and evidence that you are returning to OPT employment.</p>
+                        <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <h4 className="font-bold text-emerald-900 dark:text-emerald-100 mb-1">After EAD Card Arrives</h4>
+                            <p className="text-emerald-800 dark:text-emerald-200 text-sm">Carry the EAD together with a travel-endorsed I-20, passport, required visa, and evidence that you are returning to OPT employment.</p>
                         </div>
 
                         <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-100 dark:border-amber-800">
@@ -224,9 +224,9 @@ export default function CanYouTravelOnOPTArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                                 Valid Passport
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -234,9 +234,9 @@ export default function CanYouTravelOnOPTArticle() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                                 Form I-20 With Current Travel Endorsement
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -244,9 +244,9 @@ export default function CanYouTravelOnOPTArticle() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                                 Valid EAD Card (I-765)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -254,9 +254,9 @@ export default function CanYouTravelOnOPTArticle() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                                 Evidence of OPT Employment
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -264,9 +264,9 @@ export default function CanYouTravelOnOPTArticle() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                                 Valid US Visa (If Required)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -274,7 +274,7 @@ export default function CanYouTravelOnOPTArticle() {
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">Recommended: Copies & Digital Backups</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
                                 Store digital copies of your EAD, passport, visa, and approval notice in secure cloud storage. Keep physical copies in separate bags.
@@ -291,41 +291,41 @@ export default function CanYouTravelOnOPTArticle() {
                         Your ability to re-enter the US depends on your nationality and visa status. Here's how it works:
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Your Situation</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Can Travel?</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Notes</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Your Situation</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Can Travel?</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Notes</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">F-1 visa is valid (not expired)</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✓ Yes</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Also carry an endorsed I-20 and employment evidence</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">F-1 visa is valid (not expired)</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">✓ Yes</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Also carry an endorsed I-20 and employment evidence</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">F-1 visa has expired (after graduation)</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Need visa</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Usually must obtain a new F-1 visa unless a narrow exception such as automatic revalidation applies</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">F-1 visa has expired (after graduation)</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Need visa</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Usually must obtain a new F-1 visa unless a narrow exception such as automatic revalidation applies</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Citizen of Canada or Bermuda</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✓ Yes</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Generally visa-exempt, but still needs the other F-1/OPT re-entry documents</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Citizen of Canada or Bermuda</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">✓ Yes</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Generally visa-exempt, but still needs the other F-1/OPT re-entry documents</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Expired visa; short eligible trip to Canada, Mexico, or an adjacent island</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Maybe</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Automatic revalidation is limited and has exclusions; verify eligibility before travel</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Expired visa; short eligible trip to Canada, Mexico, or an adjacent island</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Maybe</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Automatic revalidation is limited and has exclusions; verify eligibility before travel</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="mt-6 p-4 rounded-xl border border-primary-muted bg-primary-soft">
                         <p className="text-blue-900 dark:text-blue-100 text-sm">
                             <strong>Check your visa status before traveling:</strong> If your F-1 visa expired while you were in school or working, you may need to apply for a new visa before leaving the US. Consult your DSO.
                         </p>
@@ -341,7 +341,7 @@ export default function CanYouTravelOnOPTArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">At US Port of Entry (Airport/Border)</h3>
                             <ul className="space-y-2 text-blue-800 dark:text-blue-200 text-sm">
                                 <li>• Present your EAD card to CBP officer (this proves work authorization)</li>
@@ -351,9 +351,9 @@ export default function CanYouTravelOnOPTArticle() {
                             </ul>
                         </div>
 
-                        <div className="p-5 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <h3 className="font-bold text-green-900 dark:text-green-100 mb-2">What CBP Officer May Ask</h3>
-                            <ul className="space-y-2 text-green-800 dark:text-green-200 text-sm">
+                        <div className="p-5 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <h3 className="font-bold text-emerald-900 dark:text-emerald-100 mb-2">What CBP Officer May Ask</h3>
+                            <ul className="space-y-2 text-emerald-800 dark:text-emerald-200 text-sm">
                                 <li>• "What brings you back to the US?"</li>
                                 <li>• "How long were you outside the country?"</li>
                                 <li>• "Are you still employed on OPT?"</li>
@@ -388,21 +388,21 @@ export default function CanYouTravelOnOPTArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">Short Trips (Weekend, 1 week)</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 Notify your manager that you'll be out of office. Coordinate with your team for coverage. No special documentation needed.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">Extended Trips (2+ weeks)</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 Plan in advance. Request time off if available (PTO/vacation). Clarify with HR/manager if this is unpaid leave. Extended absence might affect your status—consult your DSO.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">Returning to Work After Travel</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 Resume work upon return. Update SEVIS/SEVP portal with your employer if required. Some employers track this automatically.
@@ -410,7 +410,7 @@ export default function CanYouTravelOnOPTArticle() {
                         </div>
                     </div>
 
-                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="mt-6 p-4 rounded-xl border border-primary-muted bg-primary-soft">
                         <p className="text-blue-900 dark:text-blue-100 text-sm">
                             <strong>Best practice:</strong> Inform your employer and DSO of travel plans. Keep copies of all travel documents and employment records. If you're gone more than 30 days, notify your DSO just in case.
                         </p>
@@ -425,7 +425,7 @@ export default function CanYouTravelOnOPTArticle() {
                         The 60-day period after completing OPT is for preparing to leave the United States or taking another permitted status-related step. <strong>ICE says it does not allow re-entry in F-1 status.</strong>
                     </p>
 
-                    <div className="p-5 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
+                    <div className="border-l-4 border-l-red-500 p-5 bg-red-50 dark:bg-red-950 rounded-r-xl">
                         <h3 className="font-bold text-red-900 dark:text-red-100 mb-2">Why You Shouldn't Travel During Grace Period</h3>
                         <ul className="space-y-2 text-red-800 dark:text-red-200 text-sm">
                             <li>• Your EAD is no longer valid outside the US</li>
@@ -451,7 +451,7 @@ export default function CanYouTravelOnOPTArticle() {
                             { practice: "While Traveling", items: ["Keep original documents in your carry-on", "Have digital backups in secure storage", "Monitor your USCIS account if your case is pending", "Arrange secure access to U.S. mail and EAD delivery", "Be prepared to show proof of employment if asked"] },
                             { practice: "Upon Re-Entry", items: ["Bring all documents to the airport", "Be ready to explain your OPT employment", "Comply with CBP officer requests", "Request secondary inspection if you have concerns", "Keep all re-entry documentation"] },
                         ].map((section, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-3">{section.practice}</h3>
                                 <ul className="space-y-2">
                                     {section.items.map((item, j) => (
@@ -473,7 +473,7 @@ export default function CanYouTravelOnOPTArticle() {
                     </h2>
                     <div className="space-y-4">
                         {TRAVEL_FAQS.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -485,7 +485,7 @@ export default function CanYouTravelOnOPTArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-ead-card-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT EAD Card Guide 2026</Link>
@@ -502,12 +502,12 @@ export default function CanYouTravelOnOPTArticle() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Verify Your Approval Before Traveling</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     Use TrackMyOPT's case status tracker to verify your approval before booking any international travel.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Verify Your Approval <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

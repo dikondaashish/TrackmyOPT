@@ -6,7 +6,7 @@ import { MessageSquare, ThumbsUp, CheckCircle2 } from "lucide-react";
 export function DiscussionThreadPreview() {
     return (
         <div className="relative w-full max-w-[500px] mx-auto">
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+            <div className="surface-card overflow-hidden">
                 {/* Header */}
                 <div className="p-4 border-b border-gray-100 dark:border-zinc-800 flex items-center gap-3">
                     <div className="w-8 h-8 bg-orange-100 dark:bg-orange-950 rounded-lg flex items-center justify-center text-orange-600">
@@ -47,20 +47,20 @@ export function DiscussionThreadPreview() {
                         viewport={{ once: true }}
                         className="flex gap-3 flex-row-reverse"
                     >
-                        <div className="w-8 h-8 rounded-full bg-purple-100 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-purple-600 relative">
+                        <div className="w-8 h-8 rounded-full bg-violet-100 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-violet-600 relative">
                             SM
                             <div className="absolute -bottom-1 -right-1 bg-white dark:bg-zinc-900 rounded-full p-0.5">
                                 <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                             </div>
                         </div>
-                        <div className="bg-purple-50 dark:bg-purple-950 p-3 rounded-tl-xl rounded-b-xl border border-purple-100 dark:border-purple-950 max-w-[80%]">
+                        <div className="bg-violet-50 dark:bg-violet-950 p-3 rounded-tl-xl rounded-b-xl border border-violet-100 dark:border-violet-950 max-w-[80%]">
                             <div className="flex items-center gap-2 mb-1">
                                 <p className="text-xs font-semibold text-gray-900 dark:text-white">Sarah Miller</p>
                                 <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 px-1.5 rounded-md font-medium">Alumni Mentor</span>
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Congrats Alex! For the system design round, did they focus more on scalability or data modeling? Usually for L3 it's heavily...</p>
                             <div className="mt-2 flex items-center gap-4">
-                                <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-purple-600 transition-colors">
+                                <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-violet-600 transition-colors">
                                     <ThumbsUp className="w-3 h-3" />
                                     <span>12 Helpful</span>
                                 </button>

@@ -19,7 +19,7 @@ import { DashboardNextStepCard } from "./DashboardNextStepCard";
 import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/opt-calculations";
 
 const WidgetSkeleton = () => (
-  <div className="rounded-lg border bg-card p-6 space-y-4 min-h-[180px]">
+  <div className="rounded-xl border bg-card p-6 space-y-4 min-h-[180px] shadow-card">
     <div className="flex items-center gap-2">
       <Skeleton className="h-5 w-40" />
       <Skeleton className="h-5 w-5 rounded-full" />
@@ -370,10 +370,10 @@ export function DashboardContent({ user }: DashboardContentProps) {
   return (
     <div className="space-y-6">
       {/* Header with customize button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Welcome back{displayName ? `, ${displayName}` : ""}
             {profile?.major_name && profile?.degree_level && (
               <span className="hidden sm:inline opacity-80">
@@ -400,7 +400,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
           <button
             type="button"
             onClick={() => setFetchRetryNonce((n) => n + 1)}
-            className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+            className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium shadow-button focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
           >
             Try again
           </button>

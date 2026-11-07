@@ -148,7 +148,7 @@ export default function PremiumWorthItPage() {
         </h1>
 
         {/* Direct Answer — AI-citable */}
-        <div className="direct-answer bg-blue-50 dark:bg-blue-950 rounded-xl p-6 mb-10">
+        <div className="direct-answer rounded-xl border border-primary-muted bg-primary-soft p-6 mb-10">
           <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">
             Bottom Line
           </p>
@@ -168,7 +168,7 @@ export default function PremiumWorthItPage() {
 
           <div className="space-y-6">
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950 flex items-center justify-center flex-shrink-0">
                 <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
@@ -183,7 +183,7 @@ export default function PremiumWorthItPage() {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
                 <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
@@ -198,7 +198,7 @@ export default function PremiumWorthItPage() {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center flex-shrink-0">
                 <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
@@ -214,8 +214,8 @@ export default function PremiumWorthItPage() {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-950 flex items-center justify-center flex-shrink-0">
-                <Briefcase className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <div className="w-10 h-10 rounded-lg bg-violet-50 dark:bg-violet-950 flex items-center justify-center flex-shrink-0">
+                <Briefcase className="w-5 h-5 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">
@@ -229,7 +229,7 @@ export default function PremiumWorthItPage() {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 flex items-center justify-center flex-shrink-0">
                 <FileCheck className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
@@ -250,7 +250,7 @@ export default function PremiumWorthItPage() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
             What TrackMyOPT Premium Includes
           </h2>
-          <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-6">
+          <div className="surface-card p-6">
             <ul className="space-y-3">
               {[
                 'Automated unemployment day tracking with alerts at 60, 75, and 85 days',
@@ -263,7 +263,7 @@ export default function PremiumWorthItPage() {
                 'STEM OPT calculator and timeline tools',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 dark:text-gray-300">
                     {item}
                   </span>
@@ -335,9 +335,9 @@ export default function PremiumWorthItPage() {
               <Link
                 key={i}
                 href={link.href}
-                className="flex items-center gap-2 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group"
+                className="surface-card-interactive flex items-center gap-2 p-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <ArrowRight className="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-primary" />
                 <span className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors">
                   {link.text}
                 </span>
@@ -348,18 +348,18 @@ export default function PremiumWorthItPage() {
       </article>
 
       {/* CTA */}
-      <section className="bg-blue-600 py-20">
+      <section className="bg-ink py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl font-bold text-ink-foreground mb-6">
             Stay organized through OPT
           </h2>
-          <p className="text-lg text-white mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-ink-muted mb-8 max-w-2xl mx-auto">
             Eligible accounts start Pro for $0.99 for 7 days, then regular
             billing begins unless canceled. Cancel anytime.
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors"
+            className="inline-flex min-h-12 items-center justify-center px-8 py-3 text-base font-semibold bg-blue-600 text-white rounded-lg shadow-button hover:bg-blue-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
           >
             Get Pro
             <ArrowRight className="ml-2 w-5 h-5" />

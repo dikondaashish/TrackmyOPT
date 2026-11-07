@@ -20,7 +20,7 @@ export function ComparisonEvidence({
   return (
     <section
       aria-label="Comparison sources and coverage"
-      className="mt-5 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground sm:p-5"
+      className="mt-5 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground sm:p-5 shadow-card"
     >
       <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Database

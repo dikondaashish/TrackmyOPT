@@ -54,7 +54,7 @@ export function EmploymentSetupModal({
               onOpenChange(false);
               onAddJob();
             }}
-            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary hover:bg-primary-soft"
+            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary hover:bg-primary-soft shadow-card"
           >
             <Briefcase className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <div>
@@ -71,7 +71,7 @@ export function EmploymentSetupModal({
               onOpenChange(false);
               onBetweenJobs();
             }}
-            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950"
+            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950 shadow-card"
           >
             <Timer className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div>

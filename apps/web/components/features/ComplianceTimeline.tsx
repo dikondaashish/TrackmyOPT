@@ -62,7 +62,7 @@ export function ComplianceTimeline() {
                             <div className={`
                                 w-16 h-16 rounded-lg flex items-center justify-center mb-4 border-4 border-white dark:border-zinc-950
                                 ${step.color === 'blue' ? 'bg-blue-500 text-white' : ''}
-                                ${step.color === 'purple' ? 'bg-purple-500 text-white' : ''}
+                                ${step.color === 'purple' ? 'bg-violet-600 text-white' : ''}
                                 ${step.color === 'amber' ? 'bg-amber-500 text-white' : ''}
                                 ${step.color === 'green' ? 'bg-green-500 text-white' : ''}
                                 ${step.color === 'gray' ? 'bg-gray-500 text-white' : ''}

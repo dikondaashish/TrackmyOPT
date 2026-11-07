@@ -85,22 +85,22 @@ export default function OPTReportingRequirements() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/opt-reporting-requirements.png" alt="Immigration documents, Form I-20, passport, and reporting checklists on advisor's desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/opt-reporting-requirements.png" alt="Immigration documents, Form I-20, passport, and reporting checklists on advisor's desk" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Keep a log of all submitted reporting changes for your permanent personal immigration records.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     You must report changes to your <strong>name, address, or employer within 10 days</strong>. If you are on STEM OPT, you must also complete <strong>6-month validation reports</strong> and <strong>annual self-evaluations</strong> using Form I-983. Report these via the SEVP Portal or directly to your DSO.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -111,7 +111,7 @@ export default function OPTReportingRequirements() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide
                 </h2>
                 <nav className="space-y-2">
@@ -147,7 +147,7 @@ export default function OPTReportingRequirements() {
                             { title: "At 12 Months (STEM OPT only)", desc: "Submit first annual evaluation (page 5 of Form I-983) signed by employer." },
                             { title: "At 24 Months (STEM OPT only)", desc: "Submit final self-evaluation (page 5 of Form I-983) upon program completion." },
                         ].map((item, i) => (
-                            <div key={i} className="flex gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border flex gap-3 p-4 rounded-xl border-border bg-card shadow-card">
                                 <Calendar className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                                 <div>
                                     <h4 className="font-semibold text-gray-950 dark:text-white">{item.title}</h4>
@@ -166,7 +166,7 @@ export default function OPTReportingRequirements() {
                         Federal regulations require you to keep your SEVIS profile accurate. You must report:
                     </p>
                     <div className="grid md:grid-cols-2 gap-4">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white flex items-center gap-2 mb-2">
                                 <Home className="w-4 h-4 text-indigo-500" />
                                 Personal Changes
@@ -178,7 +178,7 @@ export default function OPTReportingRequirements() {
                                 <li>• Active email address</li>
                             </ul>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white flex items-center gap-2 mb-2">
                                 <Briefcase className="w-4 h-4 text-teal-500" />
                                 Employment Changes
@@ -194,20 +194,20 @@ export default function OPTReportingRequirements() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-blue-600 rounded-xl p-8 my-12 text-white relative overflow-hidden">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground relative overflow-hidden bg-ink border border-ink-border shadow-elevated">
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <CheckCircle2 className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Track Deadlines Automatically</h3>
                         </div>
-                        <p className="text-blue-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             TrackMyOPT sends automated alerts for your 6-month validation reports and annual self-evaluation milestones so you never miss a deadline.
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -215,7 +215,7 @@ export default function OPTReportingRequirements() {
                 </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/sevp-portal-guide-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ SEVP Portal Setup Guide</Link>

@@ -68,12 +68,12 @@ export default function EadCardLostStolenPage() {
         sourcePage="/blog/ead-card-lost-stolen-incorrect-never-delivered"
       />
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
         <BlogPostImage src="/blog/ead-card-lost-stolen-incorrect-never-delivered.png" alt="Open empty wallet, USCIS case status showing Card Was Mailed, USPS tracking printout and Form I-765" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+      <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
         <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">Direct Answer</p>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed">
           Diagnose the problem first—is the card lost/stolen/damaged, was it printed with
@@ -133,7 +133,7 @@ export default function EadCardLostStolenPage() {
           ))}
         </div>
 
-        <div className="not-prose bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-5 rounded-r-xl mb-8">
+        <div className="not-prose bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-5 rounded-r-xl mb-8">
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -203,12 +203,12 @@ export default function EadCardLostStolenPage() {
         </p>
 
         <h3>How to identify a USCIS error vs. your own error</h3>
-        <div className="not-prose overflow-x-auto my-6">
+        <div className="not-prose overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-primary-soft">
-                <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">USCIS or Printing Error</th>
-                <th className="text-left p-3 font-semibold border border-gray-200 dark:border-zinc-700">Applicant Error</th>
+                <th className="text-left p-3 font-semibold border border-border">USCIS or Printing Error</th>
+                <th className="text-left p-3 font-semibold border border-border">Applicant Error</th>
               </tr>
             </thead>
             <tbody>
@@ -219,8 +219,8 @@ export default function EadCardLostStolenPage() {
                 ["Wrong category code printed on card", "Wrong eligibility category was selected on the form"],
               ].map(([uscis, applicant], i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white dark:bg-zinc-900" : "bg-gray-50 dark:bg-zinc-800"}>
-                  <td className="p-3 border border-gray-200 dark:border-zinc-700 text-orange-700 dark:text-orange-400">{uscis}</td>
-                  <td className="p-3 border border-gray-200 dark:border-zinc-700 text-yellow-700 dark:text-yellow-400">{applicant}</td>
+                  <td className="p-3 border border-border text-orange-700 dark:text-orange-400">{uscis}</td>
+                  <td className="p-3 border border-border text-yellow-700 dark:text-yellow-400">{applicant}</td>
                 </tr>
               ))}
             </tbody>
@@ -327,7 +327,7 @@ export default function EadCardLostStolenPage() {
               { item: "Consider premium processing if available", sub: "Check whether premium processing is available for your replacement filing to reduce processing time." },
             ].map((row, i) => (
               <li key={i} className="flex items-start gap-3 text-gray-800 dark:text-gray-200">
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-sm">{row.item}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{row.sub}</p>
@@ -367,7 +367,7 @@ export default function EadCardLostStolenPage() {
             },
           ].map((item, i) => (
             <div key={i} itemScope itemProp="mainEntity" itemType="https://schema.org/Question"
-              className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-5">
+              className="border border-border rounded-xl p-5 bg-card shadow-card">
               <p itemProp="name" className="font-bold text-gray-900 dark:text-white mb-2">{item.q}</p>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
                 <p itemProp="text" className="text-gray-600 dark:text-gray-300 text-sm">{item.a}</p>
@@ -386,14 +386,14 @@ export default function EadCardLostStolenPage() {
             { label: "USPS Mail Theft Report", href: "https://postalinspectors.uspis.gov/forms/MailTheftComplaint.aspx" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary transition-colors">
+              className="border flex items-center gap-2 p-3 border-border rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary-muted hover:shadow-elevated transition-[color,border-color,box-shadow] bg-card shadow-card">
               <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
               {s.label}
             </a>
           ))}
         </div>
 
-        <div className="not-prose mt-10 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl p-5">
+        <div className="border not-prose mt-10 border-border rounded-xl p-5 bg-card shadow-card">
           <div className="flex gap-3">
             <ShieldCheck className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -416,7 +416,7 @@ export default function EadCardLostStolenPage() {
               { href: "/blog/opt-employment-evidence-checklist", title: "OPT Employment Evidence Checklist", desc: "Every document to keep — including your EAD approval notice and card copies." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
-                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                <div className="surface-card-interactive p-5 h-full">
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-base">{r.title}</h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{r.desc}</p>
                   <span className="text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

@@ -114,7 +114,7 @@ export function DocumentFilters({
             placeholder="Search documents..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="min-h-11 w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
+            className="min-h-11 w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 shadow-card"
           />
         </div>
 
@@ -122,7 +122,7 @@ export function DocumentFilters({
           aria-label="Sort documents"
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value)}
-          className="min-h-11 px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white"
+          className="min-h-11 px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white shadow-card"
         >
           {sortOptions.map((option) => (
             <option key={option.value} value={option.value}>

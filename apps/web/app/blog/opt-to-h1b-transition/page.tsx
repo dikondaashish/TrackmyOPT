@@ -55,7 +55,7 @@ export default function OPTtoH1BArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The transition from OPT to H-1B requires your employer to file an H-1B petition with USCIS, including registration in the annual lottery. If selected and approved, your H-1B status begins October 1, with the cap-gap extension bridging any gap in work authorization.
@@ -63,7 +63,7 @@ export default function OPTtoH1BArticle() {
             </div>
 
             {/* Quick Answer */}
-            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                     <Calendar className="w-5 h-5" />
                     Key Timeline
@@ -111,13 +111,13 @@ export default function OPTtoH1BArticle() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         The cap-gap extension is an automatic extension of your F-1 status and OPT employment authorization that bridges the gap between your OPT end date and the H-1B start date (October 1).
                     </p>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Scenario</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Status Extended?</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Work Authorization?</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Scenario</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Status Extended?</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Work Authorization?</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -129,9 +129,9 @@ export default function OPTtoH1BArticle() {
                                     ["Not selected in lottery", "No cap-gap", "No cap-gap"],
                                 ].map(([scenario, status, work], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">{scenario}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{status}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{work}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">{scenario}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{status}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{work}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -154,7 +154,7 @@ export default function OPTtoH1BArticle() {
                             { title: "Alternative Visa Categories", desc: "Consider O-1 (extraordinary ability), L-1 (intracompany transfer), or EB-2/EB-3 green card sponsorship." },
                             { title: "Day 1 CPT (Measure of Last Resort)", desc: "Some schools offer Day 1 CPT as a bridge. Consult an immigration attorney — this has risks." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{i + 1}. {item.title}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
                             </div>
@@ -171,7 +171,7 @@ export default function OPTtoH1BArticle() {
                             { question: "What is the H-1B cap-gap extension?", answer: "The cap-gap automatically extends your F-1 status and OPT work authorization from your EAD expiration date until October 1 (the H-1B start date), as long as your employer filed a timely H-1B petition requesting change of status." },
                             { question: "How many times can I enter the H-1B lottery?", answer: "There is no limit to the number of times you can be registered for the H-1B lottery, as long as you maintain valid immigration status (e.g., OPT, STEM OPT, or another valid visa)." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -181,7 +181,7 @@ export default function OPTtoH1BArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
@@ -198,10 +198,10 @@ export default function OPTtoH1BArticle() {
             </div>
 
             {/* CTA */}
-            <div className="bg-amber-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Find H-1B Sponsors With Real Data</h2>
-                <p className="text-amber-100 mb-6 max-w-lg mx-auto">Search 25,000+ verified H-1B sponsors with approval rates, salary data, and fraud alerts.</p>
-                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-600 rounded-xl font-semibold hover:bg-amber-50 transition-colors">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">Search 25,000+ verified H-1B sponsors with approval rates, salary data, and fraud alerts.</p>
+                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Search Sponsors Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

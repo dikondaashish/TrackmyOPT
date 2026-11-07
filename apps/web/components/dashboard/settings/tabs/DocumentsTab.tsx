@@ -266,7 +266,7 @@ export function DocumentsTab({
                   <select
                     value={docSettings.autoLockTimeout}
                     onChange={(e) => handleAutoLockChange(parseInt(e.target.value))}
-                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-card"
                   >
                     <option value={5}>5 minutes</option>
                     <option value={15}>15 minutes</option>
@@ -288,7 +288,7 @@ export function DocumentsTab({
                   <select
                     value={docSettings.lockoutDuration}
                     onChange={(e) => handleLockoutDurationChange(parseInt(e.target.value))}
-                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-card"
                   >
                     <option value={1}>1 minute</option>
                     <option value={2}>2 minutes</option>

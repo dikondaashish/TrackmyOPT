@@ -31,9 +31,9 @@ export function H1BSponsorLimitBanner({
   const lockedCount = totalCount - FREE_H1B_SPONSOR_LIMIT;
 
   return (
-    <div className="rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex items-start gap-3">
-        <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+        <div className="p-2 rounded-lg bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300">
           <Lock className="w-5 h-5" />
         </div>
         <div>

@@ -311,8 +311,8 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Document Type - Editable */}
                   {isEditingType ? (
-                    <div className="bg-purple-50 dark:bg-purple-900 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-                      <label htmlFor="vault-document-type" className="text-xs text-purple-700 dark:text-purple-300 font-medium flex items-center gap-1.5">
+                    <div className="bg-violet-50 dark:bg-violet-900 rounded-lg p-4 border border-violet-200 dark:border-violet-800">
+                      <label htmlFor="vault-document-type" className="text-xs text-violet-700 dark:text-violet-300 font-medium flex items-center gap-1.5">
                         <FolderOpen className="w-3.5 h-3.5" /> Edit Document Type
                       </label>
                       <select
@@ -320,7 +320,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                         disabled={savingType || savingExpiry}
                         value={isCustomType ? 'custom' : documentType}
                         onChange={(e) => handleTypeSelectChange(e.target.value)}
-                        className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-purple-300 dark:border-purple-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 dark:text-white"
+                        className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-violet-300 dark:border-violet-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
                       >
                         {DEFAULT_DOC_TYPES.map((type) => (
                           <option key={type.value} value={type.value}>{type.label}</option>
@@ -336,14 +336,14 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                           value={customType}
                           onChange={(e) => setCustomType(e.target.value)}
                           placeholder="Enter custom type (e.g., Driving License)"
-                          className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-purple-300 dark:border-purple-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 dark:text-white"
+                          className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-violet-300 dark:border-violet-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
                         />
                       )}
                       <div className="flex gap-2 mt-2">
                         <button
                           onClick={handleSaveDocumentType}
                           disabled={savingType || savingExpiry}
-                          className="min-h-11 flex-1 px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:bg-purple-300"
+                          className="min-h-11 flex-1 px-3 py-1.5 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 disabled:bg-violet-300"
                         >
                           {savingType ? 'Saving...' : 'Save'}
                         </button>
@@ -387,7 +387,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                         type="date"
                         value={expiryDate}
                         onChange={(e) => setExpiryDate(e.target.value)}
-                        className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white"
+                        className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
                       />
                       <div className="flex gap-2 mt-2">
                         <button

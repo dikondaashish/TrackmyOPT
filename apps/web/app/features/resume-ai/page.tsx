@@ -46,16 +46,16 @@ function HowItWorks() {
                 >
                     {/* Connector line */}
                     {i < steps.length - 1 && (
-                        <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-purple-500 opacity-30" />
+                        <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-violet-200 dark:bg-violet-900" />
                     )}
 
                     {/* Step number */}
-                    <div className="relative z-10 w-20 h-20 mx-auto mb-4 rounded-lg bg-purple-500 flex items-center justify-center">
+                    <div className="relative z-10 w-20 h-20 mx-auto mb-4 rounded-xl bg-violet-600 shadow-button flex items-center justify-center">
                         <step.icon className="w-9 h-9 text-white" />
                     </div>
 
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{step.title}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{step.description}</p>
+                    <h4 className="text-lg font-semibold text-foreground mb-2">{step.title}</h4>
+                    <p className="text-sm text-muted-foreground">{step.description}</p>
                 </motion.div>
             ))}
         </div>
@@ -80,13 +80,13 @@ function FeatureCards() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 transition-all duration-300 group"
+                    className="surface-card p-6"
                 >
-                    <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <feature.icon className="w-6 h-6 text-white" />
+                    <div className="w-10 h-10 rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-950 dark:text-violet-300 flex items-center justify-center mb-4">
+                        <feature.icon className="w-5 h-5" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{feature.description}</p>
+                    <h4 className="font-semibold text-foreground mb-2">{feature.title}</h4>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
                 </motion.div>
             ))}
         </div>
@@ -96,7 +96,7 @@ function FeatureCards() {
 export default function ResumeAIPage() {
     return (
         <>
-            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+            <main className="min-h-screen bg-background">
             <FeatureServiceSchema
                 name="Resume AI Optimizer for H-1B Job Seekers"
                 description="AI-powered resume analysis that beats ATS systems and impresses recruiters. Get actionable feedback on ATS optimization, keyword improvements, and industry-specific recommendations in 60 seconds."
@@ -120,7 +120,7 @@ export default function ResumeAIPage() {
                     text: "See How It Works",
                     href: "#how-it-works"
                 }}
-                gradient="bg-purple-500"
+                gradient="bg-violet-600"
                 visual={<ResumeScanner />}
             />
 
@@ -144,7 +144,7 @@ export default function ResumeAIPage() {
             </section>
 
             {/* Interactive Before/After Demo */}
-            <section className="py-24 bg-white dark:bg-black/20">
+            <section className="py-24 border-y border-border bg-surface">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
                         <H2>See the Difference</H2>
@@ -155,7 +155,7 @@ export default function ResumeAIPage() {
             </section>
 
             {/* Features */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
+            <section className="py-24 bg-background relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -164,7 +164,7 @@ export default function ResumeAIPage() {
                             viewport={{ once: true }}
                         >
                             <H2 className="mb-6">More Than Just Keywords</H2>
-                            <div className="text-lg text-gray-600 dark:text-gray-300 mb-8 space-y-4">
+                            <div className="text-lg text-muted-foreground mb-8 space-y-4">
                                 <p>
                                     Our AI doesn't just count keywords—it understands context,
                                     analyzes structure, and provides human-quality feedback.
@@ -178,7 +178,7 @@ export default function ResumeAIPage() {
                                     "Formatting & structure analysis"
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                                        <CheckCircle2 className="w-5 h-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
                                         {item}
                                     </li>
                                 ))}

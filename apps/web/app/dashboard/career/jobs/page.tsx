@@ -120,7 +120,7 @@ export default async function VerifiedJobsPage({ searchParams }: { searchParams:
     <main className="mx-auto max-w-[1440px] space-y-4 px-3 py-4 sm:px-5 sm:py-5">
       <header className="max-w-4xl space-y-1.5">
         <div className="flex flex-wrap items-center gap-2.5">
-          <h1 className="text-2xl font-semibold text-gray-950 sm:text-3xl dark:text-white">Find verified jobs</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Find verified jobs</h1>
           <span className="text-sm text-gray-500 dark:text-gray-400">Employer boards</span>
         </div>
         <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">

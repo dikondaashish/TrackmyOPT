@@ -13,7 +13,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
   return (
     <>
       <LandingNavbar />
-      <main className="min-h-screen bg-white dark:bg-zinc-950 pt-4">
+      <main className="min-h-screen bg-surface px-4 pt-8 sm:px-6">
         {children}
       </main>
       <LandingFooter />

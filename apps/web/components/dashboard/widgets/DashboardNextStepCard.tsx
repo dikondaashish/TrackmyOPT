@@ -104,7 +104,7 @@ export function DashboardNextStepCard() {
       case "no_receipt":
         return {
           icon: ClipboardList,
-          iconClass: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950",
+          iconClass: "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950",
           title: "Add your USCIS receipt",
           description:
             "Track your case in one place — Free includes manual refresh with plain-English updates; Pro adds daily auto-checks.",
@@ -113,7 +113,7 @@ export function DashboardNextStepCard() {
       case "free_upsell":
         return {
           icon: Crown,
-          iconClass: "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950",
+          iconClass: "text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950",
           title: "Don't wait to refresh — get daily Pro auto-checks",
           description:
             "Your receipt is saved. Free includes manual refresh. Pro checks USCIS every morning and emails you when anything changes.",
@@ -122,7 +122,7 @@ export function DashboardNextStepCard() {
       case "status_live":
         return {
           icon: BadgeCheck,
-          iconClass: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950",
+          iconClass: "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950",
           title: "Your case is up to date",
           description: `Last checked ${step.lastCheckedLabel}. Status: ${step.plainEnglishStatus}.`,
           cta: "View case status",
@@ -130,7 +130,7 @@ export function DashboardNextStepCard() {
       case "pro_active":
         return {
           icon: CheckCircle2,
-          iconClass: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950",
+          iconClass: "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950",
           title: "Auto-checks on",
           description: step.lastCheckedLabel
             ? `We check USCIS daily and email you when your status changes. Last checked ${step.lastCheckedLabel}.`
@@ -143,11 +143,11 @@ export function DashboardNextStepCard() {
   const Icon = content.icon;
 
   return (
-    <Card className="p-4 sm:p-5 border-border bg-card">
+    <Card className="p-4 sm:p-5 border-border bg-card border-l-[3px] border-l-primary">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div
-            className={`p-2.5 rounded-lg shrink-0 ${content.iconClass}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg shrink-0 ${content.iconClass}`}
           >
             <Icon className="w-5 h-5" />
           </div>
@@ -172,7 +172,7 @@ export function DashboardNextStepCard() {
           variant={step.state === "free_upsell" ? "default" : "outline"}
           className={
             step.state === "free_upsell"
-              ? "bg-purple-600 hover:bg-purple-700 text-white shrink-0 w-full sm:w-auto"
+              ? "bg-violet-600 hover:bg-violet-700 text-white shrink-0 w-full sm:w-auto"
               : "shrink-0 w-full sm:w-auto"
           }
           onClick={handleClick}

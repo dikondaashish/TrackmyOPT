@@ -103,7 +103,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 {/* ... existing Salary, Processing, Roles cards ... */}
                 {/* Refactored slightly to fit new layout structure if needed, but keeping simple for now */}
                 {/* Salary Insights */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col shadow-card">
                     <div className="flex items-center gap-2 mb-6">
                         <div className="p-2 bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 rounded-lg">
                             <DollarSign className="w-5 h-5" />
@@ -151,7 +151,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 </div>
 
                 {/* Processing Speed */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col shadow-card">
                     <div className="flex items-center gap-2 mb-6">
                         <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400 rounded-lg">
                             <Clock className="w-5 h-5" />
@@ -217,9 +217,9 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 </div>
 
                 {/* Job Roles */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-card">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="p-2 bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400 rounded-lg">
+                        <div className="p-2 bg-violet-100 text-violet-600 dark:bg-violet-950 dark:text-violet-400 rounded-lg">
                             <Briefcase className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Top Roles</h3>
@@ -234,7 +234,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                                     </p>
                                     <div className="w-full bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
                                         <div
-                                            className="h-full bg-purple-500 rounded-full group-hover:bg-purple-400 transition-colors"
+                                            className="h-full bg-violet-500 rounded-full group-hover:bg-violet-400 transition-colors"
                                             style={{ width: `${(count / stats.topRoles[0][1]) * 100}%` }}
                                         />
                                     </div>
@@ -251,7 +251,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
             {/* Bottom Row: Advanced Insights (Legal & Geo) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Geographic Presence */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-card">
                     <div className="flex items-center gap-2 mb-6">
                         <div className="p-2 bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400 rounded-lg">
                             <PieChart className="w-5 h-5" />
@@ -270,7 +270,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 </div>
 
                 {/* Legal Partners */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-card">
                     <div className="flex items-center gap-2 mb-6">
                         <div className="p-2 bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400 rounded-lg">
                             <Scale className="w-5 h-5" />

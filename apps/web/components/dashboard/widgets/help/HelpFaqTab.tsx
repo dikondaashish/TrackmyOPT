@@ -188,7 +188,7 @@ export function HelpFaqTab() {
           {/* TrackMyOPT FAQs */}
           <div>
             <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-purple-600" />
+              <HelpCircle className="w-5 h-5 text-violet-600" />
               About TrackMyOPT
             </h3>
             <div className="border border-border rounded-lg divide-y divide-border">
@@ -237,7 +237,7 @@ export function HelpFaqTab() {
                 href="https://uscis.gov"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium shadow-card"
               >
                 <ExternalLink className="w-4 h-4" />
                 USCIS Official Site

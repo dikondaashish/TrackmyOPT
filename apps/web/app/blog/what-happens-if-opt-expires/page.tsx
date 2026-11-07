@@ -56,14 +56,14 @@ export default function OPTExpiresArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     When your OPT expires, you enter a 60-day grace period during which you cannot work but can prepare to leave the US, change status, or transfer to a new school. If you have a pending H-1B petition, the cap-gap provision may extend your work authorization.
                 </p>
             </div>
 
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-red-900 dark:text-red-100 mb-3 flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5" />
                     Critical: The 60-Day Grace Period
@@ -90,7 +90,7 @@ export default function OPTExpiresArticle() {
                             { title: "Transfer to a New School", desc: "You can transfer to a new academic program and start a new I-20. This resets your student status but does not provide work authorization immediately.", eligible: "Must be admitted to new program", link: null, linkText: null },
                             { title: "Depart the United States", desc: "You must leave before the 60-day grace period ends. Overstaying can result in unlawful presence and affect future visa applications.", eligible: "All students", link: null, linkText: null },
                         ].map((option, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">Option {i + 1}: {option.title}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{option.desc}</p>
                                 <div className="flex items-center justify-between">
@@ -110,13 +110,13 @@ export default function OPTExpiresArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Critical Timeline After OPT Expires
                     </h2>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Period</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Can You Work?</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">What You Can Do</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Period</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Can You Work?</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">What You Can Do</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -127,9 +127,9 @@ export default function OPTExpiresArticle() {
                                     ["During STEM OPT (if filed on time)", "✅ Yes", "Work continues under automatic 180-day extension while USCIS processes"],
                                 ].map(([period, work, action], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{period}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{work}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{action}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{period}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{work}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{action}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -145,7 +145,7 @@ export default function OPTExpiresArticle() {
                             { question: "Can I stay in the US after OPT expires?", answer: "Yes, for up to 60 days (the grace period). However, you cannot work during this time. If you stay beyond 60 days without changing status, you begin accruing unlawful presence." },
                             { question: "Can I extend my OPT?", answer: "Regular OPT cannot be extended. However, STEM degree holders can apply for a 24-month STEM OPT extension before their current OPT expires. You must have an E-Verify employer and file Form I-765." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -155,7 +155,7 @@ export default function OPTExpiresArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day OPT Unemployment Rule</Link>
@@ -169,10 +169,10 @@ export default function OPTExpiresArticle() {
                 </div>
             </div>
 
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Don't Let Your OPT Deadlines Sneak Up</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT sends automated alerts 90, 60, and 30 days before your OPT expires.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT sends automated alerts 90, 60, and 30 days before your OPT expires.</p>
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Set Up Alerts Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

@@ -71,9 +71,9 @@ function ToolCard({
 
   return (
     <div
-      className={`group bg-card border border-border rounded-xl p-6 transition-all duration-200 ${
+      className={`group bg-card border border-border rounded-xl p-6 shadow-card transition-[box-shadow,border-color] duration-200 ${
         available 
-          ? "hover:border-primary cursor-pointer" 
+          ? "hover:border-primary-muted hover:shadow-elevated cursor-pointer" 
           : "opacity-50 cursor-not-allowed"
       }`}
       role="button"

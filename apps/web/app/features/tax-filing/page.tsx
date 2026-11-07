@@ -32,8 +32,8 @@ function TaxChecklistVisual() {
     ];
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="surface-card p-8">
+            <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-violet-600" />
                 Your Tax Checklist
             </h3>
@@ -48,12 +48,12 @@ function TaxChecklistVisual() {
                         className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800"
                     >
                         {item.done ? (
-                            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                         ) : (
                             <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-zinc-600 flex-shrink-0" />
                         )}
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{item.form}</p>
+                            <p className="text-sm font-semibold text-foreground">{item.form}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{item.desc}</p>
                         </div>
                         {item.required && (
@@ -81,27 +81,27 @@ const taxForms = [
         form: "Form 8843",
         subtitle: "Required for ALL F-1 students",
         description: "Must file even with zero income. Declares your exempt individual status. Failure to file can affect your tax residency status for future filings.",
-        icon: <FileText className="w-6 h-6" />,
+        icon: <FileText className="w-5 h-5" />,
         color: "violet",
     },
     {
         form: "Form 1040-NR",
         subtitle: "If you earned U.S. income",
         description: "The nonresident alien tax return. Report wages, scholarships, and other U.S.-source income. Use this instead of the standard 1040.",
-        icon: <Receipt className="w-6 h-6" />,
+        icon: <Receipt className="w-5 h-5" />,
         color: "purple",
     },
     {
         form: "W-2",
         subtitle: "From your employer",
         description: "Your employer sends this by January 31. Shows your wages and taxes withheld. You need one W-2 from each employer you worked for.",
-        icon: <BadgeDollarSign className="w-6 h-6" />,
+        icon: <BadgeDollarSign className="w-5 h-5" />,
         color: "indigo",
     },
 ];
 
 const ficaTimeline = [
-    { year: "Year 1-5", status: "Exempt", description: "No Social Security or Medicare tax", icon: <Shield className="w-5 h-5 text-green-500" /> },
+    { year: "Year 1-5", status: "Exempt", description: "No Social Security or Medicare tax", icon: <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> },
     { year: "Year 6+", status: "Not Exempt", description: "Standard FICA taxes apply", icon: <CircleDollarSign className="w-5 h-5 text-amber-500" /> },
 ];
 
@@ -135,7 +135,7 @@ const faqItems = [
 export default function TaxFilingPage() {
     return (
         <>
-            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+            <main className="min-h-screen bg-background">
             <FeatureServiceSchema
                 name="F-1 Student Tax Filing Guide & Checklist"
                 description="Step-by-step guide for F-1 student tax filing including Form 8843, 1040-NR, W-2s, and FICA exemptions. Understand your tax obligations, filing deadlines, and how to stay compliant."
@@ -163,7 +163,7 @@ export default function TaxFilingPage() {
             />
 
             {/* Tax Filing Checklist */}
-            <section className="py-24 relative overflow-hidden bg-white dark:bg-zinc-950">
+            <section className="py-24 relative overflow-hidden bg-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <H2>Know Exactly Which Forms You Need</H2>
@@ -178,13 +178,13 @@ export default function TaxFilingPage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.15 }}
-                                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8"
+                                className="surface-card p-8"
                             >
-                                <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400 flex items-center justify-center mb-4">
+                                <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center mb-4">
                                     {item.icon}
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{item.form}</h3>
-                                <p className="text-sm text-violet-600 dark:text-violet-400 font-medium mb-3">{item.subtitle}</p>
+                                <h3 className="text-xl font-bold text-foreground mb-1">{item.form}</h3>
+                                <p className="text-sm text-amber-700 dark:text-amber-300 font-medium mb-3">{item.subtitle}</p>
                                 <P>{item.description}</P>
                             </motion.div>
                         ))}
@@ -193,7 +193,7 @@ export default function TaxFilingPage() {
             </section>
 
             {/* FICA Tax Exemption */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
+            <section className="py-24 border-y border-border bg-surface relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -216,14 +216,14 @@ export default function TaxFilingPage() {
                                     "Exemption resets if you change visa status",
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                                         {item}
                                     </li>
                                 ))}
                             </ul>
                             <Link
                                 href="/dashboard/tax-filing"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                                className="inline-flex h-11 items-center gap-2 px-6 bg-primary text-primary-foreground font-semibold rounded-lg shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                                 Check Your FICA Status
                                 <ArrowRight className="w-4 h-4" />
@@ -235,9 +235,9 @@ export default function TaxFilingPage() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                                    <CalendarCheck className="w-5 h-5 text-purple-600" />
+                            <div className="surface-card p-8">
+                                <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+                                    <CalendarCheck className="w-5 h-5 text-violet-600" />
                                     FICA Exemption Timeline
                                 </h3>
                                 <div className="space-y-4">
@@ -246,21 +246,21 @@ export default function TaxFilingPage() {
                                             <div className="mt-0.5">{item.icon}</div>
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-bold text-gray-900 dark:text-white">{item.year}</span>
+                                                    <span className="font-bold text-foreground">{item.year}</span>
                                                     <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${
                                                         item.status === "Exempt"
                                                             ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
                                                             : "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
                                                     }`}>{item.status}</span>
                                                 </div>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                                                <p className="text-sm text-muted-foreground">{item.description}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 rounded-xl">
                                     <div className="flex gap-3">
-                                        <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                                        <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                                         <div>
                                             <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Employer Withheld FICA?</p>
                                             <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">You can request a refund. First ask your employer, then file Form 843 with the IRS.</p>

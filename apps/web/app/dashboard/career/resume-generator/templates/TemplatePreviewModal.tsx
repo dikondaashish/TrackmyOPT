@@ -207,7 +207,7 @@ function TemplatePreviewBody({
                                                 aria-label={color.name}
                                                 aria-pressed={currentColor?.hex === color.hex}
                                                 onClick={() => setSelectedColor(color)}
-                                                className={`w-7 h-7 rounded-full ${color.class} transition-transform hover:scale-110 ${
+                                                className={`w-7 h-7 rounded-full ${color.class} transition-transform ${
                                                     currentColor?.hex === color.hex
                                                         ? `ring-2 ring-offset-2 dark:ring-offset-gray-900 ${color.ring}`
                                                         : ""

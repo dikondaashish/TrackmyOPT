@@ -54,7 +54,7 @@ const TOOL_INFO: Record<
     label: "STEM Clock Tracker",
     icon: "stem_clock",
     alertExample: "STEM unemployment days approaching limit",
-    color: "bg-purple-500",
+    color: "bg-violet-500",
   },
 };
 
@@ -75,7 +75,7 @@ interface OptEmailRemindersPanelProps {
 
 function ReminderPreviewMock() {
   return (
-    <div className="rounded-xl border border-purple-200 bg-white p-4 dark:border-purple-800 dark:bg-gray-950">
+    <div className="rounded-xl border border-violet-200 bg-white p-4 dark:border-violet-800 dark:bg-gray-950 shadow-card">
       <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <Mail className="h-3.5 w-3.5" />
         <span>Sample reminder · Today, 9:00 AM ET</span>
@@ -86,7 +86,7 @@ function ReminderPreviewMock() {
       <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
         {REMINDER_MESSAGING.sampleEmailBody}
       </p>
-      <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-purple-600 dark:text-purple-400">
+      <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-violet-600 dark:text-violet-400">
         Open dashboard
         <ArrowRight className="h-3 w-3" />
       </div>
@@ -98,11 +98,11 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
   const proCta = PLAN_SALES_META.pro.ctaDefault;
 
   return (
-    <Card className="overflow-hidden border-purple-200 dark:border-purple-800">
-      <div className="bg-purple-600 px-5 py-6 text-white sm:px-6 sm:py-7">
+    <Card className="overflow-hidden border-violet-200 dark:border-violet-800">
+      <div className="bg-violet-600 px-5 py-6 text-white sm:px-6 sm:py-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-xl space-y-2">
-            <p className="text-sm font-medium text-purple-100">
+            <p className="text-sm font-medium text-violet-100">
               Pro · Morning reminders
             </p>
             <h3 className="text-xl font-bold sm:text-2xl">
@@ -115,7 +115,7 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
         </div>
       </div>
 
-      <div className="space-y-5 bg-purple-50 p-5 dark:bg-purple-950 sm:p-6">
+      <div className="space-y-5 bg-violet-50 p-5 dark:bg-violet-950 sm:p-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
             const info = TOOL_INFO[tool];
@@ -123,7 +123,7 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
             return (
               <div
                 key={tool}
-                className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+                className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 shadow-card"
               >
                 <div className="flex gap-3">
                   <div
@@ -136,7 +136,7 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {info.label}
                       </p>
-                      <Lock className="h-3.5 w-3.5 shrink-0 text-purple-500" />
+                      <Lock className="h-3.5 w-3.5 shrink-0 text-violet-500" />
                     </div>
                     <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                       Example: {info.alertExample}
@@ -150,14 +150,14 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
 
         <ReminderPreviewMock />
 
-        <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-purple-900 dark:text-purple-200">
+        <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-violet-900 dark:text-violet-200">
           {[
             "Separate email per tool",
             "Browser + inbox alerts",
             "Customize each tracker",
           ].map((label) => (
             <li key={label} className="inline-flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+              <Check className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
               {label}
             </li>
           ))}
@@ -167,7 +167,7 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
           <Button
             asChild
             size="lg"
-            className="w-full bg-purple-600 text-white hover:bg-purple-700 sm:w-auto"
+            className="w-full bg-violet-600 text-white hover:bg-violet-700 sm:w-auto"
           >
             <Link href={PRO_CHECKOUT}>
               {proCta}
@@ -179,7 +179,7 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
             variant="ghost"
             size="lg"
             onClick={onComparePlans}
-            className="w-full text-purple-700 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-300 dark:hover:bg-purple-900 sm:w-auto"
+            className="w-full text-violet-700 hover:bg-violet-50 hover:text-violet-800 dark:text-violet-300 dark:hover:bg-violet-900 sm:w-auto"
           >
             {PRODUCT_CTAS.comparePlans}
           </Button>
@@ -330,8 +330,8 @@ export function OptEmailRemindersPanel({
   }
 
   return (
-    <Card className="overflow-hidden border-purple-200 dark:border-purple-800">
-      <div className="border-b border-purple-100 bg-purple-50 px-5 py-5 dark:border-purple-950 dark:bg-purple-950 sm:px-6">
+    <Card className="overflow-hidden border-violet-200 dark:border-violet-800">
+      <div className="border-b border-violet-100 bg-violet-50 px-5 py-5 dark:border-violet-950 dark:bg-violet-950 sm:px-6">
         <div>
           <div>
             <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">

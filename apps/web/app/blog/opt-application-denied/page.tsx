@@ -77,14 +77,14 @@ export default function OPTDeniedArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: July 27, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     If your OPT application is denied, you typically have options including filing a motion to reopen or reconsider, reapplying if still within your eligibility window, or consulting an immigration attorney. Common denial reasons include missing documents, filing outside the window, or SEVIS record issues.
                 </p>
             </div>
 
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-red-900 dark:text-red-100 mb-3">Key Takeaway</h2>
                 <p className="text-red-800 dark:text-red-200 font-medium">
                     A Form I-765 denial generally has <strong>no administrative appeal</strong>, but the denial notice may permit a <strong>motion to reopen or reconsider on Form I-290B</strong>. A new I-765 may also be possible if you are still eligible and within the filing window. Read the notice, contact your DSO, and get case-specific legal advice promptly.
@@ -92,7 +92,7 @@ export default function OPTDeniedArticle() {
                 <p className="text-red-700 dark:text-red-300 text-sm mt-2">Sources: <a href="https://www.uscis.gov/policy-manual/volume-2-part-f-chapter-5" target="_blank" rel="noopener noreferrer" className="underline">USCIS Policy Manual: Practical Training</a> and <a href="https://www.uscis.gov/i-290b" target="_blank" rel="noopener noreferrer" className="underline">USCIS Form I-290B</a></p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="grid md:grid-cols-2 gap-2">
                     {[["#reasons", "Common Reasons for OPT Denial"], ["#after-denial", "What Happens After Denial"], ["#options", "Your Options After OPT Denial"], ["#refile", "Can You Refile?"], ["#prevent", "How to Prevent Denial"], ["#denial-vs-rfe", "Denial vs. RFE"], ["#attorney", "When to Consult an Attorney"], ["#grace-period", "60-Day Grace Period"], ["#impact-future", "Impact on Future Applications"]].map(([href, text]) => (
@@ -118,7 +118,7 @@ export default function OPTDeniedArticle() {
                             { reason: "Prior immigration violations", detail: "Unauthorized employment, failure to maintain full-time enrollment, or overstaying a previous visa can all result in OPT denial. USCIS checks your immigration history during adjudication." },
                             { reason: "Program completion issues", detail: "If your academic program has already ended and you're beyond the 60-day post-completion filing window, or if you failed to complete your program, OPT will be denied." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                                 <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
                                 <div><h3 className="font-semibold text-gray-900 dark:text-white">{item.reason}</h3><p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p></div>
                             </div>
@@ -165,7 +165,7 @@ export default function OPTDeniedArticle() {
                             { option: "Change to another visa status", desc: "You may file Form I-539 to change to B-2 (tourist) status for a temporary stay, or to another eligible status. B-2 does not permit work. A change of status must be filed before your grace period expires, and you must not have violated your F-1 status.", eligible: "Valid reasons + no violations" },
                             { option: "Depart the United States", desc: "If no other option works, you must leave the U.S. before your 60-day grace period expires. Overstaying can result in bars on future visa applications. Departing on time preserves your ability to apply for future visas.", eligible: "Grace period has not expired" },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{item.option}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p>
                                 <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">Eligible if: {item.eligible}</p>
@@ -187,13 +187,13 @@ export default function OPTDeniedArticle() {
                             { req: "A new filing fee is required", detail: "USCIS does not refund the $410 fee from the denied application. You must pay the full fee again with your new I-765 submission." },
                             { req: "Correct the error that caused denial", detail: "Review the denial notice carefully. If the reason was an incorrect category, fix it. If documents were missing, include them. If photos were wrong, retake them. Do not simply resubmit the same application." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
-                                <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                 <div><h3 className="font-semibold text-gray-900 dark:text-white">{item.req}</h3><p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p></div>
                             </div>
                         ))}
                     </div>
-                    <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 flex items-start gap-3">
+                    <div className="p-4 rounded-xl border flex items-start gap-3 border-primary-muted bg-primary-soft">
                         <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                         <p className="text-sm text-blue-800 dark:text-blue-200"><strong>Before refiling:</strong> Ask your DSO to confirm that you remain eligible, verify the SEVIS recommendation date, and follow the current Form I-765 instructions and fee schedule. For a filing checklist, see our <Link href="/blog/opt-application-checklist-2026" className="underline font-medium">OPT Application Checklist 2026</Link>.</p>
                     </div>
@@ -217,7 +217,7 @@ export default function OPTDeniedArticle() {
                             "Do NOT submit duplicate applications (online + mail)",
                             "Work closely with your DSO — they review applications before submission and catch common errors",
                         ].map((item, i) => (
-                            <label key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                            <label key={i} className="border flex items-start gap-3 p-3 rounded-xl border-border cursor-pointer hover:bg-muted transition-colors bg-card shadow-card">
                                 <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                 <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
                             </label>
@@ -230,12 +230,12 @@ export default function OPTDeniedArticle() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Not every problem with your OPT application results in a denial. Sometimes USCIS issues a Request for Evidence (RFE) instead. Understanding the difference is important.
                     </p>
-                    <div className="overflow-x-auto mb-4">
+                    <div className="overflow-x-auto mb-4 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Factor</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">RFE (Request for Evidence)</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Denial</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Factor</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">RFE (Request for Evidence)</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Denial</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -247,9 +247,9 @@ export default function OPTDeniedArticle() {
                                     ["Best response", "Submit requested evidence promptly", "Refile new application if within window"],
                                 ].map(([factor, rfe, denial], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{factor}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{rfe}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{denial}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{factor}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{rfe}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{denial}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -273,7 +273,7 @@ export default function OPTDeniedArticle() {
                             { scenario: "You're unsure about your status", detail: "If you're not sure whether you're in valid F-1 status, whether your grace period has started, or whether you've overstayed — don't guess. Incorrect assumptions about your status can compound the problem." },
                             { scenario: "Change of status or departure planning", detail: "If you're considering changing to B-2 or another status, or if you need to plan a departure that preserves your future visa eligibility, legal guidance ensures you don't make costly mistakes." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                                 <Scale className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
                                 <div><h3 className="font-semibold text-gray-900 dark:text-white">{item.scenario}</h3><p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p></div>
                             </div>
@@ -286,12 +286,12 @@ export default function OPTDeniedArticle() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         For post-completion OPT, USCIS says F-1 status generally expires 60 days after the program end date or the denial date, whichever is later. This does not apply when the denial is based on failure to maintain F-1 status; in that situation, USCIS says the student must depart immediately. STEM OPT denials also depend on whether the underlying EAD remains valid.
                     </p>
-                    <div className="overflow-x-auto mb-4">
+                    <div className="overflow-x-auto mb-4 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">During Grace Period</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Allowed?</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Details</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">During Grace Period</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Allowed?</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Details</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -303,13 +303,13 @@ export default function OPTDeniedArticle() {
                                     ["Remain past your authorized period", "No", "This can create unlawful-presence and future-admissibility issues"],
                                 ].map(([action, allowed, details], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{action}</td>
-                                        <td className="p-3 border dark:border-zinc-700">
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{action}</td>
+                                        <td className="p-3 border border-border">
                                             <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${allowed === "Yes" ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300" : allowed === "No" ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300" : "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"}`}>
                                                 {allowed}
                                             </span>
                                         </td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{details}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{details}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -334,7 +334,7 @@ export default function OPTDeniedArticle() {
                             { factor: "Timely action", impact: "Positive", detail: "Following the denial notice, maintaining records, and taking any transfer, change-of-status, motion, refiling, or departure step within the applicable deadline helps avoid compounding the original issue." },
                             { factor: "Successful refile", impact: "Neutral", detail: "A later approval does not erase the earlier decision, but a correctable filing error generally presents different concerns from a denial based on a status violation or misrepresentation." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                                 <Shield className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export default function OPTDeniedArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {DENIAL_FAQS.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -363,7 +363,7 @@ export default function OPTDeniedArticle() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>

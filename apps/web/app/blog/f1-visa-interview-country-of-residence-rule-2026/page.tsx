@@ -133,7 +133,7 @@ export default function F1VisaInterviewCountryRulePage() {
       </header>
 
       <figure className="mb-12">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden border border-border shadow-card">
           <Image
             src="/blog/f1-visa-interview-country-of-residence-rule-2026.png"
             alt="Passport and visa appointment papers on a world map showing a return route to the applicant’s home country"
@@ -149,7 +149,7 @@ export default function F1VisaInterviewCountryRulePage() {
         </figcaption>
       </figure>
 
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+      <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
         <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2">
           Direct Answer
         </p>
@@ -164,7 +164,7 @@ export default function F1VisaInterviewCountryRulePage() {
       </div>
 
       <nav
-        className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12"
+        className="border border-border rounded-xl p-6 mb-12 bg-surface"
         aria-label="Table of contents"
       >
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
@@ -233,7 +233,7 @@ export default function F1VisaInterviewCountryRulePage() {
             lawfully reside somewhere else.
           </p>
 
-          <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
+          <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-6 rounded-r-xl my-8">
             <div className="flex gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
@@ -275,17 +275,17 @@ export default function F1VisaInterviewCountryRulePage() {
 
         <section id="comparison" className="scroll-mt-24">
           <h2>Home-Country Interview vs. Third-Country Interview</h2>
-          <div className="not-prose overflow-x-auto my-6">
+          <div className="not-prose overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-100 dark:bg-zinc-800">
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                <tr className="bg-surface-strong">
+                  <th className="text-left p-4 border border-border">
                     Issue
                   </th>
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                  <th className="text-left p-4 border border-border">
                     Nationality or residence country
                   </th>
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                  <th className="text-left p-4 border border-border">
                     Third country
                   </th>
                 </tr>
@@ -322,13 +322,13 @@ export default function F1VisaInterviewCountryRulePage() {
                     key={issue}
                     className="odd:bg-white even:bg-gray-50 dark:odd:bg-zinc-950 dark:even:bg-zinc-900"
                   >
-                    <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
+                    <td className="p-4 border border-border font-semibold">
                       {issue}
                     </td>
-                    <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                    <td className="p-4 border border-border">
                       {preferred}
                     </td>
-                    <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                    <td className="p-4 border border-border">
                       {third}
                     </td>
                   </tr>
@@ -456,9 +456,9 @@ export default function F1VisaInterviewCountryRulePage() {
             ].map(([title, description]) => (
               <div
                 key={title}
-                className="flex gap-3 p-5 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl"
+                className="border flex gap-3 p-5 border-border rounded-xl bg-card shadow-card"
               >
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-bold text-gray-900 dark:text-white mb-1">
                     {title}
@@ -489,7 +489,7 @@ export default function F1VisaInterviewCountryRulePage() {
             {faqItems.map((faq) => (
               <div
                 key={faq.question}
-                className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800"
+                className="border p-5 rounded-xl border-border bg-card shadow-card"
               >
                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">
                   {faq.question}
@@ -515,21 +515,21 @@ export default function F1VisaInterviewCountryRulePage() {
           </p>
         </section>
 
-        <section className="not-prose bg-blue-600 rounded-xl p-8 text-white my-12">
+        <section className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
           <div className="flex items-start gap-4">
-            <Globe2 className="w-9 h-9 text-blue-100 flex-shrink-0" />
+            <Globe2 className="w-9 h-9 text-ink-muted flex-shrink-0" />
             <div>
               <h2 className="text-2xl font-bold text-white mb-3 mt-0">
                 Travel With an Organized OPT Record
               </h2>
-              <p className="text-blue-100 mb-6 text-lg">
+              <p className="text-ink-muted mb-6 text-lg">
                 TrackMyOPT helps students monitor employment, unemployment days,
                 reporting milestones, and immigration documents before travel
                 creates a deadline emergency.
               </p>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
               >
                 Create Your Free Account <ArrowRight className="w-5 h-5" />
               </Link>

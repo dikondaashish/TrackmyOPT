@@ -86,7 +86,7 @@ export default function H1BCapClosedPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/h1b-fy2027-cap-closed-no-second-lottery.png" alt="Passport with H-1B stamp and CLOSED stamp" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
                 <div className="absolute inset-x-0 bottom-0 bg-black/60">
                     <p className="text-white text-sm p-4">The FY 2027 H-1B Cap is officially closed.</p>
@@ -101,7 +101,7 @@ export default function H1BCapClosedPage() {
                     USCIS confirmed that they have received a sufficient number of petitions needed to reach the congressionally mandated 65,000 H-1B regular cap and the 20,000 U.S. advanced degree exemption (master’s cap) for fiscal year 2027.
                 </p>
                 
-                <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 my-8 rounded-r-xl">
+                <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-6 my-8 rounded-r-xl">
                     <h3 className="text-amber-800 dark:text-amber-300 m-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5" />
                         What Does This Mean?
@@ -117,28 +117,28 @@ export default function H1BCapClosedPage() {
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-6 my-8 not-prose">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <Briefcase className="w-8 h-8 text-blue-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2">1. STEM OPT Extension</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
                             If you are currently on your first year of 12-month post-completion OPT and you have a STEM degree, apply for the 24-month STEM OPT extension immediately. This gives you two more chances at the H-1B lottery in FY 2028 and FY 2029.
                         </p>
                     </div>
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <FileText className="w-8 h-8 text-blue-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2">2. Cap-Exempt H-1B</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
                             Universities, non-profit research organizations, and government research entities are exempt from the 85,000 cap. If you secure a job with one of these employers, they can file an H-1B for you at any time of the year.
                         </p>
                     </div>
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <CheckCircle2 className="w-8 h-8 text-blue-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2">3. O-1 Visa (Extraordinary Ability)</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
                             If you have authored papers, received awards, or commanded a high salary in your field, you may qualify for the O-1 visa. It has no cap and can be applied for at any time.
                         </p>
                     </div>
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm">
+                    <div className="border border-border p-6 rounded-xl bg-card shadow-card">
                         <ShieldCheck className="w-8 h-8 text-blue-600 mb-4" />
                         <h3 className="font-bold text-lg mb-2">4. L-1 Visa (Intracompany Transfer)</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -157,12 +157,12 @@ export default function H1BCapClosedPage() {
                     With the H-1B door closed for this year, managing your remaining OPT days is more critical than ever. Under the new <Link href="/blog/september-2026-f1-fixed-admission-rule-opt">2026 fixed-admission rules</Link>, the grace period and filing steps can depend on whether you remain in the D/S transition or receive a date-specific I-94.
                 </p>
 
-                <div className="bg-blue-600 rounded-xl p-8 text-white my-12">
+                <div className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
                     <h3 className="text-2xl font-bold text-white mb-4 mt-0">Don't Lose Track of Your OPT Dates</h3>
-                    <p className="text-blue-100 mb-6 text-lg">
+                    <p className="text-ink-muted mb-6 text-lg">
                         Use TrackMyOPT to monitor your exact OPT expiration, unemployment days, and visa grace periods so you never fall out of status unexpectedly.
                     </p>
-                    <Link href="/login" className="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors">
+                    <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                         Start Tracking for Free <ArrowRight className="w-5 h-5" />
                     </Link>
                 </div>
@@ -171,7 +171,7 @@ export default function H1BCapClosedPage() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>

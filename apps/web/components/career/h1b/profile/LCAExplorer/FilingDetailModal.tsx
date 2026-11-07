@@ -214,7 +214,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-6"
+            className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 animate-in fade-in duration-200 sm:items-center sm:p-6"
             onClick={onClose}
         >
             <div
@@ -254,7 +254,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gray-50 p-4 dark:bg-black/20 sm:p-6">
                     <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 sm:gap-5">
                         {visibleSections.map((section) => (
-                            <section key={section.title} className="rounded-xl border border-gray-100 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:p-5">
+                            <section key={section.title} className="rounded-xl border border-gray-100 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:p-5 shadow-card">
                                 <div className="mb-3 flex items-center gap-2 border-b border-gray-100 pb-3 dark:border-gray-700">
                                     <section.icon className="h-4 w-4 shrink-0 text-blue-500" />
                                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{section.title}</h3>

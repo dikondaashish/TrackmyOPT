@@ -78,7 +78,7 @@ export default function STEMOPTGuideArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The STEM OPT extension gives F-1 graduates with STEM degrees an additional 24 months of work authorization beyond the initial 12-month OPT period. Your employer must be E-Verify enrolled and you must complete a Form I-983 Training Plan.
@@ -98,7 +98,7 @@ export default function STEMOPTGuideArticle() {
                 <p className="text-purple-700 dark:text-purple-300 text-sm mt-2">Source: <a href="https://www.ice.gov/sevis/stemopt" target="_blank" rel="noopener noreferrer" className="underline">ICE.gov STEM OPT Hub</a></p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="grid md:grid-cols-2 gap-2">
                     {[["#eligibility", "Who Is Eligible for STEM OPT?"], ["#cip-codes", "STEM OPT CIP Code List"], ["#timeline", "Application Timeline"], ["#i983", "I-983 Training Plan"], ["#employer", "Employer Requirements"], ["#unemployment", "Unemployment & Reporting Rules"], ["#after-stem", "What Comes After STEM OPT?"]].map(([href, text]) => (
@@ -120,7 +120,7 @@ export default function STEMOPTGuideArticle() {
                             { req: "I-983 Training Plan completed", detail: "You and your employer must complete Form I-983 describing how the position provides practical training." },
                             { req: "F-1 status maintained", detail: "You must be in valid F-1 status with no violations (unemployment days within limits, proper reporting, etc.)." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{item.req}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p>
                             </div>
@@ -131,12 +131,12 @@ export default function STEMOPTGuideArticle() {
                 <section id="cip-codes" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">STEM OPT CIP Codes: Which Degrees Qualify?</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">DHS maintains a list of STEM-designated CIP codes. Popular qualifying fields include:</p>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Category</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Example Degrees</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">CIP Code Range</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Category</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Example Degrees</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">CIP Code Range</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -147,7 +147,7 @@ export default function STEMOPTGuideArticle() {
                                     ["Physical Sciences", "Physics, Chemistry, Environmental Science", "40.xxxx"],
                                     ["Business Analytics", "Business Analytics, Quantitative Finance (STEM MBA programs)", "52.1301+"],
                                 ].map(([cat, degrees, cip], i) => (
-                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{cat}</td><td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{degrees}</td><td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-mono text-xs">{cip}</td></tr>
+                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{cat}</td><td className="p-3 border border-border text-gray-600 dark:text-gray-400">{degrees}</td><td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-mono text-xs">{cip}</td></tr>
                                 ))}
                             </tbody>
                         </table>
@@ -192,9 +192,9 @@ export default function STEMOPTGuideArticle() {
                             { title: "Employer fills", items: ["Company info", "E-Verify ID", "Training objectives", "Supervision plan"] },
                             { title: "Both sign", items: ["Final signatures", "Date of agreement", "Submit to DSO"] },
                         ].map((col, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{col.title}</h3>
-                                <ul className="space-y-1">{col.items.map((item, j) => (<li key={j} className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-500" />{item}</li>))}</ul>
+                                <ul className="space-y-1">{col.items.map((item, j) => (<li key={j} className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-emerald-500" />{item}</li>))}</ul>
                             </div>
                         ))}
                     </div>
@@ -209,7 +209,7 @@ export default function STEMOPTGuideArticle() {
                             { req: "Training & Mentoring", desc: "Must provide structured training, not just a regular job. Specify learning goals on I-983." },
                             { req: "Evaluation Reports", desc: "Employer must complete a self-evaluation at 12 months (midpoint) and at end of STEM OPT." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                                 <Shield className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
                                 <div><h3 className="font-semibold text-gray-900 dark:text-white">{item.req}</h3><p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p></div>
                             </div>
@@ -219,12 +219,12 @@ export default function STEMOPTGuideArticle() {
 
                 <section id="unemployment" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">STEM OPT Unemployment & Reporting Rules</h2>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
-                            <thead><tr className="bg-gray-100 dark:bg-zinc-800">
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Rule</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Initial OPT</th>
-                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">STEM OPT</th>
+                            <thead><tr className="bg-surface-strong">
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Rule</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Initial OPT</th>
+                                <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">STEM OPT</th>
                             </tr></thead>
                             <tbody>
                                 {[
@@ -234,7 +234,7 @@ export default function STEMOPTGuideArticle() {
                                     ["Report changes", "Within 10 days", "Within 10 days"],
                                     ["Self-evaluation required", "No", "Yes (at 12 months + end)"],
                                 ].map(([rule, initial, stem], i) => (
-                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{rule}</td><td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{initial}</td><td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{stem}</td></tr>
+                                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}><td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{rule}</td><td className="p-3 border border-border text-gray-700 dark:text-gray-300">{initial}</td><td className="p-3 border border-border text-gray-700 dark:text-gray-300">{stem}</td></tr>
                                 ))}
                             </tbody>
                         </table>
@@ -251,7 +251,7 @@ export default function STEMOPTGuideArticle() {
                             { path: "Green Card Sponsorship", desc: "Some employers sponsor EB-2/EB-3 green cards. This can start while you're on STEM OPT.", link: null },
                             { path: "O-1 Extraordinary Ability", desc: "For those with exceptional achievements in their field. No lottery — approval based on evidence.", link: null },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">{item.path}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p>
                                 {item.link && <Link href={item.link} className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline mt-1 inline-block">Read guide →</Link>}
@@ -264,7 +264,7 @@ export default function STEMOPTGuideArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {STEM_OPT_FAQS.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -274,7 +274,7 @@ export default function STEMOPTGuideArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/i-983-training-plan-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ I-983 Training Plan Guide</Link>
@@ -293,10 +293,10 @@ export default function STEMOPTGuideArticle() {
 
             <AuthorBio />
 
-            <div className="bg-purple-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your STEM OPT Timeline & Unemployment Days</h2>
-                <p className="text-purple-100 mb-6 max-w-lg mx-auto">Join 3,500+ people who have signed up for TrackMyOPT. Use it to plan STEM OPT deadlines, employer reporting, and unemployment days.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">Join 3,500+ people who have signed up for TrackMyOPT. Use it to plan STEM OPT deadlines, employer reporting, and unemployment days.</p>
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
 
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "STEM OPT is a 24-month extension of OPT for F-1 students with STEM degrees, allowing up to 36 months total work authorization." } }, { "@type": "Question", "name": "How long is the STEM OPT extension?", "acceptedAnswer": { "@type": "Answer", "text": "24 months, for a total of 36 months with initial OPT." } }, { "@type": "Question", "name": "Does my employer need E-Verify?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. E-Verify enrollment is mandatory for STEM OPT employers." } }, { "@type": "Question", "name": "Can I apply for STEM OPT twice?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, if you earn a second qualifying STEM degree at a higher education level." } }] }) }} />

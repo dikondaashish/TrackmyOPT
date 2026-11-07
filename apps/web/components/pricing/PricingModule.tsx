@@ -94,7 +94,7 @@ export function PricingModule({
         <p className="text-muted-foreground mb-8">{subtitle}</p>
 
         {/* Toggle */}
-        <div className="flex items-center justify-center gap-2 mb-10">
+        <div className="mb-10 inline-flex items-center justify-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 shadow-card">
           <Switch
             id="billing-toggle"
             checked={isAnnual}
@@ -102,7 +102,7 @@ export function PricingModule({
           />
           <label
             htmlFor="billing-toggle"
-            className="text-sm text-muted-foreground cursor-pointer font-medium"
+            className="text-sm text-foreground cursor-pointer font-medium"
           >
             {annualBillingLabel}
           </label>
@@ -114,14 +114,14 @@ export function PricingModule({
             <Card
               key={plan.id}
               className={cn(
-                'relative border rounded-xl transition-colors flex flex-col',
+                'relative flex flex-col rounded-xl border transition-[border-color,box-shadow] duration-200',
                 plan.recommended
-                  ? 'border-primary'
-                  : 'border-border hover:border-primary'
+                  ? 'border-primary shadow-elevated ring-1 ring-primary'
+                  : 'border-border shadow-card hover:border-primary-muted hover:shadow-elevated'
               )}
             >
               {plan.badge && (
-                <div className="absolute -top-3 left-0 right-0 mx-auto w-fit rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
+                <div className="absolute -top-3 left-0 right-0 mx-auto w-fit rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow-button">
                   {plan.badge}
                 </div>
               )}
@@ -212,8 +212,8 @@ export function PricingModule({
                     variant={plan.recommended ? 'default' : 'outline'}
                     className={
                       plan.recommended
-                        ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white hover:bg-blue-800'
-                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground text-foreground'
+                        ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white shadow-button hover:bg-blue-800'
+                        : 'mb-8 min-h-11 w-full font-semibold border border-border bg-background text-foreground shadow-card hover:bg-muted'
                     }
                   >
                     <Link
@@ -232,8 +232,8 @@ export function PricingModule({
                     variant={plan.recommended ? 'default' : 'outline'}
                     className={
                       plan.recommended
-                        ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white hover:bg-blue-800'
-                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground text-foreground'
+                        ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white shadow-button hover:bg-blue-800'
+                        : 'mb-8 min-h-11 w-full font-semibold border border-border bg-background text-foreground shadow-card hover:bg-muted'
                     }
                   >
                     {plan.buttonLabel || buttonLabel}
@@ -254,7 +254,7 @@ export function PricingModule({
                         ) : (
                           <li key={i} className="flex items-start gap-3">
                             {f.included ? (
-                              <Check className="w-5 h-5 text-primary shrink-0" />
+                              <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             ) : (
                               <X className="w-5 h-5 text-muted-foreground shrink-0" />
                             )}
@@ -333,7 +333,7 @@ function FeatureCollapse({
               className="flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200"
             >
               {f.included ? (
-                <Check className="w-5 h-5 text-primary shrink-0" />
+                <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               ) : (
                 <X className="w-5 h-5 text-muted-foreground shrink-0" />
               )}

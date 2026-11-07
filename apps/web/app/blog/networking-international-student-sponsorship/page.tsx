@@ -38,7 +38,7 @@ export default function NetworkingPage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/networking-international-student-sponsorship.jpg" alt="A conference name tag, a stack of business cards, and a smartphone showing an email draft" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -56,7 +56,7 @@ export default function NetworkingPage() {
                     <li>Reach out to these alumni. They remember exactly how stressful the OPT job hunt is, and they are highly likely to give you a referral.</li>
                 </ol>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2"><AlertTriangle className="w-5 h-5" /> The Cold Message Mistake</h4>
                     <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">Never send a first message that says: "Hi, I am looking for a job. Can you review my resume and refer me?" This is transactionally gross. You must ask for an "Informational Interview" first. Ask for 15 minutes of their time to learn about their career path.</p>
                 </div>
@@ -70,33 +70,33 @@ export default function NetworkingPage() {
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Step 3: Finding the Recruiter on LinkedIn</h2>
                 <p>If you cannot find an alumni connection, you must find the internal recruiter. Search LinkedIn for: <code>"Technical Recruiter" AND "Company Name"</code>. Send them a connection request with this note:</p>
-                <p className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-lg text-sm border-l-4 border-primary">"Hi [Name], I recently applied for the [Role] position (Req ID: 1234). I have [X] years of experience in [Skill] and am currently on STEM OPT (no sponsorship needed for 3 years). I'd love to connect and share more about my background."</p>
+                <p className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-lg text-sm border-l-4 border-l-primary">"Hi [Name], I recently applied for the [Role] position (Req ID: 1234). I have [X] years of experience in [Skill] and am currently on STEM OPT (no sponsorship needed for 3 years). I'd love to connect and share more about my background."</p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Track Your Networking While Watching the Clock</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">Networking takes time—time that is ticking away on your 90-day unemployment clock. <strong>TrackMyOPT</strong> helps you manage your unemployment days precisely, giving you the runway you need to execute a long-term networking strategy without panicking.</p>
                 </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Network Without the Panic</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Building relationships takes weeks. Knowing exactly how many days of unemployment you have left allows you to network strategically instead of desperately.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/linkedin-optimization-f1-h1b-sponsorship" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">LinkedIn Optimization</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Before you reach out to recruiters, ensure your LinkedIn profile is perfectly optimized for H-1B sponsorship.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/how-to-answer-sponsorship-question" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Acing the Interview</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Once your networking lands you the interview, here is exactly how to answer the dreaded sponsorship question.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

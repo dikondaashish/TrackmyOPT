@@ -62,10 +62,10 @@ export function StatusChangeUpgradeBanner({
   };
 
   return (
-    <Card className="p-4 bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800">
+    <Card className="p-4 bg-violet-50 dark:bg-violet-950 border-violet-200 dark:border-violet-800">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex items-start gap-3 flex-1">
-          <Bell className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+          <Bell className="w-5 h-5 text-violet-600 dark:text-violet-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {CASE_STATUS_MESSAGING.statusChangeHeadline}{" "}
@@ -90,7 +90,7 @@ export function StatusChangeUpgradeBanner({
           <Button
             type="button"
             onClick={handleStartTrial}
-            className="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white h-10 px-4"
+            className="inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white h-10 px-4"
           >
             <Crown className="w-4 h-4" />
             {ctaLabel}

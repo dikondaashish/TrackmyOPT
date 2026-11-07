@@ -8,7 +8,7 @@ export function ExtensionOverlayVisual() {
     return (
         <div className="relative w-full aspect-[4/3] max-w-[500px] mx-auto perspective-1000">
             {/* Browser Frame */}
-            <div className="absolute inset-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden flex flex-col">
+            <div className="absolute inset-0 surface-card overflow-hidden flex flex-col">
                 {/* Browser Chrome */}
                 <div className="h-8 bg-gray-100 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 flex items-center px-3 gap-2">
                     <div className="flex gap-1.5">
@@ -141,11 +141,11 @@ export function ExtensionOverlayVisual() {
                         <div className="space-y-2">
                             <p className="text-xs font-semibold text-gray-500">Insights</p>
                             <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                                 Sponsorship is not stated in this example listing.
                             </div>
                             <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                                 Prefill only the fields you choose, then review them.
                             </div>
                         </div>

@@ -71,7 +71,7 @@ function StatCard({
       className={cn(
         'group flex h-full min-w-0 flex-col rounded-xl border p-4 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none sm:p-5',
         toneStyles[tone],
-        href && 'cursor-pointer hover:border-primary hover:shadow-md'
+        href && 'cursor-pointer hover:border-primary hover:shadow-elevated'
       )}
     >
       <div className="mb-3 flex items-start justify-between gap-3">

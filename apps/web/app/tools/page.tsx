@@ -155,6 +155,15 @@ const TOOLS = {
   },
 } as const;
 
+// Icon tile colour per category: blue = OPT timeline and case status,
+// violet = job search, amber = documents and reference material.
+const CATEGORY_TILE: Record<keyof typeof TOOLS, string> = {
+  opt: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300',
+  uscis: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300',
+  career: 'bg-violet-50 text-violet-600 dark:bg-violet-950 dark:text-violet-300',
+  resources: 'bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-300',
+};
+
 const ALL_TOOLS = [
   ...TOOLS.opt.tools,
   ...TOOLS.uscis.tools,
@@ -185,14 +194,14 @@ const itemListSchema = {
 export default function ToolsPage() {
   return (
     <>
-      <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+      <main className="min-h-screen bg-background">
         {/* Hero */}
-        <section className="pt-24 pb-12 sm:pt-28 sm:pb-16 text-center px-4">
+        <section className="pt-24 pb-12 sm:pt-28 sm:pb-16 text-center px-4 bg-background">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 leading-tight">
               Free OPT & Immigration Tools
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
               Track key OPT dates, explore H-1B sponsors, and plan your next
               career step. 10,000+ people regularly use our free tools.
             </p>
@@ -200,7 +209,7 @@ export default function ToolsPage() {
         </section>
 
         {/* Tool Categories */}
-        <section className="py-12 px-4 sm:px-6 lg:px-8">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-surface border-y border-border">
           <div className="max-w-6xl mx-auto space-y-16">
             {(
               Object.entries(TOOLS) as [
@@ -209,7 +218,7 @@ export default function ToolsPage() {
               ][]
             ).map(([key, category]) => (
               <div key={key}>
-                <h2 className="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 className="mb-6 text-2xl font-bold text-foreground">
                   {category.title}
                 </h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
@@ -219,17 +228,19 @@ export default function ToolsPage() {
                       <Link
                         key={tool.name}
                         href={tool.href}
-                        className="group relative flex flex-col p-5 sm:p-6 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-200 dark:hover:border-blue-950 transition-colors"
+                        className="group relative flex flex-col p-5 sm:p-6 surface-card-interactive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Icon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 flex-shrink-0 transition-colors" />
-                              <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${CATEGORY_TILE[key]}`}>
+                                <Icon className="w-5 h-5" />
+                              </div>
+                              <h3 className="font-semibold text-foreground truncate">
                                 {tool.name}
                               </h3>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            <p className="text-sm text-muted-foreground leading-relaxed">
                               {tool.description}
                             </p>
                           </div>
@@ -239,7 +250,7 @@ export default function ToolsPage() {
                             </span>
                           )}
                         </div>
-                        <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:gap-2 transition-all">
+                        <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:text-primary-hover transition-colors">
                           Try Free <ArrowRight className="w-4 h-4" />
                         </span>
                       </Link>
@@ -252,18 +263,18 @@ export default function ToolsPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 px-4">
+        <section className="py-20 px-4 bg-ink text-ink-foreground">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-blue-600 rounded-xl p-8 sm:p-12 text-white">
+            <div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">
                 Ready to Protect Your OPT Status?
               </h2>
-              <p className="text-blue-100 mb-8 max-w-xl mx-auto">
+              <p className="text-ink-muted mb-8 max-w-xl mx-auto">
                 Use the core tools at no cost. No credit card or trial required.
               </p>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+                className="inline-flex min-h-12 items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow-button hover:bg-blue-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
               >
                 Start Tracking Free <ArrowRight className="w-4 h-4" />
               </Link>

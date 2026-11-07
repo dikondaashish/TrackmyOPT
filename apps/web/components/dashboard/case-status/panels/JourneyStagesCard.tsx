@@ -102,7 +102,7 @@ export function JourneyStagesCard({
   if (!visible.length) return null;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-card">
       <div>
         <p className="text-sm font-semibold text-foreground">What comes next</p>
         <p className="text-xs text-muted-foreground">

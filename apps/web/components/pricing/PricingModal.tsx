@@ -486,7 +486,7 @@ function PricingModalContent({
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain bg-surface">
           <div
             className={cn(
               'p-4 sm:p-5 pt-3',

@@ -25,23 +25,23 @@ import { H2, Lead, P } from "@/components/ui/typography";
 // Calculator Preview Component
 function CalculatorPreview() {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="surface-card p-8">
+            <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                 <Calendar className="w-6 h-6 text-blue-600" />
                 Filing Window Calculator
             </h3>
 
             <div className="space-y-4 mb-6">
                 <div>
-                    <label className="text-sm text-gray-600 dark:text-gray-400 mb-2 block">OPT Start Date</label>
+                    <label className="text-sm text-muted-foreground mb-2 block">OPT Start Date</label>
                     <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-zinc-700">
-                        <span className="text-gray-900 dark:text-white font-medium">June 15, 2024</span>
+                        <span className="text-foreground font-medium">June 15, 2024</span>
                     </div>
                 </div>
                 <div>
-                    <label className="text-sm text-gray-600 dark:text-gray-400 mb-2 block">Employment Status</label>
+                    <label className="text-sm text-muted-foreground mb-2 block">Employment Status</label>
                     <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-zinc-700">
-                        <span className="text-gray-900 dark:text-white font-medium">Currently Employed</span>
+                        <span className="text-foreground font-medium">Currently Employed</span>
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@ export default function CompliancePage() {
                 { name: "Features", url: "https://www.trackmyopt.com/features" },
                 { name: "Compliance", url: "https://www.trackmyopt.com/features/compliance" },
             ]} />
-            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+            <main className="min-h-screen bg-background">
             <FeatureServiceSchema
                 name="OPT Compliance Tracker & Timeline Manager"
                 description="Track your entire OPT timeline, unemployment days, and USCIS deadlines in real-time. Stay compliant with multi-channel alerts for all critical milestones including filing windows and employer reporting."
@@ -97,7 +97,7 @@ export default function CompliancePage() {
             />
 
             {/* Feature 1: The Journey Timeline */}
-            <section className="py-24 relative overflow-hidden bg-white dark:bg-zinc-950">
+            <section className="py-24 relative overflow-hidden bg-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
                         <H2>Visualizing Your Compliance Journey</H2>
@@ -109,7 +109,7 @@ export default function CompliancePage() {
             </section>
 
             {/* Feature 2: Smart Alerts */}
-            <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
+            <section className="py-24 border-y border-border bg-surface relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -119,7 +119,7 @@ export default function CompliancePage() {
                             className="order-2 lg:order-1 relative"
                         >
                             {/* Abstract Alert Visual instead of Timeline */}
-                            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8 relative overflow-hidden">
+                            <div className="surface-card p-8 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-3 bg-red-50 rounded-bl-xl">
                                     <Bell className="w-6 h-6 text-red-500 " />
                                 </div>
@@ -129,7 +129,7 @@ export default function CompliancePage() {
                                         <div className="flex gap-3 mb-2">
                                             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">T</div>
                                             <div>
-                                                <p className="text-sm font-bold text-gray-900 dark:text-white">TrackMyOPT Alert</p>
+                                                <p className="text-sm font-bold text-foreground">TrackMyOPT Alert</p>
                                                 <p className="text-xs text-gray-500">To: You &lt;student@edu&gt;</p>
                                             </div>
                                         </div>
@@ -170,7 +170,7 @@ export default function CompliancePage() {
                                     "Cap-gap extension alerts"
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                                         {item}
                                     </li>
                                 ))}
@@ -196,7 +196,7 @@ export default function CompliancePage() {
                             </P>
                             <Link
                                 href="/tools/opt-clock"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                                className="inline-flex h-11 items-center gap-2 px-6 bg-primary text-primary-foreground font-semibold rounded-lg shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                                 Try the Calculator
                                 <ArrowRight className="w-4 h-4" />

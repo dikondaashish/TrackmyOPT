@@ -23,7 +23,7 @@ import { H2, P } from "@/components/ui/typography";
 export default function CommunityPage() {
     return (
         <>
-            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+            <main className="min-h-screen bg-background">
             <FeatureServiceSchema
                 name="Alumni Mentorship & Community Network"
                 description="Connect with verified alumni mentors from your university working at top companies. Get referrals, interview prep, and visa advice from real people who've navigated OPT successfully."
@@ -45,7 +45,7 @@ export default function CommunityPage() {
                     text: "Explore Discussions",
                     href: "#discussions"
                 }}
-                gradient="bg-purple-500"
+                gradient="bg-violet-600"
                 visual={<MentorshipMap />}
             />
 
@@ -71,7 +71,7 @@ export default function CommunityPage() {
                                     "One-click intro request templates"
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 className="w-5 h-5 text-violet-500 flex-shrink-0" />
+                                        <CheckCircle2 className="w-5 h-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
                                         {item}
                                     </li>
                                 ))}
@@ -82,7 +82,7 @@ export default function CommunityPage() {
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white dark:bg-zinc-900 rounded-xl p-8 border border-gray-100 dark:border-zinc-800"
+                            className="surface-card p-8"
                         >
                             {/* Re-using visual but maybe scaled/contextualized */}
                             <MentorshipMap />
@@ -92,7 +92,7 @@ export default function CommunityPage() {
             </section>
 
             {/* Discussions Feature */}
-            <section id="discussions" className="py-24 bg-white dark:bg-zinc-900 relative overflow-hidden">
+            <section id="discussions" className="py-24 border-y border-border bg-surface relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -116,14 +116,14 @@ export default function CommunityPage() {
                                 from students and legal experts in our curated forums.
                             </P>
                             <div className="mt-8 grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700">
-                                    <Lightbulb className="w-6 h-6 text-amber-500 mb-2" />
-                                    <h5 className="font-semibold text-gray-900 dark:text-white">Interview Tips</h5>
+                                <div className="p-4 rounded-xl bg-card border border-border shadow-card">
+                                    <Lightbulb className="w-6 h-6 text-amber-600 dark:text-amber-400 mb-2" />
+                                    <h5 className="font-semibold text-foreground">Interview Tips</h5>
                                     <p className="text-xs text-gray-500 mt-1">Company-specific guides from recent hires.</p>
                                 </div>
-                                <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700">
-                                    <Globe className="w-6 h-6 text-blue-500 mb-2" />
-                                    <h5 className="font-semibold text-gray-900 dark:text-white">Legal Updates</h5>
+                                <div className="p-4 rounded-xl bg-card border border-border shadow-card">
+                                    <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-2" />
+                                    <h5 className="font-semibold text-foreground">Legal Updates</h5>
                                     <p className="text-xs text-gray-500 mt-1">Latest USCIS news explained simply.</p>
                                 </div>
                             </div>

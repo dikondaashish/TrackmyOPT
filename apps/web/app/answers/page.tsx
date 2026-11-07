@@ -91,18 +91,18 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                 }}
             />
 
-            <section className="py-16 sm:py-20">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="-mt-4 border-b border-border bg-surface">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12 sm:pt-16 sm:pb-14">
                     <div className="text-center mb-10">
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                        <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
                             OPT & F-1 Visa Answers
                         </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                        <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                             Clear, concise answers to every question
                             international students ask about OPT, STEM OPT,
                             H-1B, taxes, and US immigration.
                         </p>
-                        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="mt-4 text-sm font-medium text-primary">
                             {allAnswers.length}+ Expert Answers
                         </p>
                     </div>
@@ -110,7 +110,7 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                     <form
                         action="/answers"
                         method="get"
-                        className="max-w-2xl mx-auto mb-16"
+                        className="max-w-2xl mx-auto"
                     >
                         <label htmlFor="answers-search" className="sr-only">
                             Search answers
@@ -123,7 +123,7 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                                 type="search"
                                 defaultValue={query}
                                 placeholder="Search OPT, STEM OPT, H-1B, taxes..."
-                                className="w-full pl-12 pr-12 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full pl-12 pr-12 py-4 rounded-xl border border-border bg-card text-foreground shadow-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                             />
                             {query && (
                                 <Link
@@ -136,7 +136,11 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                             )}
                         </div>
                     </form>
+                </div>
+            </section>
 
+            <section className="py-12 sm:py-16">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     {query ? (
                         <div className="mb-16">
                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
@@ -151,12 +155,12 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                                             <Link
                                                 key={answer.slug}
                                                 href={`/answers/${answer.slug}`}
-                                                className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-zinc-900 transition-colors group"
+                                                className="surface-card-interactive flex items-center gap-3 p-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                             >
-                                                <span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors font-medium">
+                                                <span className="text-foreground group-hover:text-primary transition-colors font-medium">
                                                     {answer.question}
                                                 </span>
-                                                <ArrowRight className="w-4 h-4 text-gray-400 ml-auto flex-shrink-0 group-hover:translate-x-1 transition-all" />
+                                                <ArrowRight className="w-4 h-4 text-muted-foreground ml-auto flex-shrink-0 group-hover:text-primary transition-colors" />
                                             </Link>
                                         );
                                     })}
@@ -173,10 +177,10 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                                     <div key={cat.id}>
                                         <div className="mb-6">
                                             <div>
-                                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                <h2 className="text-2xl font-bold text-foreground">
                                                     {cat.label}
                                                 </h2>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                <p className="mt-1 text-sm text-muted-foreground">
                                                     {cat.description}
                                                 </p>
                                             </div>
@@ -187,12 +191,12 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                                                 <Link
                                                     key={answer.slug}
                                                     href={`/answers/${answer.slug}`}
-                                                    className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-zinc-900 transition-colors group"
+                                                    className="surface-card-interactive flex items-center gap-3 p-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                                 >
-                                                    <span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors font-medium">
+                                                    <span className="text-foreground group-hover:text-primary transition-colors font-medium">
                                                         {answer.question}
                                                     </span>
-                                                    <ArrowRight className="w-4 h-4 text-gray-400 ml-auto flex-shrink-0 group-hover:translate-x-1 transition-all" />
+                                                    <ArrowRight className="w-4 h-4 text-muted-foreground ml-auto flex-shrink-0 group-hover:text-primary transition-colors" />
                                                 </Link>
                                             ))}
                                         </div>
@@ -202,7 +206,7 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                         </div>
                     )}
 
-                    <div className="mt-20 text-center bg-blue-50 dark:bg-blue-950 rounded-xl p-10">
+                    <div className="mt-16 text-center rounded-xl border border-primary-muted bg-primary-soft p-8 sm:p-10">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                             Can&apos;t find your answer?
                         </h2>
@@ -213,14 +217,14 @@ export default async function AnswersIndexPage({ searchParams }: Props) {
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link
                                 href="/glossary"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:border-blue-300 transition-colors"
+                                className="inline-flex h-11 items-center gap-2 px-6 rounded-lg border border-border bg-background font-semibold text-foreground shadow-card hover:bg-muted transition-colors"
                             >
                                 <BookOpen className="w-4 h-4" />
                                 Browse Glossary
                             </Link>
                             <Link
                                 href="/blog"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                                className="inline-flex h-11 items-center gap-2 px-6 rounded-lg bg-primary text-primary-foreground font-semibold shadow-button hover:bg-primary-hover transition-colors"
                             >
                                 Read Our Guides
                                 <ArrowRight className="w-4 h-4" />

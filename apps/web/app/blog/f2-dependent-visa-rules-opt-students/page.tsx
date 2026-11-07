@@ -61,7 +61,7 @@ export default function F2DependentPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/f2-dependent-visa-rules-opt-students.jpg" alt="Passport with an F-2 visa stamp next to an I-20 with the dependent section highlighted and a wedding photo" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -86,7 +86,7 @@ export default function F2DependentPage() {
                             <li>Travel freely within the US.</li>
                         </ul>
                     </div>
-                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-950 rounded-xl p-6">
+                    <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6">
                         <h4 className="flex items-center gap-2 font-bold text-red-900 dark:text-red-400 mt-0 mb-3">
                             <XCircle className="w-5 h-5" /> Not Allowed
                         </h4>
@@ -120,7 +120,7 @@ export default function F2DependentPage() {
                     <li>Your spouse's F-2 status is entirely dependent on your compliance. They have no independent immigration standing.</li>
                 </ul>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Protect Your Entire Family with TrackMyOPT
                     </h3>
@@ -155,7 +155,7 @@ export default function F2DependentPage() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Keep Your Family's Status Secure
                 </h3>
@@ -165,7 +165,7 @@ export default function F2DependentPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Protect Your Family's Status
                     </Link>
@@ -176,7 +176,7 @@ export default function F2DependentPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/h4-ead-opt-spouse-work-authorization" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 H-4 EAD Work Authorization
                             </h4>
@@ -189,7 +189,7 @@ export default function F2DependentPage() {
                         </div>
                     </Link>
                     <Link href="/blog/90-day-unemployment-rule-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The 90-Day Unemployment Rule
                             </h4>

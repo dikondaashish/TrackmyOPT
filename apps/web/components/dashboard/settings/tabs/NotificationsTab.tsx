@@ -110,17 +110,17 @@ export function NotificationsTab({
                       <p className="text-sm text-gray-500 dark:text-gray-400">Email reminders for each OPT tracking tool</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-purple-500 rounded-md">
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-violet-500 rounded-md">
                     PRO
                   </span>
                 </div>
 
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center z-10">
                     <Button
                       onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 text-base font-semibold"
+                      className="bg-violet-500 hover:bg-violet-600 text-white px-6 py-3 text-base font-semibold"
                     >
                       Upgrade to Pro
                     </Button>
@@ -208,17 +208,17 @@ export function NotificationsTab({
                       <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your USCIS case status changes</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-purple-500 rounded-md">
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-violet-500 rounded-md">
                     PRO
                   </span>
                 </div>
 
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center z-10">
                     <Button
                       onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 text-base font-semibold"
+                      className="bg-violet-500 hover:bg-violet-600 text-white px-6 py-3 text-base font-semibold"
                     >
                       Upgrade to Pro
                     </Button>
@@ -300,17 +300,17 @@ export function NotificationsTab({
                       <p className="text-sm text-gray-500 dark:text-gray-400">Get alerts before your documents expire</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-purple-500 rounded-md">
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-violet-500 rounded-md">
                     PRO
                   </span>
                 </div>
 
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <div className="absolute inset-0 top-16 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center z-10">
                     <Button
                       onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 text-base font-semibold"
+                      className="bg-violet-500 hover:bg-violet-600 text-white px-6 py-3 text-base font-semibold"
                     >
                       Upgrade to Pro
                     </Button>

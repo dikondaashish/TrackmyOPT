@@ -24,14 +24,14 @@ export function CancelSubscriptionCard({
     : "the end of your current billing period";
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 space-y-4">
+    <div className="surface-card p-5 space-y-4">
       <div className="flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+        <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
         <div>
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">Cancel subscription</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+          <h3 className="font-semibold text-foreground">Cancel subscription</h3>
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
             Canceling stops future renewal charges only. You keep full premium access until{" "}
-            <strong className="text-gray-800 dark:text-gray-200">{accessLabel}</strong>.
+            <strong className="text-foreground">{accessLabel}</strong>.
             No further charges are scheduled after that date unless you re-subscribe.
           </p>
         </div>
@@ -45,9 +45,9 @@ export function CancelSubscriptionCard({
         {isLoading ? "Opening billing portal…" : "Cancel subscription"}
         <ExternalLink className="w-4 h-4 ml-2 opacity-70" />
       </Button>
-      <p className="text-xs text-gray-500 dark:text-gray-400">
+      <p className="text-xs text-muted-foreground">
         You will confirm cancellation in Stripe&apos;s secure portal (same provider as checkout). We email a confirmation with your final access date.{" "}
-        <Link href="/refund-policy" className="text-blue-600 hover:underline">
+        <Link href="/refund-policy" className="text-primary hover:underline">
           Refund Policy
         </Link>
       </p>

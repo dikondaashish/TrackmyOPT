@@ -100,22 +100,22 @@ export default function BlogPost() {
                 </header>
 
                 <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/second-masters-opt.png" alt="International college student with two graduation caps studying at a library desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/second-masters-opt.png" alt="International college student with two graduation caps studying at a library desk" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                     <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                         OPT is awarded based on progressing to higher educational levels, not just for completing any new degree program.
                     </figcaption>
                 </figure>
 
-                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                     <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                     <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                         <strong>No, you cannot apply for OPT again if you already used it for a previous degree at the same level.</strong> Under USCIS rules, F-1 students are granted a maximum of 12 months of OPT at each higher educational degree level. If you used OPT after your first Master's, you will not get OPT after a second Master's. You must complete a Ph.D. to become eligible for OPT again.
                     </p>
                 </div>
 
-                <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+                <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                     </h2>
                     <ul className="space-y-3">
@@ -169,7 +169,7 @@ export default function BlogPost() {
                         </p>
                     </section>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 my-10">
+                    <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 my-10">
                         <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Warning: Fractional OPT Usage
@@ -205,27 +205,27 @@ export default function BlogPost() {
                         </p>
                     </section>
 
-                    <div className="bg-blue-600 rounded-xl p-8 my-12 text-white relative overflow-hidden">
+                    <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground relative overflow-hidden bg-ink border border-ink-border shadow-elevated">
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2 bg-blue-500 rounded-lg">
+                                <div className="p-2 bg-blue-600 rounded-lg">
                                     <GraduationCap className="w-6 h-6 text-white" />
                                 </div>
                                 <h3 className="text-2xl font-bold">Track Your OPT Compliance Intelligently</h3>
                             </div>
-                            <p className="text-blue-100 mb-6 text-lg max-w-2xl">
+                            <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                                 If you are on OPT, you only have <strong>90 days of unemployment</strong> before your F-1 visa is violated. Don't leave it to chance.
                             </p>
                             <ul className="space-y-3 mb-8">
-                                <li className="flex items-center gap-3 text-blue-50">
+                                <li className="flex items-center gap-3 text-ink-foreground">
                                     <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                     <span>Real-time tracking of your 90-day unemployment limit</span>
                                 </li>
-                                <li className="flex items-center gap-3 text-blue-50">
+                                <li className="flex items-center gap-3 text-ink-foreground">
                                     <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                     <span>Automated email alerts before you hit critical deadlines</span>
                                 </li>
-                                <li className="flex items-center gap-3 text-blue-50">
+                                <li className="flex items-center gap-3 text-ink-foreground">
                                     <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                                     <span>100% Free for F-1 International Students</span>
                                 </li>
@@ -233,7 +233,7 @@ export default function BlogPost() {
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Link 
                                     href="/login" 
-                                    className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors"
+                                    className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                                 >
                                     Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>

@@ -58,7 +58,7 @@ export function SubscriptionFAQ() {
                 {faqs.map((faq, index) => (
                     <div
                         key={index}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 overflow-hidden"
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-card"
                     >
                         <button
                             onClick={() => toggle(index)}

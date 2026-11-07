@@ -237,7 +237,7 @@ export default function OPTPremiumProcessingGuide() {
                 key={item.title}
                 className="flex items-start gap-3 p-5 rounded-xl border border-gray-200 dark:border-zinc-800"
               >
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
                     {item.title}
@@ -373,7 +373,7 @@ export default function OPTPremiumProcessingGuide() {
         </section>
 
         <section className="mb-12">
-          <div className="not-prose bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-xl p-6">
+          <div className="not-prose border rounded-xl p-6 border-primary-muted bg-primary-soft">
             <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
               <strong>Reminder:</strong> Fees and rules change. Verify against
               USCIS's official premium processing page before paying, and treat

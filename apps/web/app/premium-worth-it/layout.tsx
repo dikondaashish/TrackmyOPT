@@ -41,7 +41,7 @@ export default function PremiumWorthItLayout({
     return (
         <>
             <LandingNavbar />
-            <main className="min-h-screen bg-white dark:bg-zinc-950 pt-20">
+            <main className="min-h-screen bg-background pt-20">
                 {children}
             </main>
             <LandingFooter />

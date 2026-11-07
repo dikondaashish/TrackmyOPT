@@ -145,7 +145,7 @@ export function CaseNoticeOrganizer({
   return (
     <section
       aria-labelledby={`${prefix}-heading`}
-      className="rounded-xl border border-border bg-card p-4 sm:p-6"
+      className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-card"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id={`${prefix}-heading`} className="text-base font-semibold">

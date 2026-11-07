@@ -89,7 +89,7 @@ export function FilterableCaseStudies() {
         : CASE_STUDIES.filter(c => c.category === activeCategory);
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900 relative">
+        <section className="py-24 border-y border-border bg-surface relative">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <div className="text-center mb-12">
@@ -125,11 +125,11 @@ export function FilterableCaseStudies() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.3 }}
-                                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 transition-all group h-full flex flex-col"
+                                className="surface-card p-6 transition-all group h-full flex flex-col"
                             >
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className={`w-14 h-14 rounded-full ${cs.category === 'engineering' ? 'bg-blue-500' :
-                                            cs.category === 'business' ? 'bg-purple-500' :
+                                            cs.category === 'business' ? 'bg-violet-600' :
                                                 'bg-green-500'
                                         } flex items-center justify-center text-white font-bold text-lg`}>
                                         {cs.name.split(' ').map(n => n[0]).join('')}
@@ -143,7 +143,7 @@ export function FilterableCaseStudies() {
 
                                 <div className="mb-6 flex-grow">
                                     <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium mb-4 ${cs.category === 'engineering' ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300' :
-                                            cs.category === 'business' ? 'bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300' :
+                                            cs.category === 'business' ? 'bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300' :
                                                 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300'
                                         }`}>
                                         {cs.highlight}

@@ -22,7 +22,7 @@ export function ResumeGeneratorHeader({
     onOpenHistory,
 }: ResumeGeneratorHeaderProps) {
     return (
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+        <div className="sticky top-0 z-10 bg-surface border-b border-border">
             <div className="max-w-7xl mx-auto max-md:px-3 md:px-4 sm:px-6 py-4">
                 <div className="grid grid-cols-1 max-md:gap-3 md:grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-4">
                     {/* Back Button */}
@@ -38,7 +38,7 @@ export function ResumeGeneratorHeader({
 
                     {/* Title + Progress */}
                     <div className="text-center flex flex-col items-center">
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
                             Resume Generator
                         </h1>
                         <div className="flex items-center justify-center gap-2 mt-1">

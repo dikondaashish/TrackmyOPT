@@ -4,7 +4,7 @@ import { DateSelector } from "../opt/DateSelector";
 
 export function OnboardingCard() {
   return (
-    <div className="bg-card hover:bg-card border border-border rounded-xl p-8 transition-colors duration-200">
+    <div className="bg-card border border-border rounded-xl p-6 sm:p-8 shadow-card">
       {/* 1. Welcome Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">

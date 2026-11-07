@@ -75,9 +75,9 @@ export function JobApplicationCard({
             {...listeners}
             onClick={onClick}
             className={cn(
-                "group relative bg-white dark:bg-gray-800 rounded-lg p-4 transition-all duration-200 cursor-grab active:cursor-grabbing",
-                "border border-gray-200 dark:border-gray-700",
-                "hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900",
+                "group relative bg-card rounded-lg p-4 shadow-card transition-[box-shadow,border-color,opacity] duration-200 cursor-grab active:cursor-grabbing",
+                "border border-border dark:border-zinc-800",
+                "hover:shadow-elevated hover:border-primary-muted",
                 isDragging && "opacity-50 shadow-xl rotate-2 scale-105 ring-2 ring-blue-500 z-50",
                 application.is_archived && "opacity-50 grayscale",
                 menuOpen && "ring-2 ring-blue-400 border-blue-300 dark:border-blue-700 z-20"
@@ -143,7 +143,7 @@ export function JobApplicationCard({
                     {menuOpen && (
                         <div
                             role="menu"
-                            className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg p-1"
+                            className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-lg border border-border bg-popover shadow-elevated p-1"
                         >
                             {onArchive && (
                                 <button
@@ -197,7 +197,7 @@ export function JobApplicationCard({
                 </span>
 
                 {application.sponsor_h1b && (
-                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-semibold">
                         H-1B
                     </span>
                 )}

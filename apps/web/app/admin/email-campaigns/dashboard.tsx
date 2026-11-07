@@ -171,7 +171,7 @@ export default function EmailCampaignDashboard({
         loggingOut={loggingOut}
         lastUpdated={lastUpdated}
       />
-      <aside className="rounded-xl bg-blue-50 p-5 text-sm leading-6 text-slate-700 dark:bg-blue-950 dark:text-muted-foreground">
+      <aside className="rounded-xl border border-primary-muted bg-primary-soft p-5 text-sm leading-6 text-slate-700 dark:text-muted-foreground">
         <h2 className="font-semibold">What these numbers mean</h2>
         <p className="mt-1">
           Clicks count unique recipient messages. The main cards exclude
@@ -219,10 +219,10 @@ function CampaignFeedback({
     );
   if (!report)
     return (
-      <div className="rounded-xl border border-dashed p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
         <Mail
           aria-hidden="true"
-          className="mx-auto mb-3 h-8 w-8 text-muted-foreground"
+          className="mx-auto mb-4 box-content h-6 w-6 rounded-xl bg-primary-soft p-3 text-primary dark:text-blue-300"
         />
         <h2 className="font-semibold">No tracked campaigns yet</h2>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -276,10 +276,10 @@ function CampaignResults({
       </div>
       <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {cards.map(([label, count, Icon]) => (
-          <div key={label} className="rounded-xl border bg-card p-5">
+          <div key={label} className="rounded-xl border bg-card p-5 shadow-card">
             <Icon
               aria-hidden="true"
-              className="mb-4 h-5 w-5 text-blue-600 dark:text-blue-400"
+              className="mb-4 box-content h-5 w-5 rounded-lg bg-primary-soft p-2.5 text-primary dark:text-blue-300"
             />
             <dt className="text-sm text-muted-foreground">
               {label}
@@ -305,12 +305,12 @@ function CampaignResults({
         {report.needsReview}. A repeated campaign request skips reserved
         recipients to prevent duplicate sends.
       </p>
-      <div className="overflow-x-auto rounded-xl border">
+      <div className="overflow-x-auto rounded-xl border bg-card shadow-card">
         <table className="w-full text-left text-sm">
-          <caption className="mb-3 text-left font-semibold">
+          <caption className="p-3 text-left font-semibold">
             Clicks by link
           </caption>
-          <thead>
+          <thead className="bg-surface-strong">
             <tr className="border-b">
               <th scope="col" className="p-3">
                 Link

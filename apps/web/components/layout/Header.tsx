@@ -54,7 +54,7 @@ export function Header({ isPremium, onMenuToggle }: HeaderProps) {
                 {!isPremium && (
                     <Link
                         href="/premium/checkout?planId=pro&interval=year"
-                        className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition-colors"
+                        className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-violet-600 text-white text-sm font-semibold rounded-lg shadow-button hover:bg-violet-700 transition-colors"
                     >
                         <Crown className="w-4 h-4" />
                         <span className="hidden md:inline">Get Pro</span>

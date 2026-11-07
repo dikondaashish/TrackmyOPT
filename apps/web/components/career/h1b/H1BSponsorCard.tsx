@@ -36,7 +36,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
 
     return (
         <div
-            className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-700"
+            className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:border-blue-300 hover:shadow-elevated dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-700 shadow-card"
         >
 
             {/* Top Color Bar - Visual Indicator */}

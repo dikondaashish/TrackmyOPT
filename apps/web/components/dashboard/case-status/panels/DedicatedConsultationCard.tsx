@@ -139,7 +139,7 @@ export function DedicatedConsultationCard({
 
   if (!isDedicated) {
     return (
-      <Card className="border-purple-200 bg-purple-50 p-5 shadow-none dark:border-purple-900 dark:bg-purple-950 sm:p-6">
+      <Card className="border-violet-200 bg-violet-50 p-5 shadow-none dark:border-violet-900 dark:bg-violet-950 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div>
@@ -149,7 +149,7 @@ export function DedicatedConsultationCard({
               </p>
             </div>
           </div>
-          <Button type="button" onClick={onCompareDedicated} className="min-h-11 shrink-0 bg-purple-700 text-white hover:bg-purple-800">
+          <Button type="button" onClick={onCompareDedicated} className="min-h-11 shrink-0 bg-violet-700 text-white hover:bg-violet-800">
             Compare Dedicated
           </Button>
         </div>
@@ -158,7 +158,7 @@ export function DedicatedConsultationCard({
   }
 
   return (
-    <Card className="border-purple-200 p-5 dark:border-purple-900 sm:p-6" aria-labelledby="dedicated-consultation-title">
+    <Card className="border-violet-200 p-5 dark:border-violet-900 sm:p-6" aria-labelledby="dedicated-consultation-title">
       <div>
         <div className="min-w-0">
           <p className="text-sm text-muted-foreground">Dedicated benefit</p>
@@ -236,13 +236,13 @@ export function DedicatedConsultationCard({
               placeholder="Example: Weekdays after 4 PM ET"
             />
           </div>
-          <Button type="button" onClick={() => void submit()} disabled={submitting} className="min-h-11 bg-purple-700 text-white hover:bg-purple-800">
+          <Button type="button" onClick={() => void submit()} disabled={submitting} className="min-h-11 bg-violet-700 text-white hover:bg-violet-800">
             {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : <CalendarDays className="mr-2 h-4 w-4" aria-hidden />}
             {submitting ? "Submitting…" : "Request consultation"}
           </Button>
         </div>
       ) : (
-        <div className="mt-5 rounded-xl border border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950">
+        <div className="mt-5 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900 dark:bg-violet-950">
           <p className="font-bold text-foreground">Eligibility unlocks in {eligibility.daysRemaining} day{eligibility.daysRemaining === 1 ? "" : "s"}</p>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
             The consultation request becomes available after seven uninterrupted days on Dedicated.

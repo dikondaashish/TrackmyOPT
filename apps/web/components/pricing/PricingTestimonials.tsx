@@ -6,10 +6,10 @@ import { testimonials } from "./PricingData";
 
 export function PricingTestimonials() {
     return (
-        <section className="py-24">
+        <section className="border-y border-border bg-surface py-24">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
                         Students Who Stay on Top of OPT Deadlines with Pro
                     </h2>
                 </div>
@@ -21,7 +21,7 @@ export function PricingTestimonials() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.1 }}
-                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
+                            className="surface-card flex flex-col p-6"
                         >
                             <div className="flex gap-1 mb-4">
                                 {Array.from({ length: 5 }).map(
@@ -33,14 +33,14 @@ export function PricingTestimonials() {
                                     )
                                 )}
                             </div>
-                            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-6">
+                            <p className="text-foreground text-sm leading-relaxed mb-6 flex-1">
                                 &ldquo;{t.quote}&rdquo;
                             </p>
                             <div>
-                                <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                                <p className="font-semibold text-foreground text-sm">
                                     {t.name}
                                 </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-muted-foreground">
                                     {t.role}, {t.university}
                                 </p>
                             </div>

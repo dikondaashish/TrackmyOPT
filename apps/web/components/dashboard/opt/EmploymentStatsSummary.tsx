@@ -54,7 +54,7 @@ export function EmploymentStatsSummary({
             Current Streak
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-2 py-3 text-center dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-xl border border-slate-200 bg-white px-2 py-3 text-center dark:border-slate-800 dark:bg-slate-950 shadow-card">
           <p
             className={`text-2xl font-bold ${
               !showComplianceNumbers

@@ -47,14 +47,14 @@ export default function OPTEADArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The OPT EAD card (Form I-766) is your Employment Authorization Document that proves you can work in the US on OPT. You apply using Form I-765 with a $410 filing fee, and processing currently takes 2 to 5 months.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway</h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">The EAD card (Form I-766) is your <strong>Employment Authorization Document</strong> — the card that proves you can work in the US on OPT. You apply using <strong>Form I-765</strong>, the filing fee is <strong>$410</strong>, and current processing takes <strong>2-5 months</strong>. You cannot work until you have the physical card.</p>
             </div>
@@ -75,7 +75,7 @@ export default function OPTEADArticle() {
                             { label: "Valid To", value: "Your OPT end date (12 months)" },
                             { label: "Card Expires", value: "Same as OPT end date" },
                         ].map((item, i) => (
-                            <div key={i} className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-center gap-3">
+                            <div key={i} className="border p-3 rounded-xl border-border flex items-center gap-3 bg-card shadow-card">
                                 <CreditCard className="w-5 h-5 text-blue-500 flex-shrink-0" /><div><p className="text-xs text-gray-500">{item.label}</p><p className="text-sm font-semibold text-gray-900 dark:text-white">{item.value}</p></div>
                             </div>
                         ))}
@@ -95,7 +95,7 @@ export default function OPTEADArticle() {
                         ].map((item, i) => (
                             <div key={i} className="flex gap-4 items-start">
                                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold">{i + 1}</div>
-                                <div className="flex-1 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                                <div className="border flex-1 p-4 rounded-xl border-border bg-card shadow-card">
                                     <div className="flex items-center justify-between"><h3 className="font-semibold text-gray-900 dark:text-white">{item.step}</h3><span className="text-xs text-blue-600 dark:text-blue-400 font-medium">{item.time}</span></div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p>
                                 </div>
@@ -113,8 +113,8 @@ export default function OPTEADArticle() {
                             { method: "USCIS myAccount", desc: "Log into your myUSCIS account to see detailed case history and documents.", link: "https://myaccount.uscis.gov/" },
                             { method: "TrackMyOPT", desc: "Our automated tracker monitors your case status and sends push notifications on any updates. Integrates with your OPT timeline.", link: "/login" },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
-                                <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <div key={i} className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                 <div><h3 className="font-semibold text-gray-900 dark:text-white">{item.method}</h3><p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p></div>
                             </div>
                         ))}
@@ -147,7 +147,7 @@ export default function OPTEADArticle() {
                             { question: "How long does it take to get the OPT EAD card?", answer: "Current processing time is 2-5 months from filing. Factors include filing method (online is faster), time of year (spring graduates cause a surge), and your service center." },
                             { question: "Can I work before receiving my EAD card?", answer: "No. You cannot begin employment until you physically receive your EAD card AND your OPT start date has passed. Working without the card is a violation of your F-1 status." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -156,7 +156,7 @@ export default function OPTEADArticle() {
                 </section>
             </div>
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Processing Time 2026</Link>
@@ -171,10 +171,10 @@ export default function OPTEADArticle() {
             </div>
 
             <AuthorBio />
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Application in Real-Time</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT Free lets you refresh case status anytime. Pro adds daily auto-checks and alerts you when your EAD is approved.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Track My EAD <ArrowRight className="w-4 h-4" /></Link>
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT Free lets you refresh case status anytime. Pro adds daily auto-checks and alerts you when your EAD is approved.</p>
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Track My EAD <ArrowRight className="w-4 h-4" /></Link>
             </div>
         </article>
     );

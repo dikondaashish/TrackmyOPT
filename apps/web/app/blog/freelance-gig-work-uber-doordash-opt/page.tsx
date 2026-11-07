@@ -38,7 +38,7 @@ export default function FreelanceGigWorkPage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/freelance-gig-work-uber-doordash-opt.jpg" alt="Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -51,7 +51,7 @@ export default function FreelanceGigWorkPage() {
                 <p>For 99.9% of international students, the answer is a firm <strong>NO</strong>.</p>
                 <p>To legally drive for Uber or deliver for DoorDash on OPT, you would have to prove to USCIS that driving a taxi or delivering food is <strong>directly related</strong> to your bachelor's or master's degree. Unless you hold a highly specific degree in logistics (and even then, it is incredibly risky and generally rejected by DSOs), this violates your F-1 status.</p>
                 
-                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2"><AlertTriangle className="w-6 h-6" /> The 1099 Trap</h3>
                     <p className="mb-0 text-red-800 dark:text-red-200">Companies like Uber and DoorDash report your earnings to the IRS using Form 1099-NEC. USCIS can see this tax record. If they see gig economy earnings that clearly don't match your computer science or business degree, they can deny future visas (like H-1B) for unauthorized employment.</p>
                 </div>
@@ -77,7 +77,7 @@ export default function FreelanceGigWorkPage() {
                 </ol>
                 <p>Freelance platforms like Upwork will not sign an I-983 for you, and as an independent contractor, you do not have a qualifying employer-employee relationship.</p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Track Multiple Freelance Clients</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">If you are freelancing on Standard OPT, managing your SEVIS records is tricky. <strong>TrackMyOPT</strong> helps you track your total weekly hours across multiple clients to ensure you meet the 20-hour minimum, preventing accidental unemployment accumulation.</p>
                 </div>
@@ -86,25 +86,25 @@ export default function FreelanceGigWorkPage() {
                 <p>Similar to freelancing, you can start a business on standard OPT, provided you have the necessary licenses and it relates to your degree. However, once you transition to STEM OPT, you cannot be self-employed. You would have to show a bona fide employer-employee relationship (e.g., your company has a Board of Directors that can fire you), which is highly scrutinized by USCIS.</p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Freelance Safely</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">If you are doing 1099 contractor work on your 12-month OPT, you need bulletproof documentation. TrackMyOPT provides secure cloud storage for your invoices, contracts, and proof of degree relevance, so you are always ready for an RFE.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your OPT Work</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT Work</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/multiple-jobs-opt-two-employers" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Working Multiple Jobs</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Can you hold a full-time job and a freelance gig simultaneously? Yes, here's how.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/volunteer-work-opt-employment-rules" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Volunteer Work on OPT</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">If you can't find paid freelance work, does unpaid volunteering stop the unemployment clock?</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

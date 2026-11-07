@@ -61,7 +61,7 @@ export default function J1vsF1Page() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/j1-visa-vs-f1-visa-opt-differences.png" alt="Two passports showing an F-1 visa stamp and a J-1 visa stamp next to an I-20 and DS-2019" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -79,7 +79,7 @@ export default function J1vsF1Page() {
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-6 my-8">
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-950 rounded-xl p-6">
+                    <div className="border dark:border-blue-950 rounded-xl p-6 border-primary-muted bg-primary-soft">
                         <h4 className="font-bold text-blue-900 dark:text-blue-400 mt-0 mb-3">
                             F-1 Visa: OPT
                         </h4>
@@ -121,7 +121,7 @@ export default function J1vsF1Page() {
                     <strong>Winner: J-1 Visa.</strong> The ability for a spouse to work and earn a US income makes the J-1 visa incredibly attractive for married graduate students and researchers.
                 </p>
 
-                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-6 h-6" />
                         The 212(e) Two-Year Home Residency Trap
@@ -159,7 +159,7 @@ export default function J1vsF1Page() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Organize Your Visa History
                 </h3>
@@ -169,7 +169,7 @@ export default function J1vsF1Page() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Access the Document Safe
                     </Link>
@@ -180,7 +180,7 @@ export default function J1vsF1Page() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/j1-waiver-212e-two-year-home-residency" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The J-1 Waiver (212e) Guide
                             </h4>
@@ -193,7 +193,7 @@ export default function J1vsF1Page() {
                         </div>
                     </Link>
                     <Link href="/blog/stem-opt-extension-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 STEM OPT Extension Guide
                             </h4>

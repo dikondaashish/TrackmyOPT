@@ -13,10 +13,10 @@ import { SmartContactForm } from "@/components/features/SmartContactForm";
 function ContactVisual() {
     return (
         <div className="relative">
-            <div className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
+            <div className="relative rounded-xl border border-border bg-card p-8 shadow-elevated">
                 <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Support Team Online</span>
+                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                    <span className="text-sm font-medium text-muted-foreground">Support Team Online</span>
                 </div>
 
                 <div className="space-y-4 mb-6">
@@ -24,9 +24,9 @@ function ContactVisual() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-gray-100 dark:bg-zinc-800 rounded-xl rounded-bl-sm p-4"
+                        className="bg-muted rounded-xl rounded-bl-sm p-4"
                     >
-                        <p className="text-sm text-gray-900 dark:text-white">Hi! How can we help you today?</p>
+                        <p className="text-sm text-foreground">Hi! How can we help you today?</p>
                     </motion.div>
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
@@ -40,20 +40,20 @@ function ContactVisual() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="bg-gray-100 dark:bg-zinc-800 rounded-xl rounded-bl-sm p-4"
+                        className="bg-muted rounded-xl rounded-bl-sm p-4"
                     >
-                        <p className="text-sm text-gray-900 dark:text-white">Of course! I'd be happy to help. Let me check that for you.</p>
+                        <p className="text-sm text-foreground">Of course! I'd be happy to help. Let me check that for you.</p>
                     </motion.div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-green-50 dark:bg-green-950 rounded-xl p-4 text-center">
-                        <p className="text-lg font-bold text-green-700 dark:text-green-300">&lt;4h</p>
-                        <p className="text-xs text-green-600 dark:text-green-400">Response Time</p>
+                    <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-center dark:border-emerald-900 dark:bg-emerald-950">
+                        <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">&lt;4h</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-300">Response Time</p>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 text-center">
+                    <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-center dark:border-blue-900 dark:bg-blue-950">
                         <p className="text-lg font-bold text-blue-700 dark:text-blue-300">98%</p>
-                        <p className="text-xs text-blue-600 dark:text-blue-400">Resolution Rate</p>
+                        <p className="text-xs text-blue-700 dark:text-blue-300">Resolution Rate</p>
                     </div>
                 </div>
             </div>
@@ -64,13 +64,13 @@ function ContactVisual() {
 // Support Channels
 function SupportChannels() {
     const channels = [
-        { icon: Mail, title: "Email Support", description: "support@trackmyopt.com", detail: "Response within 4 hours" },
-        { icon: MessageCircle, title: "Live Chat", description: "Chat with our team", detail: "Available 9am-6pm EST" },
-        { icon: HelpCircle, title: "Help Center", description: "Browse FAQs & guides", detail: "24/7 self-service" },
+        { icon: Mail, title: "Email Support", description: "support@trackmyopt.com", detail: "Response within 4 hours", tile: "bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300" },
+        { icon: MessageCircle, title: "Live Chat", description: "Chat with our team", detail: "Available 9am-6pm EST", tile: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300" },
+        { icon: HelpCircle, title: "Help Center", description: "Browse FAQs & guides", detail: "24/7 self-service", tile: "bg-violet-50 text-violet-600 dark:bg-violet-950 dark:text-violet-300" },
     ];
 
     return (
-        <section className="py-24 relative">
+        <section className="py-24 relative bg-background">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -78,7 +78,7 @@ function SupportChannels() {
                     viewport={{ once: true }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
                         Multiple Ways to Reach Us
                     </h2>
                 </motion.div>
@@ -91,12 +91,14 @@ function SupportChannels() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 hover:border-blue-500 transition-colors text-center"
+                            className="surface-card p-6 text-center"
                         >
-                            <channel.icon className="w-7 h-7 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{channel.title}</h3>
-                            <p className="text-blue-600 dark:text-blue-400 font-medium mb-1">{channel.description}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{channel.detail}</p>
+                            <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg ${channel.tile}`}>
+                                <channel.icon className="h-6 w-6" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-foreground mb-1">{channel.title}</h3>
+                            <p className="text-foreground font-medium mb-1 break-words">{channel.description}</p>
+                            <p className="text-sm text-muted-foreground">{channel.detail}</p>
                         </motion.div>
                     ))}
                 </div>
@@ -108,14 +110,14 @@ function SupportChannels() {
 // Help Categories
 function HelpCategories() {
     const categories = [
-        { icon: FileText, title: "OPT & Compliance", description: "Questions about tracking, deadlines, and status" },
-        { icon: CreditCard, title: "Billing & Premium", description: "Subscription, payments, and refunds" },
-        { icon: Bug, title: "Technical Issues", description: "Bugs, errors, and feature requests" },
-        { icon: HelpCircle, title: "Account & Settings", description: "Login, profile, and preferences" },
+        { icon: FileText, title: "OPT & Compliance", description: "Questions about tracking, deadlines, and status", tile: "bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300" },
+        { icon: CreditCard, title: "Billing & Premium", description: "Subscription, payments, and refunds", tile: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300" },
+        { icon: Bug, title: "Technical Issues", description: "Bugs, errors, and feature requests", tile: "bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-300" },
+        { icon: HelpCircle, title: "Account & Settings", description: "Login, profile, and preferences", tile: "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300" },
     ];
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900">
+        <section className="py-24 bg-surface border-y border-border">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -123,7 +125,7 @@ function HelpCategories() {
                     viewport={{ once: true }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
                         What Can We Help With?
                     </h2>
                 </motion.div>
@@ -136,13 +138,13 @@ function HelpCategories() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.05 }}
-                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 hover:border-blue-500 transition-colors cursor-pointer"
+                            className="surface-card p-5"
                         >
-                            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-primary mb-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${cat.tile}`}>
                                 <cat.icon className="w-5 h-5" />
                             </div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{cat.title}</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{cat.description}</p>
+                            <h3 className="font-semibold text-foreground mb-1">{cat.title}</h3>
+                            <p className="text-sm leading-6 text-muted-foreground">{cat.description}</p>
                         </motion.div>
                     ))}
                 </div>
@@ -162,7 +164,7 @@ function ContactFAQ() {
     ];
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900">
+        <section className="py-24 bg-surface border-y border-border">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -170,29 +172,29 @@ function ContactFAQ() {
                     viewport={{ once: true }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                         Frequently Asked Questions
                     </h2>
                 </motion.div>
 
-                <div className="space-y-3">
+                <div className="surface-card divide-y divide-border overflow-hidden">
                     {faqs.map((faq, index) => (
                         <motion.div
                             key={index}
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden"
+                            className="overflow-hidden"
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                                className="w-full min-h-14 px-6 py-4 flex items-center justify-between gap-4 text-left hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                             >
-                                <span className="font-medium text-gray-900 dark:text-white">{faq.question}</span>
-                                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
+                                <span className="font-semibold text-foreground">{faq.question}</span>
+                                <ChevronDown className={`w-5 h-5 shrink-0 text-muted-foreground transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
                             </button>
                             {openIndex === index && (
-                                <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
+                                <div className="px-6 pb-5 leading-7 text-muted-foreground">
                                     {faq.answer}
                                 </div>
                             )}
@@ -206,7 +208,7 @@ function ContactFAQ() {
 
 export default function ContactPage() {
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+        <main className="min-h-screen bg-background">
             <LandingNavbar />
 
             {/* Hero */}

@@ -168,7 +168,7 @@ export function ResourceCenter() {
       case "guide":
         return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400";
       case "faq":
-        return "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400";
+        return "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-400";
       case "external":
         return "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400";
       default:
@@ -177,7 +177,7 @@ export function ResourceCenter() {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-card">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3 mb-4">

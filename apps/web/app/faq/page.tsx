@@ -48,16 +48,16 @@ export default function FAQPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(faqSchema) }}
             />
-            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+            <main className="min-h-screen bg-background">
                 <LandingNavbar />
 
                 {/* Hero Section */}
-                <section className="pt-8 pb-16 px-4">
+                <section className="border-b border-border bg-surface px-4 pb-16 pt-12 sm:pt-16">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                        <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
                             Frequently Asked Questions
                         </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                             Everything you need to know about OPT, STEM OPT extension,
                             unemployment tracking, USCIS case status, and H-1B sponsorship.
                         </p>

@@ -142,12 +142,12 @@ const interpretationRows = [
 export default function EVerifyEmployerSearchPage() {
   return (
     <>
-      <main className="min-h-screen bg-slate-50 text-slate-950 dark:bg-zinc-950 dark:text-white">
-        <section className="border-b border-slate-200 bg-white px-4 pb-16 pt-28 dark:border-zinc-800 dark:bg-zinc-950 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
+      <main className="min-h-screen bg-surface text-foreground">
+        <section className="border-b border-border bg-background px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
           <div className="mx-auto max-w-6xl">
             <nav
               aria-label="Breadcrumb"
-              className="mb-8 text-sm text-slate-600 dark:text-slate-400"
+              className="mb-8 text-sm text-muted-foreground"
             >
               <ol className="flex flex-wrap items-center gap-2">
                 <li>
@@ -179,7 +179,7 @@ export default function EVerifyEmployerSearchPage() {
 
             <div className="grid items-center gap-10 lg:grid-cols-[1.25fr_.75fr]">
               <div>
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mb-4 text-sm text-muted-foreground">
                   Free · No sign-in required
                 </p>
                 <h1 className="max-w-4xl text-4xl font-black text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
@@ -193,7 +193,7 @@ export default function EVerifyEmployerSearchPage() {
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <a
                     href="#employer-search"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     Search an employer
                     <Search className="h-4 w-4" aria-hidden="true" />
@@ -202,7 +202,7 @@ export default function EVerifyEmployerSearchPage() {
                     href={officialSources.search}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-800 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-input bg-background px-6 py-3 font-semibold text-foreground shadow-card transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     Open directly on USCIS
                     <ExternalLink className="h-4 w-4" aria-hidden="true" />
@@ -210,14 +210,14 @@ export default function EVerifyEmployerSearchPage() {
                 </div>
               </div>
 
-              <aside className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-zinc-900">
+              <aside className="rounded-xl border border-border bg-card p-6 shadow-elevated">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300">
                     <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="font-bold">Quick answer</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                       What students should verify
                     </p>
                   </div>
@@ -231,7 +231,7 @@ export default function EVerifyEmployerSearchPage() {
                   ].map((item) => (
                     <li key={item} className="flex gap-3">
                       <CheckCircle2
-                        className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600"
+                        className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
                         aria-hidden="true"
                       />
                       <span>{item}</span>
@@ -256,7 +256,7 @@ export default function EVerifyEmployerSearchPage() {
               >
                 Search an employer
               </h2>
-              <p className="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">
+              <p className="mt-4 text-lg leading-8 text-muted-foreground">
                 Search the official USCIS records by employer name.
               </p>
             </div>
@@ -274,7 +274,7 @@ export default function EVerifyEmployerSearchPage() {
               >
                 How to search an employer
               </h2>
-              <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-4 leading-7 text-muted-foreground">
                 Employer records are sensitive to names and locations. A careful
                 search reduces false “not found” results.
               </p>
@@ -299,13 +299,13 @@ export default function EVerifyEmployerSearchPage() {
               ].map(([step, title, text]) => (
                 <li
                   key={step}
-                  className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+                  className="surface-card p-6"
                 >
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-black text-white">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft font-bold text-primary">
                     {step}
                   </span>
                   <h3 className="mt-5 text-lg font-bold">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {text}
                   </p>
                 </li>
@@ -321,14 +321,14 @@ export default function EVerifyEmployerSearchPage() {
               >
                 What an E-Verify search result means
               </h2>
-              <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-4 leading-7 text-muted-foreground">
                 Use a result as a starting point, not a decision about STEM OPT
                 eligibility.
               </p>
             </div>
-            <div className="mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="mt-8 overflow-x-auto surface-card">
               <table className="w-full min-w-[760px] text-left">
-                <thead className="bg-slate-100 text-sm text-slate-700 dark:bg-zinc-800 dark:text-slate-200">
+                <thead className="border-b border-border bg-muted text-sm text-foreground">
                   <tr>
                     <th scope="col" className="px-6 py-4 font-bold">
                       Search result
@@ -341,7 +341,7 @@ export default function EVerifyEmployerSearchPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 text-sm leading-6 dark:divide-zinc-800">
+                <tbody className="divide-y divide-border text-sm leading-6">
                   {interpretationRows.map((row) => (
                     <tr key={row.result}>
                       <th
@@ -350,10 +350,10 @@ export default function EVerifyEmployerSearchPage() {
                       >
                         {row.result}
                       </th>
-                      <td className="px-6 py-5 align-top text-slate-600 dark:text-slate-300">
+                      <td className="px-6 py-5 align-top text-muted-foreground">
                         {row.meaning}
                       </td>
-                      <td className="px-6 py-5 align-top text-slate-600 dark:text-slate-300">
+                      <td className="px-6 py-5 align-top text-muted-foreground">
                         {row.next}
                       </td>
                     </tr>
@@ -361,7 +361,7 @@ export default function EVerifyEmployerSearchPage() {
                 </tbody>
               </table>
             </div>
-            <div className="mt-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
+            <div className="mt-5 flex gap-3 rounded-lg border-l-4 border-l-amber-500 bg-amber-50 p-5 text-sm leading-6 text-amber-950 dark:bg-amber-950 dark:text-amber-100">
               <TriangleAlert
                 className="mt-0.5 h-5 w-5 shrink-0"
                 aria-hidden="true"
@@ -386,7 +386,7 @@ export default function EVerifyEmployerSearchPage() {
 
           <section
             aria-labelledby="stem-opt-heading"
-            className="overflow-hidden rounded-xl bg-blue-700 text-white"
+            className="overflow-hidden rounded-xl bg-ink text-ink-foreground shadow-elevated"
           >
             <div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:p-12">
               <div>
@@ -396,7 +396,7 @@ export default function EVerifyEmployerSearchPage() {
                 >
                   E-Verify is required—but it is not the only requirement
                 </h2>
-                <p className="mt-5 leading-8 text-blue-100">
+                <p className="mt-5 leading-8 text-ink-muted">
                   For the 24-month STEM OPT extension, the employer must
                   participate in E-Verify and the student and employer must
                   complete Form I-983. Your DSO recommends the STEM OPT
@@ -414,7 +414,7 @@ export default function EVerifyEmployerSearchPage() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex gap-3 rounded-lg bg-blue-800 p-4"
+                    className="flex gap-3 rounded-lg border border-ink-border bg-slate-800 p-4 dark:bg-slate-900"
                   >
                     <CheckCircle2
                       className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300"
@@ -460,13 +460,13 @@ export default function EVerifyEmployerSearchPage() {
             ].map(({ icon: Icon, title, text }) => (
               <article
                 key={title}
-                className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+                className="surface-card p-6"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <h3 className="mt-5 text-lg font-bold">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {text}
                 </p>
               </article>
@@ -481,27 +481,27 @@ export default function EVerifyEmployerSearchPage() {
               >
                 E-Verify employer search FAQ
               </h2>
-              <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
+              <p className="mt-4 text-lg text-muted-foreground">
                 Clear answers to the questions students ask before accepting a
                 STEM OPT role.
               </p>
             </div>
-            <div className="mx-auto mt-10 grid max-w-4xl gap-4">
+            <div className="mx-auto mt-10 max-w-4xl divide-y divide-border overflow-hidden surface-card">
               {faqs.map((faq) => (
                 <details
                   key={faq.question}
-                  className="group rounded-xl border border-slate-200 bg-white p-6 open:border-blue-300 dark:border-zinc-800 dark:bg-zinc-900 dark:open:border-blue-800"
+                  className="group px-6 py-4 open:bg-surface"
                 >
                   <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-bold marker:content-none">
                     {faq.question}
                     <span
                       aria-hidden="true"
-                      className="text-2xl font-light text-blue-600 transition-transform group-open:rotate-45"
+                      className="text-2xl font-light text-primary transition-transform group-open:rotate-45"
                     >
                       +
                     </span>
                   </summary>
-                  <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">
+                  <p className="mb-2 mt-1 leading-7 text-muted-foreground">
                     {faq.answer}
                   </p>
                 </details>
@@ -551,7 +551,7 @@ export default function EVerifyEmployerSearchPage() {
                 <Link
                   key={href}
                   href={href}
-                  className="group rounded-xl border border-slate-200 bg-white p-6 transition-colors hover:border-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-blue-800"
+                  className="group surface-card-interactive p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <Icon
                     className="h-6 w-6 text-blue-600 dark:text-blue-400"
@@ -560,7 +560,7 @@ export default function EVerifyEmployerSearchPage() {
                   <h3 className="mt-4 text-lg font-bold group-hover:text-blue-700 dark:group-hover:text-blue-300">
                     {title}
                   </h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {text}
                   </p>
                   <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 dark:text-blue-300">
@@ -574,7 +574,7 @@ export default function EVerifyEmployerSearchPage() {
 
           <section
             aria-labelledby="sources-heading"
-            className="rounded-xl border border-slate-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-900 sm:p-9"
+            className="surface-card p-7 sm:p-9"
           >
             <div className="flex items-start gap-4">
               <Landmark
@@ -585,7 +585,7 @@ export default function EVerifyEmployerSearchPage() {
                 <h2 id="sources-heading" className="text-2xl font-black">
                   Official sources and review notes
                 </h2>
-                <p className="mt-2 leading-7 text-slate-600 dark:text-slate-300">
+                <p className="mt-2 leading-7 text-muted-foreground">
                   Reviewed August 29, 2026. This page is educational and is not
                   legal advice or a USCIS endorsement. Confirm filing decisions
                   with your DSO, employer, and official government instructions.

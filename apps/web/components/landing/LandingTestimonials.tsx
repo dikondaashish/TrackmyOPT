@@ -94,12 +94,12 @@ const testimonials = [
 
 function TestimonialCard({ img, name, university, body, country }: (typeof testimonials)[number]) {
     return (
-        <Card className="w-64 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 shadow-none">
+        <Card className="w-64 bg-card border-border shadow-card">
             <CardContent className="p-4 prose-longform">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                         <AvatarImage src={img} alt={name} />
-                        <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold">{name[0]}</AvatarFallback>
+                        <AvatarFallback className="bg-blue-50 text-blue-700 font-semibold dark:bg-blue-950 dark:text-blue-300">{name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col min-w-0">
                         <figcaption className="text-sm font-semibold text-foreground flex items-center gap-1.5 truncate">
@@ -108,7 +108,7 @@ function TestimonialCard({ img, name, university, body, country }: (typeof testi
                         <p className="text-xs text-muted-foreground truncate">{university}</p>
                     </div>
                 </div>
-                <blockquote className="mt-3 text-sm text-muted-foreground leading-relaxed">{body}</blockquote>
+                <blockquote className="mt-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{body}</blockquote>
             </CardContent>
         </Card>
     );

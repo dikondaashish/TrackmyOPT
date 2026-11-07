@@ -38,7 +38,7 @@ export default function DriversLicensePage() {
                     <span>•</span><span>Updated July 12, 2026</span>
                 </div>
             </header>
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/drivers-license-opt-state-requirements.jpg" alt="US driver's license with REAL ID gold star next to an I-20 and passport" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -54,13 +54,13 @@ export default function DriversLicensePage() {
                     <li><strong>Two proofs of residency</strong> (utility bill, bank statement, lease agreement).</li>
                 </ul>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2"><AlertTriangle className="w-5 h-5" /> The "Limited Term" License</h4>
                     <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">Because you are a temporary resident, your driver's license will be marked as "Limited Term" and will expire on the same date as your I-20 or EAD card. When you get a STEM OPT extension, you must go back to the DMV to extend your license. <strong>Bring your new EAD card.</strong></p>
                 </div>
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">State-Specific Highlights</h2>
-                <div className="overflow-x-auto my-8">
+                <div className="overflow-x-auto my-8 surface-card [&>table]:border-hidden [&>table]:my-0">
                     <table className="min-w-full text-sm">
                         <thead><tr className="border-b border-gray-200 dark:border-zinc-700">
                             <th className="text-left py-3 px-4 font-bold">State</th>
@@ -77,7 +77,7 @@ export default function DriversLicensePage() {
                     </table>
                 </div>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Store Your License Digitally</h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">Your limited-term license expires when your EAD expires. Set a reminder with <strong>TrackMyOPT</strong> to renew your license when you receive your STEM OPT extension EAD. Our Document Safe also lets you securely store a digital copy of your license alongside your I-20, EAD, and passport for quick reference.</p>
                 </div>
@@ -86,25 +86,25 @@ export default function DriversLicensePage() {
                 <p>In most states, you can drive with your foreign driver's license for a limited time (usually 30-90 days) after arriving. After that, you must get a US license. Some states accept an International Driving Permit (IDP) alongside your foreign license, but an IDP is never a substitute for a US license.</p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Never Miss an Expiration Date</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Your license, EAD, and I-20 all have different expiration dates. TrackMyOPT helps you track all of them with automated reminders and a secure document vault.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors">Start Tracking Your Documents</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your Documents</Link>
                 </div>
             </div>
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/real-id-domestic-flights-international-students" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">REAL ID and Domestic Travel</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Learn why you need a REAL ID-compliant license to fly domestically starting May 2025.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
                     <Link href="/blog/buying-car-international-student-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Buying a Car on OPT</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Now that you have a license, learn how to finance and buy a car as an international student.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

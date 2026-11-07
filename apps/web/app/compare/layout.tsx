@@ -38,7 +38,7 @@ export default function CompareLayout({
     return (
         <>
             <LandingNavbar />
-            <main className="min-h-screen bg-white dark:bg-zinc-950 pt-20">
+            <main className="min-h-screen bg-background">
                 {children}
             </main>
             <LandingFooter />

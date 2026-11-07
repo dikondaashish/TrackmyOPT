@@ -150,17 +150,17 @@ function ExtensionAuthContent() {
     !looksLikeExtensionRedirectUri(redirectUri)
   ) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
-        <div className="bg-white dark:bg-card rounded-xl shadow-xl p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+        <div className="bg-card border border-border rounded-xl shadow-elevated p-6 sm:p-8 max-w-md w-full">
           <div className="text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-50 dark:bg-amber-950 flex items-center justify-center">
               <AlertTriangle className="w-7 h-7 text-amber-600 dark:text-amber-400" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Invalid Login Link</h1>
-            <p className="text-gray-600 dark:text-muted-foreground mb-4">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Invalid Login Link</h1>
+            <p className="text-muted-foreground mb-4">
               This authentication page must be accessed from the OPT Hub extension.
             </p>
-            <p className="text-sm text-gray-500 dark:text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               This link must be opened by the official TrackMyOPT extension.
             </p>
           </div>
@@ -309,30 +309,30 @@ function ExtensionAuthContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
-      <div className="bg-white dark:bg-card rounded-xl shadow-2xl p-8 max-w-lg w-full">
+    <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+      <div className="bg-card border border-border rounded-xl shadow-elevated p-6 sm:p-8 max-w-lg w-full">
         {/* Page Title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-foreground mb-2">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
             Sign in or Create account
           </h1>
-          <p className="text-gray-600 dark:text-muted-foreground">Choose your preferred method to continue</p>
+          <p className="text-muted-foreground">Choose your preferred method to continue</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="mb-6 p-4 rounded-lg border-l-4 border-l-red-500 bg-red-50 text-red-700 text-sm dark:bg-red-950 dark:text-red-300">
             {error}
           </div>
         )}
 
         {/* Tabs */}
-        <div className="flex gap-3 mb-8">
+        <div className="flex gap-1 mb-8 rounded-lg bg-muted p-1">
           <button
             onClick={() => setTab('google')}
             disabled={loading}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'google'
-              ? 'bg-blue-600 text-white shadow-lg'
-              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted'
+            className={`flex-1 min-h-11 py-2.5 px-6 rounded-md font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${tab === 'google'
+              ? 'bg-card text-foreground shadow-card'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             Google
@@ -340,9 +340,9 @@ function ExtensionAuthContent() {
           <button
             onClick={() => setTab('manual')}
             disabled={loading}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'manual'
-              ? 'bg-blue-600 text-white shadow-lg'
-              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted'
+            className={`flex-1 min-h-11 py-2.5 px-6 rounded-md font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${tab === 'manual'
+              ? 'bg-card text-foreground shadow-card'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             Manual
@@ -355,7 +355,7 @@ function ExtensionAuthContent() {
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full py-4 px-6 bg-white dark:bg-card border-2 border-gray-300 dark:border-border rounded-xl font-semibold text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-muted hover:border-gray-400 dark:hover:border-muted-foreground transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg shadow-sm"
+              className="w-full min-h-14 py-4 px-6 bg-background border border-input rounded-lg font-semibold text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg shadow-card"
             >
               {loading ? (
                 <>
@@ -393,11 +393,11 @@ function ExtensionAuthContent() {
         {tab === 'manual' && (
           <div className="space-y-4">
             {/* Sign In Collapsible */}
-            <div className="border-2 border-gray-200 dark:border-border rounded-xl overflow-hidden">
+            <div className="border border-border rounded-xl overflow-hidden shadow-card">
               <button
                 onClick={() => setShowSignIn(!showSignIn)}
                 disabled={loading}
-                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
+                className="w-full min-h-14 px-6 py-4 bg-surface hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:opacity-50 flex items-center justify-between font-semibold text-foreground"
               >
                 <span>Sign In</span>
                 <span className="text-xl">{showSignIn ? '−' : '+'}</span>
@@ -405,7 +405,7 @@ function ExtensionAuthContent() {
               {showSignIn && (
                 <form onSubmit={handleManualSignIn} className="p-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Email
                     </label>
                     <input
@@ -414,12 +414,12 @@ function ExtensionAuthContent() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={loading}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                      className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                       placeholder="you@example.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Password
                     </label>
                     <input
@@ -428,18 +428,18 @@ function ExtensionAuthContent() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={loading}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                      className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                     />
                   </div>
 
                   {signInError && (
-                    <p className="text-red-500 text-sm">{signInError}</p>
+                    <p className="text-red-600 dark:text-red-400 text-sm">{signInError}</p>
                   )}
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full min-h-12 py-3 px-6 bg-primary text-primary-foreground rounded-lg font-semibold shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? 'Signing in...' : 'Sign In'}
                   </button>
@@ -448,11 +448,11 @@ function ExtensionAuthContent() {
             </div>
 
             {/* Create Account Collapsible */}
-            <div className="border-2 border-gray-200 dark:border-border rounded-xl overflow-hidden">
+            <div className="border border-border rounded-xl overflow-hidden shadow-card">
               <button
                 onClick={() => setShowSignUp(!showSignUp)}
                 disabled={loading}
-                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
+                className="w-full min-h-14 px-6 py-4 bg-surface hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:opacity-50 flex items-center justify-between font-semibold text-foreground"
               >
                 <span>Create Account</span>
                 <span className="text-xl">{showSignUp ? '−' : '+'}</span>
@@ -460,15 +460,15 @@ function ExtensionAuthContent() {
               {showSignUp && (awaitingEmailVerification ? (
                 <form onSubmit={handleVerifySignUp} className="p-6 space-y-4">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-foreground">
+                    <h2 className="text-lg font-semibold text-foreground">
                       Verify your email
                     </h2>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-muted-foreground">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       Enter the 6-digit code sent to {signUpEmail} to finish creating your account.
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="extension-signup-code">
+                    <label className="block text-sm font-medium text-foreground mb-2" htmlFor="extension-signup-code">
                       Verification code
                     </label>
                     <input
@@ -482,15 +482,15 @@ function ExtensionAuthContent() {
                       value={verificationCode}
                       onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       disabled={loading}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                      className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                       placeholder="123456"
                     />
                   </div>
-                  {signUpError && <p className="text-red-500 text-sm">{signUpError}</p>}
+                  {signUpError && <p className="text-red-600 dark:text-red-400 text-sm">{signUpError}</p>}
                   <button
                     type="submit"
                     disabled={loading || verificationCode.length !== 6}
-                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full min-h-12 py-3 px-6 bg-primary text-primary-foreground rounded-lg font-semibold shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? 'Verifying...' : 'Verify and continue'}
                   </button>
@@ -498,7 +498,7 @@ function ExtensionAuthContent() {
                     type="button"
                     onClick={handleResendSignUpVerification}
                     disabled={loading}
-                    className="w-full py-2 text-sm font-semibold text-blue-700 hover:text-blue-800 disabled:opacity-50"
+                    className="w-full py-2 text-sm font-semibold text-primary hover:text-primary-hover disabled:opacity-50"
                   >
                     Resend verification code
                   </button>
@@ -507,7 +507,7 @@ function ExtensionAuthContent() {
                 <form onSubmit={handleManualSignUp} className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-foreground mb-2">
                         First Name
                       </label>
                       <input
@@ -516,11 +516,11 @@ function ExtensionAuthContent() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         disabled={loading}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                        className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-foreground mb-2">
                         Last Name
                       </label>
                       <input
@@ -529,12 +529,12 @@ function ExtensionAuthContent() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         disabled={loading}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                        className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Email
                     </label>
                     <input
@@ -543,12 +543,12 @@ function ExtensionAuthContent() {
                       value={signUpEmail}
                       onChange={(e) => setSignUpEmail(e.target.value)}
                       disabled={loading}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                      className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                       placeholder="you@example.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Password
                     </label>
                     <input
@@ -557,18 +557,18 @@ function ExtensionAuthContent() {
                       value={signUpPassword}
                       onChange={(e) => setSignUpPassword(e.target.value)}
                       disabled={loading}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                      className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                     />
                   </div>
 
-                  <div className="pt-4 border-t-2 border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                  <div className="pt-4 border-t border-border">
+                    <h3 className="text-sm font-semibold text-foreground mb-3">
                       OPT Information
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Program End Date <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Program End Date <span className="text-red-600 dark:text-red-400">*</span>
                         </label>
                         <input
                           type="text"
@@ -577,16 +577,16 @@ function ExtensionAuthContent() {
                           onChange={(e) => setProgramEnd(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(programEnd, 'programEnd', true)}
                           disabled={loading}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                          className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
                         {dateErrors.programEnd && (
-                          <p className="text-xs text-red-600 mt-1">{dateErrors.programEnd}</p>
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">{dateErrors.programEnd}</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           DSO Recommendation Date
                         </label>
                         <input
@@ -595,17 +595,17 @@ function ExtensionAuthContent() {
                           onChange={(e) => setDsoReco(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(dsoReco, 'dsoReco', false)}
                           disabled={loading}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                          className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
                         {dateErrors.dsoReco && (
-                          <p className="text-xs text-red-600 mt-1">{dateErrors.dsoReco}</p>
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">{dateErrors.dsoReco}</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          OPT EAD End Date <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          OPT EAD End Date <span className="text-red-600 dark:text-red-400">*</span>
                         </label>
                         <input
                           type="text"
@@ -614,17 +614,17 @@ function ExtensionAuthContent() {
                           onChange={(e) => setOptEadEnd(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(optEadEnd, 'optEadEnd', true)}
                           disabled={loading}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                          className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
                         {dateErrors.optEadEnd && (
-                          <p className="text-xs text-red-600 mt-1">{dateErrors.optEadEnd}</p>
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">{dateErrors.optEadEnd}</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          OPT Start Date <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          OPT Start Date <span className="text-red-600 dark:text-red-400">*</span>
                         </label>
                         <input
                           type="text"
@@ -633,16 +633,16 @@ function ExtensionAuthContent() {
                           onChange={(e) => setOptStart(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(optStart, 'optStart', true)}
                           disabled={loading}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                          className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
                         {dateErrors.optStart && (
-                          <p className="text-xs text-red-600 mt-1">{dateErrors.optStart}</p>
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">{dateErrors.optStart}</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           STEM Start Date
                         </label>
                         <input
@@ -651,12 +651,12 @@ function ExtensionAuthContent() {
                           onChange={(e) => setStemStart(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(stemStart, 'stemStart', false)}
                           disabled={loading}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                          className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
                         {dateErrors.stemStart && (
-                          <p className="text-xs text-red-600 mt-1">{dateErrors.stemStart}</p>
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">{dateErrors.stemStart}</p>
                         )}
                       </div>
                       <div className="flex items-center">
@@ -666,30 +666,30 @@ function ExtensionAuthContent() {
                           checked={isStem}
                           onChange={(e) => setIsStem(e.target.checked)}
                           disabled={loading}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50"
+                          className="w-4 h-4 rounded border-input text-primary accent-blue-600 focus:ring-ring disabled:opacity-50"
                         />
-                        <label htmlFor="isStem" className="ml-2 text-sm text-gray-700">
+                        <label htmlFor="isStem" className="ml-2 text-sm text-foreground">
                           I'm STEM-eligible
                         </label>
                       </div>
                     </div>
 
-                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-xs text-blue-900 flex items-start gap-1.5">
-                        <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-700" />
+                    <div className="mt-4 p-3 rounded-lg border-l-4 border-l-blue-600 bg-blue-50 dark:bg-blue-950">
+                      <p className="text-xs text-blue-900 dark:text-blue-100 flex items-start gap-1.5">
+                        <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-700 dark:text-blue-300" />
                         <span>You can edit these dates later in the dashboard</span>
                       </p>
                     </div>
                   </div>
 
                   {signUpError && (
-                    <p className="text-red-500 text-sm">{signUpError}</p>
+                    <p className="text-red-600 dark:text-red-400 text-sm">{signUpError}</p>
                   )}
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full min-h-12 py-3 px-6 bg-primary text-primary-foreground rounded-lg font-semibold shadow-button hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? 'Creating account...' : 'Create Account'}
                   </button>

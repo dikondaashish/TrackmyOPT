@@ -80,7 +80,7 @@ export default function OPTHealthInsuranceArticle() {
                 </div>
             </header>
 
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Your university health plan usually ends at graduation. On OPT, get coverage through <strong>employer insurance</strong> (best value), <strong>COBRA</strong> (bridge after leaving a job), the <strong>ACA marketplace</strong> (special enrollment after losing student coverage), or a <strong>budget international student plan</strong> ($50–$150/mo). Going uninsured risks five-figure medical debt.
@@ -95,7 +95,7 @@ export default function OPTHealthInsuranceArticle() {
             </div>
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -107,7 +107,7 @@ export default function OPTHealthInsuranceArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -139,7 +139,7 @@ export default function OPTHealthInsuranceArticle() {
                         The federal government does not mandate health insurance for F-1 OPT students. However, <strong>your employer may require it, and some states do</strong>. Additionally, not having health insurance exposes you to potentially catastrophic medical debt.
                     </p>
 
-                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold text-lg">
                             "A single hospitalization without insurance can cost $50,000–$200,000+. One medical emergency could derail your entire OPT period and career plans."
                         </p>
@@ -150,10 +150,10 @@ export default function OPTHealthInsuranceArticle() {
                         Most employers sponsoring OPT positions require or strongly encourage health insurance enrollment within 30-60 days of your start date. Some employers:
                     </p>
                     <ul className="space-y-2 text-gray-700 dark:text-gray-300 mb-6">
-                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" /> <span>Pay 50-100% of premiums for employee coverage</span></li>
-                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" /> <span>Offer dental and vision coverage in addition to medical</span></li>
-                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" /> <span>Provide dependent/family coverage options</span></li>
-                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" /> <span>Include life insurance and disability coverage</span></li>
+                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> <span>Pay 50-100% of premiums for employee coverage</span></li>
+                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> <span>Offer dental and vision coverage in addition to medical</span></li>
+                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> <span>Provide dependent/family coverage options</span></li>
+                        <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> <span>Include life insurance and disability coverage</span></li>
                     </ul>
                 </section>
 
@@ -172,7 +172,7 @@ export default function OPTHealthInsuranceArticle() {
                             { type: "ACA Marketplace Plans", desc: "Plans purchased directly from Healthcare.gov. Most affordable for those without employer coverage. No subsidies for international students." },
                             { type: "International Student Plans", desc: "Special plans designed for international students. Budget-friendly ($50-150/month) but limited coverage and exclusions." },
                         ].map((item) => (
-                            <div key={item.type} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.type} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">
                                     {item.type}
                                 </h3>
@@ -191,41 +191,41 @@ export default function OPTHealthInsuranceArticle() {
                     </p>
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">What to Expect</h3>
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Feature</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Details</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Feature</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Details</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Employee Premium</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">$200-500/month (employer often covers 50%+)</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Employee Premium</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">$200-500/month (employer often covers 50%+)</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Deductible Range</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">$500-$2,000 per year</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Deductible Range</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">$500-$2,000 per year</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Coverage Type</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Medical, Dental, Vision, Prescription, Mental Health</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Coverage Type</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Medical, Dental, Vision, Prescription, Mental Health</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Enrollment Window</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Usually within 30-60 days of employment start</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Enrollment Window</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Usually within 30-60 days of employment start</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800">
-                        <p className="text-green-900 dark:text-green-100 font-medium text-sm">
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                        <p className="text-emerald-900 dark:text-emerald-100 font-medium text-sm">
                             <CheckCircle2 className="inline w-4 h-4 mr-2" />
                             <strong>Pros:</strong> Low cost, broad coverage, employer contribution, no eligibility waiting period
                         </p>
-                        <p className="text-green-900 dark:text-green-100 font-medium text-sm mt-2">
+                        <p className="text-emerald-900 dark:text-emerald-100 font-medium text-sm mt-2">
                             <AlertTriangle className="inline w-4 h-4 mr-2" />
                             <strong>Cons:</strong> Coverage only while employed, limited plan choices, may not cover family members
                         </p>
@@ -248,7 +248,7 @@ export default function OPTHealthInsuranceArticle() {
                             { tier: "Gold", cost: "$500-700/month", coverage: "80% of costs covered", deductible: "$1,500-3,000" },
                             { tier: "Platinum", cost: "$700-1,000/month", coverage: "90% of costs covered", deductible: "$500-1,000" },
                         ].map((plan) => (
-                            <div key={plan.tier} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={plan.tier} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{plan.tier} Plans</h3>
                                 <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                                     <li><strong>Cost:</strong> {plan.cost}</li>
@@ -276,29 +276,29 @@ export default function OPTHealthInsuranceArticle() {
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">COBRA at a Glance</h3>
                     <div className="space-y-3 mb-6">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <p className="font-semibold text-gray-900 dark:text-white text-sm">Eligibility: When You Leave a Job</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">You can elect COBRA within 60 days of losing employment or benefits if your employer has 20+ employees.</p>
                         </div>
 
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <p className="font-semibold text-gray-900 dark:text-white text-sm">Cost: 100% Premium + 2% Fee</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Typically $600-1,200/month since you pay the full employer+employee portion plus administrative fee.</p>
                         </div>
 
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <p className="font-semibold text-gray-900 dark:text-white text-sm">Duration: Up to 18 Months</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Coverage extends 18 months from the date you leave employment, giving you time to find new coverage or employment.</p>
                         </div>
 
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <p className="font-semibold text-gray-900 dark:text-white text-sm">Coverage Quality: Identical to Employee Plan</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">You keep the exact same medical, dental, and vision coverage your employer offered.</p>
                         </div>
                     </div>
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">Should You Enroll in COBRA?</h3>
-                    <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="p-4 rounded-xl border border-primary-muted bg-primary-soft">
                         <p className="text-blue-800 dark:text-blue-200 font-medium text-sm mb-2">✓ Yes, if your next job starts in 1-6 months (bridge coverage)</p>
                         <p className="text-blue-800 dark:text-blue-200 font-medium text-sm mb-2">✓ Yes, if you have upcoming medical procedures or prescriptions</p>
                         <p className="text-blue-800 dark:text-blue-200 font-medium text-sm mb-2">✗ No, if you can get employer coverage immediately</p>
@@ -321,7 +321,7 @@ export default function OPTHealthInsuranceArticle() {
                             { name: "ISO United Healthcare", cost: "$75-200/month", coverage: "Medical, emergency dental", max: "$750K-$2M" },
                             { name: "GeoBlue", cost: "$100-250/month", coverage: "Comprehensive medical", max: "$1M+" },
                         ].map((plan) => (
-                            <div key={plan.name} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={plan.name} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white text-sm">{plan.name}</h3>
                                 <div className="grid grid-cols-3 gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400">
                                     <div><strong>Cost:</strong> {plan.cost}</div>
@@ -351,45 +351,45 @@ export default function OPTHealthInsuranceArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Complete Comparison Table
                     </h2>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Factor</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Employer Plan</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">COBRA</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Marketplace</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">International</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Factor</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Employer Plan</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">COBRA</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Marketplace</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">International</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Monthly Cost</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">$100-300</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">$600-1,200</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">$300-700</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">$50-150</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Monthly Cost</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">$100-300</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">$600-1,200</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">$300-700</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">$50-150</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Coverage Quality</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Excellent</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Excellent</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Good-Excellent</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Basic</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Coverage Quality</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Excellent</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Excellent</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Good-Excellent</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Basic</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Duration</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">While employed</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">18 months max</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">12 months</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">12 months</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Duration</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">While employed</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">18 months max</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">12 months</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">12 months</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-medium">Dental/Vision</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✓ Yes</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✓ Yes</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Optional</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✗ Limited</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-medium">Dental/Vision</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">✓ Yes</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">✓ Yes</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Optional</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">✗ Limited</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -410,7 +410,7 @@ export default function OPTHealthInsuranceArticle() {
                             { step: "4. Complete Enrollment Form", detail: "Sign health insurance enrollment documents. You may need an ITIN if you don't have an SSN." },
                             { step: "5. Verify Effective Date", detail: "Confirm when coverage starts (usually within 30 days of hire)." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.step}</p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p>
                             </div>
@@ -427,7 +427,7 @@ export default function OPTHealthInsuranceArticle() {
                             { step: "5. Select & Enroll", detail: "Choose your plan and confirm enrollment. You'll get an official notice." },
                             { step: "6. Pay Your First Premium", detail: "Payment is due by the first of the month for coverage to start." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.step}</p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p>
                             </div>
@@ -441,16 +441,16 @@ export default function OPTHealthInsuranceArticle() {
                     </h2>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">What if I get married or have dependents?</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm">
                                 Most employer plans allow you to add spouses and children to coverage. Notify HR within 30 days of marriage or birth for a qualifying event. Marketplace plans also offer family coverage options.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                            <h3 className="font-bold text-green-900 dark:text-green-100 mb-2">What if I leave my OPT job?</h3>
-                            <p className="text-green-800 dark:text-green-200 text-sm">
+                        <div className="p-5 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <h3 className="font-bold text-emerald-900 dark:text-emerald-100 mb-2">What if I leave my OPT job?</h3>
+                            <p className="text-emerald-800 dark:text-emerald-200 text-sm">
                                 You have 60 days from losing coverage to elect COBRA if eligible. If you get a new job with health insurance, enroll immediately to avoid gaps. If transitioning to H-1B, your new employer typically covers health insurance.
                             </p>
                         </div>
@@ -485,7 +485,7 @@ export default function OPTHealthInsuranceArticle() {
                             { question: "Can I use health insurance immediately after enrolling?", answer: "Employer coverage generally starts within 30 days of enrollment. Marketplace coverage starts the 1st of the following month. COBRA begins immediately upon election." },
                             { question: "What happens if I don't enroll in employer health insurance during the enrollment window?", answer: "You typically lose the chance to enroll until the next open enrollment period unless you have a qualifying event (marriage, birth, job loss). Ask HR about exceptions." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -497,7 +497,7 @@ export default function OPTHealthInsuranceArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Extension Guide 2026</Link>

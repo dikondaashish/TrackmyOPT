@@ -60,7 +60,7 @@ export function SignUpForm({
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             First Name
           </label>
           <input
@@ -69,12 +69,12 @@ export function SignUpForm({
             onChange={(e) => onFirstNameChange(e.target.value)}
             required
             disabled={loading}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+            className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
             placeholder="John"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Last Name
           </label>
           <input
@@ -83,14 +83,14 @@ export function SignUpForm({
             onChange={(e) => onLastNameChange(e.target.value)}
             required
             disabled={loading}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+            className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
             placeholder="Doe"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Email
         </label>
         <input
@@ -99,13 +99,13 @@ export function SignUpForm({
           onChange={(e) => onEmailChange(e.target.value)}
           required
           disabled={loading}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+          className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
           placeholder="your@email.com"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+        <label className="block text-sm font-medium text-foreground mb-2">Password</label>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -113,7 +113,7 @@ export function SignUpForm({
             onChange={(e) => onPasswordChange(e.target.value)}
             required
             disabled={loading}
-            className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+            className="w-full px-4 py-3 pr-12 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
             placeholder="••••••••"
           />
           <PasswordVisibilityButton visible={showPassword} onToggle={onTogglePassword} />
@@ -121,7 +121,7 @@ export function SignUpForm({
 
         {password.length > 0 && (
           <div className="mt-3 space-y-1">
-            <p className="text-xs text-gray-600 dark:text-muted-foreground font-medium mb-2">
+            <p className="text-xs text-muted-foreground font-medium mb-2">
               Password must contain:
             </p>
             {[
@@ -135,10 +135,10 @@ export function SignUpForm({
               },
             ].map(({ label, valid }) => (
               <div key={label} className="flex items-center text-xs">
-                <span className={valid ? "text-green-600" : "text-gray-400"}>
+                <span className={valid ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}>
                   {valid ? "✓" : "○"}
                 </span>
-                <span className={`ml-2 ${valid ? "text-green-600" : "text-gray-500"}`}>
+                <span className={`ml-2 ${valid ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}`}>
                   {label}
                 </span>
               </div>
@@ -148,7 +148,7 @@ export function SignUpForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Confirm Password
         </label>
         <div className="relative">
@@ -158,7 +158,7 @@ export function SignUpForm({
             onChange={(e) => onConfirmPasswordChange(e.target.value)}
             required
             disabled={loading}
-            className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
+            className="w-full px-4 py-3 pr-12 border border-input rounded-lg bg-background text-foreground shadow-card placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:bg-muted"
             placeholder="••••••••"
           />
           <PasswordVisibilityButton
@@ -176,19 +176,19 @@ export function SignUpForm({
             checked={agreedToTerms}
             onChange={(e) => onAgreedToTermsChange(e.target.checked)}
             disabled={loading}
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-4 h-4 rounded border-input text-primary accent-blue-600 focus:ring-ring focus:ring-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         <label
           htmlFor="terms-checkbox"
-          className="text-sm text-gray-600 dark:text-muted-foreground cursor-pointer select-none"
+          className="text-sm text-muted-foreground cursor-pointer select-none"
         >
           I agree to the{" "}
           <a
             href="/privacy"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+            className="text-primary hover:text-primary-hover hover:underline font-medium"
             onClick={(e) => e.stopPropagation()}
           >
             Privacy Policy
@@ -198,7 +198,7 @@ export function SignUpForm({
             href="/terms"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+            className="text-primary hover:text-primary-hover hover:underline font-medium"
             onClick={(e) => e.stopPropagation()}
           >
             Terms & Conditions
@@ -208,7 +208,7 @@ export function SignUpForm({
             href="/disclaimer"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+            className="text-primary hover:text-primary-hover hover:underline font-medium"
             onClick={(e) => e.stopPropagation()}
           >
             Disclaimer
@@ -219,18 +219,18 @@ export function SignUpForm({
       <button
         type="submit"
         disabled={loading || !isPasswordValid || !agreedToTerms}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+        className="w-full min-h-12 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold py-3 px-4 rounded-lg shadow-button transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? "Creating account..." : "Create Account"}
       </button>
 
       <div className="text-center mt-6">
-        <p className="text-sm text-gray-600 dark:text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
           <button
             type="button"
             onClick={onSwitchToSignin}
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-primary hover:text-primary-hover font-medium"
           >
             sign in
           </button>

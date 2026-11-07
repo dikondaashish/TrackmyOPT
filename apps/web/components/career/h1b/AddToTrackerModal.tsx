@@ -49,7 +49,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
             <div role="dialog" aria-modal="true" aria-labelledby="add-job-tracker-title" className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md shadow-2xl p-6 space-y-6">
                 <div className="flex items-center justify-between">
                     <h3 id="add-job-tracker-title" className="text-xl font-bold text-gray-900 dark:text-white">Add to Job Tracker</h3>
@@ -79,7 +79,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                             placeholder="e.g. Software Engineer"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition shadow-card"
                         />
                     </div>
 
@@ -90,7 +90,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                                 id="job-tracker-status"
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as JobTrackerItem["status"])}
-                                className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition shadow-card"
                             >
                                 <option value="Wishlist">Wishlist</option>
                                 <option value="Applied">Applied</option>
@@ -104,7 +104,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                                 placeholder="e.g. Remote"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition shadow-card"
                             />
                         </div>
                     </div>
@@ -117,7 +117,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                             placeholder="https://..."
                             value={link}
                             onChange={(e) => setLink(e.target.value)}
-                            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition shadow-card"
                         />
                     </div>
 

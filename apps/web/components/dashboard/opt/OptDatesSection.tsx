@@ -494,7 +494,7 @@ export function OptDatesSection() {
       )}
 
       {/* Main Form Card */}
-      <Card className="overflow-hidden rounded-xl border border-slate-200 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800">
+      <Card className="overflow-hidden rounded-xl border border-slate-200 bg-card shadow-card dark:border-slate-800 shadow-card">
         <div className="space-y-5 p-4 sm:p-6 lg:p-7">
           <OptDatesFormFields
             dates={dates}

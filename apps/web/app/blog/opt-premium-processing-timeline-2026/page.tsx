@@ -101,7 +101,7 @@ export default function OptPremiumProcessingTimeline2026Page() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: September 1, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Plan for <strong>6–9 calendar weeks</strong> from premium request to approval, plus <strong>1–2 weeks</strong> for EAD mailing. USCIS&apos;s 30-day promise is business days and covers only the decision — not card production or delivery. Fee details:{" "}
@@ -122,9 +122,9 @@ export default function OptPremiumProcessingTimeline2026Page() {
                 <p className="text-gray-700 dark:text-gray-300 mb-6">
                     Students often say &quot;premium took 50 days&quot; without specifying which stage. Track each separately:
                 </p>
-                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-zinc-800">
+                <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-100 dark:bg-zinc-800">
+                        <thead className="bg-surface-strong">
                             <tr>
                                 <th className="p-3 text-left font-semibold">Stage</th>
                                 <th className="p-3 text-left font-semibold">Typical Duration</th>
@@ -231,8 +231,8 @@ export default function OptPremiumProcessingTimeline2026Page() {
                         "You filed late and regular processing would miss your requested start date",
                         "You are NOT eligible for STEM OPT 180-day auto-extension",
                     ].map((tip) => (
-                        <div key={tip} className="flex items-start gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-950">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                        <div key={tip} className="flex items-start gap-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
                             <p className="text-gray-700 dark:text-gray-300 text-sm">{tip}</p>
                         </div>
                     ))}
@@ -243,7 +243,7 @@ export default function OptPremiumProcessingTimeline2026Page() {
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                 <div className="space-y-4">
                     {FAQS.map((faq) => (
-                        <div key={faq.question} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div key={faq.question} className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                         </div>
@@ -251,17 +251,17 @@ export default function OptPremiumProcessingTimeline2026Page() {
                 </div>
             </section>
 
-            <div className="bg-amber-600 rounded-xl p-8 text-center text-white">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Track Your Premium OPT Case</h2>
-                <p className="text-amber-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     Log your I-907 date, approval, and delivery milestones — get alerts when USCIS updates your case.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-600 rounded-xl font-semibold hover:bg-amber-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Track My Case <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-premium-processing-fee-increase-1780" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Is the $1,780 Premium Fee Worth It?</Link>

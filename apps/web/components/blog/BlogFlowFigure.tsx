@@ -16,7 +16,7 @@ export function BlogFlowFigure({
   const [failed, setFailed] = useState(false);
 
   return (
-    <figure className="not-prose my-8 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-5 dark:border-slate-700 dark:bg-slate-900">
+    <figure className="not-prose my-8 rounded-xl border border-border bg-surface p-3 sm:p-5">
       {!failed && (
         <Image
           src={playing ? visual.src : visual.poster}
@@ -24,7 +24,7 @@ export function BlogFlowFigure({
           width={1200}
           height={600}
           unoptimized
-          className="h-auto w-full rounded-xl"
+          className="h-auto w-full rounded-lg border border-border bg-card shadow-card"
           onError={() => {
             setFailed(true);
             setPlaying(false);
@@ -53,7 +53,7 @@ export function BlogFlowFigure({
           type="button"
           aria-pressed={playing}
           onClick={() => setPlaying(!playing)}
-          className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+          className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-card hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
           {playing ? (
             <Pause className="h-4 w-4" aria-hidden />

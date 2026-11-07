@@ -56,7 +56,7 @@ export function PrivacyProvider() {
         <button
           type="button"
           onClick={openPrivacySettings}
-          className="fixed bottom-4 right-4 z-[9998] inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-lg transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-200 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+          className="fixed bottom-4 right-4 z-[9998] inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-elevated transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Open privacy choices"
           title="Privacy choices"
         >

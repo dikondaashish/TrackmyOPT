@@ -497,7 +497,7 @@ export function SubscriptionSettings({
         <div className="grid lg:grid-cols-3 gap-8 pt-8 border-t border-gray-200 dark:border-gray-700">
           {/* Left Column: Plan Details (1/3) */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-1 border border-amber-100 dark:border-amber-950">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-1 border border-amber-100 dark:border-amber-950 shadow-card">
               <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900 flex items-center justify-center text-amber-600 dark:text-amber-400">
@@ -582,7 +582,7 @@ export function SubscriptionSettings({
 
           {/* Right Column: Billing History & Features (2/3) */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-card">
               <BillingHistory />
             </div>
           </div>

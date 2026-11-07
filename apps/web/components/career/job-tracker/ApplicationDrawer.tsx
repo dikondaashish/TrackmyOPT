@@ -246,7 +246,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
             <button
                 type="button"
                 aria-label="Close application details"
-                className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
+                className="absolute inset-0 bg-black/35"
                 onClick={onClose}
             />
 
@@ -259,7 +259,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
             >
                 {/* Header */}
                 <div className="flex shrink-0 items-start gap-3 border-b border-gray-100 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                    <div className="mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-950">
+                    <div className="mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-950 shadow-card">
                         <CompanyLogo
                             companyName={application.company_name}
                             jobUrl={application.job_url}

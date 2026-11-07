@@ -50,33 +50,34 @@ export function MonitoringEmailOffer() {
     }
   }
   return (
-    <main className="mx-auto max-w-xl px-6 py-20 text-center">
-      <p className="text-sm text-slate-500">TrackMyOPT Pro</p>
-      <h1 className="mt-3 text-3xl font-semibold">
+    <main className="min-h-screen bg-surface px-4 py-16 sm:py-24">
+      <div className="surface-card mx-auto max-w-xl px-6 py-12 text-center sm:px-10">
+      <p className="text-sm font-medium text-primary">TrackMyOPT Pro</p>
+      <h1 className="mt-3 text-3xl font-semibold text-foreground">
         Let us handle the daily checks
       </h1>
-      <p className="mt-4 text-slate-600">
+      <p className="mt-4 text-muted-foreground">
         Daily USCIS checks. Email when your status changes. Manual tracking
         stays free.
       </p>
       <button
         disabled={busy || !token}
         onClick={() => void viewOffer()}
-        className="mt-8 rounded-xl bg-blue-600 px-6 py-3 font-medium text-white disabled:opacity-50"
+        className="mt-8 inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
       >
         {busy ? 'Checking…' : 'See my monitoring options'}
       </button>
-      <p className="mt-4 text-sm text-slate-500">
+      <p className="mt-4 text-sm text-muted-foreground">
         Monitoring cannot speed up a USCIS decision.
       </p>
       {error && (
-        <p role="alert" className="mt-5 text-sm">
+        <p role="alert" className="mt-5 text-sm text-destructive">
           {error}
         </p>
       )}
       <Link
         href="/dashboard/case-status"
-        className="mt-6 inline-block text-sm underline"
+        className="mt-6 inline-block text-sm text-muted-foreground underline hover:text-foreground"
       >
         Back to my case
       </Link>
@@ -86,6 +87,7 @@ export function MonitoringEmailOffer() {
         caseMonitoring
         checkoutSource="pending_case_email"
       />
+      </div>
     </main>
   );
 }

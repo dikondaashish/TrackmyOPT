@@ -76,7 +76,7 @@ export function CaseStatusReceiptPanel({
             variant="outline"
             size="sm"
             onClick={onExpandEdit}
-            className="w-full sm:w-auto gap-2 px-4 py-2.5 h-auto font-semibold bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-800 rounded-lg text-sm text-gray-900 dark:text-white"
+            className="w-full sm:w-auto gap-2 px-4 py-2.5 h-auto font-semibold bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-800 rounded-lg text-sm text-gray-900 dark:text-white shadow-card"
           >
             <Pencil className="w-3.5 h-3.5" />
             Change receipt
@@ -187,7 +187,7 @@ export function CaseStatusReceiptPanel({
                 placeholder="e.g., IOE1234567890"
                 value={receiptNumber}
                 onChange={(e) => onReceiptChange(e.target.value.toUpperCase())}
-                className="w-full font-mono ph-mask text-base h-11 px-4 rounded-lg border border-gray-300 dark:border-zinc-800 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 focus:border-blue-600 transition-colors bg-white dark:bg-zinc-950"
+                className="w-full font-mono ph-mask text-base h-11 px-4 rounded-lg border border-gray-300 dark:border-zinc-800 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 focus:border-blue-600 transition-colors bg-white dark:bg-zinc-950 shadow-card"
                 data-ph-mask
                 maxLength={13}
                 aria-label="Enter your USCIS receipt number"

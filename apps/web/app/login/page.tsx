@@ -491,7 +491,7 @@ function LoginPageContent() {
   ];
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-background">
+    <div className="min-h-screen flex bg-surface">
       {showOTPModal && (
         <OtpVerificationModal
           signupEmail={signupEmail}
@@ -540,7 +540,7 @@ function LoginPageContent() {
 
       {/* Right Side - Auth Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:p-8">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-elevated sm:p-8">
           {/* Mobile only: single hero (avoid duplicate TrackMyOPT + tighter visual hierarchy) */}
           <div className="mb-6 space-y-3 text-center lg:hidden">
             <div className="mx-auto flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-xl bg-[#226BE7]">
@@ -553,29 +553,29 @@ function LoginPageContent() {
                 unoptimized
               />
             </div>
-            <h1 className="text-[1.625rem] font-bold text-gray-900 dark:text-foreground">
+            <h1 className="text-[1.625rem] font-bold text-foreground">
               TrackMyOPT
             </h1>
             <p className="text-sm font-semibold text-[#226BE7] dark:text-blue-300">
               Your OPT career companion
             </p>
-            <p className="text-sm leading-relaxed text-gray-600 dark:text-zinc-400">
+            <p className="text-sm leading-relaxed text-muted-foreground">
               Deadlines, case status, AI resumes, Document Vault, and H-1B sponsors.
             </p>
           </div>
 
           {/* Desktop only: unchanged copy & layout */}
           <div className="mb-8 hidden lg:block">
-            <h2 className="mb-2 text-3xl font-bold text-gray-900 dark:text-foreground">
+            <h2 className="mb-2 text-3xl font-bold text-foreground">
               TrackMyOPT
             </h2>
-            <p className="text-gray-600 dark:text-muted-foreground">
+            <p className="text-muted-foreground">
               Deadlines, case status, AI resumes, Document Vault, and H-1B sponsors — in one place.
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mb-6 p-4 rounded-lg border-l-4 border-l-red-500 bg-red-50 text-red-700 text-sm dark:bg-red-950 dark:text-red-300">
               {error}
             </div>
           )}

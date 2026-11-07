@@ -138,7 +138,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
       </header>
 
       <figure className="mb-12">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden border border-border shadow-card">
           <Image
             src="/blog/uscis-deny-without-rfe-policy-2026.png"
             alt="Immigration application evidence packet beside a completed checklist and deadline warning"
@@ -154,7 +154,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
         </figcaption>
       </figure>
 
-      <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+      <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mb-10">
         <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-2">
           Direct Answer
         </p>
@@ -169,7 +169,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
       </div>
 
       <nav
-        className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12"
+        className="border border-border rounded-xl p-6 mb-12 bg-surface"
         aria-label="Table of contents"
       >
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
@@ -275,7 +275,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
             </li>
           </ol>
 
-          <div className="not-prose bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+          <div className="not-prose bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 rounded-r-xl my-8">
             <div className="flex gap-3">
               <ShieldAlert className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
@@ -333,66 +333,66 @@ export default function USCISDenyWithoutRFEPolicyPage() {
 
         <section id="before-after" className="scroll-mt-24">
           <h2>USCIS RFE Policy Before and After August 5, 2026</h2>
-          <div className="not-prose overflow-x-auto my-6">
+          <div className="not-prose overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-100 dark:bg-zinc-800">
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                <tr className="bg-surface-strong">
+                  <th className="text-left p-4 border border-border">
                     Issue
                   </th>
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                  <th className="text-left p-4 border border-border">
                     Prior USCIS policy
                   </th>
-                  <th className="text-left p-4 border border-gray-200 dark:border-zinc-700">
+                  <th className="text-left p-4 border border-border">
                     Policy from August 5, 2026
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
+                  <td className="p-4 border border-border font-semibold">
                     Missing required initial evidence
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     Officers were generally instructed to issue an RFE or NOID
                     when the deficiency might be addressed.
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     An officer may issue an RFE or deny without one.
                   </td>
                 </tr>
-                <tr className="bg-gray-50 dark:bg-zinc-900">
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
+                <tr className="bg-surface">
+                  <td className="p-4 border border-border font-semibold">
                     RFE response time
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     USCIS generally provided the maximum 12-week period.
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     The notice may set a shorter period; 12 weeks is the
                     maximum.
                   </td>
                 </tr>
                 <tr>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
+                  <td className="p-4 border border-border font-semibold">
                     Mail sent outside the U.S.
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     USCIS policy added 14 days for international correspondence.
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     Only 3 days are added when the notice is served by mail.
                   </td>
                 </tr>
-                <tr className="bg-gray-50 dark:bg-zinc-900">
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
+                <tr className="bg-surface">
+                  <td className="p-4 border border-border font-semibold">
                     Partial RFE or NOID response
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     Some filers assumed they could supplement the response
                     later.
                   </td>
-                  <td className="p-4 border border-gray-200 dark:border-zinc-700">
+                  <td className="p-4 border border-border">
                     Any response is treated as a request for a decision on the
                     available record.
                   </td>
@@ -529,9 +529,9 @@ export default function USCISDenyWithoutRFEPolicyPage() {
             ].map(([title, description]) => (
               <div
                 key={title}
-                className="flex gap-3 p-5 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl"
+                className="border flex gap-3 p-5 border-border rounded-xl bg-card shadow-card"
               >
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-bold text-gray-900 dark:text-white mb-1">
                     {title}
@@ -576,7 +576,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
               address current.
             </li>
           </ol>
-          <div className="not-prose bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-5 my-6">
+          <div className="border-l-4 border-l-amber-500 not-prose bg-amber-50 dark:bg-amber-950 rounded-r-xl p-5 my-6">
             <div className="flex gap-3">
               <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-amber-900 dark:text-amber-200 mb-0">
@@ -610,7 +610,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
           </p>
 
           <div className="not-prose grid sm:grid-cols-3 gap-4 my-8">
-            <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
+            <div className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
               <Timer className="w-7 h-7 text-blue-600 mb-3" />
               <p className="font-bold text-blue-900 dark:text-blue-200 mb-1">
                 Up to 12 weeks
@@ -628,7 +628,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
                 Maximum response time for a Notice of Intent to Deny.
               </p>
             </div>
-            <div className="p-5 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950">
+            <div className="border-l-4 border-l-red-500 p-5 rounded-r-xl bg-red-50 dark:bg-red-950">
               <ShieldAlert className="w-7 h-7 text-red-600 mb-3" />
               <p className="font-bold text-red-900 dark:text-red-200 mb-1">
                 No extension
@@ -705,7 +705,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
             {faqItems.map((faq) => (
               <div
                 key={faq.question}
-                className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800"
+                className="border p-5 rounded-xl border-border bg-card shadow-card"
                 itemScope
                 itemType="https://schema.org/Question"
               >
@@ -749,21 +749,21 @@ export default function USCISDenyWithoutRFEPolicyPage() {
           </p>
         </section>
 
-        <section className="not-prose bg-blue-600 rounded-xl p-8 text-white my-12">
+        <section className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
           <div className="flex items-start gap-4">
-            <FileCheck2 className="w-9 h-9 text-blue-100 flex-shrink-0" />
+            <FileCheck2 className="w-9 h-9 text-ink-muted flex-shrink-0" />
             <div>
               <h2 className="text-2xl font-bold text-white mb-3 mt-0">
                 Keep Every USCIS Deadline in One Place
               </h2>
-              <p className="text-blue-100 mb-6 text-lg">
+              <p className="text-ink-muted mb-6 text-lg">
                 TrackMyOPT helps F-1 students monitor OPT milestones, employment
                 changes, and immigration-document deadlines without relying on
                 memory or scattered spreadsheets.
               </p>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
               >
                 Create Your Free Account <ArrowRight className="w-5 h-5" />
               </Link>

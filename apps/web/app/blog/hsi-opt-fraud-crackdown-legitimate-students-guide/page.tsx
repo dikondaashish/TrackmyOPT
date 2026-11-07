@@ -121,7 +121,7 @@ export default function HsiOptFraudBlogPage() {
             </header>
 
             {/* Quick Answer */}
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950 rounded-r-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     HSI (Homeland Security Investigations) has conducted site visits across Virginia, Texas, Georgia, Illinois, New York, New Jersey, North Carolina, and Florida — finding empty buildings, fake employers, and thousands of students listed under companies that do not exist. Legitimate students need to proactively verify their employers and document their employment now, not when agents knock on the door.
@@ -129,7 +129,7 @@ export default function HsiOptFraudBlogPage() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -142,7 +142,7 @@ export default function HsiOptFraudBlogPage() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -172,7 +172,7 @@ export default function HsiOptFraudBlogPage() {
                         Homeland Security Investigations (HSI) — the investigative arm of the Department of Homeland Security — has been conducting a multi-state investigation into Optional Practical Training fraud. Their findings, announced publicly, paint a troubling picture of systematic abuse of the OPT program.
                     </p>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             "We have identified over 10,000 foreign students who claim to be working for highly suspect employers — and that's just among the top 25 OPT employers. Fraud nationwide."
                         </p>
@@ -257,7 +257,7 @@ export default function HsiOptFraudBlogPage() {
                             { flag: "No W-2 or pay stubs", detail: "You have never received a pay stub, W-2, or formal employment record from this employer." },
                             { flag: "Training happens at a third-party company in India", detail: "You were told that your 'training' is being done by a vendor in India rather than by the US employer listed on your EAD." },
                         ].map((item) => (
-                            <div key={item.flag} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.flag} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                                     {item.flag}
@@ -279,12 +279,12 @@ export default function HsiOptFraudBlogPage() {
                         Even students who were not the primary actors in the fraud — who were recruited by staffing companies or consulting firms and did not fully understand what was happening — can face serious consequences once their SEVIS record is flagged.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm mt-4">
                             <thead>
                                 <tr className="bg-red-100 dark:bg-red-900">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Consequence</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Who It Applies To</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Consequence</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Who It Applies To</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -297,8 +297,8 @@ export default function HsiOptFraudBlogPage() {
                                     ["Impact on pending H-1B or green card", "Any pending immigration benefit can be denied or revoked if F-1 status was fraudulent"],
                                 ].map(([consequence, scope], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{consequence}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{scope}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{consequence}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{scope}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -353,11 +353,11 @@ export default function HsiOptFraudBlogPage() {
                                 icon: "green",
                             },
                         ].map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
-                                <ShieldCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                            <div key={i} className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                                <ShieldCheck className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <h3 className="font-semibold text-green-900 dark:text-green-100">{item.action}</h3>
-                                    <p className="text-sm text-green-800 dark:text-green-200 mt-1">{item.detail}</p>
+                                    <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">{item.action}</h3>
+                                    <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">{item.detail}</p>
                                 </div>
                             </div>
                         ))}
@@ -383,9 +383,9 @@ export default function HsiOptFraudBlogPage() {
                             { check: "Search the company name in Google News for any fraud or legal issues", why: "HSI has already been investigating some employers for months. News reports, court filings, or BBB complaints can surface early." },
                             { check: "For STEM OPT: confirm they can complete the I-983 Training Plan", why: "STEM OPT requires a fully completed Form I-983 with specific training goals. An employer who cannot or will not complete it is not a valid STEM OPT employer." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <div className="flex items-start gap-3">
-                                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                     <div>
                                         <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.check}</p>
                                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1"><span className="font-medium">Why it matters:</span> {item.why}</p>
@@ -415,7 +415,7 @@ export default function HsiOptFraudBlogPage() {
                             { doc: "Evidence of your work product", desc: "Screenshots, deliverables, project files, or client-facing work that shows you actually performed the job role listed on your authorization." },
                             { doc: "SEVP Portal screenshot with current employer info", desc: "A recent screenshot showing your employer data in the SEVP Portal matches your actual employment situation." },
                         ].map((item) => (
-                            <div key={item.doc} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.doc} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                                     <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
                                     {item.doc}
@@ -505,7 +505,7 @@ export default function HsiOptFraudBlogPage() {
                     </h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -517,7 +517,7 @@ export default function HsiOptFraudBlogPage() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day OPT Unemployment Rule</Link>
@@ -539,12 +539,12 @@ export default function HsiOptFraudBlogPage() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Stay Fully Documented and Compliant on OPT</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     TrackMyOPT keeps your unemployment days, employer updates, SEVP records, and USCIS deadlines organized and audit-ready — so you can prove compliance instantly if you ever need to.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Track Your OPT Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

@@ -85,22 +85,22 @@ export default function SEVPortalGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/sevp-portal-guide.png" alt="Laptop screen showing account settings dashboard on a clean desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/sevp-portal-guide.png" alt="Laptop screen showing account settings dashboard on a clean desk" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Your SEVP Portal access is tied directly to your active SEVIS record. Keep your login information secure.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The <strong>SEVP Portal</strong> is where you report your address and employer info to the government during OPT. You will receive an invitation email from <strong>do-not-reply.sevp@ice.dhs.gov</strong> once your OPT is approved and starts. You must update your info in the portal within <strong>10 days</strong> of any change. If locked out, contact your school&apos;s DSO immediately to reset it.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -111,7 +111,7 @@ export default function SEVPortalGuide() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide
                 </h2>
                 <nav className="space-y-2">
@@ -140,7 +140,7 @@ export default function SEVPortalGuide() {
                         The SEVP Portal is a secure website managed by the US Department of Homeland Security (DHS). It allows students on OPT and STEM OPT to report their home addresses, phone numbers, and employer details directly without needing their DSO to log every minor detail manually in SEVIS.
                     </p>
                     <div className="grid md:grid-cols-2 gap-4">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white mb-2">What You Can Update
                             </h4>
                             <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
@@ -150,7 +150,7 @@ export default function SEVPortalGuide() {
                                 <li>• Regular OPT employer information</li>
                             </ul>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white flex items-center gap-2 mb-2">
                                 <AlertTriangle className="w-5 h-5 text-red-500" />
                                 What You CANNOT Update
@@ -176,7 +176,7 @@ export default function SEVPortalGuide() {
                             { step: "3", title: "Complete Activation Within 30 Days", desc: "The link in the invitation email expires exactly 30 days after it is sent. Click the link, input your SEVIS ID, and set up your password immediately." },
                             { step: "4", title: "Log In & Verify Information", desc: "Sign in at sevp.ice.gov/opt. Check that your current legal name and OPT start/end dates match your approved EAD card." },
                         ].map((item) => (
-                            <div key={item.step} className="flex items-start gap-4 p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.step} className="border flex items-start gap-4 p-5 rounded-xl border-border bg-card shadow-card">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-lg font-bold flex-shrink-0">
                                     {item.step}
                                 </span>
@@ -196,7 +196,7 @@ export default function SEVPortalGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Homeland Security regulations specify that you must report all changes to your address or work status <strong>within 10 days</strong>. If you do not report your employment, the system will continue to deduct your 90 days of allowed unemployment.
                     </p>
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-4 text-amber-900 dark:text-amber-100">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-4 text-amber-900 dark:text-amber-100">
                         <div className="flex gap-2">
                             <Info className="w-5 h-5 flex-shrink-0 text-amber-600" />
                             <div>
@@ -214,14 +214,14 @@ export default function SEVPortalGuide() {
                         Account lockouts occur frequently due to password expiration (required every 90 days) or three consecutive failed password entry attempts.
                     </p>
                     <div className="space-y-3">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                        <div className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                             <Key className="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" />
                             <div>
                                 <h4 className="font-semibold text-gray-950 dark:text-white">Self-Service Reset</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">If your account is simply locked but not deleted, use the &apos;Forgot Password&apos; link on the login page to send a reset link to your email.</p>
                             </div>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
+                        <div className="border p-4 rounded-xl border-border flex items-start gap-3 bg-card shadow-card">
                             <User className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
                             <div>
                                 <h4 className="font-semibold text-gray-950 dark:text-white">Contacting Your DSO</h4>
@@ -246,20 +246,20 @@ export default function SEVPortalGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-blue-600 rounded-xl p-8 my-12 text-white relative overflow-hidden">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground relative overflow-hidden bg-ink border border-ink-border shadow-elevated">
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <Laptop className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Simplify Your OPT Compliance</h3>
                         </div>
-                        <p className="text-blue-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             TrackMyOPT helps you log and verify your employment records so you never fall out of status. Get reminders when it&apos;s time to report changes.
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -276,7 +276,7 @@ export default function SEVPortalGuide() {
                             { question: "Can my employer update the portal for me?", answer: "No. The SEVP portal account is strictly personal. You are legally responsible for all submissions and updates on your profile." },
                             { question: "Will I get a new I-20 after making an update?", answer: "Yes, you should request an updated I-20 from your DSO after changing employers to show the updated employment details on page 2." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -287,7 +287,7 @@ export default function SEVPortalGuide() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-reporting-requirements-dso" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Reporting Requirements Guide</Link>

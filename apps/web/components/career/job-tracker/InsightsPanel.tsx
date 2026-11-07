@@ -109,7 +109,7 @@ export function InsightsPanel({ applications }: InsightsPanelProps) {
             label: "Interview → Offer",
             value: `${metrics.interviewToOffer}%`,
             icon: Award,
-            color: "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900",
+            color: "text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-900",
             subtext: `${metrics.offers} of ${metrics.withInterview} interviewed`
         },
         {
@@ -121,7 +121,7 @@ export function InsightsPanel({ applications }: InsightsPanelProps) {
     ];
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-card">
             {/* Header */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}

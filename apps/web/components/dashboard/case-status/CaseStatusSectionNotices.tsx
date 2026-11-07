@@ -114,15 +114,15 @@ export function TrialCtaStrip({
   onUpgrade: () => void;
 }) {
   return (
-    <Card className="p-3 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950">
+    <Card className="p-3 border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <p className="text-sm text-purple-950 dark:text-purple-100 flex-1">
+        <p className="text-sm text-violet-950 dark:text-violet-100 flex-1">
           {message}
         </p>
         <Button
           type="button"
           size="sm"
-          className="bg-purple-600 hover:bg-purple-700 text-white shrink-0"
+          className="bg-violet-600 hover:bg-violet-700 text-white shrink-0"
           onClick={onUpgrade}
         >
           <Crown className="w-4 h-4 mr-1.5" />
@@ -164,16 +164,16 @@ export function RefreshFailedBanner({ message }: { message: string }) {
 export function UscisMockModeBadge() {
   return (
     <Card
-      className="p-4 bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800"
+      className="p-4 bg-violet-50 dark:bg-violet-950 border-violet-200 dark:border-violet-800"
       role="status"
     >
       <div className="flex items-start gap-3">
-        <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+        <Info className="w-5 h-5 text-violet-600 dark:text-violet-400 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
+          <p className="text-sm font-medium text-violet-900 dark:text-violet-100">
             USCIS Mock Mode Active
           </p>
-          <p className="text-xs text-purple-800 dark:text-purple-200 mt-1">
+          <p className="text-xs text-violet-800 dark:text-violet-200 mt-1">
             Simulated data. Set USCIS_MOCK=false in production.
           </p>
         </div>

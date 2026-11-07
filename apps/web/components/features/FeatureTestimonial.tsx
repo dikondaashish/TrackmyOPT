@@ -15,11 +15,11 @@ interface FeatureTestimonialProps {
 }
 
 const accentStyles = {
-    blue: "bg-blue-500",
-    emerald: "bg-emerald-500",
-    purple: "bg-purple-500",
+    blue: "bg-blue-600",
+    emerald: "bg-emerald-600",
+    purple: "bg-violet-600",
     amber: "bg-amber-500",
-    cyan: "bg-cyan-500",
+    cyan: "bg-cyan-600",
 };
 
 export function FeatureTestimonial({
@@ -28,7 +28,7 @@ export function FeatureTestimonial({
     accentColor = "blue",
 }: FeatureTestimonialProps) {
     return (
-        <section className="py-20 relative">
+        <section className="relative bg-background py-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -37,7 +37,7 @@ export function FeatureTestimonial({
                     className="relative"
                 >
                     {/* Background card */}
-                    <div className="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12">
+                    <div className="relative surface-card p-8 sm:p-12">
                         {/* Stars */}
                         <div className="flex items-center gap-1 mb-6">
                             {[...Array(5)].map((_, i) => (
@@ -46,7 +46,7 @@ export function FeatureTestimonial({
                         </div>
 
                         {/* Quote */}
-                        <blockquote className="text-xl sm:text-2xl text-gray-900 dark:text-white font-medium leading-relaxed mb-8">
+                        <blockquote className="text-xl sm:text-2xl text-foreground font-medium leading-relaxed mb-8">
                             "{quote}"
                         </blockquote>
 
@@ -58,10 +58,10 @@ export function FeatureTestimonial({
                             </div>
 
                             <div>
-                                <p className="font-semibold text-gray-900 dark:text-white">
+                                <p className="font-semibold text-foreground">
                                     {author.name}
                                 </p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                <p className="text-sm text-muted-foreground">
                                     {author.role}
                                     {author.university && ` • ${author.university}`}
                                 </p>

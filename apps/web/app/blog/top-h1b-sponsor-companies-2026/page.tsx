@@ -57,7 +57,7 @@ export default function TopH1BSponsorArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The top H-1B sponsor companies include Amazon, Infosys, TCS, Google, Meta, Microsoft, Apple, and Cognizant, based on the number of H-1B petitions filed and approved. Tech companies and consulting firms dominate the list, with approval rates varying significantly by employer.
@@ -65,7 +65,7 @@ export default function TopH1BSponsorArticle() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -74,7 +74,7 @@ export default function TopH1BSponsorArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-10">
+            <div className="border border-border rounded-xl p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Table of Contents
                 </h2>
                 <nav className="grid sm:grid-cols-2 gap-2">
@@ -107,13 +107,13 @@ export default function TopH1BSponsorArticle() {
                     </p>
 
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">H-1B Sponsorship Costs for Employers</h3>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Fee Type</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Amount</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Who Pays</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Fee Type</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Amount</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Who Pays</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -127,9 +127,9 @@ export default function TopH1BSponsorArticle() {
                                     ["Attorney Fees", "$2,000–$5,000+", "Employer (typically)"],
                                 ].map(([fee, amount, who], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                        <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{fee}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{amount}</td>
-                                        <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{who}</td>
+                                        <td className="p-3 border border-border font-medium text-gray-900 dark:text-white">{fee}</td>
+                                        <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{amount}</td>
+                                        <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{who}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -149,15 +149,15 @@ export default function TopH1BSponsorArticle() {
                         The following table ranks the top 20 H-1B sponsors by total petitions filed in FY2025. Data is compiled from the USCIS H-1B Employer Data Hub. Approval rates include both initial and continuing petitions.
                     </p>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
                                 <tr className="bg-amber-50 dark:bg-amber-950">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Rank</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Company</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Petitions</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Approval Rate</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Type</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Rank</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Company</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Petitions</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Approval Rate</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Type</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -191,11 +191,11 @@ export default function TopH1BSponsorArticle() {
                                             : "text-red-600 dark:text-red-400";
                                     return (
                                         <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
-                                            <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-bold">{rank}</td>
-                                            <td className="p-3 border dark:border-zinc-700 text-gray-900 dark:text-white font-medium">{company}</td>
-                                            <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">{petitions}</td>
+                                            <td className="p-3 border border-border text-gray-700 dark:text-gray-300 font-bold">{rank}</td>
+                                            <td className="p-3 border border-border text-gray-900 dark:text-white font-medium">{company}</td>
+                                            <td className="p-3 border border-border text-gray-700 dark:text-gray-300">{petitions}</td>
                                             <td className={`p-3 border dark:border-zinc-700 font-bold ${rateColor}`}>{rate}</td>
-                                            <td className="p-3 border dark:border-zinc-700 text-gray-600 dark:text-gray-400">{type}</td>
+                                            <td className="p-3 border border-border text-gray-600 dark:text-gray-400">{type}</td>
                                         </tr>
                                     );
                                 })}
@@ -227,7 +227,7 @@ export default function TopH1BSponsorArticle() {
                             { company: "JPMorgan Chase", rate: "94%", petitions: "~2,200", note: "Top finance sector sponsor by approval rate" },
                             { company: "Goldman Sachs", rate: "94%", petitions: "~1,500", note: "Premium finance sponsor, competitive salaries" },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                         <Building2 className="w-4 h-4 text-amber-500" />{item.company}
@@ -320,14 +320,14 @@ export default function TopH1BSponsorArticle() {
                                 ]
                             },
                         ].map((sector, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <Building2 className="w-5 h-5 text-amber-500" />{sector.industry}
                                     </h3>
                                     <span className="rounded-md px-2 py-0.5 text-xs font-medium bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Avg. Approval: {sector.avgApproval}</span>
                                 </div>
-                                <div className="overflow-x-auto">
+                                <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                                     <table className="w-full text-sm">
                                         <thead>
                                             <tr className="border-b dark:border-zinc-700">
@@ -442,7 +442,7 @@ export default function TopH1BSponsorArticle() {
                             { category: "Regional Employers", detail: "Companies outside major tech hubs often struggle to find qualified candidates, making them more willing to sponsor. Think healthcare systems in the Midwest, energy companies in Texas, or manufacturing firms in the Southeast. They may file only 5-20 petitions per year but with very high approval rates.", advantages: ["Lower cost of living offsets slightly lower salaries", "Less competition for positions", "Companies invest more in sponsored employees", "Often easier path to green card (PERM) in less competitive areas"] },
                             { category: "Cap-Exempt Employers", detail: "Universities, nonprofit research organizations, and government research labs are exempt from the H-1B annual cap. This means no lottery — your petition can be filed and processed year-round. Examples include MIT, Stanford, Johns Hopkins, NIH, and national laboratories.", advantages: ["No lottery — petition filed anytime", "Near-certain approval for qualified candidates", "Academic positions often lead to EB-1 green cards", "Can transfer to cap-subject employer later (using cap)"] },
                         ].map((item, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{item.category}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{item.detail}</p>
                                 <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">Advantages:</h4>
@@ -469,7 +469,7 @@ export default function TopH1BSponsorArticle() {
                             { question: "How much does H-1B sponsorship cost employers?", answer: "Total employer cost ranges from approximately $5,000 to $10,000+ per petition. This includes the $215 registration fee, $780 base filing fee, $750-$1,500 ACWIA training fee, $500 fraud prevention fee, $600-$1,500 asylum program fee, and $2,000-$5,000+ in attorney fees. Premium processing adds $2,805 for 15-day adjudication." },
                             { question: "Are consulting companies good H-1B sponsors?", answer: "It depends on the type. Big 4 firms (Deloitte, EY, PwC, KPMG) and strategy firms (McKinsey, BCG, Bain) are excellent sponsors with 88-93% approval rates. However, smaller IT staffing and consulting firms that place workers at third-party client sites have significantly lower rates (50-75%) due to USCIS scrutiny. Always check a specific company's approval rate before accepting an offer." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
@@ -479,7 +479,7 @@ export default function TopH1BSponsorArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
@@ -498,10 +498,10 @@ export default function TopH1BSponsorArticle() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-amber-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Find Your Ideal H-1B Sponsor</h2>
-                <p className="text-amber-100 mb-6 max-w-lg mx-auto">Search 25,000+ employers with approval rates, salary data, E-Verify status, and fraud alerts in TrackMyOPT&apos;s Sponsor Database.</p>
-                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-600 rounded-xl font-semibold hover:bg-amber-50 transition-colors">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">Search 25,000+ employers with approval rates, salary data, E-Verify status, and fraud alerts in TrackMyOPT&apos;s Sponsor Database.</p>
+                <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Search Sponsors Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

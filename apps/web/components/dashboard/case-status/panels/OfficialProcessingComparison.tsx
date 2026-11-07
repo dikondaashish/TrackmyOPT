@@ -19,7 +19,7 @@ export function OfficialProcessingComparison({
   return (
     <section
       aria-label="Official and community measures"
-      className="mt-5 rounded-xl border border-border bg-card p-4 sm:p-5"
+      className="mt-5 rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card"
     >
       <h3 className="text-sm font-semibold text-foreground">
         Two ways to read processing time

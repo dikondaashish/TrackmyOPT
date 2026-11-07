@@ -61,7 +61,7 @@ export function DocumentReminderEmail() {
   }
 
   return (
-    <section aria-label="Expiry reminders" className="bg-white dark:bg-card rounded-lg p-3 border border-gray-200 dark:border-border">
+    <section aria-label="Expiry reminders" className="bg-white dark:bg-card rounded-lg p-3 border border-gray-200 dark:border-border shadow-card">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:flex sm:flex-wrap sm:gap-x-4">
         <h2 className="min-w-0 col-start-1 flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-foreground">
           <Mail className="h-4 w-4 shrink-0 text-blue-600" aria-hidden />
@@ -79,7 +79,7 @@ export function DocumentReminderEmail() {
       {editing && (
         <form onSubmit={save} className="mt-2 flex flex-wrap gap-2">
           <label htmlFor="vault-reminder-email" className="sr-only">Reminder email address</label>
-          <input id="vault-reminder-email" type="email" required maxLength={254} autoComplete="email" value={draft} onChange={e => setDraft(e.target.value)} disabled={saving} aria-describedby="vault-reminder-hint" placeholder="Enter email for document reminders" className="min-h-11 min-w-0 basis-full sm:basis-auto flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-muted dark:text-foreground" />
+          <input id="vault-reminder-email" type="email" required maxLength={254} autoComplete="email" value={draft} onChange={e => setDraft(e.target.value)} disabled={saving} aria-describedby="vault-reminder-hint" placeholder="Enter email for document reminders" className="min-h-11 min-w-0 basis-full sm:basis-auto flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-muted dark:text-foreground shadow-card" />
           <button type="submit" disabled={saving || !draft.trim()} className="min-h-11 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition-colors font-medium">{saving ? 'Saving…' : 'Save'}</button>
           {email && <button type="button" disabled={saving} onClick={() => { setDraft(email); setEditing(false); setError(''); }} className="min-h-11 px-4 py-2 border border-gray-300 dark:border-border text-gray-700 dark:text-foreground text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors">Cancel</button>}
         </form>

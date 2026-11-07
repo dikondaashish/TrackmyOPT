@@ -34,7 +34,7 @@ export function CommunitySummaryCard({
   const remaining = summary.medianDays - daysSinceFiled;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-card">
       <div className="flex items-center gap-2">
         <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
         <p className="text-sm font-semibold text-foreground">

@@ -67,18 +67,18 @@ export default function OPTCongressArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 21, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/opt-congress-bills.png" alt="US Capitol building with legislation documents" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Two completely opposing movements are clashing in Congress over OPT. Restrictionist bills are seeking to pause or heavily limit the program, while a strong bipartisan coalition, backed by the tech industry and higher education, is pushing the "Protect OPT Act" to formally codify the program into law and shield it from executive branch interference.
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+            <div className="border border-border rounded-xl p-6 mb-12 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
@@ -123,7 +123,7 @@ export default function OPTCongressArticle() {
                 </section>
 
                 <section id="tech-industry" className="mb-12">
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+                    <div className="border rounded-xl p-6 border-primary-muted bg-primary-soft">
                         <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
                             <CheckCircle className="w-5 h-5" />
                             Why Big Tech is Fighting Back
@@ -159,7 +159,7 @@ export default function OPTCongressArticle() {
                             { question: "What is the likelihood of the Protect OPT Act passing?", answer: "In a heavily divided Congress, immigration legislation is notoriously difficult to pass. However, the Protect OPT Act has strong bipartisan support and backing from the influential U.S. Chamber of Commerce." },
                             { question: "How can international students get involved?", answer: "While non-citizens cannot vote, you can legally participate in advocacy. You can write to the representative of the district where your university or employer is located, detailing your economic contributions to the community." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>

@@ -61,7 +61,7 @@ export default function WithdrawingClassesPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/withdrawing-from-classes-f1-visa.png" alt="Academic desk with a Course Withdrawal Form, student ID, and a laptop showing a student portal" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -79,7 +79,7 @@ export default function WithdrawingClassesPage() {
                     <li><strong>Graduates:</strong> Must be enrolled in what the university defines as full-time (usually 9 credit hours per semester).</li>
                 </ul>
 
-                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <XCircle className="w-6 h-6" />
                         The Instant Termination Trap
@@ -101,7 +101,7 @@ export default function WithdrawingClassesPage() {
                 </p>
 
                 <div className="space-y-6 my-8">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-blue-600 dark:text-blue-400">1. Academic Difficulty
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">
@@ -109,7 +109,7 @@ export default function WithdrawingClassesPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-red-600 dark:text-red-400">
                             <ShieldAlert className="w-6 h-6" /> 2. Medical Condition
                         </h3>
@@ -118,7 +118,7 @@ export default function WithdrawingClassesPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                             <GraduationCap className="w-6 h-6" /> 3. Final Semester
                         </h3>
@@ -136,7 +136,7 @@ export default function WithdrawingClassesPage() {
                     However, you should still email your DSO to confirm before you do it, just in case the class has a lab component that brings you down to 11 credits.
                 </p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
                         <MonitorCheck className="w-6 h-6 text-primary" />
                         Compliance Tracking with TrackMyOPT
@@ -159,7 +159,7 @@ export default function WithdrawingClassesPage() {
 
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Secure Your OPT Future
                 </h3>
@@ -169,7 +169,7 @@ export default function WithdrawingClassesPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Create Your TrackMyOPT Account
                     </Link>
@@ -180,7 +180,7 @@ export default function WithdrawingClassesPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/fall-out-of-f1-status-options" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Out of Status Options
                             </h4>
@@ -193,7 +193,7 @@ export default function WithdrawingClassesPage() {
                         </div>
                     </Link>
                     <Link href="/blog/sevis-transfer-guide-opt-impact" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 SEVIS Transfer Guide
                             </h4>

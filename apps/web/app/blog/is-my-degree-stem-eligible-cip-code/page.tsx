@@ -89,22 +89,22 @@ export default function CIPCodeGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/is-my-degree-stem-eligible-cip-code.png" alt="Laptop screen showing DHS STEM Designated Degree list with university catalogs on a desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/is-my-degree-stem-eligible-cip-code.png" alt="Laptop screen showing DHS STEM Designated Degree list with university catalogs on a desk" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Your university registrar and DSO map school degree courses to official federal CIP codes.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Look at the <strong>&quot;Primary Major&quot;</strong> section on page 1 of your Form I-20. You will see a 6-digit code (e.g., <strong>11.0101</strong> for Computer Science). Compare this code to the official <strong>DHS STEM Designated Degree Program List</strong>. If it matches, your program is eligible for the 24-month STEM OPT extension.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -116,7 +116,7 @@ export default function CIPCodeGuide() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
@@ -156,7 +156,7 @@ export default function CIPCodeGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Locating your CIP code takes less than a minute:
                     </p>
-                    <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 space-y-3">
+                    <div className="border p-4 rounded-xl border-border space-y-3 bg-card shadow-card">
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                             1. Open page 1 of your most recent Form I-20.
                         </p>
@@ -179,26 +179,26 @@ export default function CIPCodeGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         DHS maintains the official list of STEM-designated CIP codes. If your CIP code matches a code on this list, you are eligible to apply for the 24-month STEM OPT extension.
                     </p>
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-4 text-amber-900 dark:text-amber-100">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-4 text-amber-900 dark:text-amber-100">
                         Always check the official, current list on ICE studyinthestates.dhs.gov before assuming eligibility. DHS updates the list periodically to include new interdisciplinary or tech-related codes.
                     </div>
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-purple-600 rounded-xl p-8 my-12 text-white">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-purple-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <GraduationCap className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Simplify Your STEM OPT Transition</h3>
                         </div>
-                        <p className="text-purple-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             TrackMyOPT helps you log and verify your employment records so you never fall out of status. Get reminders when it&apos;s time to report changes.
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-purple-700 font-bold hover:bg-blue-50 transition-colors shadow-lg"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors shadow-lg bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -214,7 +214,7 @@ export default function CIPCodeGuide() {
                             { question: "What if my CIP code is not on the DHS STEM list?", answer: "If your code is not on the list, you are not eligible for the STEM OPT extension, even if your school describes the major as technical. You can contact your DSO to ask if they can update or change the CIP code map for your program, though this is rare." },
                             { question: "Does USCIS verify the CIP code during application?", answer: "Yes. When you file Form I-765 for the STEM extension, USCIS cross-checks the CIP code on your STEM I-20 with the official DHS list. Any mismatch will result in a Request for Evidence (RFE) or denial." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -225,7 +225,7 @@ export default function CIPCodeGuide() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ STEM OPT Extension Guide</Link>

@@ -107,11 +107,11 @@ export default function OptUnemploymentClockStartArticle() {
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
         <BlogPostImage src="/blog/when-does-opt-unemployment-clock-start.png" alt="Calendar with OPT start date circled in red, EAD card, countdown timer showing 78 days remaining, and SEVIS reporting confirmation on a rustic wooden desk" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
-      <div className="mb-8 rounded-xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950">
+      <div className="mb-8 rounded-xl border p-6 border-primary-muted bg-primary-soft">
         <p className="mb-2 text-sm font-semibold text-blue-700 dark:text-blue-300">Short answer</p>
         <p className="text-lg font-medium leading-relaxed text-gray-900 dark:text-white">
           For post-completion OPT, count unemployment from the first day of the OPT authorization period shown on your EAD. A late physical card does not automatically move that start date. You may not work until you are authorized, so document the delay and contact your DSO.
@@ -121,7 +121,7 @@ export default function OptUnemploymentClockStartArticle() {
       <BlogProductCTA variant="unemployment" sourcePage="/blog/when-does-opt-unemployment-clock-start" />
 
       <div className="prose prose-lg prose-longform max-w-none dark:prose-invert">
-        <div className="not-prose mb-10 rounded-xl border border-gray-200 bg-gray-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="border not-prose mb-10 rounded-xl border-border p-6 bg-surface">
           <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">In this guide</h2>
           <div className="grid gap-2 sm:grid-cols-2">
             {[
@@ -143,7 +143,7 @@ export default function OptUnemploymentClockStartArticle() {
           <p>
             U.S. Immigration and Customs Enforcement explains that OPT must relate to your major and that you should wait to begin work until you receive work authorization. The two dates therefore matter independently: the EAD controls when you may work, while the OPT authorization period controls the compliance timeline. Compare the official <a href="https://www.ice.gov/sevis/practical-training" target="_blank" rel="noopener noreferrer">ICE practical-training guidance</a> with <a href="https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-opt-for-f-1-students" target="_blank" rel="noopener noreferrer">USCIS OPT guidance</a>, then confirm your individual record with your DSO.
           </p>
-          <div className="not-prose my-6 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-5 dark:bg-amber-950">
+          <div className="not-prose my-6 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-5 dark:bg-amber-950">
             <p className="font-semibold text-amber-900 dark:text-amber-100">A late EAD is urgent, but it is not a reason to work without authorization.</p>
             <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">Do not begin employment before the authorized start date and do not assume an application receipt, approval notice, or tracking number is permission to work.</p>
           </div>
@@ -164,13 +164,13 @@ export default function OptUnemploymentClockStartArticle() {
 
         <section id="examples">
           <h2>Three examples: which date starts counting?</h2>
-          <div className="not-prose my-6 overflow-x-auto">
+          <div className="not-prose my-6 overflow-x-auto surface-card [&>table]:border-hidden [&>table]:my-0">
             <table className="w-full border-collapse text-sm">
-              <thead><tr className="bg-gray-100 dark:bg-zinc-800"><th className="border p-3 text-left dark:border-zinc-700">Scenario</th><th className="border p-3 text-left dark:border-zinc-700">First date to review</th><th className="border p-3 text-left dark:border-zinc-700">What to do</th></tr></thead>
+              <thead><tr className="bg-surface-strong"><th className="border border-border p-3 text-left">Scenario</th><th className="border border-border p-3 text-left">First date to review</th><th className="border border-border p-3 text-left">What to do</th></tr></thead>
               <tbody>
-                <tr><td className="border p-3 dark:border-zinc-700">EAD starts July 1; card arrives July 10</td><td className="border p-3 font-semibold dark:border-zinc-700">July 1</td><td className="border p-3 dark:border-zinc-700">Do not work before authorization; document the 9-day delay.</td></tr>
-                <tr className="bg-gray-50 dark:bg-zinc-900"><td className="border p-3 dark:border-zinc-700">EAD starts July 1; qualifying job starts July 15</td><td className="border p-3 font-semibold dark:border-zinc-700">July 1</td><td className="border p-3 dark:border-zinc-700">Review July 1–14 as a potential 14-day gap with your DSO.</td></tr>
-                <tr><td className="border p-3 dark:border-zinc-700">Job ends August 20; next qualifying job starts September 5</td><td className="border p-3 font-semibold dark:border-zinc-700">August 21</td><td className="border p-3 dark:border-zinc-700">Log the gap and preserve both employers’ dates and evidence.</td></tr>
+                <tr><td className="border border-border p-3">EAD starts July 1; card arrives July 10</td><td className="border border-border p-3 font-semibold">July 1</td><td className="border border-border p-3">Do not work before authorization; document the 9-day delay.</td></tr>
+                <tr className="bg-surface"><td className="border border-border p-3">EAD starts July 1; qualifying job starts July 15</td><td className="border border-border p-3 font-semibold">July 1</td><td className="border border-border p-3">Review July 1–14 as a potential 14-day gap with your DSO.</td></tr>
+                <tr><td className="border border-border p-3">Job ends August 20; next qualifying job starts September 5</td><td className="border border-border p-3 font-semibold">August 21</td><td className="border border-border p-3">Log the gap and preserve both employers’ dates and evidence.</td></tr>
               </tbody>
             </table>
           </div>
@@ -214,7 +214,7 @@ export default function OptUnemploymentClockStartArticle() {
         </section>
       </div>
 
-      <div className="mt-10 rounded-xl border border-gray-200 bg-gray-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="border mt-10 rounded-xl border-border p-6 bg-surface">
         <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Continue reading</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <Link href="/blog/90-day-unemployment-rule-opt" className="text-sm text-blue-600 hover:underline dark:text-blue-400">→ The 90-day OPT unemployment rule</Link>
@@ -228,10 +228,10 @@ export default function OptUnemploymentClockStartArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("when-does-opt-unemployment-clock-start")} />
             <AuthorBio />
 
-      <div className="mt-12 rounded-xl bg-blue-600 p-8 text-center text-white">
+      <div className="not-prose mt-12 rounded-xl p-8 text-center text-ink-foreground bg-ink border border-ink-border shadow-elevated">
         <h2 className="mb-3 text-2xl font-bold">Know your remaining OPT buffer</h2>
-        <p className="mx-auto mb-6 max-w-lg text-blue-100">Track unemployment days, USCIS updates, job applications, and reminders in one place.</p>
-        <Link href="/login" className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50">Start tracking free <ArrowRight className="h-4 w-4" /></Link>
+        <p className="mx-auto mb-6 max-w-lg text-ink-muted">Track unemployment days, USCIS updates, job applications, and reminders in one place.</p>
+        <Link href="/login" className="inline-flex items-center gap-2 rounded-lg px-6 py-3 font-semibold bg-blue-600 text-white hover:bg-blue-500 shadow-button transition-colors">Start tracking free <ArrowRight className="h-4 w-4" /></Link>
       </div>
 
       <p className="mt-8 flex items-start gap-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />This article is educational information, not legal advice. Immigration rules and individual records vary. Confirm important decisions with your DSO or a licensed immigration attorney.</p>

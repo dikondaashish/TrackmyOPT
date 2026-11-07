@@ -88,7 +88,7 @@ export default function CPT12MonthRulePage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <Image
                     src="/blog/cpt-12-month-rule.png"
                     alt="Desk calendar showing exactly 12 months marked off with a red pen and student ID"
@@ -103,7 +103,7 @@ export default function CPT12MonthRulePage() {
                     If you are an F-1 student considering an internship, you've probably heard the terrifying rumor: "Don't use CPT, or you'll lose your OPT!" This rumor is only half-true. In reality, you can do plenty of CPT internships without losing a single day of your post-graduation OPT—but you must understand the <strong>12-Month Rule</strong>.
                 </p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-10">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl mb-10">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
                         <CheckCircle2 className="w-6 h-6 text-primary" />
                         The Quick Answer
@@ -125,15 +125,15 @@ export default function CPT12MonthRulePage() {
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-6 my-10">
-                    <div className="bg-green-50 dark:bg-green-950 p-6 rounded-xl border border-green-200 dark:border-green-950">
-                        <h3 className="text-xl font-bold text-green-900 dark:text-green-300 mt-0">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 p-6 rounded-xl border border-emerald-200 dark:border-emerald-950">
+                        <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-300 mt-0">
                             Part-Time CPT (20 hours or less/week)
                         </h3>
-                        <p className="text-green-800 dark:text-green-200 mt-3 mb-0 text-sm">
+                        <p className="text-emerald-800 dark:text-emerald-200 mt-3 mb-0 text-sm">
                             Part-time CPT does not count toward the one-year full-time CPT bar. It still must be properly authorized, related to the curriculum, and compliant with your school&apos;s requirements.
                         </p>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-950 p-6 rounded-xl border border-blue-200 dark:border-blue-950">
+                    <div className="p-6 rounded-xl border dark:border-blue-950 border-primary-muted bg-primary-soft">
                         <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300 mt-0">
                             Full-Time CPT (Over 20 hours/week)
                         </h3>
@@ -155,7 +155,7 @@ export default function CPT12MonthRulePage() {
                     <li>If it totals <strong>one year or more</strong>, you are ineligible for post-completion OPT at that education level.</li>
                 </ul>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         Do Not Plan Up to the Edge
@@ -206,7 +206,7 @@ export default function CPT12MonthRulePage() {
                 <h2 className="text-2xl font-bold mt-12 mb-6">Frequently Asked Questions</h2>
                 <div className="space-y-4">
                     {CPT_FAQS.map((faq) => (
-                        <div key={faq.question} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div key={faq.question} className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">{faq.answer}</p>
                         </div>
@@ -216,7 +216,7 @@ export default function CPT12MonthRulePage() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Track Your CPT Days Automatically
                 </h3>
@@ -226,7 +226,7 @@ export default function CPT12MonthRulePage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Create Free Account
                     </Link>
@@ -237,7 +237,7 @@ export default function CPT12MonthRulePage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/pre-completion-opt-vs-cpt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Pre-Completion OPT vs CPT
                             </h4>
@@ -250,7 +250,7 @@ export default function CPT12MonthRulePage() {
                         </div>
                     </Link>
                     <Link href="/blog/cpt-complete-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The Complete CPT Guide
                             </h4>

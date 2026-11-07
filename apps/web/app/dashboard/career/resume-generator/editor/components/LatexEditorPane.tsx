@@ -51,7 +51,7 @@ export function LatexEditorPane({
                         size="sm"
                         onClick={onOpenFeedback}
                         disabled={isWorking || !generatedLatex}
-                        className="h-6 px-2 text-xs text-purple-600"
+                        className="h-6 px-2 text-xs text-violet-600"
                     >
                         {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
                         Optimize

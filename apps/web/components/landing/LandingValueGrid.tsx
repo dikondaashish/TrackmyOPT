@@ -5,10 +5,11 @@ import { AnimatedRoadmap } from "@/components/landing/AnimatedRoadmap";
 
 export function LandingValueGrid() {
     return (
-        <section className="py-8 container px-4 mx-auto">
+        <section className="bg-surface border-y border-border py-16">
+            <div className="container px-4 mx-auto">
             <div className="grid lg:grid-cols-2 gap-4">
                 {/* Card 1: Peace of Mind (Feature Tags) */}
-                <div className="relative bg-white dark:bg-zinc-900 rounded-xl p-5 lg:p-6 overflow-hidden border border-gray-200 dark:border-zinc-800 h-full flex flex-col min-h-[300px]">
+                <div className="relative surface-card p-5 lg:p-6 overflow-hidden h-full flex flex-col min-h-[300px]">
                     {/* Content */}
                     <div className="prose-longform relative z-10 flex flex-col items-center text-center mb-4">
                         <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-2">
@@ -26,7 +27,7 @@ export function LandingValueGrid() {
                 </div>
 
                 {/* Card 2: Road to H-1B (Roadmap) */}
-                <div className="relative bg-white dark:bg-zinc-900 rounded-xl p-5 lg:p-6 overflow-hidden border border-gray-200 dark:border-zinc-800 h-full flex flex-col min-h-[300px]">
+                <div className="relative surface-card p-5 lg:p-6 overflow-hidden h-full flex flex-col min-h-[300px]">
                     {/* Content */}
                     <div className="prose-longform relative z-10 flex flex-col items-center text-center mb-4">
                         <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-2">
@@ -42,6 +43,7 @@ export function LandingValueGrid() {
                         <AnimatedRoadmap />
                     </div>
                 </div>
+            </div>
             </div>
         </section>
     );

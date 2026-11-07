@@ -90,22 +90,22 @@ export default function H1BAlternativesGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/h1b-alternatives-work-visas.png" alt="US Visa options and employment pathways paperwork on a workspace desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-card">
+                    <BlogPostImage src="/blog/h1b-alternatives-work-visas.png" alt="US Visa options and employment pathways paperwork on a workspace desk" className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Exploring alternative visa options early is crucial to securing a continuous legal work status in the US.
                 </figcaption>
             </figure>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>Don&apos;t panic if you miss the H-1B lottery.</strong> Depending on your citizenship, background, and company structure, you may qualify for: <strong>TN</strong> (Canadians/Mexicans), <strong>H-1B1</strong> (Chile/Singapore), <strong>E-3</strong> (Australia), <strong>O-1</strong> (Extraordinary ability), <strong>L-1</strong> (Transfer after 1 year abroad), or <strong>Cap-Exempt H-1B</strong> (Universities, research non-profits).
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
@@ -117,7 +117,7 @@ export default function H1BAlternativesGuide() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
@@ -155,7 +155,7 @@ export default function H1BAlternativesGuide() {
                         <li><strong>Non-profit Entities Related to Higher Education:</strong> University hospitals, research labs, or collaborative centers.</li>
                         <li><strong>Government Research Organizations:</strong> Federal, state, or local government labs.</li>
                     </ul>
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold">
                             Note: If you transition from a cap-exempt H-1B to a regular commercial employer, you will have to enter the H-1B lottery to make the switch.
                         </p>
@@ -170,7 +170,7 @@ export default function H1BAlternativesGuide() {
                         If you hold citizenship in certain countries, you have access to streamlined work visa categories that bypass the general H-1B pool entirely:
                     </p>
                     <div className="space-y-4">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white">
                                 TN Visa (Canada & Mexico)
                             </h4>
@@ -178,7 +178,7 @@ export default function H1BAlternativesGuide() {
                                 Established under USMCA. Available to Canadian and Mexican citizens in designated professional roles (Engineers, Analysts, Scientists). Renewable indefinitely, with no lottery.
                             </p>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white">
                                 E-3 Visa (Australia)
                             </h4>
@@ -186,7 +186,7 @@ export default function H1BAlternativesGuide() {
                                 Specifically for Australian citizens in specialty occupations. Highly similar to H-1B but has a separate quota that is almost never filled, allowing lottery-free applications.
                             </p>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white">
                                 H-1B1 Visa (Chile & Singapore)
                             </h4>
@@ -204,7 +204,7 @@ export default function H1BAlternativesGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         The O-1 visa is for individuals who have risen to the very top of their field. It is popular among researchers, founders, software engineers, and designers.
                     </p>
-                    <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
                         <h4 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Key Criteria: Must Meet at Least 3</h4>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
                             <li>• High compensation or contract payment history</li>
@@ -224,11 +224,11 @@ export default function H1BAlternativesGuide() {
                         If your current OPT employer has offices outside the US, they can transfer you to an international branch (e.g., London, Vancouver, Bangalore). After working there for 1 continuous year, they can sponsor your return on an L-1 visa.
                     </p>
                     <div className="grid md:grid-cols-2 gap-4">
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white">L-1A (Managers & Executives)</h4>
                             <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">Maximum duration of 7 years. Direct pathway to EB-1C green card, bypassing labor certification (PERM).</p>
                         </div>
-                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
                             <h4 className="font-bold text-gray-950 dark:text-white">L-1B (Specialized Knowledge)</h4>
                             <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">Maximum duration of 5 years. For key staff with unique, proprietary company knowledge.</p>
                         </div>
@@ -267,7 +267,7 @@ export default function H1BAlternativesGuide() {
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Enrolling in another educational program (such as a second Master&apos;s or MBA) resets your F-1 clock. Some universities offer Day 1 CPT, which allows you to continue working full-time under school authorization while attending classes.
                     </p>
-                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-4 rounded-r-xl my-4 text-red-900 dark:text-red-100 text-sm">
                         <div className="flex gap-2">
                             <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-600" />
                             <div>
@@ -290,20 +290,20 @@ export default function H1BAlternativesGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-indigo-600 rounded-xl p-8 my-12 text-white">
+                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-indigo-500 rounded-lg">
+                            <div className="p-2 bg-blue-600 rounded-lg">
                                 <Briefcase className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Track Your OPT Deadlines</h3>
                         </div>
-                        <p className="text-indigo-100 mb-6 text-lg max-w-2xl">
+                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
                             Ensure you never miss a compliance deadline while planning your next visa step. Use TrackMyOPT to track unemployment days for free, and Pro for daily USCIS auto-checks.
                         </p>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-indigo-700 font-bold hover:bg-indigo-50 transition-colors"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -320,7 +320,7 @@ export default function H1BAlternativesGuide() {
                             { question: "Can a TN visa lead to a green card?", answer: "The TN visa is strictly a non-immigrant intent status. Expressing permanent immigrant intent while entering or applying for a TN visa can lead to denial. It is usually best to switch to H-1B first before filing a green card petition." },
                             { question: "How long does L-1 visa processing take?", answer: "Regular processing takes 3-4 months, but premium processing is available for an additional fee, reducing the USCIS response time to 15 calendar days." },
                         ].map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -331,7 +331,7 @@ export default function H1BAlternativesGuide() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/eb2-niw-green-card-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ EB-2 NIW Green Card Guide</Link>

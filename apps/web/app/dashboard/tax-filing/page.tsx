@@ -97,7 +97,7 @@ export default function TaxFilingPage() {
   const filingRequirement = getFilingRequirement();
 
   return (
-    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen">
       {/* Hero Section */}
       <div>
         <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 sm:pt-8 sm:pb-8">
@@ -105,11 +105,11 @@ export default function TaxFilingPage() {
             <p className="text-sm text-slate-500 dark:text-muted-foreground mb-4">
               Tax Season 2024-2025
             </p>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground mb-4">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-3">
               Tax Filing for
               <span className="block">OPT & STEM-OPT</span>
             </h1>
-            <p className="text-lg text-slate-600 dark:text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">
               Navigate U.S. tax requirements with confidence. Learn what forms you need,
               important deadlines, and file with our trusted partners.
             </p>
@@ -135,7 +135,7 @@ export default function TaxFilingPage() {
 
       {/* Important Alert */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
-        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-5 flex items-start gap-4">
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 border-l-4 border-l-amber-500 rounded-xl p-5 flex items-start gap-4">
           <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center flex-shrink-0">
             <AlertCircle className="w-5 h-5 text-amber-600" />
           </div>
@@ -151,7 +151,7 @@ export default function TaxFilingPage() {
 
       {/* Tax Status Checker */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
-        <div className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border shadow-sm p-6">
+        <div className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border shadow-card p-6">
           <h2 className="text-xl font-bold text-slate-900 dark:text-foreground mb-2">Determine Your Filing Requirements</h2>
           <p className="text-slate-600 dark:text-muted-foreground text-sm mb-6">Answer these quick questions to find out what forms you need to file.</p>
 
@@ -277,19 +277,19 @@ export default function TaxFilingPage() {
           {TAX_DEADLINES.map((deadline, i) => (
             <div key={i} className={`relative rounded-xl p-[1.5px] overflow-hidden group bg-slate-200 ${i === 0 ? "dark:bg-emerald-400" :
                 i === 1 ? "dark:bg-blue-400" :
-                  i === 2 ? "dark:bg-purple-400" :
+                  i === 2 ? "dark:bg-violet-400" :
                     "dark:bg-pink-400"
               }`}>
               <div className="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl" />
               <div className="relative h-full bg-white dark:bg-slate-900 rounded-xl p-4 transition-colors">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${i === 0 ? "bg-emerald-50 dark:bg-emerald-950" :
                     i === 1 ? "bg-blue-50 dark:bg-blue-950" :
-                      i === 2 ? "bg-purple-50 dark:bg-purple-950" :
+                      i === 2 ? "bg-violet-50 dark:bg-violet-950" :
                         "bg-pink-50 dark:bg-pink-950"
                   }`}>
                   <deadline.icon className={`w-5 h-5 ${i === 0 ? "text-emerald-600 dark:text-emerald-400" :
                       i === 1 ? "text-blue-600 dark:text-blue-400" :
-                        i === 2 ? "text-purple-600 dark:text-purple-400" :
+                        i === 2 ? "text-violet-600 dark:text-violet-400" :
                           "text-pink-600 dark:text-pink-400"
                     }`} />
                 </div>
@@ -308,7 +308,7 @@ export default function TaxFilingPage() {
           {FAQ_ITEMS.map((item, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden"
+              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden shadow-card"
             >
               <button
                 onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
@@ -345,7 +345,7 @@ export default function TaxFilingPage() {
               href={resource.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border p-4 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm transition-all flex items-center justify-between"
+              className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border p-4 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm transition-all flex items-center justify-between shadow-card"
             >
               <div>
                 <p className="font-medium text-slate-900 dark:text-foreground">{resource.name}</p>

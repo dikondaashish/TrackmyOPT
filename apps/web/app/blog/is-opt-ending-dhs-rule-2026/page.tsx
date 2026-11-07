@@ -119,7 +119,7 @@ export default function IsOptEndingBlogPage() {
             </header>
 
             {/* Quick Answer */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     OPT and STEM OPT have not been eliminated. DHS has opened a formal review and a proposed rule (RIN 1653-AA97) is on the regulatory agenda — but no rule has been finalized. Any change requires a full rulemaking process that typically takes 12–24+ months. The biggest real risk right now is processing delays and tightened enforcement — not sudden elimination.
@@ -127,7 +127,7 @@ export default function IsOptEndingBlogPage() {
             </div>
 
             {/* Key Takeaway */}
-            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
+            <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 rounded-r-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3">
                     Why This Matters Right Now
                 </h2>
@@ -140,7 +140,7 @@ export default function IsOptEndingBlogPage() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="border rounded-xl border-border p-6 mb-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -173,7 +173,7 @@ export default function IsOptEndingBlogPage() {
                         The letter points specifically to a Spring Unified Agenda entry under <strong>RIN 1653-AA97</strong> — a regulatory identifier that signals a future proposed rule aimed at four stated goals: worker protection, fraud prevention, national security concerns, and stronger SEVP oversight.
                     </p>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             "DHS emphasizes that OPT exists only by regulation (8 C.F.R. 214.2(f)(10)), not statute, which means they can change duration, eligibility, reporting, or employer requirements without Congress."
                         </p>
@@ -193,7 +193,7 @@ export default function IsOptEndingBlogPage() {
                             { goal: "National security concerns", detail: "Countries flagged as security risks may see stricter eligibility screening or processing for OPT applications." },
                             { goal: "Stronger SEVP oversight", detail: "More rigorous university and employer compliance reporting requirements, potentially including site visits or mandatory E-Verify for all OPT employers." },
                         ].map((item) => (
-                            <div key={item.goal} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={item.goal} className="border p-4 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
                                     {item.goal}
@@ -212,34 +212,34 @@ export default function IsOptEndingBlogPage() {
                         This is the most important structural fact every F-1 student needs to understand: <strong>OPT was not created by Congress</strong>. It was created by the Department of Homeland Security (and before it, the former INS) using its administrative regulatory authority under the Immigration and Nationality Act.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
+                    <div className="overflow-x-auto mb-6 surface-card [&>table]:border-hidden [&>table]:my-0">
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Program Type</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">How It Was Created</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">How It Can Be Changed</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Vulnerability Level</th>
+                                <tr className="bg-surface-strong">
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Program Type</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">How It Was Created</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">How It Can Be Changed</th>
+                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border border-border">Vulnerability Level</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 font-medium text-gray-700 dark:text-gray-300">OPT / STEM OPT</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">DHS regulation (8 C.F.R. § 214.2(f))</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">DHS rulemaking — no Congressional vote needed</td>
-                                    <td className="p-3 border dark:border-zinc-700 font-semibold text-red-600 dark:text-red-400">High</td>
+                                    <td className="p-3 border border-border font-medium text-gray-700 dark:text-gray-300">OPT / STEM OPT</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">DHS regulation (8 C.F.R. § 214.2(f))</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">DHS rulemaking — no Congressional vote needed</td>
+                                    <td className="p-3 border border-border font-semibold text-red-600 dark:text-red-400">High</td>
                                 </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 font-medium text-gray-700 dark:text-gray-300">H-1B visa</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Act of Congress (Immigration Act of 1990)</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Requires new legislation — Congressional vote</td>
-                                    <td className="p-3 border dark:border-zinc-700 font-semibold text-green-600 dark:text-green-400">Lower</td>
+                                <tr className="bg-surface">
+                                    <td className="p-3 border border-border font-medium text-gray-700 dark:text-gray-300">H-1B visa</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Act of Congress (Immigration Act of 1990)</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Requires new legislation — Congressional vote</td>
+                                    <td className="p-3 border border-border font-semibold text-emerald-600 dark:text-emerald-400">Lower</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 font-medium text-gray-700 dark:text-gray-300">F-1 student visa status</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Combination of INA statute + DHS regulation</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Partial regulatory, partial statutory</td>
-                                    <td className="p-3 border dark:border-zinc-700 font-semibold text-amber-600 dark:text-amber-400">Medium</td>
+                                    <td className="p-3 border border-border font-medium text-gray-700 dark:text-gray-300">F-1 student visa status</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Combination of INA statute + DHS regulation</td>
+                                    <td className="p-3 border border-border text-gray-700 dark:text-gray-300">Partial regulatory, partial statutory</td>
+                                    <td className="p-3 border border-border font-semibold text-amber-600 dark:text-amber-400">Medium</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -258,7 +258,7 @@ export default function IsOptEndingBlogPage() {
                         According to reporting by Forbes, Joseph Edlow — Trump's nominee to lead USCIS — stated during his confirmation process that he intends to <strong>eliminate post-completion employment authorization for F-1 students</strong>. This would end OPT as it currently exists.
                     </p>
 
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             "Trump says he wants international students to stay and work after graduation. His USCIS nominee says he wants to end the program that lets them do exactly that."
                         </p>
@@ -271,7 +271,7 @@ export default function IsOptEndingBlogPage() {
                         There is a real tension here. President Trump has publicly stated that he wants international graduates — especially STEM graduates — to be able to stay and work in the US. At the same time, his immigration policy framework is pushing hard to reduce post-study work authorization. Both things are true simultaneously, and the outcome depends on which faction wins the internal policy debate.
                     </p>
 
-                    <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="p-4 rounded-xl border border-primary-muted bg-primary-soft">
                         <p className="text-blue-800 dark:text-blue-200 text-sm">
                             <strong>What a nomination means vs. what a rule means:</strong> A nominee expressing a position is not the same as a policy change. Before anything actually changes, there must be a formal Notice of Proposed Rulemaking (NPRM) published in the Federal Register, a public comment period (typically 30–60 days), review of comments, and a final rule — with an effective date usually 60+ days after publication. This entire process takes 12–24+ months under normal circumstances.
                         </p>
@@ -309,7 +309,7 @@ export default function IsOptEndingBlogPage() {
                             { phase: "Final rule published in Federal Register", time: "Effective date typically 60+ days after publication" },
                             { phase: "Potential legal challenges in federal court", time: "Injunctions can pause implementation — as happened with DACA and other rules" },
                         ].map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <div key={i} className="border flex items-start gap-3 p-4 rounded-xl border-border bg-card shadow-card">
                                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
                                 <div>
                                     <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.phase}</p>
@@ -319,8 +319,8 @@ export default function IsOptEndingBlogPage() {
                         ))}
                     </div>
 
-                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-4">
-                        <p className="text-green-800 dark:text-green-200 text-sm">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                        <p className="text-emerald-800 dark:text-emerald-200 text-sm">
                             <strong>Bottom line on timing:</strong> If you are currently on OPT or STEM OPT, or are about to start, the program almost certainly continues through your current authorization period. The realistic risk horizon for major structural change is 2027 at the earliest — and that assumes no successful legal challenges, which historically have slowed or stopped similar rules.
                         </p>
                     </div>
@@ -337,11 +337,11 @@ export default function IsOptEndingBlogPage() {
                         <strong>It did not.</strong> According to a December 2025 analysis by immigration law firm Murthy Law, the October 2025 rule explicitly does not affect the 180-day STEM OPT automatic extension for timely filed applications.
                     </p>
 
-                    <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800 mb-4">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800 mb-4">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                         <div>
-                            <h3 className="font-semibold text-green-900 dark:text-green-100">Still in effect: 180-day automatic STEM OPT extension</h3>
-                            <p className="text-sm text-green-800 dark:text-green-200 mt-1">
+                            <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Still in effect: 180-day automatic STEM OPT extension</h3>
+                            <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
                                 If you file your STEM OPT I-765 <strong>before your current OPT EAD expires</strong>, you automatically receive up to 180 days of continued employment authorization while USCIS processes your case — regardless of the October 2025 rule.
                             </p>
                         </div>
@@ -413,7 +413,7 @@ export default function IsOptEndingBlogPage() {
                     </h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, i) => (
-                            <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
+                            <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
                                     <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
@@ -424,7 +424,7 @@ export default function IsOptEndingBlogPage() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ STEM OPT Extension Guide</Link>
@@ -445,12 +445,12 @@ export default function IsOptEndingBlogPage() {
 
             <AuthorBio />
 
-            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
+            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
                 <h2 className="text-2xl font-bold mb-3">Stay Ahead of OPT Deadlines While Policy Shifts</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">
+                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
                     In an uncertain environment, perfect compliance is your strongest protection. TrackMyOPT keeps your unemployment days, employer updates, and filing deadlines organized so you are never caught off guard.
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
                     Track Your OPT Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

@@ -53,14 +53,14 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
 
           <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
             <table className="w-full min-w-[680px] text-left text-sm">
-              <thead className="sticky top-0 bg-gray-50 font-semibold text-gray-900 dark:bg-gray-800 dark:text-gray-100">
+              <thead className="sticky top-0 bg-surface-strong font-semibold text-foreground">
                 <tr>
                   <th className="px-4 py-3">Feature</th>
                   <th className="px-4 py-3 text-center">Free<br /><span className="font-normal text-gray-500">$0</span></th>
                   <th className="bg-blue-50 px-4 py-3 text-center text-blue-600 dark:bg-blue-950 dark:text-blue-400">
                     Pro<br /><span className="font-normal">${PLAN_PRICES.pro.month.toFixed(2)}/mo</span>
                   </th>
-                  <th className="bg-purple-50 px-4 py-3 text-center text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+                  <th className="bg-violet-50 px-4 py-3 text-center text-violet-700 dark:bg-violet-950 dark:text-violet-300">
                     Dedicated<br /><span className="font-normal">${PLAN_PRICES.dedicated.month.toFixed(2)}/mo</span>
                   </th>
                 </tr>
@@ -77,7 +77,7 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                       <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{feature.name}</td>
                       <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">{renderValue(feature.free)}</td>
                       <td className="bg-blue-50 px-4 py-3 text-center font-medium text-gray-900 dark:bg-blue-950 dark:text-gray-100">{renderValue(feature.pro)}</td>
-                      <td className="bg-purple-50 px-4 py-3 text-center font-medium text-gray-900 dark:bg-purple-950 dark:text-gray-100">{renderValue(feature.dedicated)}</td>
+                      <td className="bg-violet-50 px-4 py-3 text-center font-medium text-gray-900 dark:bg-violet-950 dark:text-gray-100">{renderValue(feature.dedicated)}</td>
                     </tr>
                   )),
                 ])}

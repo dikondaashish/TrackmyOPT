@@ -358,7 +358,7 @@ export default function ResumeEditorPage() {
     };
 
     return (
-        <div className="max-md:-mx-3 max-md:-my-3 max-md:min-h-[calc(100dvh-3.5rem-var(--tmopt-dashboard-promo,0px)-0.5rem)] md:h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+        <div className="max-md:-mx-3 max-md:-my-3 max-md:min-h-[calc(100dvh-3.5rem-var(--tmopt-dashboard-promo,0px)-0.5rem)] md:h-screen flex flex-col bg-surface">
             <OptimizationFeedbackModal
                 isOpen={showFeedbackModal}
                 onClose={() => setShowFeedbackModal(false)}

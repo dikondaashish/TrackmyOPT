@@ -313,7 +313,7 @@ export function EmploymentHistoryLog({
   return (
     <div
       id="employment"
-      className={`scroll-mt-24 rounded-xl border border-slate-200 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800 ${showInlineForm || editingId ? 'overflow-visible' : 'overflow-hidden'}`}
+      className={`scroll-mt-24 rounded-xl border border-slate-200 bg-card shadow-card dark:border-slate-800 ${showInlineForm || editingId ? 'overflow-visible' : 'overflow-hidden'}`}
     >
       <div className="flex flex-col gap-3 border-b border-border bg-emerald-50 p-4 dark:bg-emerald-950 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="flex items-center gap-3 min-w-0">
@@ -330,7 +330,7 @@ export function EmploymentHistoryLog({
         <button
           type="button"
           onClick={() => setShowInlineForm(true)}
-          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary-muted bg-white px-3 py-2 text-sm font-semibold text-primary shadow-sm transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary hover:bg-primary-soft hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card sm:w-auto"
+          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary-muted bg-white px-3 py-2 text-sm font-semibold text-primary shadow-card transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary hover:bg-primary-soft hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card sm:w-auto"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Employment

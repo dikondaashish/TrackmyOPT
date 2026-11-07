@@ -319,7 +319,7 @@ export function LinkedInAutoPostCard() {
                     Publishing did not finish. Check the company page first: if the post is there, do not publish again.
                   </p>
                 )}
-                <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200">
+                <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200 shadow-card">
                   {draft.commentary.replace(/\\([\\|{}@[\]()<>#*_~])/g, "$1")}
                 </pre>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">

@@ -65,17 +65,17 @@ export default async function GlossaryTermPage({ params }: PageProps) {
     };
 
     return (
-        <article className="min-h-screen bg-gray-50 dark:bg-zinc-950 py-12 px-4">
+        <article className="-mt-4 min-h-screen bg-surface py-12 sm:py-16 px-4">
             <div className="max-w-3xl mx-auto">
                 <Link 
                     href="/glossary" 
-                    className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline mb-8 font-medium"
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 font-medium"
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to Glossary
                 </Link>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 sm:p-12 border border-gray-200 dark:border-zinc-800">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                <div className="surface-card p-6 sm:p-12">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                         {term.term}
                     </h1>
                     
@@ -86,8 +86,8 @@ export default async function GlossaryTermPage({ params }: PageProps) {
                     </div>
 
                     {term.links && term.links.length > 0 && (
-                        <div className="mt-10 pt-8 border-t border-gray-100 dark:border-zinc-800">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                        <div className="mt-10 pt-8 border-t border-border">
+                            <h3 className="text-lg font-bold text-foreground mb-4">
                                 Related Resources
                             </h3>
                             <div className="flex flex-col gap-3">
@@ -107,12 +107,12 @@ export default async function GlossaryTermPage({ params }: PageProps) {
                 </div>
                 
                 {/* CTA */}
-                <div className="mt-12 bg-blue-600 rounded-xl p-8 text-white text-center">
+                <div className="mt-12 rounded-xl border border-ink-border bg-ink p-8 text-ink-foreground text-center shadow-elevated">
                     <h2 className="text-2xl font-bold mb-3">Track Your OPT Compliance</h2>
-                    <p className="text-blue-100 mb-6">
+                    <p className="text-ink-muted mb-6 leading-relaxed">
                         Don't let complex immigration rules risk your status. Track timelines, unemployment days, and deadlines.
                     </p>
-                    <Link href="/login" className="inline-block bg-white text-blue-700 font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors">
+                    <Link href="/login" className="inline-flex min-h-11 items-center bg-blue-600 text-white font-semibold px-6 rounded-lg shadow-button hover:bg-blue-500 transition-colors">
                         Start Tracking for Free
                     </Link>
                 </div>

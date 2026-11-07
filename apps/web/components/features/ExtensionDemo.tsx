@@ -34,7 +34,7 @@ export function ExtensionDemo() {
             </motion.div>
 
             {/* Browser Window Chrome */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-800">
+            <div className="surface-card overflow-hidden">
                 {/* Header */}
                 <div className="bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-800 p-3 flex items-center justify-between">
                     <div className="flex gap-1.5">

@@ -61,7 +61,7 @@ export default function J1WaiverPage() {
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
                 <BlogPostImage src="/blog/j1-waiver-212e-two-year-home-residency.jpg" alt="Embassy No Objection Statement letter next to a US passport with a J-1 visa stamp and a DS-2019" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -80,7 +80,7 @@ export default function J1WaiverPage() {
                     <li><strong>Graduate Medical Education:</strong> You came to the US on a J-1 visa for medical training (residency or fellowship).</li>
                 </ul>
 
-                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
+                <div className="border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-950 p-6 rounded-r-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         Check Your DS-2019 First
@@ -93,7 +93,7 @@ export default function J1WaiverPage() {
                 <h2 className="text-2xl font-bold mt-12 mb-6">The 5 Ways to Get a 212(e) Waiver</h2>
 
                 <div className="space-y-6 my-8">
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                             <CheckCircle2 className="w-6 h-6" /> 1. No Objection Statement (NOS) — Most Common
                         </h3>
@@ -102,7 +102,7 @@ export default function J1WaiverPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-blue-600 dark:text-blue-400">
                             2. Request by Interested Government Agency (IGA)
                         </h3>
@@ -111,7 +111,7 @@ export default function J1WaiverPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-red-600 dark:text-red-400">
                             3. Persecution Waiver
                         </h3>
@@ -120,7 +120,7 @@ export default function J1WaiverPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-purple-600 dark:text-purple-400">
                             4. Exceptional Hardship to a US Citizen/Permanent Resident Spouse or Child
                         </h3>
@@ -129,7 +129,7 @@ export default function J1WaiverPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="border border-border rounded-xl p-6 bg-card shadow-card">
                         <h3 className="text-xl font-bold mt-0 mb-2 text-amber-600 dark:text-amber-400">
                             5. Conrad State 30 Waiver (Doctors Only)
                         </h3>
@@ -147,7 +147,7 @@ export default function J1WaiverPage() {
                     If the waiver is denied, you must fulfill the two-year home residency requirement before you can change status. There is no appeal process—you would need to file a new waiver application under a different basis.
                 </p>
 
-                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl my-8">
+                <div className="bg-primary-soft border-l-4 border-l-primary p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">
                         Keep Your Immigration Documents Organized
                     </h3>
@@ -164,7 +164,7 @@ export default function J1WaiverPage() {
             </div>
 
 
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
+            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Secure Your Immigration Documents
                 </h3>
@@ -174,7 +174,7 @@ export default function J1WaiverPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
                     >
                         Access the Document Safe
                     </Link>
@@ -185,7 +185,7 @@ export default function J1WaiverPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/j1-visa-vs-f1-visa-opt-differences" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 F-1 vs J-1 Visa Comparison
                             </h4>
@@ -198,7 +198,7 @@ export default function J1WaiverPage() {
                         </div>
                     </Link>
                     <Link href="/blog/h1b-alternatives-work-visas" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="surface-card-interactive p-6 h-full">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 H-1B Alternatives
                             </h4>

@@ -35,9 +35,9 @@ export function FeatureHero({
     className,
 }: FeatureHeroProps) {
     return (
-        <section className={cn("relative min-h-[85vh] flex items-center overflow-hidden pt-20", className)}>
+        <section className={cn("relative min-h-[85vh] flex items-center overflow-hidden border-b border-border pt-20", className)}>
             {/* Background */}
-            <div className="absolute inset-0 bg-gray-50 dark:bg-zinc-950" />
+            <div className="absolute inset-0 bg-surface" />
 
             {/* Video Background (Optional) */}
             {videoSrc && (
@@ -51,7 +51,7 @@ export function FeatureHero({
                     >
                         <source src={videoSrc} type="video/mp4" />
                     </video>
-                    <div className="absolute inset-0 bg-gray-50 dark:bg-zinc-950 opacity-60" />
+                    <div className="absolute inset-0 bg-surface opacity-60" />
                 </div>
             )}
 
@@ -65,23 +65,23 @@ export function FeatureHero({
                         className="text-center lg:text-left"
                     >
                         {badge && (
-                            <p className="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+                            <p className="mb-4 text-sm font-medium text-primary">
                                 {badge}
                             </p>
                         )}
 
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-[1.1]">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.1]">
                             {headline}
                         </h1>
 
-                        <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
                             {subheadline}
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <Link
                                 href={ctaHref}
-                                className={`inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white ${gradient} rounded-lg hover:opacity-90 transition-opacity group`}
+                                className={`inline-flex min-h-12 items-center justify-center px-8 py-3 text-base font-semibold text-white ${gradient} rounded-lg shadow-button hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group`}
                             >
                                 {ctaText}
                                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -90,7 +90,7 @@ export function FeatureHero({
                             {secondaryCta && (
                                 <Link
                                     href={secondaryCta.href}
-                                    className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+                                    className="inline-flex min-h-12 items-center justify-center px-8 py-3 text-base font-semibold text-foreground bg-card border border-border rounded-lg shadow-card hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                 >
                                     {secondaryCta.text}
                                     {secondaryCta.text.toLowerCase().includes('demo') && <Play className="ml-2 w-4 h-4 fill-current" />}

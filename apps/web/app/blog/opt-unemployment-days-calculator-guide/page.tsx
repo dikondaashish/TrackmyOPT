@@ -102,7 +102,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: September 1, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+            <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     You get <strong>90 calendar days</strong> of unemployment on initial OPT (150 total with STEM OPT). Check your official count in the{" "}
@@ -130,7 +130,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                         { label: "STEM OPT add-on", value: "+60 days", sub: "Does not reset prior usage" },
                         { label: "Combined max", value: "150 days", sub: "Across full OPT + STEM period" },
                     ].map((item) => (
-                        <div key={item.label} className="text-center p-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                        <div key={item.label} className="border text-center p-5 rounded-xl border-border bg-card shadow-card">
                             <p className="text-xs font-semibold text-gray-500 mb-1">{item.label}</p>
                             <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{item.value}</p>
                             <p className="text-xs text-gray-500 mt-1">{item.sub}</p>
@@ -159,7 +159,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                         "Compare the portal count with your own employment history. If a recent job change is missing, email your DSO — the portal only updates after SEVIS reporting.",
                         "Save a screenshot monthly for your records, especially during job transitions.",
                     ].map((step, i) => (
-                        <li key={step} className="flex gap-4 p-4 rounded-xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+                        <li key={step} className="border flex gap-4 p-4 rounded-xl border-border bg-card shadow-card">
                             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">{i + 1}</span>
                             <p className="text-gray-700 dark:text-gray-300 pt-1">{step}</p>
                         </li>
@@ -193,7 +193,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
             <section className="mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Counts (and Doesn&apos;t Count) as Employment</h2>
                 <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950">
+                    <div className="p-5 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-3">Stops the clock
                         </h3>
                         <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 list-disc pl-4">
@@ -203,7 +203,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                             <li>Volunteer work (initial OPT only; not STEM)</li>
                         </ul>
                     </div>
-                    <div className="p-5 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950">
+                    <div className="border-l-4 border-l-red-500 p-5 rounded-r-xl bg-red-50 dark:bg-red-950">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5 text-red-600" /> Still counts as unemployed
                         </h3>
@@ -230,14 +230,14 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                         "Track STEM OPT reporting deadlines alongside unemployment",
                     ].map((item) => (
                         <li key={item} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
-                            <CheckCircle2 className="w-4 h-4 text-green-500 mt-1 shrink-0" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-1 shrink-0" />
                             {item}
                         </li>
                     ))}
                 </ul>
                 <Link
                     href="/tools/opt-clock"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-button"
                 >
                     Open OPT Clock <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -247,7 +247,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                 <div className="space-y-4">
                     {FAQS.map((faq) => (
-                        <div key={faq.question} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                        <div key={faq.question} className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                         </div>
@@ -255,7 +255,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                 </div>
             </section>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6">
+            <div className="border rounded-xl border-border p-6 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/laid-off-on-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Laid Off on OPT: What to Do Next</Link>

@@ -35,10 +35,11 @@ export default function ErrorBoundary({
   }, [error, pathname]);
 
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center">
-      <div className="rounded-full bg-red-100 p-3 dark:bg-red-950">
+    <div className="flex min-h-[400px] items-center justify-center bg-surface p-4 sm:p-6">
+      <div className="flex w-full max-w-md flex-col items-center rounded-xl border border-border bg-card px-6 py-10 text-center shadow-elevated sm:px-10">
+      <div className="rounded-full bg-red-50 p-3 dark:bg-red-950">
         <svg
-          className="h-8 w-8 text-red-600 dark:text-red-500"
+          className="h-8 w-8 text-red-600 dark:text-red-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -52,18 +53,19 @@ export default function ErrorBoundary({
           />
         </svg>
       </div>
-      <h2 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+      <h2 className="mt-5 text-xl font-semibold text-foreground">
         Something went wrong!
       </h2>
-      <p className="mt-2 text-gray-600 dark:text-gray-400">
+      <p className="mt-2 leading-relaxed text-muted-foreground">
         We encountered an unexpected error. Our team has been notified.
       </p>
       <button
         onClick={() => reset()}
-        className="mt-6 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="mt-6 inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Try again
       </button>
+      </div>
     </div>
   );
 }

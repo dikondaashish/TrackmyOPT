@@ -90,7 +90,7 @@ export default function ForgotPasscodePage() {
 
     return (
         <div className="max-w-md mx-auto py-10 px-4 space-y-6" role="main" aria-labelledby="forgot-title">
-            <h1 id="forgot-title" className="text-2xl font-bold text-gray-900 dark:text-foreground">
+            <h1 id="forgot-title" className="text-2xl font-semibold text-foreground">
                 Reset Document Vault Passcode
             </h1>
 

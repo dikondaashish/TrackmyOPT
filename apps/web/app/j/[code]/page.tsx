@@ -36,7 +36,7 @@ export default async function SharedJobPage({ params }: PageProps) {
   return (
     <>
       <LandingNavbar />
-      <main className="min-h-screen bg-slate-50 px-4 pb-20 pt-28 text-slate-950 dark:bg-zinc-950 dark:text-white">
+      <main className="min-h-screen bg-surface px-4 pb-20 pt-28 text-foreground">
         <div className="mx-auto max-w-2xl">
           <Link
             href={`/opt-jobs/${job.first_featured_on}`}
@@ -45,16 +45,16 @@ export default async function SharedJobPage({ params }: PageProps) {
             ← All of this day&apos;s picks
           </Link>
 
-          <article className="mt-4 rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+          <article className="mt-4 rounded-xl border border-border bg-card p-6 shadow-elevated sm:p-8">
             {domain && (
-              <p className="text-sm text-slate-500 dark:text-zinc-400">{domain.label}</p>
+              <p className="text-sm text-muted-foreground">{domain.label}</p>
             )}
             <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">{job.title}</h1>
-            <dl className="mt-5 space-y-2 text-sm text-slate-600 dark:text-zinc-300">
+            <dl className="mt-5 space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 shrink-0" aria-hidden />
                 <dt className="sr-only">Company</dt>
-                <dd className="font-medium text-slate-900 dark:text-white">{job.company_name}</dd>
+                <dd className="font-medium text-foreground">{job.company_name}</dd>
               </div>
               {job.location && (
                 <div className="flex items-center gap-2">
@@ -77,31 +77,31 @@ export default async function SharedJobPage({ params }: PageProps) {
                 href={job.job_url}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 font-semibold text-white hover:bg-blue-700"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-semibold text-primary-foreground shadow-button transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 Apply on company site
                 <ExternalLink className="h-4 w-4" aria-hidden />
               </a>
               <Link
                 href={signUpUrl}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 font-semibold hover:bg-slate-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-input bg-background px-5 font-semibold text-foreground shadow-card transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Sparkles className="h-4 w-4" aria-hidden />
                 Tailor my resume — free
               </Link>
             </div>
 
-            <p className="mt-6 text-xs leading-relaxed text-slate-500 dark:text-zinc-400">
+            <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
               TrackMyOPT does not verify an employer&apos;s visa policy for this role. Confirm sponsorship and E-Verify
               enrollment (required for STEM OPT) with the employer before you accept an offer.
             </p>
           </article>
 
-          <section className="mt-6 rounded-xl bg-blue-50 p-6 dark:bg-blue-950">
+          <section className="mt-6 rounded-xl border border-primary-muted bg-primary-soft p-6">
             <h2 className="font-semibold">
               Thousands more jobs, free
             </h2>
-            <p className="mt-2 text-sm text-slate-700 dark:text-zinc-300">
+            <p className="mt-2 text-sm text-muted-foreground">
               TrackMyOPT&apos;s job board lists US openings from verified company career pages, with filters for
               location, role and sponsorship signals, plus an OPT unemployment-day tracker.
             </p>

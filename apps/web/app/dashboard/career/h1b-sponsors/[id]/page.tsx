@@ -127,7 +127,7 @@ export default function CompanyProfilePage() {
     if (isLocked) {
         return (
             <div className="text-center py-20 space-y-6">
-                <div className="inline-flex p-4 rounded-xl bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+                <div className="inline-flex p-4 rounded-xl bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300">
                     <Lock className="w-10 h-10" />
                 </div>
                 <div>
@@ -211,12 +211,12 @@ export default function CompanyProfilePage() {
             </Link>
 
             {/* Company Header */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-card">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         <EmployerSuggestionLogo name={sponsor.name} domain={sponsor.website || ''} className="size-16 rounded-xl" />
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{sponsor.name}</h1>
+                            <h1 className="text-2xl font-semibold text-foreground">{sponsor.name}</h1>
                             <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
                                 <span className="inline-flex items-center gap-1">
                                     <MapPin className="w-4 h-4" />
@@ -307,7 +307,7 @@ export default function CompanyProfilePage() {
             </div>
 
             {/* Approval History */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-card">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">H-1B Approval History</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
@@ -331,7 +331,7 @@ export default function CompanyProfilePage() {
 
             {/* Worksite Locations */}
             {sortedLocations.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-card">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Top Worksite Locations</h2>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                         {sortedLocations.map(([location, count]) => (
@@ -346,7 +346,7 @@ export default function CompanyProfilePage() {
 
             {/* Common Roles */}
             {sponsor.common_roles && Array.isArray(sponsor.common_roles) && (sponsor.common_roles as string[]).length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-card">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Common Roles</h2>
                     <div className="flex flex-wrap gap-2">
                         {(sponsor.common_roles as string[]).map((role, idx) => (

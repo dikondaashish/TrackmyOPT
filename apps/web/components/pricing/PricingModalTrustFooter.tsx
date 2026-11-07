@@ -18,7 +18,7 @@ export function PricingModalTrustFooter({
     <div className="px-4 sm:px-5 md:px-4 pb-4 md:pb-3 pt-3 md:pt-2 border-t border-border bg-background">
       <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-4 gap-y-2 md:gap-y-1">
         <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
-          <Shield className="w-3.5 h-3.5 text-green-600" />
+          <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span>Secure Payment</span>
         </div>
         {!isPremium && (

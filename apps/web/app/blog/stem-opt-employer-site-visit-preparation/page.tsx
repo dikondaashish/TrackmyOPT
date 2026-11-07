@@ -61,12 +61,12 @@ export default function StemOptEmployerSiteVisitPage() {
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 border border-border shadow-card">
         <BlogPostImage src="/blog/stem-opt-employer-site-visit-preparation.png" alt="DHS officer with SEVP site visit checklist reviewing documents with a professional at an office desk" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+      <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
         <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">Direct Answer</p>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed">
           SEVP site visits verify that the STEM OPT training relationship is genuine: the
@@ -139,12 +139,12 @@ export default function StemOptEmployerSiteVisitPage() {
               ],
             },
           ].map((section) => (
-            <div key={section.category} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-4">
+            <div key={section.category} className="border border-border rounded-xl p-4 bg-card shadow-card">
               <p className="font-bold text-gray-900 dark:text-white mb-3 text-sm">{section.category}</p>
               <ul className="space-y-1">
                 {section.items.map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0 mt-0.5" />
                     {item}
                   </li>
                 ))}
@@ -168,7 +168,7 @@ export default function StemOptEmployerSiteVisitPage() {
           <li><strong>Discrepancies between I-983 data and SEVIS records</strong></li>
         </ul>
 
-        <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
+        <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-5 rounded-r-xl my-6">
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -203,7 +203,7 @@ export default function StemOptEmployerSiteVisitPage() {
               { item: "Six-month validation confirmations from your DSO", note: "Showing that validations have been completed on schedule." },
             ].map((row, i) => (
               <li key={i} className="flex items-start gap-3 text-gray-800 dark:text-gray-200">
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-sm">{row.item}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{row.note}</p>
@@ -247,7 +247,7 @@ export default function StemOptEmployerSiteVisitPage() {
               { item: "Description of the training program and how it is implemented", note: "Not just the I-983 form — actual operational details." },
             ].map((row, i) => (
               <li key={i} className="flex items-start gap-3 text-gray-800 dark:text-gray-200">
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-sm">{row.item}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{row.note}</p>
@@ -311,7 +311,7 @@ export default function StemOptEmployerSiteVisitPage() {
               "Store all documents in the TrackMyOPT Document Vault for organized, accessible records",
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3 text-gray-800 dark:text-gray-200">
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <span className="text-sm">{item}</span>
               </li>
             ))}
@@ -329,7 +329,7 @@ export default function StemOptEmployerSiteVisitPage() {
                 significantly better prepared for any site visit or DSO review.
               </p>
               <Link href="/dashboard/opt-tools/stem-opt"
-                className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primary-hover transition-colors text-sm">
+                className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primary-hover transition-colors text-sm shadow-button">
                 Open STEM OPT Planner <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -366,7 +366,7 @@ export default function StemOptEmployerSiteVisitPage() {
             },
           ].map((item, i) => (
             <div key={i} itemScope itemProp="mainEntity" itemType="https://schema.org/Question"
-              className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-5">
+              className="border border-border rounded-xl p-5 bg-card shadow-card">
               <p itemProp="name" className="font-bold text-gray-900 dark:text-white mb-2">{item.q}</p>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
                 <p itemProp="text" className="text-gray-600 dark:text-gray-300 text-sm">{item.a}</p>
@@ -385,14 +385,14 @@ export default function StemOptEmployerSiteVisitPage() {
             { label: "HSI OPT Fraud Information", href: "https://www.trackmyopt.com/blog/hsi-opt-fraud-crackdown-legitimate-students-guide" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary transition-colors">
+              className="border flex items-center gap-2 p-3 border-border rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary-muted hover:shadow-elevated transition-[color,border-color,box-shadow] bg-card shadow-card">
               <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
               {s.label}
             </a>
           ))}
         </div>
 
-        <div className="not-prose mt-10 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl p-5">
+        <div className="border not-prose mt-10 border-border rounded-xl p-5 bg-card shadow-card">
           <div className="flex gap-3">
             <ShieldCheck className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -414,7 +414,7 @@ export default function StemOptEmployerSiteVisitPage() {
               { href: "/blog/opt-employment-evidence-checklist", title: "OPT Employment Evidence Checklist", desc: "Every document to keep — the same records an inspector will want to see." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
-                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                <div className="surface-card-interactive p-5 h-full">
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-base">{r.title}</h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{r.desc}</p>
                   <span className="text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

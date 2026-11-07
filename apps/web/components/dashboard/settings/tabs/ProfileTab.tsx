@@ -115,7 +115,7 @@ export function ProfileTab({
                 <select
                   value={profile.timezone}
                   onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
-                  className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-card"
                 >
                   {timezones.map((tz) => (
                     <option key={tz.value} value={tz.value}>
