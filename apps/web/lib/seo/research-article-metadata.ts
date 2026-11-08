@@ -15,14 +15,25 @@ export function createResearchArticleMetadata(
   const metaDescription = trimAtWord(article.description, 158);
   const author = article.byline === 'automated' ? AUTOMATED_BYLINE : 'Vinay Kumar';
 
+  const languages = article.translations
+    ? Object.fromEntries([
+        ...Object.entries({
+          [article.lang ?? 'en']: article.slug,
+          ...article.translations,
+        }).map(([code, slug]) => [code, `${SITE}/blog/${slug}`]),
+        ['x-default', `${SITE}/blog/${article.translations.en ?? article.slug}`],
+      ])
+    : undefined;
+
   return {
     title: { absolute: seoTitle },
     description: metaDescription,
     keywords: article.tags,
     authors: [{ name: author, url: `${SITE}/about` }],
-    alternates: { canonical },
+    alternates: languages ? { canonical, languages } : { canonical },
     openGraph: {
       type: 'article',
+      locale: article.lang === 'es' ? 'es_US' : 'en_US',
       title: article.title,
       description: article.description,
       url: canonical,

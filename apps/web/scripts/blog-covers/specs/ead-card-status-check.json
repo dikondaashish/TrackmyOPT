@@ -1,0 +1,30 @@
+{
+  "slug": "ead-card-status-check",
+  "chip": "USCIS TRACKING",
+  "headline": [
+    "EAD Card Status:",
+    "Check It, Decode It,",
+    "Get the Card"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Every I-765 status message in order, how",
+    "long each stage takes, and late-card steps."
+  ],
+  "stats": [
+    {
+      "value": "Received",
+      "label": "STEP 1"
+    },
+    {
+      "value": "Approved",
+      "label": "STEP 3"
+    },
+    {
+      "value": "Mailed",
+      "label": "STEP 5"
+    }
+  ],
+  "footer": "9 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

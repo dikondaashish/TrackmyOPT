@@ -8,12 +8,12 @@ import { AdSenseInArticle } from "@/components/blog/AdSenseInArticle";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "How to Check OPT & USCIS Case Status Online (2026 Guide)",
-    description: "How to check OPT status, track your EAD card, and read USCIS case updates by receipt number (IOE/MSC/LIN). Free manual tracking plus Pro daily alerts on TrackMyOPT.",
+    title: "USCIS Case Status Check by Receipt Number: OPT, EAD, I-140 (2026)",
+    description: "Check USCIS case status online by receipt number, decode IOE and ELIS case numbers and every status message, and get alerts for OPT, EAD, I-140 and I-485 cases.",
     keywords: ["how to check opt status", "how to track uscis case", "how to track ead card", "USCIS case status online", "check case status with receipt number", "I-765 case status", "how to check uscis case status", "egov.uscis.gov"],
     openGraph: {
-        title: "USCIS Case Status Check Online (2026) | TrackMyOPT",
-        description: "Check USCIS case status by receipt number. Status message decoder + TrackMyOPT free manual tracking; Pro adds daily auto-checks and email alerts for OPT and EAD.",
+        title: "USCIS Case Status Check by Receipt Number (2026) | TrackMyOPT",
+        description: "Check USCIS case status by receipt number, decode IOE and ELIS case numbers and every status message, and get alerts for OPT, EAD, I-140 and I-485 cases.",
         url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
         type: "article",
         images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "How to Track Your USCIS Case Status Online: Complete Guide (2026)" }],
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "USCIS Case Status Check Online (2026) | TrackMyOPT",
-        description: "Check USCIS case status by receipt number. Status message decoder + TrackMyOPT free manual tracking; Pro adds daily auto-checks and email alerts for OPT and EAD.",
+        title: "USCIS Case Status Check by Receipt Number (2026) | TrackMyOPT",
+        description: "Check USCIS case status by receipt number, decode IOE and ELIS case numbers and every status message, and get alerts for OPT, EAD, I-140 and I-485 cases.",
         images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
@@ -60,7 +60,7 @@ export default function USCISCaseStatusTrackingGuide() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Uscis Case Status Tracking Guide", url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-05" modifiedDate="2026-10-11" author="Vinay Kumar" faqItems={[...USCIS_TRACKING_FAQS]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-05" modifiedDate="2026-11-08" author="Vinay Kumar" faqItems={[...USCIS_TRACKING_FAQS]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -121,6 +121,7 @@ export default function USCISCaseStatusTrackingGuide() {
                     {[
                         ["#what-is-case-status", "What Is a USCIS Case Status?"],
                         ["#how-to-check", "How to Check Case Status on USCIS.gov"],
+                        ["#receipt-numbers", "IOE, EAC, WAC and A-Numbers: Which Number to Use"],
                         ["#status-messages", "Understanding USCIS Status Messages"],
                         ["#trackmyopt", "How TrackMyOPT Makes Tracking Easier"],
                         ["#case-delayed", "What to Do If Your Case Is Delayed"],
@@ -211,6 +212,24 @@ export default function USCISCaseStatusTrackingGuide() {
                             Limitation: USCIS.gov only shows the most recent status update. It does not show a history of changes, and you won't know when the status changed unless you check manually every day.
                         </p>
                     </div>
+                </section>
+
+                <section id="receipt-numbers" className="mb-12">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        IOE, EAC, WAC and A-Numbers: Which Number to Use
+                    </h2>
+                    <p>
+                        Case Status Online accepts the <strong>13-character receipt number</strong> printed on your Form I-797C: three letters and ten digits. The letters identify where USCIS logged the case, not how fast it moves.
+                    </p>
+                    <ul>
+                        <li><strong>IOE</strong>: a case filed online or routed through the USCIS ELIS system. Most OPT, STEM OPT and H-4 EAD applications filed since 2023 carry an IOE number, which is why searches for &ldquo;IOE case status&rdquo; and &ldquo;ELIS case status&rdquo; lead here. Track it exactly like any other receipt; linking it to a USCIS online account also unlocks the case history and the USPS tracking number for your card.</li>
+                        <li><strong>EAC, WAC, LIN, SRC, NBC, MSC</strong>: paper filings routed to the Vermont, California, Nebraska, Texas or National Benefits Center, or the Missouri lockbox. Older OPT receipts and many I-140 petitions still use these.</li>
+                        <li><strong>A-Number (A-123456789)</strong>: your alien registration number. It identifies you, not a case, so it does not work in Case Status Online. Use it in your USCIS account, on Form I-9, and when writing to USCIS about a case.</li>
+                        <li><strong>Online access code</strong>: printed on paper receipt notices since 2022. Enter it in your USCIS account to link a paper case so you can see its history and respond to notices online.</li>
+                    </ul>
+                    <p>
+                        If the status tool says the receipt number is invalid, wait until the day after the receipt notice date, check for a mistyped letter or digit, and see <Link href="/blog/opt-receipt-number-not-working" className="text-blue-600 dark:text-blue-400 underline">why a USCIS receipt number may not work yet</Link>. For employment authorization specifically, the <Link href="/blog/ead-card-status-check" className="text-blue-600 dark:text-blue-400 underline">EAD card status guide</Link> walks through every I-765 message from receipt to card delivery.
+                    </p>
                 </section>
 
                 <section id="status-messages" className="mb-12">

@@ -59,7 +59,7 @@ test('I-140 guide has consistent metadata and a generic case-tracking action', a
     waitUntil: 'domcontentloaded',
   });
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'How to Track Your I-140 Case: Status Messages, Delays and Alerts'
+    'I-140 Tracker: How to Check Your Case Status, Processing Time and Get Alerts'
   );
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',

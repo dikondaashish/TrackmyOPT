@@ -12,7 +12,10 @@ import {
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
-import type { ResearchArticle } from '@/data/blog-series/types';
+import type {
+  ArticleTable,
+  ResearchArticle,
+} from '@/data/blog-series/types';
 import { AdSenseInArticle } from '@/components/blog/AdSenseInArticle';
 import { BlogFlowFigure } from '@/components/blog/BlogFlowFigure';
 import { BlogPostImage } from '@/components/blog/BlogPostImage';
@@ -21,14 +24,67 @@ import styles from './ResearchArticlePage.module.css';
 const SITE = 'https://www.trackmyopt.com';
 const DEFAULT_IMAGE = '/blog/international-student-guidance-library-2026.png';
 
+// Page chrome around the article body, per article language.
+const LABELS = {
+  en: {
+    badge: 'Verified 2026 Guide',
+    published: 'Published',
+    updated: 'Updated',
+    reviewed: 'Reviewed against primary government sources',
+    caption:
+      'A practical TrackMyOPT guide: confirm the rule, document your dates, and act before the deadline.',
+    statusNote: 'Publication-status note',
+    directAnswer: 'Direct answer',
+    contents: 'In this guide',
+    first: 'What You Should Know First',
+    sources: 'Sources:',
+    note: 'Vinay\u2019s practical note',
+    checklist: 'Your Action Checklist',
+    mistakes: 'Common Mistakes to Avoid',
+    faq: 'Frequently Asked Questions',
+    officialSources: 'Official Sources',
+    officialIntro:
+      'Rules can change. We checked this guide against the primary sources below; always open the current form instructions or agency page before acting.',
+    keepReading: 'Keep Reading',
+    locale: 'en-US',
+  },
+  es: {
+    badge: 'Gu\u00eda verificada 2026',
+    published: 'Publicado el',
+    updated: 'Actualizado el',
+    reviewed: 'Revisado con fuentes oficiales del gobierno de EE. UU.',
+    caption:
+      'Gu\u00eda pr\u00e1ctica de TrackMyOPT: confirma la regla, anota tus fechas y act\u00faa antes del plazo.',
+    statusNote: 'Nota sobre el estado de publicaci\u00f3n',
+    directAnswer: 'Respuesta directa',
+    contents: 'En esta gu\u00eda',
+    first: 'Lo que debes saber primero',
+    sources: 'Fuentes:',
+    note: 'Nota pr\u00e1ctica de Vinay',
+    checklist: 'Tu lista de acci\u00f3n',
+    mistakes: 'Errores comunes que debes evitar',
+    faq: 'Preguntas frecuentes',
+    officialSources: 'Fuentes oficiales',
+    officialIntro:
+      'Las reglas cambian. Revisamos esta gu\u00eda con las fuentes oficiales de abajo; abre siempre la p\u00e1gina oficial vigente antes de actuar.',
+    keepReading: 'Sigue leyendo',
+    locale: 'es-US',
+  },
+} as const;
+
 export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
   const canonical = `${SITE}/blog/${article.slug}`;
   const image = article.image ?? DEFAULT_IMAGE;
   const imageUrl = image.startsWith('http') ? image : `${SITE}${image}`;
   const automated = article.byline === 'automated';
+  const lang = article.lang ?? 'en';
+  const t = LABELS[lang];
 
   return (
-    <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <article
+      lang={lang}
+      className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+    >
       <BreadcrumbSchema
         items={[
           { name: 'Home', url: SITE },
@@ -52,7 +108,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-4">
           <span className="font-medium text-primary">{article.category}</span>
           <span aria-hidden>·</span>
-          <span>{article.badgeLabel ?? 'Verified 2026 Guide'}</span>
+          <span>{article.badgeLabel ?? t.badge}</span>
         </p>
         <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight mb-6">
           {article.title}
@@ -63,17 +119,20 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span>{article.readTime}</span>
           <span aria-hidden>•</span>
-          <span>Published {formatDate(article.publishedDate)}</span>
+          <span>
+            {t.published} {formatDate(article.publishedDate, t.locale)}
+          </span>
           {article.modifiedDate !== article.publishedDate && (
             <>
               <span aria-hidden>•</span>
-              <span>Updated {formatDate(article.modifiedDate)}</span>
+              <span>
+                {t.updated} {formatDate(article.modifiedDate, t.locale)}
+              </span>
             </>
           )}
           <span aria-hidden>•</span>
           <span>
-            {article.reviewLabel ??
-              'Reviewed against primary government sources'}
+            {article.reviewLabel ?? t.reviewed}
           </span>
         </div>
       </header>
@@ -92,15 +151,14 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           />
         </div>
         <figcaption className="mt-3 text-center text-sm text-muted-foreground">
-          {article.imageCaption ??
-            'A practical TrackMyOPT guide: confirm the rule, document your dates, and act before the deadline.'}
+          {article.imageCaption ?? t.caption}
         </figcaption>
       </figure>
 
       {article.statusNote && (
         <div className="mb-8 rounded-r-xl border-l-4 border-l-amber-500 bg-amber-50 p-5 text-amber-950 dark:bg-amber-950 dark:text-amber-100">
           <p className="font-bold flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" /> Publication-status note
+            <AlertTriangle className="h-5 w-5" /> {t.statusNote}
           </p>
           <p className="mt-2 mb-0">{article.statusNote}</p>
         </div>
@@ -108,7 +166,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
 
       <div className="mb-10 rounded-xl border border-primary-muted bg-primary-soft p-6">
         <p className="mb-2 text-sm font-semibold text-primary">
-          Direct answer
+          {t.directAnswer}
         </p>
         <p className="mb-0 text-lg font-medium leading-relaxed text-foreground">
           {article.directAnswer}
@@ -119,12 +177,10 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
 
       {article.showContents && (
         <nav
-          aria-label="In this guide"
+          aria-label={t.contents}
           className="mb-10 rounded-xl border border-border bg-surface p-5 sm:p-6"
         >
-          <p className="mb-3 font-bold text-foreground">
-            In this guide
-          </p>
+          <p className="mb-3 font-bold text-foreground">{t.contents}</p>
           <ol className="grid gap-2 text-sm sm:grid-cols-2">
             {article.sections.map((section, index) => (
               <li key={section.heading}>
@@ -144,7 +200,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         className={`${styles.reading} prose prose-lg dark:prose-invert max-w-none`}
       >
         <section className="rounded-xl border border-primary-muted bg-primary-soft p-6 sm:p-7">
-          <h2>What You Should Know First</h2>
+          <h2>{t.first}</h2>
           <ul>
             {article.keyTakeaways.map((item) => (
               <li key={item}>{item}</li>
@@ -170,9 +226,10 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
             {section.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+            {section.table && <ArticleDataTable table={section.table} />}
             {section.sources && (
               <p className="text-sm">
-                Sources:{' '}
+                {t.sources}{' '}
                 {section.sources.map((source, sourceIndex) => (
                   <span key={source.url}>
                     {sourceIndex > 0 && '; '}
@@ -214,7 +271,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
             {section.note && (
               <div className="not-prose my-7 rounded-r-xl border-l-4 border-l-emerald-600 bg-emerald-50 p-5 dark:bg-emerald-950">
                 <p className="mb-2 font-bold text-emerald-900 dark:text-emerald-100">
-                  Vinay&apos;s practical note
+                  {t.note}
                 </p>
                 <p className="mb-0 leading-relaxed text-gray-800 dark:text-gray-200">
                   {section.note}
@@ -225,7 +282,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         ))}
 
         <section id="checklist">
-          <h2>Your Action Checklist</h2>
+          <h2>{t.checklist}</h2>
           <div className="not-prose grid gap-3">
             {article.checklist.map((item) => (
               <div
@@ -242,7 +299,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </section>
 
         <section>
-          <h2>Common Mistakes to Avoid</h2>
+          <h2>{t.mistakes}</h2>
           <ul>
             {article.mistakes.map((item) => (
               <li key={item}>{item}</li>
@@ -278,7 +335,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         )}
 
         <section id="faq">
-          <h2>Frequently Asked Questions</h2>
+          <h2>{t.faq}</h2>
           {article.faq.map((item) => (
             <div className="border-t border-border pt-1 mb-5 first-of-type:border-t-0" key={item.question}>
               <h3>{item.question}</h3>
@@ -288,12 +345,8 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </section>
 
         <section>
-          <h2>Official Sources</h2>
-          <p>
-            Rules can change. We checked this guide against the primary sources
-            below; always open the current form instructions or agency page
-            before acting.
-          </p>
+          <h2>{t.officialSources}</h2>
+          <p>{t.officialIntro}</p>
           <ul>
             {article.sources.map((source) => (
               <li key={source.url}>
@@ -307,7 +360,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </section>
 
         <section>
-          <h2>Keep Reading</h2>
+          <h2>{t.keepReading}</h2>
           <ul>
             {article.related.map((item) => (
               <li key={item.href}>
@@ -323,8 +376,56 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
   );
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('en-US', {
+function ArticleDataTable({ table }: { table: ArticleTable }) {
+  return (
+    <div className="not-prose my-6 overflow-x-auto rounded-xl border border-border">
+      <table className="w-full min-w-[480px] border-collapse text-sm">
+        {table.caption && (
+          <caption className="bg-surface px-4 py-2 text-left text-xs font-semibold text-muted-foreground">
+            {table.caption}
+          </caption>
+        )}
+        <thead>
+          <tr className="bg-primary-soft text-left">
+            {table.columns.map((column) => (
+              <th
+                key={column}
+                scope="col"
+                className="px-3 py-2 font-semibold text-foreground"
+              >
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {table.rows.map((row) => (
+            <tr
+              key={row.join('|')}
+              className="border-t border-border even:bg-surface"
+            >
+              {row.map((cell, index) => (
+                <td
+                  key={`${index}-${cell}`}
+                  className={
+                    index === 0
+                      ? 'px-3 py-2 font-medium text-foreground'
+                      : 'px-3 py-2 text-foreground tabular-nums'
+                  }
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function formatDate(value: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

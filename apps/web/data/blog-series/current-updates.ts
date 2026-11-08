@@ -3,9 +3,25 @@ import {
   fixedAdmissionLitigation,
 } from './editorial-refreshes';
 import { defineArticle, source, standardRelated } from './shared';
+import {
+  novemberBulletin,
+  novemberDatesForFiling,
+  novemberFinalAction,
+  octoberBulletin,
+  octoberToNovember,
+  uscisCharts,
+} from './visa-bulletin-december-2026';
+import type { ArticleSource } from './types';
+
 import { octoberNewsArticles } from './october-news';
 import { octoberPolicyNewsArticles } from './october-policy-news';
 import { h1bFeeOctoberArticle } from './h1b-fees-october';
+
+const septemberBulletin: ArticleSource = {
+  label: 'Visa Bulletin for September 2026',
+  publisher: 'U.S. Department of State',
+  url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2026/visa-bulletin-for-september-2026.html',
+};
 
 export const currentUpdateArticles = [
   ...octoberPolicyNewsArticles,
@@ -13,144 +29,156 @@ export const currentUpdateArticles = [
   defineArticle({
     slug: 'november-2026-visa-bulletin-predictions-opt-workers',
     title:
-      'November 2026 Visa Bulletin Predictions for OPT Workers: EB-1 & EB-2 India Outlook',
-    seoTitle: 'November 2026 Visa Bulletin Predictions | OPT Workers',
+      'November 2026 Visa Bulletin: Official Dates vs the Predictions for EB-1, EB-2 and EB-3 India',
+    seoTitle: 'November 2026 Visa Bulletin: Official Dates vs Predictions',
     description:
-      'November 2026 Visa Bulletin predictions for EB-1 and EB-2 India ahead of the official release. What August–October trends suggest, what OPT workers should prepare, and what not to assume.',
+      'The official November 2026 Visa Bulletin is out. Final Action Dates and Dates for Filing for EB-1, EB-2 and EB-3 India, what moved from October, which chart USCIS accepted, and what OPT workers do next.',
     category: 'Green Card Outlook',
     tags: [
       'November 2026 Visa Bulletin',
       'Visa Bulletin Predictions',
       'EB-1 India',
       'EB-2 India',
+      'EB-3 India',
       'OPT Workers',
     ],
     readTime: '9 min read',
     publishedDate: '2026-09-01',
-    modifiedDate: '2026-10-10',
+    modifiedDate: '2026-11-08',
     newsSitemapEligible: true,
     newsPublishedAt: '2026-09-01T14:00:00Z',
-    cta: 'opt-timeline',
+    cta: 'uscis-tracking',
     image: '/blog/august-2026-visa-bulletin-opt-workers.png',
     imageAlt:
       'Calendar and abstract employment-based priority-date timelines showing a stopped category',
+    badgeLabel: 'Updated with the official bulletin',
     statusNote:
-      'Checked October 10, 2026: the official index lists October as current and the upcoming bulletin as coming soon. November cutoff dates are not yet published. This outlook uses the released October bulletin as its baseline; verify the official index before acting.',
+      'Updated November 8, 2026: the State Department has published the November 2026 bulletin (internal date October 5, 2026) and USCIS accepted the Dates for Filing chart for all family and employment categories in November. The tables below are the official numbers. The pre-release scenarios this page carried in September and October are summarised in one section so readers can see how they compared.',
     directAnswer:
-      'As checked on October 10, no official November 2026 employment-based cutoff dates are published. October Final Action Dates are February 1, 2023 for EB-1 India and November 1, 2013 for EB-2 India. Whether those dates advance, hold, or retrogress in November depends on demand and visa-number limits. Keep OPT/STEM work authorization separate from priority-date planning.',
+      'The November 2026 Visa Bulletin holds EB-1 India at February 1, 2023 and EB-2 India at November 1, 2013, and moves EB-3 India three weeks to January 22, 2014. EB-2 and EB-3 for all other countries recovered part of their October retrogression, to April 1, 2025 and June 15, 2024. Dates for Filing for India did not change: July 1, 2024 for EB-1 and January 15, 2015 for EB-2 and EB-3, and USCIS accepted that chart for November adjustment filings.',
     keyTakeaways: [
-      'Predictions are planning tools, not the official Visa Bulletin.',
-      'A fiscal-year reset in October does not guarantee forward movement for India EB categories.',
-      'OPT and STEM EAD deadlines continue regardless of green-card queue optimism.',
+      'EB-1 and EB-2 India held in November; EB-3 India advanced three weeks.',
+      'Rest-of-world EB-2 (+3 months) and EB-3 (+1 month) recovered some of the October retrogression.',
+      'USCIS accepted the Dates for Filing chart for November, so India EB-2 and EB-3 applicants with priority dates before January 15, 2015 could file I-485.',
+      'OPT and STEM OPT EAD deadlines are unaffected by any of this.',
     ],
     sections: [
       {
-        heading: 'Why November Predictions Spike Every Fall',
+        heading: 'November 2026 official Final Action Dates',
         paragraphs: [
-          'Search interest for “visa bulletin predictions” peaks in the weeks before each monthly release. For OPT workers — especially Indian nationals with approved or pending I-140 petitions — November matters because it follows the October fiscal-year reset and shows whether categories that were unavailable or retrogressed can move again.',
-          'Use the released October tables as the comparison point. Any suggested November cutoff is still a forecast until the State Department publishes the next bulletin. A planning scenario should explain what you would do if dates hold, rather than imply that a particular advance is certain.',
+          'These are the employment-based Final Action Dates printed in the November 2026 bulletin. A priority date must be earlier than the listed cutoff. "C" means the category is current for that country.',
+        ],
+        table: novemberFinalAction,
+        sources: [novemberBulletin],
+      },
+      {
+        heading: 'What changed from October to November',
+        paragraphs: [
+          'October opened fiscal year 2027 with the annual reset. November is the first month that shows how the Department is pacing demand under the new limits. India’s EB-1 and EB-2 held, EB-3 India took a small step, China moved in EB-1 and EB-3, and the rest-of-world EB-2 and EB-3 categories, which October had retrogressed, recovered part of the lost ground.',
+        ],
+        table: octoberToNovember,
+        sources: [octoberBulletin, novemberBulletin],
+      },
+      {
+        heading: 'Dates for Filing and the USCIS chart choice',
+        paragraphs: [
+          'USCIS announced that for November 2026 all family-sponsored and all employment-based adjustment applicants must use the Dates for Filing chart. For India that means EB-1 at July 1, 2024 and EB-2 and EB-3 at January 15, 2015, unchanged from October. If your priority date is earlier than the relevant cutoff and you are otherwise eligible, counsel can confirm whether an I-485 filing in the November window makes sense.',
+        ],
+        table: novemberDatesForFiling,
+        sources: [novemberBulletin, uscisCharts],
+      },
+      {
+        heading: 'How the pre-release scenarios compared',
+        paragraphs: [
+          'Before the release this page described three scenarios without probabilities: dates hold, dates advance, dates retrogress. For India the "hold" scenario is what happened in EB-1 and EB-2, and EB-3 India fell under "small advance". For the rest of the world the "advance" scenario happened in EB-2 and EB-3 after the October retrogression. No category that mattered to OPT workers retrogressed in November.',
+          'The lesson for December is the same one this page gave in October: a prediction site’s specific cutoff is a guess until the index shows the bulletin, and the useful preparation is having your own category, chargeability and priority date ready to compare line by line.',
+        ],
+        links: [
+          {
+            label: 'December 2026 Visa Bulletin predictions and scenarios',
+            href: '/blog/december-2026-visa-bulletin-predictions',
+          },
         ],
       },
       {
-        heading: 'What Recent Bulletins Actually Showed',
+        heading: 'What OPT and STEM OPT workers should do now',
         paragraphs: [
-          'The August 2026 bulletin marked EB-2 India as unavailable (U) for final action and warned EB-1 India could become unavailable before fiscal year 2026 ended. That signals heavy per-country demand, not a permanent closure.',
-          'The published October bulletin begins fiscal year 2027 with EB-1 India at February 1, 2023 and EB-2 India at November 1, 2013 for final action. Its filing dates are July 1, 2024 and January 15, 2015, respectively. These different charts are not interchangeable; adjustment applicants must check the chart USCIS permits.',
-        ],
-        bullets: [
-          'EB-2 India has a printed Final Action Date in October; do not carry forward August’s unavailable designation',
-          'October reset replenishes numbers; it does not erase the queue',
-          'USCIS separately chooses Final Action vs Dates for Filing each month',
-        ],
-      },
-      {
-        heading: 'Reasonable November Scenarios (Not Promises)',
-        paragraphs: [
-          'Consider the following planning scenarios without assigning probabilities or presenting them as analyst forecasts:',
-        ],
-        bullets: [
-          'Dates hold: continue preparing records while maintaining your current work authorization',
-          'Dates advance: check the actual cutoff, the USCIS chart choice, and all other filing requirements',
-          'Dates retrogress or become unavailable: review the impact on your case with counsel; do not assume an EAD extension',
-        ],
-        note: 'Treat any specific November cutoff date on a third-party site as speculation until travel.state.gov publishes the official bulletin. Publication timing is not a guaranteed release date.',
-      },
-      {
-        heading: 'What OPT Workers Should Do Before November Releases',
-        paragraphs: [
-          'Organize your I-140 receipt or approval, confirm priority date and category with employer counsel, and keep OPT/STEM reporting current. If you are hoping to file Form I-485, confirm visa availability under the permitted chart and all other eligibility requirements, including any applicable status rules, with counsel.',
-          'Do not let bulletin optimism delay STEM extension filing, unemployment tracking, or H-1B cap-gap planning. Green-card preparation and nonimmigrant compliance run on parallel tracks.',
+          'Keep the I-140 record, priority date and chargeability where you can find them, and keep the OPT or STEM OPT EAD dates on the same page. A priority date reaching the Dates for Filing cutoff can open an I-485 filing window with its own EAD and advance parole applications; it does not extend the F-1 work authorization you have today. STEM extension filing, unemployment-day counting and H-1B cap-gap planning continue regardless of the bulletin.',
         ],
         numbered: [
-          'Bookmark the official Visa Bulletin index and USCIS monthly chart-selection page.',
-          'Save August–October cutoff tables for side-by-side comparison on release day.',
-          'Confirm your priority date, chargeability country, and petition category.',
-          'Maintain OPT/STEM work authorization and SEVIS reporting without gaps.',
+          'Compare your priority date against the November Dates for Filing cutoff for your category and country.',
+          'If it is earlier, ask employer counsel what an I-485 package would need before the December bulletin changes the picture.',
+          'Track I-765, I-140 and any I-485 or I-131 receipts separately; an update on one is not a decision on another.',
+          'Bookmark the State Department index and the USCIS chart page for the December release.',
         ],
-      },
-      {
-        heading: 'How We Will Update This Page',
-        paragraphs: [
-          'After the State Department publishes the November 2026 bulletin, this article will be updated with an official chart comparison (October vs November), USCIS filing-chart guidance, and plain-language notes for OPT workers. Until then, avoid making travel, job, or status decisions based on predicted dates alone.',
+        links: [
+          {
+            label: 'How to track an I-140 case',
+            href: '/blog/i-140-case-status-tracking',
+          },
+          {
+            label: 'H-1B cap-gap rules',
+            href: '/blog/h1b-cap-gap-extension',
+          },
         ],
       },
     ],
     checklist: [
-      'Distinguish predictions from official State Department charts.',
-      'Track OPT/STEM EAD expiration separately from priority date.',
-      'Preserve complete petition and status records.',
-      'Check USCIS chart selection — not only the DOS bulletin.',
+      'Confirm category, chargeability and priority date from the I-140 notice.',
+      'Check the November Dates for Filing cutoff, not only the Final Action Date.',
+      'Track OPT or STEM OPT EAD expiration separately from the priority date.',
+      'Check USCIS chart selection each month, not only the State Department bulletin.',
     ],
     mistakes: [
-      'Sharing predicted November dates as if they are official.',
+      'Reading the Final Action chart when USCIS accepted Dates for Filing that month.',
       'Assuming an approved I-140 extends OPT or authorizes work.',
       'Ignoring STEM reporting while refreshing prediction forums daily.',
     ],
     faq: [
       {
-        question: 'When will the November 2026 Visa Bulletin be released?',
+        question: 'Has the November 2026 Visa Bulletin been released?',
         answer:
-          'As checked on October 10, 2026, the State Department index lists the upcoming bulletin as coming soon. A specific release date is not confirmed here. Check the official index for publication and USCIS for its separate monthly adjustment-filing chart selection.',
+          'Yes. The State Department index lists the November 2026 bulletin, dated internally October 5, 2026, and USCIS has posted its November chart selection.',
       },
       {
-        question: 'Will EB-2 India become current in November 2026?',
+        question: 'Did EB-2 India move in November 2026?',
         answer:
-          'That cannot be established before the official bulletin. October’s EB-2 India Final Action Date is November 1, 2013; it is not current. November movement depends on visa demand and statutory limits. Treat predictions as scenarios, not permission to file or work.',
+          'No. The EB-2 India Final Action Date stayed at November 1, 2013, the same as October. Its Date for Filing stayed at January 15, 2015.',
       },
       {
-        question: 'Do Visa Bulletin predictions affect my OPT EAD?',
+        question: 'Did EB-3 India move in November 2026?',
+        answer:
+          'Yes, by three weeks: from January 1, 2014 in October to January 22, 2014 in November for the Final Action Date. The Date for Filing stayed at January 15, 2015.',
+      },
+      {
+        question: 'Which chart did USCIS accept for November 2026?',
+        answer:
+          'USCIS accepted the Dates for Filing chart for all family-sponsored and employment-based adjustment of status filings in November 2026.',
+      },
+      {
+        question: 'Do Visa Bulletin dates affect my OPT EAD?',
         answer:
           'No. OPT and STEM OPT authorization follow F-1 rules and your EAD dates. A priority date becoming current does not extend OPT.',
       },
-      {
-        question:
-          'Where should I track my OPT case while waiting for a green card?',
-        answer:
-          'Use TrackMyOPT for USCIS case status, unemployment days, and STEM deadlines alongside your employer’s immigration counsel for I-140/I-485 strategy.',
-      },
     ],
     sources: [
+      novemberBulletin,
+      octoberBulletin,
+      uscisCharts,
       source.visaBulletin,
-      source.augustBulletin,
-      {
-        label:
-          'Visa Bulletin for October 2026: published baseline for this outlook',
-        publisher: 'U.S. Department of State',
-        url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2027/visa-bulletin-for-october-2026.html',
-      },
     ],
     related: [
+      {
+        label: 'December 2026 Visa Bulletin predictions',
+        href: '/blog/december-2026-visa-bulletin-predictions',
+      },
       {
         label: 'October 2026 fiscal-year reset guide',
         href: '/blog/october-2026-visa-bulletin-fiscal-year-reset',
       },
       {
-        label: 'September 2026 Visa Bulletin outlook',
+        label: 'September 2026 Visa Bulletin: official dates',
         href: '/blog/september-2026-visa-bulletin-opt-workers',
-      },
-      {
-        label: 'August 2026 Visa Bulletin analysis',
-        href: '/blog/august-2026-visa-bulletin-opt-workers',
       },
     ],
   }),
@@ -1182,66 +1210,149 @@ export const currentUpdateArticles = [
   defineArticle({
     slug: 'september-2026-visa-bulletin-opt-workers',
     title:
-      'September 2026 Visa Bulletin for OPT Workers: EB-1 and EB-2 India Outlook',
+      'September 2026 Visa Bulletin: Final Action Dates, Dates for Filing and What Happened Next',
+    seoTitle: 'September 2026 Visa Bulletin: Dates, Charts & What Changed',
     description:
-      "The September 2026 Visa Bulletin is not yet published. Use the August bulletin's EB-1 and EB-2 India warnings to prepare without relying on predicted dates.",
+      'Official September 2026 Visa Bulletin tables: employment-based and family Final Action Dates and Dates for Filing, where EB-2 India was unavailable, and how October and November moved afterwards.',
     category: 'Green Card Outlook',
-    tags: ['September 2026 Visa Bulletin', 'EB-1 India', 'EB-2 India', 'OPT'],
-    readTime: '9 min read',
-    cta: 'opt-timeline',
+    tags: [
+      'September 2026 Visa Bulletin',
+      'visa bulletin september 2026',
+      'EB-1 India',
+      'EB-2 India',
+      'Dates for Filing',
+    ],
+    readTime: '8 min read',
+    modifiedDate: '2026-11-08',
+    cta: 'uscis-tracking',
+    badgeLabel: 'Official tables · archived month',
     statusNote:
-      "As of August 11, 2026, the State Department's official Visa Bulletin index lists August 2026 as the latest bulletin. This page does not invent September cutoff dates. It will need a chart update after the official September bulletin is released.",
+      'Updated November 8, 2026: this page now carries the official September 2026 tables (internal date August 10, 2026) and a note on what the October and November bulletins did afterwards. September was the last month of fiscal year 2026; the current bulletin is November 2026 and the December outlook is linked below.',
     directAnswer:
-      'No official September 2026 employment-based cutoff dates are available yet. The August bulletin made EB-2 India unavailable for final action and warned that EB-1 India could become unavailable. OPT workers should organize priority-date and petition records now, but must wait for the official bulletin and USCIS monthly chart selection before deciding whether an adjustment filing is permitted.',
+      'The September 2026 Visa Bulletin, the last of fiscal year 2026, listed EB-1 India at October 15, 2022, EB-2 India as unavailable (U), and EB-3 India at January 1, 2014 for final action, while EB-1, EB-2 and EB-3 were current for most other countries. Dates for Filing for India were December 1, 2023 for EB-1 and January 15, 2015 for EB-2 and EB-3. The October reset then restored EB-2 India to November 1, 2013 and moved EB-1 India to February 1, 2023.',
     keyTakeaways: [
-      'An outlook is not a Visa Bulletin chart.',
-      'A priority date becoming current does not extend OPT or independently authorize work.',
-      'Adjustment applicants must check both the State Department bulletin and USCIS chart-selection page.',
+      'September 2026 was a year-end bulletin: EB-2 India and EB-5 India unreserved were unavailable, and the Department warned EB-1 India could follow.',
+      'EB-1, EB-2 and EB-3 were current for all other countries in September; October then retrogressed EB-2 and EB-3 for those countries to manage the new fiscal year.',
+      'A priority date becoming current does not extend OPT or STEM OPT work authorization.',
     ],
     sections: [
       {
-        heading: 'What August Actually Established',
+        heading: 'September 2026 employment-based Final Action Dates',
         paragraphs: [
-          "The August 2026 bulletin reports EB-2 India as unavailable for final action and warns about visa availability in EB-1 India. Those statements are evidence of fiscal-year pressure; they are not a promise of what September's dates will be.",
-          'Final Action Dates determine when a number may be available for final approval. Dates for Filing can sometimes permit earlier adjustment submissions, but USCIS announces which chart adjustment applicants may use each month.',
+          'These are the official employment-based Final Action Dates from the September 2026 bulletin. "C" means current; "U" means no numbers were authorized for that category and country in September.',
         ],
-        bullets: [
-          'Do not copy September dates from a prediction website',
-          'Separate EB category, chargeability, priority date, and chart',
-          'Keep OPT/STEM and green-card work authorization planning separate',
-        ],
+        table: {
+          caption:
+            'September 2026 Visa Bulletin, employment-based Final Action Dates (official).',
+          columns: ['Category', 'All other countries', 'China', 'India', 'Mexico', 'Philippines'],
+          rows: [
+            ['EB-1', 'C', 'Jul 1, 2023', 'Oct 15, 2022', 'C', 'C'],
+            ['EB-2', 'C', 'Sep 1, 2021', 'U', 'C', 'C'],
+            ['EB-3', 'Sep 1, 2024', 'Jan 1, 2022', 'Jan 1, 2014', 'Sep 1, 2024', 'Aug 1, 2023'],
+            ['EB-3 Other Workers', 'Apr 1, 2022', 'May 1, 2019', 'Jan 1, 2014', 'Apr 1, 2022', 'Dec 1, 2021'],
+            ['EB-4', 'Dec 15, 2022', 'Dec 15, 2022', 'Dec 15, 2022', 'Dec 15, 2022', 'Dec 15, 2022'],
+            ['EB-5 Unreserved', 'C', 'Dec 1, 2016', 'U', 'C', 'C'],
+          ],
+        },
+        sources: [septemberBulletin],
       },
       {
-        heading: 'What OPT Workers Can Prepare Now',
+        heading: 'September 2026 employment-based Dates for Filing',
         paragraphs: [
-          'Save the I-140 receipt or approval, confirm the priority date and category with counsel, and collect civil documents and status history that may be needed later. Review the remaining EAD and STEM deadlines independently so a hoped-for I-485 filing does not distract from current F-1 compliance.',
-          'If an employer is considering an upgrade, amendment, or new petition strategy, obtain case-specific advice. A public bulletin cannot establish whether the underlying petition supports a filing.',
+          'Dates for Filing govern when an applicant may submit documents to the National Visa Center or, when USCIS permits that chart, file Form I-485. Whether USCIS accepted this chart in September is recorded on the USCIS filing-charts page for that month.',
         ],
-        note: 'Put three dates on one page: OPT/STEM expiration, H-1B or other work-status milestones, and priority date. They interact operationally but follow different legal rules.',
+        table: {
+          caption:
+            'September 2026 Visa Bulletin, employment-based Dates for Filing (official).',
+          columns: ['Category', 'All other countries', 'China', 'India', 'Philippines'],
+          rows: [
+            ['EB-1', 'C', 'Dec 1, 2023', 'Dec 1, 2023', 'C'],
+            ['EB-2', 'C', 'Jan 1, 2022', 'Jan 15, 2015', 'C'],
+            ['EB-3', 'C', 'Jan 8, 2022', 'Jan 15, 2015', 'Jan 1, 2024'],
+            ['EB-3 Other Workers', 'Aug 1, 2022', 'Oct 1, 2019', 'Jan 15, 2015', 'Aug 1, 2022'],
+            ['EB-5 Unreserved', 'C', 'Mar 1, 2017', 'May 1, 2024', 'C'],
+          ],
+        },
+        sources: [septemberBulletin, uscisCharts],
       },
       {
-        heading: 'How We Will Update This Page',
+        heading: 'September 2026 family-sponsored Final Action Dates',
         paragraphs: [
-          'After the official September bulletin appears, the useful update is a side-by-side comparison of August and September, followed by the USCIS chart selection. Until then, any precise September cutoff is speculation and should be labeled as such.',
+          'Family categories are listed for completeness; most OPT workers follow the employment-based tables above.',
         ],
+        table: {
+          caption:
+            'September 2026 Visa Bulletin, family-sponsored Final Action Dates (official).',
+          columns: ['Category', 'All other countries', 'China', 'India', 'Mexico', 'Philippines'],
+          rows: [
+            ['F1', 'Jan 22, 2020', 'Jan 22, 2020', 'Jan 22, 2020', 'Jan 1, 2008', 'May 1, 2013'],
+            ['F2A', 'Aug 22, 2026', 'Aug 22, 2026', 'Aug 22, 2026', 'Aug 22, 2025', 'Aug 22, 2026'],
+            ['F2B', 'Aug 22, 2019', 'Aug 22, 2019', 'Aug 22, 2019', 'Feb 15, 2009', 'Jun 1, 2013'],
+            ['F3', 'Oct 22, 2014', 'Oct 22, 2014', 'Oct 22, 2014', 'Jul 1, 2001', 'Feb 22, 2006'],
+            ['F4', 'Oct 22, 2011', 'Oct 22, 2011', 'Nov 1, 2006', 'Apr 8, 2001', 'Aug 22, 2007'],
+          ],
+        },
+        sources: [septemberBulletin],
+      },
+      {
+        heading: 'What happened next: October and November 2026',
+        paragraphs: [
+          'The fiscal year 2027 reset in October gave EB-2 India a printed date again and moved EB-1 India forward, but it also retrogressed EB-2 and EB-3 for all other countries, which had been current in September. November recovered part of that retrogression and nudged EB-3 India.',
+        ],
+        table: {
+          caption:
+            'Employment-based Final Action Dates for the categories OPT workers ask about most: September, October and November 2026 (official).',
+          columns: ['Category', 'September 2026', 'October 2026', 'November 2026'],
+          rows: [
+            ['EB-1 India', 'Oct 15, 2022', 'Feb 1, 2023', 'Feb 1, 2023'],
+            ['EB-2 India', 'U', 'Nov 1, 2013', 'Nov 1, 2013'],
+            ['EB-3 India', 'Jan 1, 2014', 'Jan 1, 2014', 'Jan 22, 2014'],
+            ['EB-2 all other countries', 'C', 'Jan 1, 2025', 'Apr 1, 2025'],
+            ['EB-3 all other countries', 'Sep 1, 2024', 'May 15, 2024', 'Jun 15, 2024'],
+            ['EB-5 India unreserved', 'U', 'Dec 1, 2023', 'Dec 1, 2023'],
+          ],
+        },
+        links: [
+          {
+            label: 'November 2026 Visa Bulletin: official dates vs predictions',
+            href: '/blog/november-2026-visa-bulletin-predictions-opt-workers',
+          },
+          {
+            label: 'December 2026 Visa Bulletin predictions',
+            href: '/blog/december-2026-visa-bulletin-predictions',
+          },
+        ],
+        sources: [septemberBulletin, octoberBulletin, novemberBulletin],
+      },
+      {
+        heading: 'What this means for OPT and STEM OPT workers',
+        paragraphs: [
+          'A year-end "unavailable" entry is a numbers-management step, not a cancellation of anyone’s petition. The approved I-140 and its priority date survive; the queue simply waits for the next fiscal year. The practical work is unchanged: keep the priority date, category and chargeability recorded, and keep the OPT or STEM OPT EAD and SEVP reporting on their own calendar, because none of these dates extend F-1 work authorization.',
+        ],
+        note: 'Put three dates on one page: OPT or STEM expiration, H-1B or other work-status milestones, and priority date. They interact operationally but follow different legal rules.',
       },
     ],
     checklist: [
-      'Confirm category, country of chargeability, and priority date.',
-      'Bookmark the official bulletin and USCIS chart-selection page.',
-      'Preserve complete status and employment records.',
-      'Continue every OPT/STEM reporting and work-authorization deadline.',
+      'Confirm category, country of chargeability and priority date.',
+      'Use the bulletin for the month in which you plan to act, not an archived one.',
+      'Check the USCIS chart selection for that month.',
+      'Continue every OPT and STEM reporting and work-authorization deadline.',
     ],
     mistakes: [
-      'Treating a forecast as the official September chart.',
+      'Reading an archived September table as if it were the current bulletin.',
       'Assuming an approved I-140 authorizes employment.',
       "Ignoring USCIS's separate monthly chart selection.",
     ],
     faq: [
       {
-        question: 'Has the September 2026 Visa Bulletin been released?',
+        question: 'Was EB-2 India unavailable in the September 2026 Visa Bulletin?',
         answer:
-          'Not as of August 11, 2026. The official index currently lists August 2026 as the latest bulletin.',
+          'Yes. The September 2026 Final Action chart listed EB-2 India as U (unavailable). The October 2026 bulletin restored a Final Action Date of November 1, 2013.',
+      },
+      {
+        question: 'What was the EB-1 India date in September 2026?',
+        answer:
+          'October 15, 2022 for final action and December 1, 2023 for filing. October 2026 moved the Final Action Date to February 1, 2023, where it stayed in November.',
       },
       {
         question: 'Does EB-2 India being unavailable cancel an approved I-140?',
@@ -1252,22 +1363,22 @@ export const currentUpdateArticles = [
         question:
           'Can OPT employment continue while waiting for a priority date?',
         answer:
-          'Only while the student independently maintains valid F-1/OPT authorization and complies with its rules.',
+          'Only while the student independently maintains valid F-1 or OPT authorization and complies with its rules.',
       },
     ],
-    sources: [source.visaBulletin, source.augustBulletin],
+    sources: [septemberBulletin, octoberBulletin, novemberBulletin, uscisCharts, source.visaBulletin],
     related: [
       {
-        label: 'August 2026 Visa Bulletin analysis',
-        href: '/blog/august-2026-visa-bulletin-opt-workers',
+        label: 'November 2026 Visa Bulletin: official dates',
+        href: '/blog/november-2026-visa-bulletin-predictions-opt-workers',
       },
       {
         label: 'October 2026 fiscal-year reset guide',
         href: '/blog/october-2026-visa-bulletin-fiscal-year-reset',
       },
       {
-        label: 'H-1B cap-gap guide',
-        href: '/blog/h1b-cap-gap-denial-rejection-withdrawal-layoff',
+        label: 'December 2026 Visa Bulletin predictions',
+        href: '/blog/december-2026-visa-bulletin-predictions',
       },
     ],
   }),

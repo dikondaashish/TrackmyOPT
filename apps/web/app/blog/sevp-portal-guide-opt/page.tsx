@@ -7,12 +7,12 @@ import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
-    title: "SEVP Portal Complete Guide: Setup, Unlock & Reporting for OPT & STEM OPT (2026)",
-    description: "Learn how to set up your SEVP Portal account, unlock your profile, reset your password, and report address or employment changes for OPT and STEM OPT compliance.",
+    title: "SEVP Portal Login & Guide: Unemployment Counter, Updates, Unlock (2026)",
+    description: "SEVP Portal login help for OPT and STEM OPT: find your invitation email, unlock or reset your account, check the unemployment-day counter, and report employer and address changes.",
     keywords: ["SEVP portal", "SEVP portal reset", "OPT reporting", "SEVP portal unlock", "SEVP portal email", "STEM OPT reporting", "SEVP account help"],
     openGraph: {
-        title: "SEVP Portal Complete Guide: Setup, Unlock & Reporting | TrackMyOPT",
-        description: "Step-by-step guide on how to register, unlock, and manage your SEVP portal account to stay in status during your OPT and STEM OPT period.",
+        title: "SEVP Portal Login & Guide: Unemployment Counter, Updates, Unlock | TrackMyOPT",
+        description: "SEVP Portal login help for OPT and STEM OPT: invitation email, unlock and reset, the unemployment-day counter, and employer and address reporting.",
         url: "https://www.trackmyopt.com/blog/sevp-portal-guide-opt",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "SEVP Portal Complete Guide: Setup, Unlock & Reporting | TrackMyOPT",
-        description: "Step-by-step guide on how to register, unlock, and manage your SEVP portal account to stay in status during your OPT and STEM OPT period.",
+        title: "SEVP Portal Login & Guide: Unemployment Counter, Updates, Unlock | TrackMyOPT",
+        description: "SEVP Portal login help for OPT and STEM OPT: invitation email, unlock and reset, the unemployment-day counter, and employer and address reporting.",
         images: ["/blog/sevp-portal-guide.png"],
     },
 };

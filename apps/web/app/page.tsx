@@ -50,9 +50,9 @@ const LandingGlobalReach = dynamic(() =>
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'OPT Deadline Tracker, Resume AI & H-1B Tools | TrackMyOPT',
+  title: 'OPT Tracker: USCIS Case Status, EAD Timeline & Deadlines | TrackMyOPT',
   description:
-    'Track OPT deadlines and USCIS case status, build AI resumes, store documents, and find H-1B sponsors. Free forever. 3,500+ users have signed up, and 10,000+ people regularly use our free tools.',
+    'Free OPT tracker for F-1 students: check USCIS case status, see your EAD decision window, count unemployment days and track STEM OPT deadlines. 3,500+ users have signed up.',
 };
 
 export default function LandingPage() {
