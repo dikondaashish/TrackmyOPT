@@ -13,6 +13,7 @@ const communitySources = [
 export const dataResearchArticles = [
   defineArticle({
     slug: 'monthly-opt-ead-processing-times-receipt-date',
+    hub: 'processing-times',
     title:
       'Monthly OPT EAD Processing Times by Receipt Date: TrackMyOPT Community Data',
     description:
@@ -110,6 +111,7 @@ export const dataResearchArticles = [
   }),
   defineArticle({
     slug: 'opt-premium-processing-real-case-timelines-2026',
+    hub: 'processing-times',
     title:
       'OPT Premium Processing: Approval, Card Production, and Delivery Times from Real 2026 Cases',
     description:

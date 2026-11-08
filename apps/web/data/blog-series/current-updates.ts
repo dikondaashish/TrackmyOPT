@@ -342,6 +342,7 @@ export const currentUpdateArticles = [
   h1bFeeOctoberArticle,
   defineArticle({
     slug: 'opt-biometrics-appointment-2026',
+    hub: 'processing-times',
     title:
       'OPT Biometrics Appointment in 2026: Why USCIS Scheduled You, What to Bring, and What Happens Next',
     description:
@@ -680,6 +681,7 @@ export const currentUpdateArticles = [
   }),
   defineArticle({
     slug: 'uscis-unsolicited-evidence-opt',
+    hub: 'case-status',
     title:
       'USCIS ‘Unsolicited Evidence’ for OPT: When to Upload Documents—and When Not To',
     description:

@@ -3,6 +3,7 @@ import { platformGap, platformSources } from './shared';
 
 export const whenWillUscisDecideMyOptDecisionWindowArticle = platformGap({
   slug: 'when-will-uscis-decide-my-opt-decision-window',
+  hub: 'processing-times',
   title:
     'When Will USCIS Decide My OPT? How the Decision Window Estimate Works',
   seoTitle: 'When Will USCIS Decide My OPT? Decision Window Explained',

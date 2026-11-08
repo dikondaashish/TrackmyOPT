@@ -1,0 +1,14 @@
+{
+  "slug": "ioe-receipt-number-elis-case-status",
+  "chip": "USCIS TRACKING",
+  "headline": ["IOE Receipt", "Numbers & ELIS", "Case Status"],
+  "accentLine": 1,
+  "subtitle": ["What IOE, EAC, WAC and LIN mean, why your", "A-number cannot check a case, and where to look."],
+  "stats": [
+    { "value": "IOE", "label": "ELIS / ONLINE" },
+    { "value": "EAC", "label": "VERMONT" },
+    { "value": "A#", "label": "YOU, NOT A CASE" }
+  ],
+  "footer": "8 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

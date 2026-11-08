@@ -1,4 +1,5 @@
 import type { BlogProductCtaVariant } from '@/components/blog/BlogProductCTA';
+import type { BlogHubSlug } from '@/data/blog-hubs';
 
 export type ArticleSource = {
   label: string;
@@ -54,6 +55,8 @@ export type ResearchArticle = {
   sources: ArticleSource[];
   related: Array<{ label: string; href: string }>;
   cta: BlogProductCtaVariant;
+  /** Topic hub (/blog/hub/<hub>) that lists this post. */
+  hub?: BlogHubSlug;
   statusNote?: string;
   dataNote?: string;
   /** Describe the evidence actually reviewed for developing news. */

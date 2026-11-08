@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Clock } from 'lucide-react';
 import { BlogPostImage } from '@/components/blog/BlogPostImage';
+import { BLOG_HUBS, BLOG_HUB_SLUGS, blogHubPath } from '@/data/blog-hubs';
 import { toBlogCard } from '@/data/blog-series';
 import { loadPublishedAutoPosts } from '@/lib/policy-news/store';
 import { blogPosts, getPostImage } from './blog-index-data';
@@ -116,6 +117,43 @@ export default async function BlogIndexPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        {/* Topic hubs */}
+        <section aria-labelledby="blog-hubs-heading" className="mb-14">
+          <h2 id="blog-hubs-heading" className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+            Browse by topic
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            Every guide on one question, in reading order.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {BLOG_HUB_SLUGS.map((slug) => {
+              const hub = BLOG_HUBS[slug];
+              return (
+                <Link
+                  key={slug}
+                  href={blogHubPath(slug)}
+                  className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <article className="surface-card-interactive flex h-full flex-col p-6 sm:p-7 border-l-4 border-l-primary">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-2">
+                      Topic hub
+                    </p>
+                    <h3 className="text-xl font-bold text-foreground leading-snug mb-2 group-hover:text-primary transition-colors">
+                      {hub.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-grow">
+                      {hub.description}
+                    </p>
+                    <span className="mt-4 flex items-center gap-1 text-primary font-semibold text-sm">
+                      Open hub <ArrowRight className="w-4 h-4" aria-hidden />
+                    </span>
+                  </article>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
         {/* Featured Posts */}
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-16">
           {featured.map((post) => (
