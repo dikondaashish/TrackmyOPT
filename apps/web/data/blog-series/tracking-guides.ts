@@ -1,4 +1,5 @@
 import { defineArticle, source } from './shared';
+import { eadCardStatusGuide } from './ead-card-status';
 import type { ArticleSource, ResearchArticle } from './types';
 
 export const trackingSources = {
@@ -117,6 +118,7 @@ function guide(
 }
 
 export const trackingGuides: ResearchArticle[] = [
+  eadCardStatusGuide,
   guide({
     slug: 'opt-receipt-number-not-working',
     title: 'OPT Receipt Number Not Working—or Receipt Notice Missing?',
@@ -606,10 +608,10 @@ export const trackingGuides: ResearchArticle[] = [
   }),
   guide({
     slug: 'i-140-case-status-tracking',
-    title: 'How to Track Your I-140 Case: Status Messages, Delays and Alerts',
-    seoTitle: 'I-140 Case Status: Tracking, Delays and Alerts',
+    title: 'I-140 Tracker: How to Check Your Case Status, Processing Time and Get Alerts',
+    seoTitle: 'I-140 Tracker: Check Case Status, Processing Time & Alerts',
     description:
-      'Check your I-140 case status, understand review and RFE updates, and find the right next step when an employment-based petition seems stuck.',
+      'Track an I-140 by receipt number: what each USCIS status means, current I-140 processing times, premium processing, RFE steps, and free alerts when the status changes.',
     category: 'USCIS',
     tags: [
       'I-140 case status',
