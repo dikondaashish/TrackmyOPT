@@ -1,3 +1,4 @@
+import type { BlogIndexCard } from './blog-index-types';
 export const blogPostsPartTwo = [
   {
     slug: 'top-h1b-sponsor-companies-2026',
@@ -22,6 +23,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'opt-application-denied',
+    hub: 'case-status',
     title: 'OPT Application Denied? What to Do Next (2026 Guide)',
     description:
       'Your OPT was denied — now what? Common denial reasons, your options (refile, transfer, leave), 60-day grace period rules, and prevention tips.',
@@ -109,6 +111,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'opt-ead-pending-processing-delays-2026',
+    hub: 'processing-times',
     title:
       "OPT EAD Still Pending After 3, 6, or 12 Months? Here's Exactly What to Do (2026)",
     description:
@@ -677,4 +680,4 @@ export const blogPostsPartTwo = [
     featured: false,
     image: '/blog/networking-international-student-sponsorship.jpg',
   },
-];
+] satisfies BlogIndexCard[];

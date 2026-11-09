@@ -53,6 +53,7 @@ const SLUG = 'ead-card-status-check';
 
 export const eadCardStatusGuide: ResearchArticle = defineArticle({
   slug: SLUG,
+  hub: 'case-status',
   title:
     'EAD Card Status: How to Check It, What Each USCIS Status Means, and When the Card Arrives',
   seoTitle: 'EAD Status Check: Track Your I-765 and Card Delivery (2026)',

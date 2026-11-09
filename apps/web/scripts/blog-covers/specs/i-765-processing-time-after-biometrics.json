@@ -1,0 +1,14 @@
+{
+  "slug": "i-765-processing-time-after-biometrics",
+  "chip": "WAITING ON USCIS",
+  "headline": ["I-765 After", "Biometrics:", "What Comes Next"],
+  "accentLine": 1,
+  "subtitle": ["No new clock starts at the ASC. What USCIS does", "after your fingerprints, and how long each step takes."],
+  "stats": [
+    { "value": "Prints", "label": "STEP 1" },
+    { "value": "Review", "label": "STEP 2" },
+    { "value": "Card", "label": "STEP 3" }
+  ],
+  "footer": "8 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

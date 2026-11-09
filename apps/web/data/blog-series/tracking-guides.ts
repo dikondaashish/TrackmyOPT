@@ -1,5 +1,7 @@
 import { defineArticle, source } from './shared';
 import { eadCardStatusGuide } from './ead-card-status';
+import { i765AfterBiometricsGuide } from './i765-after-biometrics';
+import { ioeReceiptNumberGuide } from './ioe-receipt-number';
 import type { ArticleSource, ResearchArticle } from './types';
 
 export const trackingSources = {
@@ -118,9 +120,12 @@ function guide(
 }
 
 export const trackingGuides: ResearchArticle[] = [
+  i765AfterBiometricsGuide,
+  ioeReceiptNumberGuide,
   eadCardStatusGuide,
   guide({
     slug: 'opt-receipt-number-not-working',
+    hub: 'case-status',
     title: 'OPT Receipt Number Not Working—or Receipt Notice Missing?',
     seoTitle: 'OPT Receipt Number Not Working? Troubleshooting Steps',
     description:
@@ -283,6 +288,7 @@ export const trackingGuides: ResearchArticle[] = [
   }),
   guide({
     slug: 'moving-while-opt-pending-ead-delivery',
+    hub: 'processing-times',
     title: 'Moving While OPT or STEM OPT Is Pending: Protect Your EAD Delivery',
     seoTitle: 'Moving While OPT Is Pending: USCIS Address and EAD Delivery',
     description:
@@ -608,6 +614,7 @@ export const trackingGuides: ResearchArticle[] = [
   }),
   guide({
     slug: 'i-140-case-status-tracking',
+    hub: 'case-status',
     title: 'I-140 Tracker: How to Check Your Case Status, Processing Time and Get Alerts',
     seoTitle: 'I-140 Tracker: Check Case Status, Processing Time & Alerts',
     description:
@@ -752,6 +759,7 @@ export const trackingGuides: ResearchArticle[] = [
   }),
   guide({
     slug: 'uscis-myprogress-taking-longer-than-expected-opt',
+    hub: 'processing-times',
     title:
       'USCIS myProgress Says “Taking Longer Than Expected” for OPT—What Now?',
     seoTitle: 'OPT myProgress: “Taking Longer Than Expected” Explained',
@@ -914,6 +922,7 @@ export const trackingGuides: ResearchArticle[] = [
   }),
   guide({
     slug: 'h4-ead-case-status-tracking',
+    hub: 'case-status',
     title: 'H-4 EAD Case Tracking: How to Check Status and Understand Updates',
     seoTitle: 'H-4 EAD Case Status: Tracking, Delays and Card Updates',
     description:

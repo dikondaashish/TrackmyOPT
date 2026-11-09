@@ -42,6 +42,7 @@ export function toBlogCard(article: ResearchArticle, featured = false) {
       timeZone: 'UTC',
     }).format(new Date(`${article.publishedDate}T00:00:00Z`)),
     tags: article.tags,
+    hub: article.hub,
     featured,
     image:
       article.image ?? '/blog/international-student-guidance-library-2026.png',

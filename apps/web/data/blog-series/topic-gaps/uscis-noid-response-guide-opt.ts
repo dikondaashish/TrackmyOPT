@@ -3,6 +3,7 @@ import { gap, gapSources } from './shared';
 
 export const uscisNoidResponseGuideOptArticle = gap({
     slug: 'uscis-noid-response-guide-opt',
+    hub: 'case-status',
     title:
       'USCIS NOID on an OPT or STEM OPT Case: How to Read and Respond',
     seoTitle: 'USCIS NOID Response Guide for OPT / I-765',

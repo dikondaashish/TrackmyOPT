@@ -1,3 +1,4 @@
+import type { BlogIndexCard } from './blog-index-types';
 import {
   formatUsd,
   OFFERS_CATALOG_TOTAL_SAVINGS_USD,
@@ -43,6 +44,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'premium-processing-opt-stem-opt-2026-complete-guide',
+    hub: 'processing-times',
     title:
       'Premium Processing for OPT & STEM OPT ($1,780, 30 Business Days): Complete 2026 Guide',
     description:
@@ -56,6 +58,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-14-month-rule-delays-shorten-authorization-2026',
+    hub: 'processing-times',
     title:
       'OPT 14-Month Rule Explained (2026): How USCIS Delays Can Shorten Your EAD',
     description:
@@ -205,6 +208,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'form-i765-ead-application-guide',
+    hub: 'case-status',
     title:
       'Form I-765: The Complete Guide to Applying for Your EAD Card (OPT & STEM OPT 2026)',
     description:
@@ -426,6 +430,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'ead-card-lost-stolen-incorrect-never-delivered',
+    hub: 'case-status',
     title:
       'EAD Card Lost, Stolen, Incorrect or Never Delivered? Complete Recovery Guide',
     description:
@@ -438,6 +443,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'can-you-start-work-before-opt-ead-arrives',
+    hub: 'processing-times',
     title: 'Can You Start Working Before Your OPT EAD Arrives?',
     description:
       'Understand the difference between an OPT offer, approval, EAD delivery, and the date you may lawfully begin work.',
@@ -484,6 +490,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'stem-opt-processing-time-2026',
+    hub: 'processing-times',
     title: 'STEM OPT Processing Time 2026: Premium & 180-Day Rule',
     description:
       'Check the USCIS estimate, 30-business-day premium processing, and the 180-day work extension. Learn what to do while your STEM OPT case is pending.',
@@ -506,6 +513,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-processing-time-2026',
+    hub: 'processing-times',
     title: 'OPT Processing Time 2026: USCIS Waits & Premium Processing',
     description:
       'Check your USCIS I-765 estimate, understand premium processing, and plan around approval and EAD delivery. Compare your wait with the free tool.',
@@ -610,6 +618,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-ead-card-guide',
+    hub: 'case-status',
     title: 'OPT EAD Card 2026: How to Apply, Track & What to Do If Delayed',
     description:
       'Everything about your OPT EAD card. Step-by-step I-765 application, tracking methods, processing times, and what to do if delayed.',
@@ -651,6 +660,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-premium-processing-timeline-2026',
+    hub: 'processing-times',
     title: 'OPT Premium Processing Timeline 2026: How Long It Really Takes',
     description:
       'Premium processing targets 30 business days for adjudication — but EAD delivery takes longer. Stage-by-stage timeline for initial OPT and STEM OPT with real 2026 case data.',
@@ -673,6 +683,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'uscis-case-status-tracking-guide',
+    hub: 'case-status',
     title: 'How to Track Your USCIS Case Status Online: Complete Guide (2026)',
     description:
       'Step-by-step guide to tracking your USCIS I-765 OPT EAD case status. Learn what status messages mean, processing times, RFE explanations, and what to do if delayed.',
@@ -704,4 +715,4 @@ export const blogPostsPartOne = [
     tags: ['Resume', 'ATS', 'Job Search'],
     featured: true,
   },
-];
+] satisfies BlogIndexCard[];

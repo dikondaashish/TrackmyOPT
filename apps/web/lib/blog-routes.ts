@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { BLOG_HUB_SLUGS, blogHubPath } from "@/data/blog-hubs";
 import { researchArticles } from "@/data/blog-series";
 
 /**
@@ -27,9 +28,12 @@ export function getPublicBlogRoutes(): string[] {
             (entry) =>
                 entry.isDirectory() &&
                 !entry.name.startsWith("[") &&
+                // /blog/hub/<slug> pages are listed from BLOG_HUBS below.
+                entry.name !== "hub" &&
                 !BLOG_REDIRECT_SLUGS.has(entry.name),
         )
         .map((entry) => `/blog/${entry.name}`)
     const researchRoutes = researchArticles.map(({ slug }) => `/blog/${slug}`);
-    return [...new Set([...filesystemRoutes, ...researchRoutes])].sort();
+    const hubRoutes = BLOG_HUB_SLUGS.map(blogHubPath);
+    return [...new Set([...filesystemRoutes, ...researchRoutes, ...hubRoutes])].sort();
 }
