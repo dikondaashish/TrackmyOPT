@@ -4,8 +4,7 @@ import { BLOG_HUBS, type BlogHubSlug } from '@/data/blog-hubs';
  * One topic label per post (plan section 3, rule 1).
  *
  * Posts were written over months with about 70 free-text category labels.
- * Readers see one of the eight hub names instead, plus "Careers" for job
- * search posts, which no hub covers. The original `category` field is left
+ * Readers see one of the ten hub names instead. The original `category` field is left
  * untouched in the data; this module only decides what is displayed.
  *
  * Order of precedence: the post's hub, then a per-slug override, then the
@@ -14,11 +13,9 @@ import { BLOG_HUBS, type BlogHubSlug } from '@/data/blog-hubs';
  * mapped here, so a new label has to be placed deliberately.
  */
 
-export const CAREERS = 'Careers';
-
-export type TopicLabel = (typeof BLOG_HUBS)[BlogHubSlug]['name'] | typeof CAREERS;
-
 const hub = (slug: BlogHubSlug) => BLOG_HUBS[slug].name;
+
+export const CAREERS = hub('careers');
 
 const LABEL_TO_TOPIC: Record<string, string> = {
   // Waiting on USCIS
@@ -30,7 +27,19 @@ const LABEL_TO_TOPIC: Record<string, string> = {
   'Case Tracking': hub('case-status'),
   // Visa Bulletin
   'Green Card Outlook': hub('visa-bulletin'),
-  // F-1 and OPT rules
+  // F-1 status, visas and travel
+  Academics: hub('f1-status'),
+  'F-1 Basics': hub('f1-status'),
+  'F-1 Compliance': hub('f1-status'),
+  'F-1 Employment': hub('f1-status'),
+  'F-1 Status': hub('f1-status'),
+  'F-1 Travel': hub('f1-status'),
+  'F-1 Visa': hub('f1-status'),
+  Travel: hub('f1-status'),
+  'Visa Types': hub('f1-status'),
+  'J-1 Visa': hub('f1-status'),
+  'Dependent Visas': hub('f1-status'),
+  // OPT rules
   'OPT Basics': hub('opt-rules'),
   OPT: hub('opt-rules'),
   'OPT Rules': hub('opt-rules'),
@@ -43,18 +52,7 @@ const LABEL_TO_TOPIC: Record<string, string> = {
   'OPT Compliance': hub('opt-rules'),
   'Work Rules': hub('opt-rules'),
   Compliance: hub('opt-rules'),
-  'F-1 Compliance': hub('opt-rules'),
-  'F-1 Employment': hub('opt-rules'),
-  'F-1 Status': hub('opt-rules'),
-  'F-1 Basics': hub('opt-rules'),
-  'F-1 Visa': hub('opt-rules'),
-  'F-1 Travel': hub('opt-rules'),
-  Travel: hub('opt-rules'),
   'Visa Rules': hub('opt-rules'),
-  'Visa Types': hub('opt-rules'),
-  'J-1 Visa': hub('opt-rules'),
-  'Dependent Visas': hub('opt-rules'),
-  Academics: hub('opt-rules'),
   Layoffs: hub('opt-rules'),
   // STEM OPT
   'STEM OPT': hub('stem-opt'),
@@ -107,15 +105,13 @@ const SLUG_OVERRIDES: Record<string, string> = {
   'opt-stem-opt-legislation-congress-2026': hub('policy-news'),
   'opt-cpt-enforcement-scrutiny-2026': hub('policy-news'),
   'day-1-cpt-vs-opt': hub('opt-rules'),
+  'fall-out-of-f1-status-options': hub('f1-status'),
 };
 
 /** Labels on Spanish and Korean posts stay in their own language. */
 const NON_ENGLISH_LABELS = new Set(['Boletín de visas', 'Tiempos de procesamiento', '영주권 문호']);
 
-export const TOPIC_LABELS: string[] = [
-  ...Object.values(BLOG_HUBS).map((h) => h.name),
-  CAREERS,
-];
+export const TOPIC_LABELS: string[] = Object.values(BLOG_HUBS).map((h) => h.name);
 
 type Categorised = { slug: string; category: string; hub?: BlogHubSlug };
 

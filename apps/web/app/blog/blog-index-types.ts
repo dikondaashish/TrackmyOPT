@@ -13,4 +13,6 @@ export type BlogIndexCard = {
   image?: string;
   /** Topic hub (/blog/hub/<hub>) that lists this post. */
   hub?: BlogHubSlug;
+  /** Article language; English when absent. */
+  lang?: 'en' | 'es' | 'ko';
 };

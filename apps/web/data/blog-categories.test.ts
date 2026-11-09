@@ -26,7 +26,7 @@ describe('blog topic labels', () => {
       if (NON_ENGLISH.has(label)) continue;
       expect(TOPIC_LABELS).toContain(label);
     }
-    expect(TOPIC_LABELS).toHaveLength(9);
+    expect(TOPIC_LABELS).toHaveLength(10);
   });
 
   it('uses the hub name for posts that sit in a hub', () => {
