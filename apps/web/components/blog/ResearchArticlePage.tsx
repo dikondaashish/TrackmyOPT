@@ -70,6 +70,28 @@ const LABELS = {
     keepReading: 'Sigue leyendo',
     locale: 'es-US',
   },
+  ko: {
+    badge: '2026 \uac80\uc99d \uac00\uc774\ub4dc',
+    published: '\uac8c\uc2dc\uc77c',
+    updated: '\uc5c5\ub370\uc774\ud2b8',
+    reviewed: '\ubbf8\uad6d \uc815\ubd80 \uacf5\uc2dd \uc790\ub8cc\ub85c \uac80\ud1a0',
+    caption:
+      'TrackMyOPT \uc2e4\uc6a9 \uac00\uc774\ub4dc: \uaddc\uc815\uc744 \ud655\uc778\ud558\uace0, \ub0a0\uc9dc\ub97c \uae30\ub85d\ud558\uace0, \uae30\ud55c \uc804\uc5d0 \uc900\ube44\ud558\uc138\uc694.',
+    statusNote: '\uac8c\uc2dc \uc0c1\ud0dc \uc548\ub0b4',
+    directAnswer: '\ud575\uc2ec \ub2f5\ubcc0',
+    contents: '\uc774 \uac00\uc774\ub4dc\uc758 \ub0b4\uc6a9',
+    first: '\uba3c\uc800 \uc54c\uc544\uc57c \ud560 \uac83',
+    sources: '\ucd9c\ucc98:',
+    note: 'Vinay\uc758 \uc2e4\uc6a9 \ud301',
+    checklist: '\uc2e4\ucc9c \uccb4\ud06c\ub9ac\uc2a4\ud2b8',
+    mistakes: '\ud53c\ud574\uc57c \ud560 \ud754\ud55c \uc2e4\uc218',
+    faq: '\uc790\uc8fc \ubb3b\ub294 \uc9c8\ubb38',
+    officialSources: '\uacf5\uc2dd \ucd9c\ucc98',
+    officialIntro:
+      '\uaddc\uc815\uc740 \ubc14\ub01c \uc218 \uc788\uc2b5\ub2c8\ub2e4. \uc544\ub798 \uacf5\uc2dd \ucd9c\ucc98\ub85c \uc774 \uac00\uc774\ub4dc\ub97c \uac80\ud1a0\ud588\uc2b5\ub2c8\ub2e4. \ud589\ub3d9\ud558\uae30 \uc804\uc5d0 \ud56d\uc0c1 \ucd5c\uc2e0 \uacf5\uc2dd \ud398\uc774\uc9c0\ub97c \ud655\uc778\ud558\uc138\uc694.',
+    keepReading: '\ub354 \uc77d\uc5b4\ubcf4\uae30',
+    locale: 'ko-KR',
+  },
 } as const;
 
 export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
@@ -226,6 +248,24 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
             {section.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+            {section.figure && (
+              <figure className="not-prose my-7">
+                <div
+                  className="relative overflow-hidden rounded-xl border border-border bg-white"
+                  style={{ aspectRatio: `${section.figure.width} / ${section.figure.height}` }}
+                >
+                  <BlogPostImage
+                    src={section.figure.src}
+                    alt={section.figure.alt}
+                    sizes="(min-width: 768px) 832px, 100vw"
+                    className="object-contain"
+                  />
+                </div>
+                <figcaption className="mt-2 text-center text-sm text-muted-foreground">
+                  {section.figure.caption}
+                </figcaption>
+              </figure>
+            )}
             {section.table && <ArticleDataTable table={section.table} />}
             {section.sources && (
               <p className="text-sm">

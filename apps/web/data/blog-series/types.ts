@@ -13,7 +13,7 @@ export type ArticleTable = {
   rows: string[][];
 };
 
-export type ArticleLanguage = 'en' | 'es';
+export type ArticleLanguage = 'en' | 'es' | 'ko';
 
 export type ArticleSection = {
   heading: string;
@@ -22,6 +22,12 @@ export type ArticleSection = {
   numbered?: string[];
   /** Rendered after the paragraphs and before any bullets. */
   table?: ArticleTable;
+  /**
+   * A static chart or diagram rendered by scripts/blog-figures/render-figure.mjs.
+   * Keep the underlying numbers in a table too, so the figure is never the only
+   * way to read them.
+   */
+  figure?: { src: string; alt: string; caption: string; width: number; height: number };
   note?: string;
   /** Preserve useful inbound fragment links when refreshing an existing guide. */
   anchors?: string[];

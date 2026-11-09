@@ -1,0 +1,16 @@
+{
+  "slug": "ead-card-status-check",
+  "name": "ead-status-timeline",
+  "type": "timeline",
+  "title": "The usual order of EAD status messages",
+  "subtitle": "Receipt-to-approval time depends on the category. The steps after approval usually take one to three weeks.",
+  "steps": [
+    { "label": "Case Was Received", "detail": "USCIS accepted the I-765 and assigned a receipt number." },
+    { "label": "Case Is Being Actively Reviewed", "detail": "In the queue. Not a sign that a decision is near." },
+    { "label": "Case Was Approved", "detail": "A decision, not a card. You cannot work on the approval message alone." },
+    { "label": "New Card Is Being Produced", "detail": "Usually a few business days." },
+    { "label": "Card Was Mailed To Me", "detail": "USPS tracking appears in your USCIS account. Usually 3 to 10 days." },
+    { "label": "Card Was Delivered To Me By The Post Office", "detail": "Check every printed date and the category code." }
+  ],
+  "source": "USCIS Case Status Online messages for Form I-765, as described in the TrackMyOPT EAD status guide."
+}

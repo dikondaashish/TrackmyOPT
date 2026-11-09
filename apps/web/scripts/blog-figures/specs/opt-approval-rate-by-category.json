@@ -1,0 +1,16 @@
+{
+  "slug": "opt-approval-denial-rate-2026",
+  "name": "approval-rate-by-category",
+  "type": "bar",
+  "title": "OPT approval rate by I-765 category, July 2025 to June 2026",
+  "subtitle": "Approvals divided by approvals plus denials, all filing types combined.",
+  "unit": "%",
+  "max": 100,
+  "bars": [
+    { "label": "(c)(3)(B) post-completion OPT", "value": 96.8 },
+    { "label": "(c)(3)(C) STEM OPT extension", "value": 95.8 },
+    { "label": "All I-765 categories", "value": 89.0, "display": "89.0" },
+    { "label": "(c)(3)(A) pre-completion OPT", "value": 55.2 }
+  ],
+  "source": "USCIS Form I-765 eligibility category and filing type files, FY2025 Q4 to FY2026 Q3. Rates calculated by TrackMyOPT."
+}

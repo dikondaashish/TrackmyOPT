@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="712" viewBox="0 0 1200 712" role="img" aria-label="The usual order of EAD status messages">
+  <rect width="1200" height="712" rx="18" fill="#ffffff"/>
+  <text x="64" y="90" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="30" font-weight="800" fill="#0f172a" text-anchor="start">The usual order of EAD status messages</text>
+  <text x="64" y="137" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="18" font-weight="400" fill="#475569" text-anchor="start">Receipt-to-approval time depends on the category. The steps after approval usually take</text>
+  <text x="64" y="160.4" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="18" font-weight="400" fill="#475569" text-anchor="start">one to three weeks.</text>
+  <line x1="88" y1="211" x2="88" y2="581" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="88" cy="211" r="13" fill="#2563eb" stroke="#ffffff" stroke-width="4"/>
+  <text x="88" y="216" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">1</text>
+  <text x="124" y="217" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a" text-anchor="start">Case Was Received</text>
+  <text x="124" y="243" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="400" fill="#475569" text-anchor="start">USCIS accepted the I-765 and assigned a receipt number.</text>
+  <circle cx="88" cy="285" r="13" fill="#2563eb" stroke="#ffffff" stroke-width="4"/>
+  <text x="88" y="290" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">2</text>
+  <text x="124" y="291" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a" text-anchor="start">Case Is Being Actively Reviewed</text>
+  <text x="124" y="317" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="400" fill="#475569" text-anchor="start">In the queue. Not a sign that a decision is near.</text>
+  <circle cx="88" cy="359" r="13" fill="#2563eb" stroke="#ffffff" stroke-width="4"/>
+  <text x="88" y="364" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">3</text>
+  <text x="124" y="365" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a" text-anchor="start">Case Was Approved</text>
+  <text x="124" y="391" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="400" fill="#475569" text-anchor="start">A decision, not a card. You cannot work on the approval message alone.</text>
+  <circle cx="88" cy="433" r="13" fill="#2563eb" stroke="#ffffff" stroke-width="4"/>
+  <text x="88" y="438" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">4</text>
+  <text x="124" y="439" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a" text-anchor="start">New Card Is Being Produced</text>
+  <text x="124" y="465" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="400" fill="#475569" text-anchor="start">Usually a few business days.</text>
+  <circle cx="88" cy="507" r="13" fill="#2563eb" stroke="#ffffff" stroke-width="4"/>
+  <text x="88" y="512" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">5</text>
+  <text x="124" y="513" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a" text-anchor="start">Card Was Mailed To Me</text>
+  <text x="124" y="539" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="400" fill="#475569" text-anchor="start">USPS tracking appears in your USCIS account. Usually 3 to 10 days.</text>
+  <circle cx="88" cy="581" r="13" fill="#2563eb" stroke="#ffffff" stroke-width="4"/>
+  <text x="88" y="586" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">6</text>
+  <text x="124" y="587" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a" text-anchor="start">Card Was Delivered To Me By The Post Office</text>
+  <text x="124" y="613" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="400" fill="#475569" text-anchor="start">Check every printed date and the category code.</text>
+  <text x="64" y="659" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="14" font-weight="400" fill="#64748b" text-anchor="start">Source: USCIS Case Status Online messages for Form I-765, as described in the TrackMyOPT EAD status guide.</text>
+</svg>

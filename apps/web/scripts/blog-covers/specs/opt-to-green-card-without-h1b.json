@@ -1,0 +1,14 @@
+{
+  "slug": "opt-to-green-card-without-h1b",
+  "chip": "GREEN CARD",
+  "headline": ["OPT to Green Card", "Without H-1B:", "Every Path"],
+  "accentLine": 1,
+  "subtitle": ["PERM, NIW, EB-1, marriage and the lottery,", "plus the status gap to plan for on OPT."],
+  "stats": [
+    { "value": "6", "label": "GREEN CARD PATHS" },
+    { "value": "No PERM", "label": "NIW AND EB-1A" },
+    { "value": "Nov 2013", "label": "EB-2 INDIA FINAL" }
+  ],
+  "footer": "13 min read  |  November 9, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

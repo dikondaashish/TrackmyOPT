@@ -22,6 +22,11 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-processing-time-2026",
+        languages: {
+            en: "https://www.trackmyopt.com/blog/opt-processing-time-2026",
+            es: "https://www.trackmyopt.com/blog/tiempo-de-procesamiento-opt-2026",
+            "x-default": "https://www.trackmyopt.com/blog/opt-processing-time-2026",
+        },
     },
     twitter: {
         card: "summary_large_image",

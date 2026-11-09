@@ -129,6 +129,7 @@ export const optApprovalDenialRate: ResearchArticle = defineArticle({
   sections: [
     {
       heading: 'The short answer: OPT approval rates by category',
+      figure: { src: '/blog/figures/opt-approval-denial-rate-2026/approval-rate-by-category.png', alt: 'Bar chart of OPT approval rates from July 2025 to June 2026: post-completion OPT 96.8%, STEM OPT extension 95.8%, all I-765 categories 89.0%, pre-completion OPT 55.2%.', caption: 'Approval rate by category from the USCIS I-765 files. The table below has the counts.', width: 1200, height: 509 },
       paragraphs: [
         'USCIS publishes Form I-765 counts by eligibility category every quarter. Each file lists receipts, approvals, denials and pending cases for every EAD code. OPT has three codes: (c)(3)(A) for pre-completion OPT, (c)(3)(B) for post-completion OPT and (c)(3)(C) for the 24-month STEM OPT extension.',
         'We downloaded the four most recent quarterly files on November 8, 2026. They cover July 1, 2025 to June 30, 2026. The table adds up the approvals and denials across those four quarters for each OPT code.',

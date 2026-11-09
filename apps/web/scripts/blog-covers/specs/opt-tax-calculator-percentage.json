@@ -1,0 +1,14 @@
+{
+  "slug": "opt-tax-calculator-percentage",
+  "chip": "OPT TAXES 2026",
+  "headline": ["OPT Taxes 2026:", "Tax Percentage", "and Take-Home Pay"],
+  "accentLine": 1,
+  "subtitle": ["No FICA in your first five calendar years,", "no standard deduction, 2026 brackets worked."],
+  "stats": [
+    { "value": "0%", "label": "FICA (EXEMPT YEARS)" },
+    { "value": "15.4%", "label": "FEDERAL ON $80K" },
+    { "value": "$16,100", "label": "NO STANDARD DEDUCTION" }
+  ],
+  "footer": "10 min read  |  November 9, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "i-485-green-card-status-tracking",
+  "chip": "USCIS TRACKING",
+  "headline": ["I-485 Status:", "Track Your Green", "Card After OPT"],
+  "accentLine": 1,
+  "subtitle": ["Four receipts, every status message in order,", "and the Visa Bulletin chart that sets timing."],
+  "stats": [
+    { "value": "4", "label": "RECEIPTS TO TRACK" },
+    { "value": "C09", "label": "EAD WHILE PENDING" },
+    { "value": "180 days", "label": "AC21 PORTABILITY" }
+  ],
+  "footer": "10 min read  |  November 9, 2026  |  Vinay Kumar",
+  "lang": "en"
+}
