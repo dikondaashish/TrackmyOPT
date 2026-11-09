@@ -12,6 +12,7 @@ import {
 } from '@/components/blog/AuthorBio';
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
+import { PriorityDateAlertSignup } from '@/components/blog/PriorityDateAlertSignup';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import type {
   ArticleTable,
@@ -21,6 +22,17 @@ import { AdSenseInArticle } from '@/components/blog/AdSenseInArticle';
 import { BlogFlowFigure } from '@/components/blog/BlogFlowFigure';
 import { BlogPostImage } from '@/components/blog/BlogPostImage';
 import styles from './ResearchArticlePage.module.css';
+
+/** Green-card guides whose readers have a priority date, besides the Visa Bulletin hub. */
+const PRIORITY_DATE_ALERT_SLUGS = new Set([
+  'i-485-green-card-status-tracking',
+  'opt-to-green-card-without-h1b',
+]);
+
+function showsPriorityDateAlert(article: ResearchArticle): boolean {
+  if ((article.lang ?? 'en') !== 'en') return false;
+  return topicLabel(article) === 'Visa Bulletin' || PRIORITY_DATE_ALERT_SLUGS.has(article.slug);
+}
 
 const SITE = 'https://www.trackmyopt.com';
 const DEFAULT_IMAGE = '/blog/international-student-guidance-library-2026.png';
@@ -349,6 +361,10 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           </ul>
         </section>
       </div>
+
+      {showsPriorityDateAlert(article) && (
+        <PriorityDateAlertSignup sourcePage={`/blog/${article.slug}`} />
+      )}
 
       <BlogProductCTA
         variant={article.cta}
