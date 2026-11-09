@@ -1,0 +1,365 @@
+{
+  "snapshotDate": "2026-11-09",
+  "method": "Completed cases with a usable receipt-to-approval duration (7 to 400 calendar days), split by case kind and premium processing. Receipt-month cohorts with fewer than 15 completed cases are suppressed. Durations are calendar days. Community-reported data, not USCIS data.",
+  "rowsRead": 10732,
+  "initial_opt": {
+    "pooled": {
+      "n": 1618,
+      "median": 126,
+      "p25": 90,
+      "p75": 144
+    },
+    "byReceiptMonth": [
+      {
+        "month": "2025-03",
+        "n": 2,
+        "suppressed": true
+      },
+      {
+        "month": "2025-04",
+        "n": 3,
+        "suppressed": true
+      },
+      {
+        "month": "2025-07",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-10",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-11",
+        "n": 5,
+        "suppressed": true
+      },
+      {
+        "month": "2025-12",
+        "n": 7,
+        "suppressed": true
+      },
+      {
+        "month": "2026-01",
+        "n": 6,
+        "suppressed": true
+      },
+      {
+        "month": "2026-02",
+        "n": 229,
+        "median": 78,
+        "p25": 73,
+        "p75": 83
+      },
+      {
+        "month": "2026-03",
+        "n": 705,
+        "median": 100,
+        "p25": 89,
+        "p75": 122
+      },
+      {
+        "month": "2026-04",
+        "n": 600,
+        "median": 142,
+        "p25": 132,
+        "p75": 156
+      },
+      {
+        "month": "2026-05",
+        "n": 46,
+        "median": 178,
+        "p25": 175,
+        "p75": 183
+      },
+      {
+        "month": "2026-06",
+        "n": 6,
+        "suppressed": true
+      },
+      {
+        "month": "2026-07",
+        "n": 3,
+        "suppressed": true
+      },
+      {
+        "month": "2026-08",
+        "n": 2,
+        "suppressed": true
+      },
+      {
+        "month": "2026-09",
+        "n": 2,
+        "suppressed": true
+      }
+    ]
+  },
+  "initial_opt_premium": {
+    "pooled": {
+      "n": 3193,
+      "median": 77,
+      "p25": 53,
+      "p75": 116
+    },
+    "byReceiptMonth": [
+      {
+        "month": "2025-03",
+        "n": 2,
+        "suppressed": true
+      },
+      {
+        "month": "2025-04",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-05",
+        "n": 4,
+        "suppressed": true
+      },
+      {
+        "month": "2025-07",
+        "n": 2,
+        "suppressed": true
+      },
+      {
+        "month": "2025-09",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-10",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-12",
+        "n": 16,
+        "median": 157,
+        "p25": 83,
+        "p75": 183
+      },
+      {
+        "month": "2026-01",
+        "n": 27,
+        "median": 67,
+        "p25": 35,
+        "p75": 94
+      },
+      {
+        "month": "2026-02",
+        "n": 290,
+        "median": 112,
+        "p25": 83,
+        "p75": 138
+      },
+      {
+        "month": "2026-03",
+        "n": 641,
+        "median": 105,
+        "p25": 88,
+        "p75": 135
+      },
+      {
+        "month": "2026-04",
+        "n": 945,
+        "median": 79,
+        "p25": 61,
+        "p75": 125
+      },
+      {
+        "month": "2026-05",
+        "n": 633,
+        "median": 64,
+        "p25": 53,
+        "p75": 97
+      },
+      {
+        "month": "2026-06",
+        "n": 338,
+        "median": 49,
+        "p25": 40,
+        "p75": 72
+      },
+      {
+        "month": "2026-07",
+        "n": 170,
+        "median": 41,
+        "p25": 31,
+        "p75": 58
+      },
+      {
+        "month": "2026-08",
+        "n": 65,
+        "median": 39,
+        "p25": 33,
+        "p75": 43
+      },
+      {
+        "month": "2026-09",
+        "n": 57,
+        "median": 44,
+        "p25": 38,
+        "p75": 47
+      }
+    ]
+  },
+  "stem_extension": {
+    "pooled": {
+      "n": 596,
+      "median": 183,
+      "p25": 126,
+      "p75": 187
+    },
+    "byReceiptMonth": [
+      {
+        "month": "2025-06",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-10",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-11",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-12",
+        "n": 11,
+        "suppressed": true
+      },
+      {
+        "month": "2026-01",
+        "n": 26,
+        "median": 103,
+        "p25": 96,
+        "p75": 107
+      },
+      {
+        "month": "2026-02",
+        "n": 103,
+        "median": 110,
+        "p25": 109,
+        "p75": 113
+      },
+      {
+        "month": "2026-03",
+        "n": 248,
+        "median": 182,
+        "p25": 179,
+        "p75": 183
+      },
+      {
+        "month": "2026-04",
+        "n": 205,
+        "median": 188,
+        "p25": 185,
+        "p75": 193
+      }
+    ]
+  },
+  "stem_extension_premium": {
+    "pooled": {
+      "n": 673,
+      "median": 86,
+      "p25": 55,
+      "p75": 151
+    },
+    "byReceiptMonth": [
+      {
+        "month": "2025-04",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-09",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-10",
+        "n": 3,
+        "suppressed": true
+      },
+      {
+        "month": "2025-11",
+        "n": 1,
+        "suppressed": true
+      },
+      {
+        "month": "2025-12",
+        "n": 13,
+        "suppressed": true
+      },
+      {
+        "month": "2026-01",
+        "n": 13,
+        "suppressed": true
+      },
+      {
+        "month": "2026-02",
+        "n": 28,
+        "median": 105,
+        "p25": 52,
+        "p75": 155
+      },
+      {
+        "month": "2026-03",
+        "n": 103,
+        "median": 162,
+        "p25": 111,
+        "p75": 189
+      },
+      {
+        "month": "2026-04",
+        "n": 165,
+        "median": 99,
+        "p25": 62,
+        "p75": 153
+      },
+      {
+        "month": "2026-05",
+        "n": 167,
+        "median": 80,
+        "p25": 59,
+        "p75": 129
+      },
+      {
+        "month": "2026-06",
+        "n": 89,
+        "median": 62,
+        "p25": 44,
+        "p75": 94
+      },
+      {
+        "month": "2026-07",
+        "n": 57,
+        "median": 56,
+        "p25": 41,
+        "p75": 69
+      },
+      {
+        "month": "2026-08",
+        "n": 19,
+        "median": 59,
+        "p25": 45,
+        "p75": 62
+      },
+      {
+        "month": "2026-09",
+        "n": 12,
+        "suppressed": true
+      },
+      {
+        "month": "2026-10",
+        "n": 1,
+        "suppressed": true
+      }
+    ]
+  }
+}

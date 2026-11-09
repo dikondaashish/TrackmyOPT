@@ -67,7 +67,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
   ],
   readTime: '8 min read',
   publishedDate: '2026-11-08',
-  modifiedDate: '2026-11-08',
+  modifiedDate: '2026-11-09',
   showContents: true,
   hub: 'case-status',
   cta: 'uscis-tracking',
@@ -77,7 +77,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
   imageCaption:
     'An H-4 family often has three USCIS cases open at once. Each has its own receipt and its own result.',
   directAnswer:
-    'An H-4 extension or change of status is tracked with the Form I-539 receipt number, entered at USCIS Case Status Online or in the USCIS online account used to file it. It is a separate case from the principal’s H-1B petition (Form I-129) and from any H-4 EAD application (Form I-765), and the three can be decided on different days. A timely filed I-539 keeps you in a period of authorized stay while it is pending, and H-4 premium processing is available when filed with or after a premium-processed I-129.',
+    'An H-4 extension or change of status is tracked with the Form I-539 receipt number, entered at USCIS Case Status Online or in the USCIS online account used to file it. It is a separate case from the principal’s H-1B petition (Form I-129) and from any H-4 EAD application (Form I-765), and the three can be decided on different days. A timely filed I-539 keeps you in a period of authorized stay while it is pending. Premium processing is not available for an H-4 I-539, but one filed together with the H-1B petition is decided at the same time as that petition.',
   keyTakeaways: [
     'Three receipts, three cases: I-129 for the H-1B worker, I-539 for the H-4 status, I-765 for the H-4 EAD. Track each one.',
     'A timely I-539 preserves lawful presence while pending, but it does not authorize work; only an approved, valid H-4 EAD does.',
@@ -118,7 +118,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
           ['Case Was Received', 'USCIS accepted the I-539 and fee. Your period of authorized stay begins if the filing was timely.', 'Save the receipt notice; note the filing date relative to your I-94 expiry.'],
           ['Fingerprint Fee Was Received / Biometrics appointment notice', 'An ASC appointment will be or has been scheduled for each applicant.', 'Attend or reschedule before the date. A missed appointment can lead to denial.'],
           ['Case Is Being Actively Reviewed', 'The case is in the queue. Not a decision date.', 'Nothing. Compare against the processing-times tool.'],
-          ['Request for Evidence Was Sent', 'USCIS wants proof of the relationship, the principal’s status, or financial support.', 'Respond before the deadline; the premium clock pauses.'],
+          ['Request for Evidence Was Sent', 'USCIS wants proof of the relationship, the principal’s status, or financial support.', 'Respond before the deadline printed on the notice.'],
           ['Case Was Approved', 'H-4 status is extended or granted. A new I-94 is printed on the I-797A.', 'Check the I-94 dates against the H-1B approval; keep both notices together.'],
           ['Case Was Denied', 'Status was not extended. The notice explains the reason and any options.', 'Read it with counsel immediately; the period of authorized stay ends.'],
         ],
@@ -129,7 +129,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
     {
       heading: 'How long an H-4 extension takes, and premium processing',
       paragraphs: [
-        'I-539 processing times are published by form and category in the USCIS processing-times tool and have ranged from a few months to well over a year for regular processing in recent years, depending on the center and the biometrics backlog. The most reliable way to shorten the wait is to file the I-539 together with a premium-processed I-129, or to add premium processing to a pending I-539 whose underlying I-129 was premium processed. USCIS then commits to an action within 30 business days for the I-539 once biometrics are complete.',
+        'I-539 processing times are published by form and category in the USCIS processing-times tool and have ranged from a few months to well over a year for regular processing in recent years, depending on the center and the biometrics backlog. Premium processing is not available for an I-539 filed for an H-4 dependent. The reliable way to shorten the wait is to file the I-539 in the same package, at the same time and place, as the principal’s I-129. USCIS then reviews the H-4 I-539 as soon as possible after the I-129 and takes action on it at that point, so a premium-processed H-1B petition effectively brings the H-4 decision forward with it. An I-539 filed separately, later, does not get that treatment.',
         'Filing online through a USCIS account gives you the case history, biometrics notices and the ability to respond to an RFE without mail delays. Paper filings can be linked to an account with the online access code printed on the receipt notice.',
       ],
       links: [
@@ -142,7 +142,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
       heading: 'Your position while the I-539 is pending',
       paragraphs: [
         'A timely filed I-539, filed before the current I-94 expires, places you in a period of authorized stay while USCIS decides. You do not accrue unlawful presence during that period even if the I-94 date passes. You are not, however, in H-4 status again until the approval, which matters for some benefits and for travel: leaving the United States while the extension is pending is treated as abandoning it, and you would need a valid H-4 visa to return.',
-        'Work is a separate question. H-4 status alone never authorizes employment. An H-4 EAD requires an approved I-765 under category (c)(26), and a renewal filed on or after October 30, 2025 generally does not extend an expiring card while pending, with limited exceptions. If the H-4 EAD is tied to a pending I-539, the I-765 cannot be approved until the I-539 is, which is why premium processing on the I-539 often matters more to the spouse than to the principal.',
+        'Work is a separate question. H-4 status alone never authorizes employment. An H-4 EAD requires an approved I-765 under category (c)(26), and a renewal filed on or after October 30, 2025 generally does not extend an expiring card while pending, with limited exceptions. If the H-4 EAD is tied to a pending I-539, the I-765 cannot be approved until the I-539 is, which is why filing the I-539 together with the H-1B petition often matters more to the spouse than to the principal.',
       ],
       numbered: [
         'File the I-539 before the I-94 end date, with the I-129 whenever possible.',
@@ -171,7 +171,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
       heading: 'Example: Arun’s H-1B is approved but Divya’s I-539 is not',
       paragraphs: [
         'Fictional example: Arun’s employer premium-processed his H-1B extension and it was approved in two weeks. Divya’s I-539, filed on paper a month later without premium processing, still shows "Case Is Being Actively Reviewed" after her biometrics appointment. Her I-94 has expired.',
-        'Divya is in a period of authorized stay because the I-539 was filed on time, so she is not accruing unlawful presence. She does not travel. Her employer asks whether she can keep working; her H-4 EAD renewal is also pending and was filed after October 30, 2025, so the old card does not extend automatically. She and Arun ask counsel about adding premium processing to the I-539 so that the I-765 can be decided sooner.',
+        'Divya is in a period of authorized stay because the I-539 was filed on time, so she is not accruing unlawful presence. She does not travel. Her employer asks whether she can keep working; her H-4 EAD renewal is also pending and was filed after October 30, 2025, so the old card does not extend automatically. Because her I-539 was filed separately from Arun’s petition, premium processing on his case did not carry it along, and premium processing cannot be added to an H-4 I-539. She and Arun ask counsel what else can be done, and plan to file both together next time.',
       ],
     },
   ],
@@ -201,7 +201,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
     {
       question: 'Is premium processing available for an H-4 extension?',
       answer:
-        'Yes. Form I-907 can be filed for an I-539 that is filed with, or whose underlying I-129 was, premium processed. USCIS then commits to an action within 30 business days after biometrics.',
+        'No. USCIS says premium processing is not available for an I-539 filed for an H-1B dependent. If the H-4 I-539 is filed together with the principal’s I-129, at the same time and place, USCIS reviews it right after the I-129 and takes action on it then, so a premium-processed H-1B petition usually brings the H-4 decision with it.',
     },
     {
       question: 'Why was my H-4 approved with an end date earlier than my spouse’s new H-1B?',

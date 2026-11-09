@@ -1,0 +1,14 @@
+{
+  "slug": "opt-travel-signature-i20",
+  "chip": "F-1 TRAVEL",
+  "headline": ["OPT Travel", "Signature: I-20", "Validity Rules"],
+  "accentLine": 1,
+  "subtitle": ["How long the DSO endorsement lasts on OPT", "and the documents to carry for reentry."],
+  "stats": [
+    { "value": "6 months", "label": "SIGNATURE ON OPT" },
+    { "value": "Page 2", "label": "OF THE I-20" },
+    { "value": "EAD", "label": "IN HAND TO REENTER" }
+  ],
+  "footer": "8 min read  |  November 9, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

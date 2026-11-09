@@ -1,0 +1,14 @@
+{
+  "slug": "choosing-opt-start-date",
+  "chip": "OPT RULES",
+  "headline": ["Choosing Your", "OPT Start Date", "and the 14 Months"],
+  "accentLine": 1,
+  "subtitle": ["The filing window, late approvals, and when", "the unemployment clock really starts."],
+  "stats": [
+    { "value": "60 days", "label": "MAX AFTER PROGRAM END" },
+    { "value": "14 mo", "label": "TO FINISH OPT" },
+    { "value": "90 days", "label": "UNEMPLOYMENT LIMIT" }
+  ],
+  "footer": "9 min read  |  November 9, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

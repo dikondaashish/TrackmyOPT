@@ -4,6 +4,7 @@ import { currentUpdateArticles } from './current-updates';
 import { decemberBulletinArticles } from './visa-bulletin-december-2026';
 import { sevisDsoExplainers } from './sevis-dso-explainers';
 import { week4Guides } from './week-4-guides';
+import { backlogGuidesNovember2026 } from './backlog-guides-2026-11';
 import { dataResearchArticles } from './data-research';
 import { statusAndEmploymentArticles } from './status-and-employment';
 import { taxArticles } from './tax';
@@ -17,6 +18,7 @@ export const researchArticles: ResearchArticle[] = [
   ...decemberBulletinArticles,
   ...sevisDsoExplainers,
   ...week4Guides,
+  ...backlogGuidesNovember2026,
   ...currentUpdateArticles,
   ...statusAndEmploymentArticles,
   ...taxArticles,

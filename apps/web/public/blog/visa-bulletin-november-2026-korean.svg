@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" lang="ko">
+  <defs>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#eae7db"/>
+  <circle cx="1100" cy="80" r="180" fill="#3b82f6" fill-opacity="0.10"/>
+  <circle cx="120" cy="560" r="220" fill="#3b82f6" fill-opacity="0.07"/>
+
+  <g transform="translate(80,80)">
+    <rect width="56" height="56" rx="14" fill="#1e3a8a"/>
+    <path d="M18 28 L28 34 L40 20" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="158" y="118" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="24" font-weight="800" fill="#0f172a">track<tspan fill="#3b82f6">my</tspan>opt</text>
+
+  <g transform="translate(80,170)">
+    <rect width="150" height="40" rx="20" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="75" y="26" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle" letter-spacing="1.5">영주권 문호</text>
+  </g>
+
+  <text x="80" y="262" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="60" font-weight="800" fill="#0f172a" letter-spacing="-1.2">2026년 11월</text>
+  <text x="80" y="333" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="60" font-weight="800" fill="#1e3a8a" letter-spacing="-1.2">영주권 문호</text>
+  <text x="80" y="404" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="60" font-weight="800" fill="#0f172a" letter-spacing="-1.2">한눈에 정리</text>
+
+  <text x="80" y="485" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="19" fill="#475569">취업이민·가족이민 공식 날짜,</text>
+  <text x="80" y="513" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="19" fill="#475569">한국 포함 기타 모든 국가 기준.</text>
+
+  <g transform="translate(488,440)">
+    <rect width="200" height="108" rx="16" fill="url(#cardGrad)"/>
+    <text x="100" y="54" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle">2025.4.1</text>
+    <text x="100" y="86" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" fill="#fde68a" text-anchor="middle" letter-spacing="1.8">EB-2 최종 승인일</text>
+  </g>
+  <g transform="translate(704,440)">
+    <rect width="200" height="108" rx="16" fill="url(#cardGrad)"/>
+    <text x="100" y="54" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle">2024.6.15</text>
+    <text x="100" y="86" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" fill="#fde68a" text-anchor="middle" letter-spacing="1.8">EB-3 최종 승인일</text>
+  </g>
+  <g transform="translate(920,440)">
+    <rect width="200" height="108" rx="16" fill="url(#cardGrad)"/>
+    <text x="100" y="54" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle">+3개월</text>
+    <text x="100" y="86" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" fill="#fde68a" text-anchor="middle" letter-spacing="1.8">EB-2 (10월 대비)</text>
+  </g>
+
+  <text x="80" y="594" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="14" fill="#64748b">읽는 시간 6분  |  2026년 11월 9일  |  Vinay Kumar</text>
+</svg>

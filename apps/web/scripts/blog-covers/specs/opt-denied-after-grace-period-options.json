@@ -1,0 +1,14 @@
+{
+  "slug": "opt-denied-after-grace-period-options",
+  "chip": "OPT RULES",
+  "headline": ["OPT Denied After", "the Grace Period:", "Your Options"],
+  "accentLine": 1,
+  "subtitle": ["How long you can generally stay, the motion", "window and what to ask your DSO first."],
+  "stats": [
+    { "value": "60 days", "label": "AFTER LATER DATE" },
+    { "value": "30 days", "label": "I-290B MOTION" },
+    { "value": "No", "label": "APPEAL FOR OPT" }
+  ],
+  "footer": "9 min read  |  November 9, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

@@ -28,6 +28,7 @@ export const currentUpdateArticles = [
   ...octoberNewsArticles,
   defineArticle({
     slug: 'november-2026-visa-bulletin-predictions-opt-workers',
+    translations: { ko: 'visa-bulletin-november-2026-korean' },
     hub: 'visa-bulletin',
     title:
       'November 2026 Visa Bulletin: Official Dates vs the Predictions for EB-1, EB-2 and EB-3 India',

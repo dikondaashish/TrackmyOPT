@@ -114,6 +114,7 @@ export const eadCardStatusGuide: ResearchArticle = defineArticle({
     },
     {
       heading: 'EAD status messages in order, and what each one means',
+      figure: { src: '/blog/figures/ead-card-status-check/ead-status-timeline.png', alt: 'Timeline of six EAD status messages: Case Was Received, Case Is Being Actively Reviewed, Case Was Approved, New Card Is Being Produced, Card Was Mailed To Me, Card Was Delivered.', caption: 'The usual order of I-765 status messages. The table below explains each one.', width: 1200, height: 712 },
       paragraphs: [
         'USCIS case status uses short public messages. They are the same for every I-765 category, whether the EAD is for OPT (c)(3), an H-4 spouse (c)(26), a pending adjustment of status (c)(9), asylum (c)(8) or TPS (a)(12). The table lists them in the order most cases follow, with the practical meaning of each.',
       ],

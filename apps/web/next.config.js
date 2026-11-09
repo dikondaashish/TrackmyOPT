@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const { BLOG_LATEST_REDIRECTS } = require('./blog-latest-redirects');
 // 'unsafe-eval' is only needed in dev (Next.js HMR / eval source maps). Drop it
 // in production to shrink the XSS attack surface. 'unsafe-inline' stays for now
 // because GTM/AdSense and Next's inline bootstrap need it; migrating to nonces
@@ -94,6 +95,9 @@ const nextConfig = {
         destination: 'https://www.trackmyopt.com/:path*',
         permanent: true,
       },
+
+      // ── Stable "latest" URLs for monthly series (temporary) ─────────────────
+      ...BLOG_LATEST_REDIRECTS.map((redirect) => ({ ...redirect, permanent: false })),
 
       // ── Stale indexed URLs (404 / old slugs) ────────────────────────────────
       // These were indexed by Google before pages were renamed; 301 to correct slug.

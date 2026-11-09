@@ -33,7 +33,8 @@ export function createResearchArticleMetadata(
     alternates: languages ? { canonical, languages } : { canonical },
     openGraph: {
       type: 'article',
-      locale: article.lang === 'es' ? 'es_US' : 'en_US',
+      locale:
+        article.lang === 'es' ? 'es_US' : article.lang === 'ko' ? 'ko_KR' : 'en_US',
       title: article.title,
       description: article.description,
       url: canonical,

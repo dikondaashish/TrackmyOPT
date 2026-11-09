@@ -1,0 +1,14 @@
+{
+  "slug": "premium-processing-business-days-or-calendar-days",
+  "chip": "USCIS PREMIUM",
+  "headline": ["Premium Processing:", "Business Days,", "Not Calendar Days"],
+  "accentLine": 1,
+  "subtitle": ["How the OPT, H-1B and I-140 clocks count,", "pause on an RFE and convert to real dates."],
+  "stats": [
+    { "value": "30", "label": "OPT I-765 (BUSINESS)" },
+    { "value": "15", "label": "H-1B I-129 (BUSINESS)" },
+    { "value": "Reset", "label": "AFTER RFE OR NOID" }
+  ],
+  "footer": "8 min read  |  November 9, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

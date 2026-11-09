@@ -17,7 +17,8 @@ export const dataResearchArticles = [
     slug: 'monthly-opt-ead-processing-times-receipt-date',
     hub: 'processing-times',
     title:
-      'Monthly OPT EAD Processing Times by Receipt Date: TrackMyOPT Community Data',
+      'OPT EAD Processing Times by Receipt Month: August 2026 Community Snapshot',
+    seoTitle: 'OPT Processing Times by Receipt Month (August 2026 Data)',
     description:
       'A transparent August 2026 snapshot of anonymized community timelines, grouped by receipt month—with sample sizes, filters, and the limits of self-reported data.',
     category: 'TrackMyOPT Data',

@@ -1,0 +1,30 @@
+{
+  "slug": "tiempo-de-procesamiento-opt-2026",
+  "chip": "TIEMPOS DE PROCESAMIENTO",
+  "headline": [
+    "Tiempo de",
+    "procesamiento",
+    "de OPT en 2026"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Herramienta de USCIS, datos de la",
+    "comunidad y premium processing."
+  ],
+  "stats": [
+    {
+      "value": "125 días",
+      "label": "MEDIANA OPT INICIAL"
+    },
+    {
+      "value": "183 días",
+      "label": "MEDIANA STEM OPT"
+    },
+    {
+      "value": "$1,780",
+      "label": "PREMIUM (I-907)"
+    }
+  ],
+  "footer": "7 min de lectura  |  9 de noviembre de 2026  |  Vinay Kumar",
+  "lang": "es"
+}
