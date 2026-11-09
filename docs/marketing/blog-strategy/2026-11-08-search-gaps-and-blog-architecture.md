@@ -1,6 +1,6 @@
 # Blog growth research: search gaps, what converts, and the content architecture
 
-**Date:** 2026-11-08. **Status:** research and plan only. No posts written, nothing committed or deployed.
+**Date:** 2026-11-08. **Status:** executed November 8 to 9, 2026; see "Delivery status" at the end.
 
 Sources: Google Search Console (`sc-domain:trackmyopt.com`, web search, last 3 months, 2026-08-07 to 2026-11-07, 1,000-row query and page exports read in the UI), PostHog server-side `user_signed_up` events (last 60 days) joined to each person's first pageview, Google autocomplete for 30 seed terms, the production sitemap (288 URLs, 196 blog posts), and competitor SERP checks.
 
@@ -236,3 +236,29 @@ LIMIT 40
 | i-140 tracking | 11 | 1,898 | 6.6 |
 
 Note: the "rrb ntpc" query is unrelated Indian railway exam traffic landing on a page by accident; ignore it.
+
+## Delivery status (2026-11-09)
+
+Shipped in PRs #155 to #159 and the topic-label PR that follows them.
+
+| Plan item | Status |
+| --- | --- |
+| 2A. Twelve CTR fixes | Done (homepage, September bulletin, I-140, USCIS case status, SEVP portal, 90-day rule, grace period, CIP code page with a searchable list of all 540 STEM codes, sponsorship answers, CPT guide, premium fee post, E-Verify tool) |
+| 2B. December bulletin predictions (EN + ES) | Done |
+| 2B. December bulletin release post (EN + ES) | **Waiting** for the State Department to publish the December 2026 bulletin; rewrite both December posts with the official tables and update `blog-latest-redirects.js` when January predictions go up |
+| 2B. Monthly user timelines data post | Done for November; next month uses `scripts/community-snapshot.ts` (receipt-month cohorts included) |
+| 2B. Monthly processing-time update title | Done |
+| 2C. Twenty new posts | Done (all twenty, including the OPT tax guide written ahead of January) |
+| 2D. Spanish bulletin, Spanish processing time, Korean bulletin summary | Done (hreflang both ways) |
+| 3. Eight hubs | Done |
+| 3. One topic label per post | Done as a display mapping (`data/blog-categories.ts`): the eight hub names plus "Careers" for job-search posts, which no hub covers |
+| 3. Hub CTAs | Done (hubs end on the case-status CTA) |
+| 3. Priority-date alert capture for bulletin readers | **Not built.** It needs a new table, and the repo rules require the owner's explicit approval for database migrations. Bulletin posts use the USCIS tracking CTA meanwhile |
+| 3. Stable "latest" URLs | Done (`/blog/visa-bulletin-predictions`, `/blog/boletin-de-visas-predicciones`, `/blog/opt-timelines-latest`) |
+| 3. Spanish path | Done with flat slugs plus hreflang instead of `/blog/es/...`, to avoid a second route tree |
+| 3. Data posts from a script | Done (`scripts/community-snapshot.ts`, aggregates only) |
+| 4. Covers | Done with code (`scripts/blog-covers/render-cover.mjs`), SVG plus PNG, instead of the Gemini CLI |
+| 4. In-article figures | Done (`scripts/blog-figures/render-figure.mjs`) |
+| 6. Measurement | **Due around 2026-12-06**: compare CTR on the fixed pages 28 days after the change, rerun the sign-up-by-first-page query, check Stripe |
+| Google indexing | **Owner action**: request indexing in Search Console for the new URLs (IndexNow covers Bing and Yandex only) |
+

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { topicLabel } from '@/data/blog-categories';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowRight, Clock } from 'lucide-react';
@@ -124,7 +125,7 @@ export default async function BlogHubPage({ params }: PageProps) {
                     {post.description}
                   </span>
                   <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                    <span className="font-medium text-primary">{post.category}</span>
+                    <span className="font-medium text-primary">{topicLabel(post)}</span>
                     <span aria-hidden>·</span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" aria-hidden />

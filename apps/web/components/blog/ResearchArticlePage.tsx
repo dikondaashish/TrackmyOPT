@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { topicLabel } from '@/data/blog-categories';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -128,7 +129,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
 
       <header className="mb-10 border-b border-border pb-8">
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-4">
-          <span className="font-medium text-primary">{article.category}</span>
+          <span className="font-medium text-primary">{topicLabel(article)}</span>
           <span aria-hidden>·</span>
           <span>{article.badgeLabel ?? t.badge}</span>
         </p>
