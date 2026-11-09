@@ -49,6 +49,7 @@ export function toBlogCard(article: ResearchArticle, featured = false) {
     }).format(new Date(`${article.publishedDate}T00:00:00Z`)),
     tags: article.tags,
     hub: article.hub,
+    lang: article.lang,
     featured,
     image:
       article.image ?? '/blog/international-student-guidance-library-2026.png',

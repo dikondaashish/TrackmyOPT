@@ -10,9 +10,11 @@ export type BlogHubSlug =
   | 'case-status'
   | 'visa-bulletin'
   | 'opt-rules'
+  | 'f1-status'
   | 'stem-opt'
   | 'after-opt'
   | 'money-and-life'
+  | 'careers'
   | 'policy-news';
 
 export type BlogHub = {
@@ -76,6 +78,17 @@ export const BLOG_HUBS: Record<BlogHubSlug, BlogHub> = {
       'Start with the 90-day unemployment rule and the guide to when the clock starts. Then read the reporting guides, since a new name, address or employer generally must be reported within 10 days. Your DSO and the regulations are the official word; these guides explain them in plain language.',
     cta: 'case-status',
   },
+  'f1-status': {
+    slug: 'f1-status',
+    name: 'F-1 status and travel',
+    title: 'F-1 status and travel: SEVIS, I-20, I-94, visas and reentry',
+    seoTitle: 'F-1 Status and Travel Guides: SEVIS, I-20, I-94, Visas',
+    description:
+      'How to keep F-1 status during school and OPT: your SEVIS record, I-20 travel signatures, I-94 records, visa renewals and interviews, reentry checks, and what to do if status is lost.',
+    intro:
+      'Start with the guides to your SEVIS ID and your school\'s DSO, since most status questions go through them. Read the travel signature and I-94 guides before any trip abroad. The reinstatement and SEVIS termination guides cover what to do if something goes wrong; talk to your DSO first.',
+    cta: 'case-status',
+  },
   'stem-opt': {
     slug: 'stem-opt',
     name: 'STEM OPT',
@@ -107,6 +120,17 @@ export const BLOG_HUBS: Record<BlogHubSlug, BlogHub> = {
       'Practical guides for life on F-1 and OPT: filing taxes as a nonresident, getting an SSN, health insurance after graduation, building credit, renting, buying a car and banking.',
     intro:
       'Start with the tax filing guide, because your tax status can change after your first few years in the U.S. Then use the SSN and credit guides to set up your finances. The IRS and SSA are the official sources; these guides are general information, not tax advice.',
+    cta: 'case-status',
+  },
+  careers: {
+    slug: 'careers',
+    name: 'Careers',
+    title: 'Careers on OPT: job search, resumes, interviews and sponsorship',
+    seoTitle: 'OPT Job Search Guides: Resumes, Interviews, Sponsorship',
+    description:
+      'Job search guides for F-1 and OPT students: answering the sponsorship question, ATS resumes, cover letters, cold emails, networking, interviews, offers and salary negotiation.',
+    intro:
+      'Start with the guide to the sponsorship question, since it comes up in almost every application. Then work through the resume, outreach and interview guides. Keep an eye on your unemployment days while you search; the job search tracker guide shows how.',
     cta: 'case-status',
   },
   'policy-news': {

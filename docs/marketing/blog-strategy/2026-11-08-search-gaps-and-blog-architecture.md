@@ -250,8 +250,9 @@ Shipped in PRs #155 to #159 and the topic-label PR that follows them.
 | 2B. Monthly processing-time update title | Done |
 | 2C. Twenty new posts | Done (all twenty, including the OPT tax guide written ahead of January) |
 | 2D. Spanish bulletin, Spanish processing time, Korean bulletin summary | Done (hreflang both ways) |
-| 3. Eight hubs | Done |
-| 3. One topic label per post | Done as a display mapping (`data/blog-categories.ts`): the eight hub names plus "Careers" for job-search posts, which no hub covers |
+| 3. Eight hubs | Done. Two more added 2026-11-09: `careers` and `f1-status` (F-1 status, visas and travel, split out of OPT rules), ten in all |
+| 3. One topic label per post | Done as a display mapping (`data/blog-categories.ts`): the ten hub names |
+| 3. Blog index layout | Done 2026-11-09: search, situation links, latest six by date, six essential guides, tools, topic previews, policy-news list, other languages, and a full archive sorted newest first with topic filters (every post still linked from `/blog`) |
 | 3. Hub CTAs | Done (hubs end on the case-status CTA) |
 | 3. Priority-date alert capture for bulletin readers | **Built 2026-11-09 (owner approved the table).** Double opt-in email form on English Visa Bulletin posts and the two green-card guides; `/api/cron/visa-bulletin-alerts` emails confirmed readers once per new month in `apps/web/data/visa-bulletin/employment-cutoffs.ts`. Each month: append the official tables there and deploy. Measure with the PostHog event `priority_date_alert_requested` |
 | 3. Stable "latest" URLs | Done (`/blog/visa-bulletin-predictions`, `/blog/boletin-de-visas-predicciones`, `/blog/opt-timelines-latest`) |
