@@ -1,0 +1,14 @@
+{
+  "slug": "h4-extension-status-i539",
+  "chip": "USCIS TRACKING",
+  "headline": ["H-4 Extension", "Status: Track", "Form I-539"],
+  "accentLine": 1,
+  "subtitle": ["Three receipts, three cases. What each update", "means and where you stand while it is pending."],
+  "stats": [
+    { "value": "I-129", "label": "H-1B WORKER" },
+    { "value": "I-539", "label": "H-4 STATUS" },
+    { "value": "I-765", "label": "H-4 EAD" }
+  ],
+  "footer": "8 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

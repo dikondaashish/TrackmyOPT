@@ -1,0 +1,14 @@
+{
+  "slug": "h1b-case-status-tracker",
+  "chip": "USCIS TRACKING",
+  "headline": ["H-1B Case Status:", "Track the I-129", "After OPT"],
+  "accentLine": 1,
+  "subtitle": ["Which number to track, every status in order,", "premium clocks and cap-gap while it is pending."],
+  "stats": [
+    { "value": "I-129", "label": "RECEIPT TO TRACK" },
+    { "value": "15 days", "label": "PREMIUM (BUSINESS)" },
+    { "value": "Oct 1", "label": "CAP START" }
+  ],
+  "footer": "9 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

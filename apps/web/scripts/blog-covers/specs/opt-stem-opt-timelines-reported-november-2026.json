@@ -1,0 +1,14 @@
+{
+  "slug": "opt-stem-opt-timelines-reported-november-2026",
+  "chip": "COMMUNITY DATA",
+  "headline": ["OPT Timelines", "Reported by Users:", "November 2026"],
+  "accentLine": 1,
+  "subtitle": ["2,131 completed cases from partner trackers", "and community threads. Not USCIS data."],
+  "stats": [
+    { "value": "125 d", "label": "OPT MEDIAN" },
+    { "value": "183 d", "label": "STEM MEDIAN" },
+    { "value": "90–143", "label": "OPT MIDDLE HALF" }
+  ],
+  "footer": "8 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

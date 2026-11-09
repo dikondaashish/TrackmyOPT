@@ -2,6 +2,7 @@ import { trackingGuides } from './tracking-guides';
 import { editorialRefreshes } from './editorial-refreshes';
 import { currentUpdateArticles } from './current-updates';
 import { decemberBulletinArticles } from './visa-bulletin-december-2026';
+import { sevisDsoExplainers } from './sevis-dso-explainers';
 import { dataResearchArticles } from './data-research';
 import { statusAndEmploymentArticles } from './status-and-employment';
 import { taxArticles } from './tax';
@@ -13,6 +14,7 @@ import type { ResearchArticle } from './types';
 export const researchArticles: ResearchArticle[] = [
   ...trackingGuides,
   ...decemberBulletinArticles,
+  ...sevisDsoExplainers,
   ...currentUpdateArticles,
   ...statusAndEmploymentArticles,
   ...taxArticles,

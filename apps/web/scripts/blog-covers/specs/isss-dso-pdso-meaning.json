@@ -1,0 +1,14 @@
+{
+  "slug": "isss-dso-pdso-meaning",
+  "chip": "F-1 BASICS",
+  "headline": ["ISSS, DSO, PDSO:", "Who Manages", "Your F-1 Status"],
+  "accentLine": 1,
+  "subtitle": ["The office, the official, and the lead official.", "What each can and cannot do for OPT."],
+  "stats": [
+    { "value": "ISSS", "label": "THE OFFICE" },
+    { "value": "DSO", "label": "UPDATES SEVIS" },
+    { "value": "PDSO", "label": "LEAD DSO" }
+  ],
+  "footer": "6 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}
