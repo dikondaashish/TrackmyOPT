@@ -2,6 +2,8 @@ import { defineArticle, source } from './shared';
 import { eadCardStatusGuide } from './ead-card-status';
 import { i765AfterBiometricsGuide } from './i765-after-biometrics';
 import { ioeReceiptNumberGuide } from './ioe-receipt-number';
+import { h1bCaseStatusGuide } from './h1b-case-status';
+import { h4ExtensionStatusGuide } from './h4-extension-status';
 import type { ArticleSource, ResearchArticle } from './types';
 
 export const trackingSources = {
@@ -120,6 +122,8 @@ function guide(
 }
 
 export const trackingGuides: ResearchArticle[] = [
+  h1bCaseStatusGuide,
+  h4ExtensionStatusGuide,
   i765AfterBiometricsGuide,
   ioeReceiptNumberGuide,
   eadCardStatusGuide,

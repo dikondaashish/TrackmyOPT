@@ -1,4 +1,5 @@
 import { defineArticle, source } from './shared';
+import { communityTimelinesNovember2026 } from './community-timelines-november-2026';
 
 const communitySources = [
   {
@@ -11,6 +12,7 @@ const communitySources = [
 ];
 
 export const dataResearchArticles = [
+  communityTimelinesNovember2026,
   defineArticle({
     slug: 'monthly-opt-ead-processing-times-receipt-date',
     hub: 'processing-times',

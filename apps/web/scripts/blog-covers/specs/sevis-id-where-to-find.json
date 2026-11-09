@@ -1,0 +1,14 @@
+{
+  "slug": "sevis-id-where-to-find",
+  "chip": "F-1 BASICS",
+  "headline": ["SEVIS ID:", "Where It Is and", "What It Is For"],
+  "accentLine": 1,
+  "subtitle": ["The N-number at the top of your I-20, the forms", "that ask for it, and when it changes."],
+  "stats": [
+    { "value": "N + 10", "label": "DIGITS" },
+    { "value": "I-20", "label": "TOP LEFT" },
+    { "value": "I-901", "label": "FEE USES IT" }
+  ],
+  "footer": "5 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}
