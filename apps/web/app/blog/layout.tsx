@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { ImmigrationContentDisclaimer } from "@/components/legal/ImmigrationContentDisclaimer";
+import { AutoArticleAds } from "@/components/blog/AutoArticleAds";
 
 export const metadata: Metadata = {
     title: {
@@ -33,6 +34,7 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
             <LandingNavbar />
             <main className="min-h-screen bg-background pt-4">
                 {children}
+                <AutoArticleAds />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
                     <ImmigrationContentDisclaimer className="border-t border-border pt-6 mt-8" />
                 </div>

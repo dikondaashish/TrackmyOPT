@@ -1,10 +1,7 @@
+import { Fragment } from 'react';
 import Link from 'next/link';
 import { topicLabel } from '@/data/blog-categories';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ExternalLink,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ExternalLink } from 'lucide-react';
 import {
   AUTOMATED_BYLINE,
   AuthorBio,
@@ -14,10 +11,7 @@ import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 import { PriorityDateAlertSignup } from '@/components/blog/PriorityDateAlertSignup';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
-import type {
-  ArticleTable,
-  ResearchArticle,
-} from '@/data/blog-series/types';
+import type { ArticleTable, ResearchArticle } from '@/data/blog-series/types';
 import { AdSenseInArticle } from '@/components/blog/AdSenseInArticle';
 import { BlogFlowFigure } from '@/components/blog/BlogFlowFigure';
 import { BlogPostImage } from '@/components/blog/BlogPostImage';
@@ -29,9 +23,15 @@ const PRIORITY_DATE_ALERT_SLUGS = new Set([
   'opt-to-green-card-without-h1b',
 ]);
 
+/** Sections needed before a structured article gets a second, mid-article ad. */
+const MID_ARTICLE_AD_MIN_SECTIONS = 4;
+
 function showsPriorityDateAlert(article: ResearchArticle): boolean {
   if ((article.lang ?? 'en') !== 'en') return false;
-  return topicLabel(article) === 'Visa Bulletin' || PRIORITY_DATE_ALERT_SLUGS.has(article.slug);
+  return (
+    topicLabel(article) === 'Visa Bulletin' ||
+    PRIORITY_DATE_ALERT_SLUGS.has(article.slug)
+  );
 }
 
 const SITE = 'https://www.trackmyopt.com';
@@ -87,7 +87,8 @@ const LABELS = {
     badge: '2026 \uac80\uc99d \uac00\uc774\ub4dc',
     published: '\uac8c\uc2dc\uc77c',
     updated: '\uc5c5\ub370\uc774\ud2b8',
-    reviewed: '\ubbf8\uad6d \uc815\ubd80 \uacf5\uc2dd \uc790\ub8cc\ub85c \uac80\ud1a0',
+    reviewed:
+      '\ubbf8\uad6d \uc815\ubd80 \uacf5\uc2dd \uc790\ub8cc\ub85c \uac80\ud1a0',
     caption:
       'TrackMyOPT \uc2e4\uc6a9 \uac00\uc774\ub4dc: \uaddc\uc815\uc744 \ud655\uc778\ud558\uace0, \ub0a0\uc9dc\ub97c \uae30\ub85d\ud558\uace0, \uae30\ud55c \uc804\uc5d0 \uc900\ube44\ud558\uc138\uc694.',
     statusNote: '\uac8c\uc2dc \uc0c1\ud0dc \uc548\ub0b4',
@@ -108,6 +109,11 @@ const LABELS = {
 } as const;
 
 export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
+  // A second ad between sections on longer articles; the first sits after the direct answer.
+  const midArticleAdIndex =
+    article.sections.length >= MID_ARTICLE_AD_MIN_SECTIONS
+      ? Math.round(article.sections.length / 2)
+      : -1;
   const canonical = `${SITE}/blog/${article.slug}`;
   const image = article.image ?? DEFAULT_IMAGE;
   const imageUrl = image.startsWith('http') ? image : `${SITE}${image}`;
@@ -119,6 +125,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
     <article
       lang={lang}
       className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+      data-explicit-ads=""
     >
       <BreadcrumbSchema
         items={[
@@ -141,7 +148,9 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
 
       <header className="mb-10 border-b border-border pb-8">
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-4">
-          <span className="font-medium text-primary">{topicLabel(article)}</span>
+          <span className="font-medium text-primary">
+            {topicLabel(article)}
+          </span>
           <span aria-hidden>·</span>
           <span>{article.badgeLabel ?? t.badge}</span>
         </p>
@@ -166,9 +175,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
             </>
           )}
           <span aria-hidden>•</span>
-          <span>
-            {article.reviewLabel ?? t.reviewed}
-          </span>
+          <span>{article.reviewLabel ?? t.reviewed}</span>
         </div>
       </header>
 
@@ -244,95 +251,96 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </section>
 
         {article.sections.map((section, index) => (
-          <section
-            id={`section-${index + 1}`}
-            className="scroll-mt-40"
-            key={section.heading}
-          >
-            {section.anchors?.map((anchor) => (
-              <span
-                id={anchor}
-                key={anchor}
-                className="block scroll-mt-40"
-                aria-hidden
-              />
-            ))}
-            <h2>{section.heading}</h2>
-            {section.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-            {section.figure && (
-              <figure className="not-prose my-7">
-                <div
-                  className="relative overflow-hidden rounded-xl border border-border bg-white"
-                  style={{ aspectRatio: `${section.figure.width} / ${section.figure.height}` }}
-                >
-                  <BlogPostImage
-                    src={section.figure.src}
-                    alt={section.figure.alt}
-                    sizes="(min-width: 768px) 832px, 100vw"
-                    className="object-contain"
-                  />
+          <Fragment key={section.heading}>
+            {index === midArticleAdIndex && <AdSenseInArticle />}
+            <section id={`section-${index + 1}`} className="scroll-mt-40">
+              {section.anchors?.map((anchor) => (
+                <span
+                  id={anchor}
+                  key={anchor}
+                  className="block scroll-mt-40"
+                  aria-hidden
+                />
+              ))}
+              <h2>{section.heading}</h2>
+              {section.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+              {section.figure && (
+                <figure className="not-prose my-7">
+                  <div
+                    className="relative overflow-hidden rounded-xl border border-border bg-white"
+                    style={{
+                      aspectRatio: `${section.figure.width} / ${section.figure.height}`,
+                    }}
+                  >
+                    <BlogPostImage
+                      src={section.figure.src}
+                      alt={section.figure.alt}
+                      sizes="(min-width: 768px) 832px, 100vw"
+                      className="object-contain"
+                    />
+                  </div>
+                  <figcaption className="mt-2 text-center text-sm text-muted-foreground">
+                    {section.figure.caption}
+                  </figcaption>
+                </figure>
+              )}
+              {section.table && <ArticleDataTable table={section.table} />}
+              {section.sources && (
+                <p className="text-sm">
+                  {t.sources}{' '}
+                  {section.sources.map((source, sourceIndex) => (
+                    // Two sources can share a URL (different eCFR paragraphs).
+                    <span key={`${source.url}-${source.label}`}>
+                      {sourceIndex > 0 && '; '}
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {source.label}
+                      </a>
+                    </span>
+                  ))}
+                </p>
+              )}
+              {section.links && (
+                <ul>
+                  {section.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href}>{link.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {section.visual && <BlogFlowFigure visual={section.visual} />}
+              {section.bullets && (
+                <ul>
+                  {section.bullets.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              )}
+              {section.numbered && (
+                <ol>
+                  {section.numbered.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ol>
+              )}
+              {section.note && (
+                <div className="not-prose my-7 rounded-r-xl border-l-4 border-l-emerald-600 bg-emerald-50 p-5 dark:bg-emerald-950">
+                  <p className="mb-2 font-bold text-emerald-900 dark:text-emerald-100">
+                    {t.note}
+                  </p>
+                  <p className="mb-0 leading-relaxed text-gray-800 dark:text-gray-200">
+                    {section.note}
+                  </p>
                 </div>
-                <figcaption className="mt-2 text-center text-sm text-muted-foreground">
-                  {section.figure.caption}
-                </figcaption>
-              </figure>
-            )}
-            {section.table && <ArticleDataTable table={section.table} />}
-            {section.sources && (
-              <p className="text-sm">
-                {t.sources}{' '}
-                {section.sources.map((source, sourceIndex) => (
-                  // Two sources can share a URL (different eCFR paragraphs).
-                  <span key={`${source.url}-${source.label}`}>
-                    {sourceIndex > 0 && '; '}
-                    <a
-                      href={source.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {source.label}
-                    </a>
-                  </span>
-                ))}
-              </p>
-            )}
-            {section.links && (
-              <ul>
-                {section.links.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href}>{link.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {section.visual && <BlogFlowFigure visual={section.visual} />}
-            {section.bullets && (
-              <ul>
-                {section.bullets.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            )}
-            {section.numbered && (
-              <ol>
-                {section.numbered.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ol>
-            )}
-            {section.note && (
-              <div className="not-prose my-7 rounded-r-xl border-l-4 border-l-emerald-600 bg-emerald-50 p-5 dark:bg-emerald-950">
-                <p className="mb-2 font-bold text-emerald-900 dark:text-emerald-100">
-                  {t.note}
-                </p>
-                <p className="mb-0 leading-relaxed text-gray-800 dark:text-gray-200">
-                  {section.note}
-                </p>
-              </div>
-            )}
-          </section>
+              )}
+            </section>
+          </Fragment>
         ))}
 
         <section id="checklist">
@@ -385,9 +393,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         )}
         {article.dataNote && (
           <section className="rounded-xl border border-violet-200 bg-violet-50 p-6 dark:border-violet-800 dark:bg-violet-950">
-            <h2 className="mt-0">
-              Data and methodology note
-            </h2>
+            <h2 className="mt-0">Data and methodology note</h2>
             <p className="mb-0">{article.dataNote}</p>
           </section>
         )}
@@ -395,7 +401,10 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         <section id="faq">
           <h2>{t.faq}</h2>
           {article.faq.map((item) => (
-            <div className="border-t border-border pt-1 mb-5 first-of-type:border-t-0" key={item.question}>
+            <div
+              className="border-t border-border pt-1 mb-5 first-of-type:border-t-0"
+              key={item.question}
+            >
               <h3>{item.question}</h3>
               <p>{item.answer}</p>
             </div>
