@@ -3,6 +3,7 @@ import { gap, gapSources } from './shared';
 
 export const itinVsSsnF1OptStudentsArticle = gap({
     slug: 'itin-vs-ssn-f1-opt-students',
+    hub: 'money-and-life',
     title: 'ITIN vs SSN for F-1 and OPT Students: Which Tax ID You Need',
     seoTitle: 'ITIN vs SSN for F-1 / OPT Students',
     description:

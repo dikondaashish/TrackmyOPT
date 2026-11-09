@@ -27,11 +27,12 @@ const i983Instructions = {
 export const editorialRefreshes: ResearchArticle[] = [
   defineArticle({
     slug: 'opt-premium-processing-fee-increase-1780',
+    hub: 'processing-times',
     title:
-      'OPT Premium Processing: $1,780 Fee, 30 Business Days and When It Helps',
-    seoTitle: 'OPT Premium Processing: $1,780 Fee and 30 Business Days',
+      'Is OPT Premium Processing Worth $1,780? Fee, 30-Business-Day Clock and When It Helps',
+    seoTitle: 'OPT & STEM OPT Premium Processing: $1,780, 30 Business Days',
     description:
-      'See the current OPT premium-processing fee, how the 30-business-day USCIS action clock works, and what to weigh before paying for Form I-907.',
+      'OPT and STEM OPT premium processing adds a $1,780 I-907 fee to the I-765 fee. USCIS generally must take action within 30 business days. See when it helps.',
     category: 'USCIS',
     tags: [
       'OPT premium processing fee 2026',
@@ -39,15 +40,15 @@ export const editorialRefreshes: ResearchArticle[] = [
       'OPT premium processing worth it',
       '30 business days I-765',
     ],
-    readTime: '6 min read',
+    readTime: '7 min read',
     publishedDate: '2026-07-14',
-    modifiedDate: '2026-10-11',
+    modifiedDate: '2026-11-08',
     showContents: true,
     image: '/blog/opt-premium-processing-fee-increase-1780.png',
     imageAlt:
       'Calculator and immigration-document illustration for the OPT premium-processing cost decision.',
     directAnswer:
-      'The additional Form I-907 premium-processing fee for eligible OPT/STEM I-765 applications is $1,780, effective March 1, 2026. The applicable USCIS action period is 30 business days—not calendar days. It covers an adjudicative action, which can include an RFE or denial; it does not guarantee approval or EAD delivery within that period.',
+      'The additional Form I-907 premium-processing fee for eligible OPT/STEM I-765 applications is $1,780, effective March 1, 2026. The applicable USCIS action period is 30 business days, not calendar days. It covers an adjudicative action, which can include an RFE or denial; it does not guarantee approval or EAD delivery within that period.',
     keyTakeaways: [
       'The $1,780 is additional to applicable I-765 filing fees.',
       'Weekends, federal holidays, and relevant federal closures are excluded from the business-day clock.',
@@ -56,7 +57,7 @@ export const editorialRefreshes: ResearchArticle[] = [
     ],
     sections: [
       {
-        heading: 'What changed—and what the fee buys',
+        heading: 'What changed and what the fee buys',
         paragraphs: [
           'DHS’s inflation adjustment took effect on March 1, 2026. For eligible F-1 pre-completion OPT, post-completion OPT, and STEM OPT I-765 applications, the premium-processing request uses Form I-907 and an additional $1,780 fee. Check the current USCIS form page, instructions, payment requirements, and eligibility before submitting a request.',
           'Premium processing buys a defined period for a qualifying USCIS action. It does not buy a favorable decision or waive the underlying eligibility rules. USCIS may approve, deny, issue a request for evidence, or issue a notice of intent to deny within the applicable period. A request for evidence means there is still work to do.',
@@ -83,6 +84,68 @@ export const editorialRefreshes: ResearchArticle[] = [
             label: 'RFE response steps and premium-clock restart',
             href: '/answers/what-is-rfe-uscis',
           },
+        ],
+      },
+      {
+        heading: 'Is OPT premium processing worth it?',
+        paragraphs: [
+          'It depends on what the date of the USCIS decision changes for you. The fee is $1,780 for OPT and STEM OPT I-765 cases, paid separately from the I-765 filing fee. The USCIS fee schedule generally lists that filing fee as $470 online or $520 on paper.',
+          'In return, USCIS generally must approve, deny, or send an RFE or NOID within 30 business days of having everything it needs. The clock section above covers restarts and refunds. Use the table below as a starting point, then confirm your dates with your DSO.',
+        ],
+        table: {
+          caption:
+            'When the $1,780 premium fee tends to help, based on USCIS rules for I-765 premium processing. Not legal advice.',
+          columns: ['Your situation', 'Premium processing', 'Why'],
+          rows: [
+            [
+              'Job offer with a fixed start date, regular OPT still pending',
+              'Often worth considering',
+              'You generally cannot start OPT work until you have the EAD card and the start date on it has arrived. Premium processing speeds up the USCIS decision, but card production and mail still take time after approval.',
+            ],
+            [
+              'Timely filed STEM OPT extension, current OPT EAD about to expire',
+              'Often less needed',
+              'A timely, properly filed STEM OPT extension generally extends your work authorization for up to 180 days while it is pending. Premium processing matters more if a decision might take longer than that. Confirm with your DSO that this applies to you.',
+            ],
+            [
+              'No job offer yet, or a flexible start date',
+              'Usually low value',
+              'A faster decision does not help much if nothing depends on the date.',
+            ],
+            [
+              'Known error or missing evidence in the filing',
+              'Fix the problem first',
+              'Premium processing does not change eligibility. An RFE stops the clock, and a new 30-business-day period starts when USCIS receives your response.',
+            ],
+            [
+              'You need the physical card by a set date',
+              'Helps only partly',
+              'The clock covers a USCIS action. Card production and mail delivery happen after approval and are not covered.',
+            ],
+          ],
+        },
+        sources: [
+          {
+            label: 'Form G-1055 Fee Schedule (edition 10/26/26)',
+            publisher: 'USCIS',
+            url: 'https://www.uscis.gov/g-1055',
+          },
+          {
+            label: 'How Do I Request Premium Processing?',
+            publisher: 'USCIS',
+            url: 'https://www.uscis.gov/forms/all-forms/how-do-i-request-premium-processing',
+          },
+          {
+            label: 'Optional Practical Training Extension for STEM Students',
+            publisher: 'USCIS',
+            url: 'https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-extension-for-stem-students-stem-opt',
+          },
+          {
+            label: 'F-1 Optional Practical Training (OPT)',
+            publisher: 'SEVP, Study in the States',
+            url: 'https://studyinthestates.dhs.gov/sevis-help-hub/student-records/fm-student-employment/f-1-optional-practical-training-opt',
+          },
+          s.premium,
         ],
       },
       {
@@ -194,6 +257,7 @@ export const editorialRefreshes: ResearchArticle[] = [
   }),
   defineArticle({
     slug: 'i-983-training-plan-guide',
+    hub: 'stem-opt',
     title: 'I-983 Training Plan: A Section-by-Section STEM OPT Guide',
     seoTitle: 'I-983 Training Plan: Sections, Examples and Evaluations',
     description:

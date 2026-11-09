@@ -61,6 +61,11 @@ const faqs = [
       'USCIS Form I-765 instructions request the employer name as listed in E-Verify plus the employer’s E-Verify Company Identification Number or a valid E-Verify Client Company Identification Number. Ask the employer for that number; do not substitute an EIN.',
   },
   {
+    question: 'Where do I find the E-Verify Company Identification Number?',
+    answer:
+      'Ask the employer’s HR team. The public USCIS search shows fields such as the employer name, DBA, account status, and hiring-site states, but the Company ID is not among the fields USCIS lists. Use the number HR gives you on Form I-765 and Form I-983.',
+  },
+  {
     question: 'Is an EIN the same as an E-Verify Company ID?',
     answer:
       'No. An EIN is a federal tax identification number issued by the IRS. An E-Verify Company ID or Client Company ID identifies an employer’s E-Verify enrollment. These numbers serve different purposes and should not be used interchangeably on a STEM OPT application.',
@@ -82,7 +87,7 @@ const schema = {
         { '@type': 'Thing', name: 'E-Verify' },
         { '@type': 'Thing', name: 'STEM Optional Practical Training' },
       ],
-      dateModified: '2026-08-29',
+      dateModified: '2026-11-08',
       inLanguage: 'en-US',
     },
     {
@@ -261,6 +266,77 @@ export default function EVerifyEmployerSearchPage() {
               </p>
             </div>
             <OfficialEVerifyEmployerSearch />
+          </section>
+
+          <section
+            aria-labelledby="about-search-heading"
+            className="grid gap-6 lg:grid-cols-3"
+          >
+            <div className="lg:col-span-3 max-w-3xl">
+              <h2
+                id="about-search-heading"
+                className="text-3xl font-black"
+              >
+                About this E-Verify employer search
+              </h2>
+              <p className="mt-4 leading-7 text-muted-foreground">
+                What the search covers, which number to use, and how STEM OPT
+                students use the result.
+              </p>
+            </div>
+            <article className="surface-card p-6">
+              <h3 className="text-lg font-bold">What the search covers</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                The search above loads USCIS’s own E-Verify Employer Search.
+                USCIS says it updates the data daily. Results show the employer
+                name, any DBA, whether the account is enrolled or terminated,
+                enrollment dates, and hiring-site states. Employers report this
+                data themselves, so a missing result is not proof either way.
+              </p>
+              <a
+                href={officialSources.search}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
+              >
+                Source: e-verify.gov
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            </article>
+            <article className="surface-card p-6">
+              <h3 className="text-lg font-bold">
+                Is the E-Verify number the same as an EIN?
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                No. The E-Verify Company Identification Number identifies the
+                employer’s E-Verify account. An EIN is a tax number from the
+                IRS. Form I-765 asks for the E-Verify Company ID or Client
+                Company ID for STEM OPT, so get that number from HR.
+              </p>
+              <Link
+                href="/blog/everify-number-vs-ein-i765-i983"
+                className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
+              >
+                E-Verify number vs EIN on I-765 and I-983
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </article>
+            <article className="surface-card p-6">
+              <h3 className="text-lg font-bold">How STEM OPT students use it</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                A STEM OPT employer must be enrolled in E-Verify. Students
+                search the employer before accepting an offer, then confirm the
+                legal name and Company ID with HR. The result is one check, not
+                a full eligibility decision.
+              </p>
+              <Link
+                href="/blog/check-employer-e-verify-stem-opt-offer"
+                className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
+              >
+                Check an employer before a STEM OPT offer
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </article>
           </section>
 
           <section
@@ -586,7 +662,7 @@ export default function EVerifyEmployerSearchPage() {
                   Official sources and review notes
                 </h2>
                 <p className="mt-2 leading-7 text-muted-foreground">
-                  Reviewed August 29, 2026. This page is educational and is not
+                  Reviewed November 8, 2026. This page is educational and is not
                   legal advice or a USCIS endorsement. Confirm filing decisions
                   with your DSO, employer, and official government instructions.
                 </p>

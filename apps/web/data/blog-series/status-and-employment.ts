@@ -718,6 +718,7 @@ export const statusAndEmploymentArticles = [
   }),
   defineArticle({
     slug: 'everify-number-vs-ein-i765-i983',
+    hub: 'stem-opt',
     title:
       'E-Verify Number vs EIN: Which Number Goes on Form I-765 and Form I-983?',
     description:
@@ -811,6 +812,7 @@ export const statusAndEmploymentArticles = [
   }),
   defineArticle({
     slug: 'stem-opt-material-changes-new-i983',
+    hub: 'stem-opt',
     title:
       'STEM OPT Material Changes: When a New I-983 Is Required for Remote Work, Salary, Supervisor, or Worksite',
     description:
@@ -906,6 +908,7 @@ export const statusAndEmploymentArticles = [
   }),
   defineArticle({
     slug: 'change-employer-stem-opt-pending',
+    hub: 'stem-opt',
     title:
       'Changing Employers While STEM OPT Is Pending: I-983, E-Verify, and USCIS Steps',
     description:
@@ -995,6 +998,7 @@ export const statusAndEmploymentArticles = [
   }),
   defineArticle({
     slug: 'h1b-cap-gap-denial-rejection-withdrawal-layoff',
+    hub: 'after-opt',
     title:
       'H-1B Cap-Gap After a Denial, Rejection, Withdrawal, or Layoff: When Work Authorization Ends',
     description:

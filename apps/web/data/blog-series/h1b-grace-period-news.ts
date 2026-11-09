@@ -8,6 +8,7 @@ import {
 export const h1bGracePeriodArticle = defineArticle({
   ...policyPublication,
   slug: 'h1b-60-day-grace-period-proposal-2026',
+  hub: 'policy-news',
   title: 'Is the H-1B 60-Day Grace Period Ending? The 2026 Proposal Explained',
   seoTitle: 'H-1B 60-Day Grace Period: 2026 Proposal Explained',
   description:

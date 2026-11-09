@@ -3,6 +3,7 @@ import { gap, gapSources } from './shared';
 
 export const h1bTransferPortabilityWhileOnOptArticle = gap({
     slug: 'h1b-transfer-portability-while-on-opt',
+    hub: 'after-opt',
     title:
       'Changing Employers While on OPT or Early H-1B: Transfer, Portability, and New Petitions',
     seoTitle: 'H-1B Transfer vs New Petition While on OPT',

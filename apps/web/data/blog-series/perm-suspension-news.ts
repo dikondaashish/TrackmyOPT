@@ -19,6 +19,7 @@ const permScope = {
 export const permSuspensionArticle = defineArticle({
   ...policyPublication,
   slug: 'perm-suspension-tech-companies-october-2026',
+  hub: 'policy-news',
   title:
     'PERM Suspension at Microsoft, Adobe and IT Firms: What Workers Should Know',
   seoTitle: 'PERM Suspension October 2026: Tech Workers’ Guide',

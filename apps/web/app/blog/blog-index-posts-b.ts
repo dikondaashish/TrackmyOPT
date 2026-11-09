@@ -12,6 +12,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'stem-opt-employer-requirements',
+    hub: 'stem-opt',
     title:
       'STEM OPT Employer Requirements 2026: E-Verify, I-983 & Compliance Checklist',
     description:
@@ -65,6 +66,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'indian-bank-account-nro-opt-students',
+    hub: 'money-and-life',
     title:
       'Indian Students on OPT/STEM OPT: Is Your Indian Bank Account Illegal Under FEMA? (2026 Guide)',
     description:
@@ -136,6 +138,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'how-to-get-ssn-on-opt',
+    hub: 'money-and-life',
     title:
       'How to Get a Social Security Number (SSN) on OPT: Step-by-Step Guide (2026)',
     description:
@@ -162,6 +165,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'h1b-alternatives-work-visas',
+    hub: 'after-opt',
     title:
       'H-1B Visa Alternatives: Top 8 Work Visas for F-1 OPT Students (2026)',
     description:
@@ -175,6 +179,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'sevp-portal-guide-opt',
+    hub: 'opt-rules',
     title:
       'SEVP Portal Complete Guide: Setup, Unlock & Reporting for OPT & STEM OPT (2026)',
     description:
@@ -188,6 +193,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'green-card-after-opt',
+    hub: 'after-opt',
     title: 'Green Card After OPT: Top 5 Pathways for F-1 Students (2026)',
     description:
       'Guide to securing permanent residency (Green Card) after F-1 OPT or STEM OPT. Explore EB-2 NIW, EB-3 employer-sponsored, family green cards, and investment pathways.',
@@ -200,6 +206,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'eb2-niw-green-card-opt',
+    hub: 'visa-bulletin',
     title: 'EB-2 NIW Green Card Guide for OPT & STEM OPT Students (2026)',
     description:
       'Ultimate guide to the EB-2 National Interest Waiver (NIW) green card for F-1 OPT and STEM OPT students. Learn about the Matter of Dhanasar criteria, self-petition steps, and processing times.',
@@ -212,6 +219,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'opt-reporting-requirements-dso',
+    hub: 'opt-rules',
     title: 'OPT & STEM OPT Reporting Requirements: Complete DSO Guide (2026)',
     description:
       'Learn what F-1 students must report to their DSO and SEVIS during OPT and STEM OPT. Compliance deadlines, residential address changes, and employment updates.',
@@ -237,6 +245,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'is-my-degree-stem-eligible-cip-code',
+    hub: 'stem-opt',
     title:
       'Is My Degree STEM Eligible? CIP Code Lookup Guide for STEM OPT (2026)',
     description:
@@ -274,6 +283,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'o1-visa-international-students-opt',
+    hub: 'after-opt',
     title:
       'O-1 Visa for International Students: Can You Qualify After OPT? (2026)',
     description:
@@ -287,6 +297,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'perm-labor-certification-opt',
+    hub: 'visa-bulletin',
     title:
       'PERM Labor Certification Process: What OPT Workers Need to Know (2026)',
     description:
@@ -313,6 +324,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'building-credit-international-students-opt',
+    hub: 'money-and-life',
     title: 'How to Build US Credit as an International Student (2026 Guide)',
     description:
       'No SSN? No credit history? No problem. Learn the exact steps to build a 700+ US credit score while on your F-1 visa or OPT.',
@@ -325,6 +337,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'renting-apartment-without-us-credit-history',
+    hub: 'money-and-life',
     title: 'How to Rent an Apartment Without US Credit History (2026)',
     description:
       'International student with no US credit score? Learn 5 proven strategies to get approved for an off-campus apartment on F-1 OPT.',
@@ -337,6 +350,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'l1-visa-transfer-after-opt',
+    hub: 'after-opt',
     title: 'L-1 Visa Transfer: The Ultimate H-1B Backup Plan for OPT Workers',
     description:
       "Didn't win the H-1B lottery on OPT? Learn how the L-1 intracompany transferee visa works and how to relocate to a foreign branch.",
@@ -349,6 +363,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'tn-visa-canadian-mexican-students-opt',
+    hub: 'after-opt',
     title: 'TN Visa Guide for Canadian & Mexican Students on OPT',
     description:
       'Learn how Canadian and Mexican citizens can easily transition from an F-1 OPT to a TN Visa under the USMCA agreement. Skip the H-1B lottery.',
@@ -373,6 +388,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: 'buying-car-international-student-opt',
+    hub: 'money-and-life',
     title: 'How to Buy and Finance a Car as an International Student on OPT',
     description:
       'Learn how to buy, finance, and insure a car in the US without a credit score. Guide for F-1 international students and OPT workers.',
@@ -633,6 +649,7 @@ export const blogPostsPartTwo = [
   },
   {
     slug: '60-day-grace-period-f1-students',
+    hub: 'opt-rules',
     title: 'The 60-Day Grace Period for F-1 Students: A Practical Guide',
     description:
       'What happens when your OPT expires or you run out of unemployment days? Learn the rules of the F-1 60-day grace period and your options to stay in the US.',

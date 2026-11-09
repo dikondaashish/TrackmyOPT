@@ -91,6 +91,7 @@ export const taxArticles = [
   }),
   defineArticle({
     slug: 'fica-tax-refund-f1-opt-forms-843-8316',
+    hub: 'money-and-life',
     title:
       'FICA Tax Refund for F-1 and OPT Workers: Forms 843 and 8316, Documents, and Deadlines',
     description:
@@ -168,6 +169,7 @@ export const taxArticles = [
   }),
   defineArticle({
     slug: '1040nr-vs-1040-five-calendar-year-rule-f1',
+    hub: 'money-and-life',
     title:
       'Form 1040-NR vs Form 1040: The Five-Calendar-Year Rule for F-1 Students',
     description:
@@ -321,6 +323,7 @@ export const taxArticles = [
   }),
   defineArticle({
     slug: 'f1-opt-form-w4-nonresident-alien',
+    hub: 'money-and-life',
     title:
       'How F-1 and OPT Workers Should Complete Form W-4 as Nonresident Aliens',
     description:
@@ -399,6 +402,7 @@ export const taxArticles = [
   }),
   defineArticle({
     slug: 'tax-treaty-indian-chinese-f1-students',
+    hub: 'money-and-life',
     title:
       'U.S. Tax Treaty Benefits for Indian and Chinese F-1 Students: What You Can Actually Claim',
     description:

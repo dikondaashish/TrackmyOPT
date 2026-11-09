@@ -7,6 +7,7 @@ import {
 export const blogPostsPartOne = [
   {
     slug: 'f1-visa-fbar-filing-requirements-2026',
+    hub: 'money-and-life',
     title: 'Do F-1 Students on OPT or STEM OPT Need to File an FBAR? (2026)',
     description:
       'Compare five fictional students, follow the residency decision tree, and learn the foreign-account threshold and FBAR deadlines.',
@@ -19,6 +20,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'fy2027-h1b-no-second-lottery-opt-backup-plan',
+    hub: 'policy-news',
     title:
       'FY 2027 H-1B Lottery: No Second Round — What OPT Students Must Do Now',
     description:
@@ -32,6 +34,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'stem-opt-180-day-auto-extension-explained-2026',
+    hub: 'stem-opt',
     title: 'STEM OPT 180-Day Auto-Extension Explained (2026)',
     description:
       'File your STEM OPT I-765 on time and USCIS extends your work authorization up to 180 days — but the rule has sharp edges students miss.',
@@ -58,7 +61,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-14-month-rule-delays-shorten-authorization-2026',
-    hub: 'processing-times',
+    hub: 'opt-rules',
     title:
       'OPT 14-Month Rule Explained (2026): How USCIS Delays Can Shorten Your EAD',
     description:
@@ -95,6 +98,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'f1-visa-interview-country-of-residence-rule-2026',
+    hub: 'policy-news',
     title:
       'New F-1 Visa Interview Rule: Apply in Your Country of Nationality or Residence',
     description:
@@ -108,6 +112,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'august-2026-visa-bulletin-opt-workers',
+    hub: 'visa-bulletin',
     title: 'August 2026 Visa Bulletin: EB-2 India Unavailable and EB-1 at Risk',
     description:
       'EB-2 India is unavailable for final action and EB-1 India may follow. Understand the impact on OPT workers, I-140 petitions, and I-485 filings.',
@@ -120,6 +125,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'f1-visa-social-media-screening-2026',
+    hub: 'policy-news',
     title: 'F-1 Visa Social Media Screening in 2026: What Officers Can Review',
     description:
       'F-1 visa applicants face online-presence review and are instructed to make social profiles public. Separate confirmed requirements from rumors.',
@@ -132,6 +138,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'uscis-deny-without-rfe-policy-2026',
+    hub: 'policy-news',
     title:
       'USCIS Can Deny Your Case Without an RFE: What Changed August 5, 2026',
     description:
@@ -273,6 +280,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'uscis-green-card-adjustment-of-status-update-2026',
+    hub: 'policy-news',
     title:
       "USCIS Adjustment of Status Policy Shift: 'Discretionary Grace' Explained (2026)",
     description:
@@ -312,6 +320,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'h1b-weighted-selection-process-fy2027',
+    hub: 'after-opt',
     title: 'FY 2027 H-1B Weighted Selection Process Explained (2026 Update)',
     description:
       'USCIS has implemented a new weighted selection process for the FY 2027 H-1B cap season. Learn how this favors higher-skilled workers and what it means for applicants.',
@@ -337,6 +346,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: '90-day-unemployment-rule-opt',
+    hub: 'opt-rules',
     title:
       'The 90-Day OPT Unemployment Rule: Everything You Need to Know in 2026',
     description:
@@ -349,6 +359,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'when-does-opt-unemployment-clock-start',
+    hub: 'opt-rules',
     title: 'When Does the OPT Unemployment Clock Start? (2026)',
     description:
       'Learn when OPT unemployment days begin, whether EAD delays count, how job gaps are calculated, and how to track your remaining days.',
@@ -360,6 +371,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'laid-off-on-opt',
+    hub: 'opt-rules',
     title:
       'Laid Off on OPT? Reporting Deadlines, Unemployment Days & Next Steps',
     description:
@@ -372,6 +384,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'laid-off-on-stem-opt',
+    hub: 'opt-rules',
     title: 'Laid Off on STEM OPT? I-983, Employer Changes & the 150-Day Rule',
     description:
       'A practical guide to final evaluations, reporting a STEM OPT layoff, completing a new I-983, and protecting your 150-day unemployment buffer.',
@@ -383,6 +396,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'change-employers-stem-opt',
+    hub: 'stem-opt',
     title: 'How to Change Employers on STEM OPT: New I-983 and SEVIS Deadlines',
     description:
       'The correct STEM OPT employer-change sequence, including final evaluations, E-Verify checks, new I-983 requirements, and DSO reporting.',
@@ -394,6 +408,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'stem-opt-six-month-validation-report',
+    hub: 'stem-opt',
     title:
       'STEM OPT 6-Month Validation Reports and Self-Evaluations: Complete Calendar',
     description:
@@ -406,6 +421,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-job-related-to-degree',
+    hub: 'opt-rules',
     title:
       'How to Explain How Your OPT Job Relates to Your Degree (SEVP Examples)',
     description:
@@ -418,6 +434,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-employment-evidence-checklist',
+    hub: 'opt-rules',
     title:
       'OPT Employment Evidence Checklist: What to Save for USCIS and Future Visas',
     description:
@@ -443,7 +460,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'can-you-start-work-before-opt-ead-arrives',
-    hub: 'processing-times',
+    hub: 'opt-rules',
     title: 'Can You Start Working Before Your OPT EAD Arrives?',
     description:
       'Understand the difference between an OPT offer, approval, EAD delivery, and the date you may lawfully begin work.',
@@ -455,6 +472,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'what-counts-as-20-hours-on-opt',
+    hub: 'opt-rules',
     title:
       'What Counts as 20 Hours per Week on OPT? Multiple Jobs, Gaps and Part-Time Work',
     description:
@@ -467,6 +485,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'employer-refuses-form-i983',
+    hub: 'stem-opt',
     title: 'What If Your Employer Refuses to Complete or Sign Form I-983?',
     description:
       'What to document, who to contact, and what not to sign when an employer will not complete or sign your STEM OPT training plan.',
@@ -478,6 +497,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'stem-opt-employer-site-visit-preparation',
+    hub: 'stem-opt',
     title:
       'STEM OPT Employer Site Visits: How Students and Employers Should Prepare',
     description:
@@ -502,6 +522,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-unemployment-days-calculator-guide',
+    hub: 'opt-rules',
     title: 'OPT Unemployment Days Calculator: How to Check & Track (2026)',
     description:
       "Count OPT unemployment days correctly: 90 on initial OPT, 150 with STEM. SEVP portal steps, weekend rules, and TrackMyOPT's free calculator.",
@@ -525,6 +546,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'stem-opt-unemployment-limit',
+    hub: 'stem-opt',
     title: 'STEM OPT Unemployment Limit: The 150-Day Rule Explained',
     description:
       'How the 150-day unemployment limit works for STEM OPT, counting rules, what qualifies as employment, and strategies to stay compliant.',
@@ -545,6 +567,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-to-h1b-transition',
+    hub: 'after-opt',
     title: 'OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)',
     description:
       "Complete guide to transitioning from OPT to H-1B. Timeline, cap-gap extension, employer requirements, and backup plans if you're not selected.",
@@ -566,6 +589,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'what-happens-if-opt-expires',
+    hub: 'after-opt',
     title: 'What Happens If Your OPT Expires? Next Steps & Options',
     description:
       'Your OPT is expiring — what now? The 60-day grace period, STEM OPT extension, H-1B cap-gap, and what happens to your F-1 status.',
@@ -587,6 +611,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'stem-opt-extension-guide',
+    hub: 'stem-opt',
     title: 'Complete STEM OPT Guide 2026: Extension, Eligibility & Application',
     description:
       'The definitive guide to the 24-month STEM OPT extension. Eligibility, CIP codes, I-983, employer requirements, and unemployment rules.',
@@ -629,6 +654,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'h1b-cap-gap-extension',
+    hub: 'after-opt',
     title: 'H-1B Cap-Gap Extension Explained: Timeline, Work Auth & Rules',
     description:
       'How the cap-gap bridges OPT expiration and H-1B start date. Work authorization rules, timeline, and what happens if H-1B is denied.',
@@ -649,6 +675,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'f1-student-tax-filing-guide-2026',
+    hub: 'money-and-life',
     title: 'F-1 Student Tax Filing Guide 2026: Forms, Deadlines & Step-by-Step',
     description:
       'Complete guide to F-1 student tax filing in 2026. Learn which forms to file (Form 8843, 1040-NR), FICA exemptions, tax treaty benefits, and step-by-step filing instructions.',
@@ -660,7 +687,6 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-premium-processing-timeline-2026',
-    hub: 'processing-times',
     title: 'OPT Premium Processing Timeline 2026: How Long It Really Takes',
     description:
       'Premium processing targets 30 business days for adjudication — but EAD delivery takes longer. Stage-by-stage timeline for initial OPT and STEM OPT with real 2026 case data.',
@@ -672,6 +698,7 @@ export const blogPostsPartOne = [
   },
   {
     slug: 'opt-health-insurance-guide-2026',
+    hub: 'money-and-life',
     title: 'Health Insurance While on OPT (2026): Plans, Costs & Options',
     description:
       'Lost school coverage after graduation? Compare employer plans, COBRA, ACA marketplace, and international student insurance for F-1 workers on OPT.',

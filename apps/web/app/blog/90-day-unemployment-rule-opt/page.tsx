@@ -7,12 +7,12 @@ import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "How Many Unemployment Days on OPT? 90-Day Rule Explained (2026)",
-    description: "How many unemployment days are allowed on OPT? 90 days on initial OPT, 150 total with STEM OPT. Learn how days are counted, how to check the SEVP portal, and track remaining days free.",
-    keywords: ["how many unemployment days in opt", "how many days of unemployment on opt", "90 day rule OPT", "OPT unemployment days", "how to check unemployment days in sevp portal", "STEM OPT 150 days unemployment", "does opt unemployment days include weekends"],
+    title: "OPT Unemployment Days: How Many and How to Check",
+    description: "How many unemployment days on OPT? 90, or 150 total with STEM OPT. See how to check the SEVIS unemployment counter in the SEVP Portal, plus a free calculator.",
+    keywords: ["opt unemployment days", "how many days of unemployment on opt", "opt unemployment days calculator", "how to check unemployment days in sevp portal", "sevis unemployment counter", "90 day rule OPT", "STEM OPT 150 days unemployment", "does opt unemployment days include weekends"],
     openGraph: {
-        title: "OPT 90-Day Unemployment Rule (2026) — Days Counter | TrackMyOPT",
-        description: "How OPT unemployment days are counted, STEM 150-day limit, and free tracker to stay compliant before SEVIS termination.",
+        title: "OPT Unemployment Days: 90-Day Limit, SEVP Counter and Calculator",
+        description: "You get 90 OPT unemployment days, or 150 total with STEM OPT. Check the SEVIS unemployment counter in the SEVP Portal and count your days with a free calculator.",
         url: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt",
         type: "article",
         images: [
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
                 url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
-                alt: "The 90-Day OPT Unemployment Rule: Everything You Need to Know (2026)",
+                alt: "OPT unemployment days: the 90-day limit and how to check your count",
             },
         ],
     },
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "OPT 90-Day Unemployment Rule (2026) — Days Counter | TrackMyOPT",
-        description: "How OPT unemployment days are counted, STEM 150-day limit, and free tracker to stay compliant before SEVIS termination.",
+        title: "OPT Unemployment Days: 90-Day Limit, SEVP Counter and Calculator",
+        description: "You get 90 OPT unemployment days, or 150 total with STEM OPT. Check the SEVIS unemployment counter in the SEVP Portal and count your days with a free calculator.",
         images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
@@ -42,7 +42,15 @@ const UNEMPLOYMENT_FAQS = [
     },
     {
         question: "How to check unemployment days in the SEVP portal?",
-        answer: "Log in at sevp.ice.gov/opt with your SEVIS credentials. The dashboard shows your allowed, accrued, and remaining unemployment days. Update employer information within 10 days of any job change so the counter stays accurate.",
+        answer: "Log in to the SEVP Portal at sevp.ice.gov/opt with the portal account you set up from SEVP's email. Once your OPT is approved in SEVIS and your OPT start date arrives, SEVP generally emails you instructions to create the account. The email can take about a day after the start date. Once you have at least one day of unemployment, your portal record shows an Unemployment Counter. It mirrors the SEVIS counter: days allowed, days accrued and days remaining.",
+    },
+    {
+        question: "What is the SEVIS unemployment counter?",
+        answer: "It is the count SEVIS keeps for your current OPT period. SEVIS looks back to your actual OPT start date and counts each day with no employer information as a day of unemployment. Your DSO sees it in SEVIS, and you see the same numbers in the SEVP Portal.",
+    },
+    {
+        question: "Is there an OPT unemployment days calculator?",
+        answer: "Yes. TrackMyOPT has a free OPT unemployment clock at trackmyopt.com/tools/opt-clock. Enter your OPT start date and job dates to estimate days used and days left. It is an estimate. The SEVIS counter your DSO sees is the official record.",
     },
     {
         question: "Do OPT unemployment days include weekends?",
@@ -66,7 +74,7 @@ export default function NinetyDayRuleArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "90 Day Unemployment Rule Opt", url: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-13" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...UNEMPLOYMENT_FAQS]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-13" modifiedDate="2026-11-08" author="Vinay Kumar" faqItems={[...UNEMPLOYMENT_FAQS]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -93,7 +101,7 @@ export default function NinetyDayRuleArticle() {
                     F-1 students on post-completion OPT get 90 unemployment days (150 with STEM OPT). Here is how days are counted, how to check the SEVP portal, and how to stay compliant.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Last updated: July 27, 2026</span>
+                    <span>Last updated: November 8, 2026</span>
                     <span>•</span>
                     <span>Written by Vinay Kumar</span>
                 </div>
@@ -104,6 +112,18 @@ export default function NinetyDayRuleArticle() {
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     F-1 students on post-completion OPT are limited to <strong>90 cumulative calendar days</strong> of unemployment (150 total with STEM OPT). Exceeding the limit can result in SEVIS termination. Waiting for your EAD? See <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">how long OPT takes in 2026</Link>.
                 </p>
+            </div>
+
+            <div className="not-prose border rounded-xl p-6 mb-10 border-border bg-card shadow-card flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex-1">
+                    <p className="text-lg font-bold text-gray-900 dark:text-white mb-1">Free OPT unemployment days calculator</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Enter your OPT start date, EAD end date and job dates to see days used and days left. It is an estimate; the SEVIS counter is the official record.
+                    </p>
+                </div>
+                <Link href="/tools/opt-clock" className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-button whitespace-nowrap">
+                    Count my days <ArrowRight className="w-4 h-4" />
+                </Link>
             </div>
 
             <BlogProductCTA
@@ -131,6 +151,7 @@ export default function NinetyDayRuleArticle() {
                     {[
                         ["#what-is", "What Is the 90-Day Unemployment Rule?"],
                         ["#how-counted", "How Are Unemployment Days Counted?"],
+                        ["#check-sevp-portal", "How to Check Your Unemployment Days in the SEVP Portal"],
                         ["#what-counts", "What Counts as Employment on OPT?"],
                         ["#stem-opt", "STEM OPT: The 150-Day Rule"],
                         ["#what-happens", "What Happens If You Exceed 90 Days?"],
@@ -161,10 +182,10 @@ export default function NinetyDayRuleArticle() {
                     {/* Quotable Stat Box */}
                     <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
-                            "F-1 students on post-completion OPT cannot accumulate more than 90 days of unemployment. For STEM OPT students, the limit extends to 150 days total."
+                            "Students may not accrue an aggregate of more than 90 days of unemployment during any post-completion OPT period."
                         </p>
                         <p className="text-amber-700 dark:text-amber-300 text-sm mt-1">
-                            — Source: USCIS.gov, 8 CFR § 214.2(f)(10)(ii)(C)
+                            — 8 CFR § 214.2(f)(10)(ii)(E). Students granted a STEM OPT extension may not accrue more than 150 days in total.
                         </p>
                     </div>
                 </section>
@@ -213,6 +234,33 @@ export default function NinetyDayRuleArticle() {
                             <p>📊 Total unemployment: <strong>62 of 90 days used</strong> → 28 days remaining</p>
                         </div>
                     </div>
+                </section>
+
+                <section id="check-sevp-portal" className="mb-12">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        How to Check Your Unemployment Days in the SEVP Portal
+                    </h2>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                        SEVIS keeps the official count, called the <strong>unemployment counter</strong>. Your DSO sees it in SEVIS. Since SEVP Portal Release 5.5 in March 2023, you can see the same numbers in your own SEVP Portal record.
+                    </p>
+                    <ol className="space-y-3 text-gray-700 dark:text-gray-300 mb-6">
+                        <li><strong>Set up your portal account.</strong> Once your OPT is approved in SEVIS and your OPT start date arrives, SEVP generally emails you instructions to create a portal account. The email can take about a day after the start date. Check your spam folder if you have not seen it.</li>
+                        <li><strong>Log in.</strong> Go to the <a href="https://sevp.ice.gov/opt/#/login" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">SEVP Portal login page</a>. Use your portal account, not a USCIS account.</li>
+                        <li><strong>Find the Unemployment Counter.</strong> SEVP says the counter appears on your portal record once you have at least one day of unemployment. If you have never been unemployed, you may not see it.</li>
+                        <li><strong>Read the three numbers.</strong> Days allowed is 90 for post-completion OPT, or 150 with STEM OPT. Days accrued is what you have used. Days remaining is what is left.</li>
+                        <li><strong>Fix missing employer details.</strong> SEVIS counts every day with no employer information, looking back to your actual OPT start date. If a job is missing, add it in the portal or ask your DSO. STEM OPT students need their DSO for most employer changes.</li>
+                    </ol>
+                    <div className="bg-gray-100 dark:bg-zinc-800 rounded-xl p-6 mb-6">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <strong>Fictional example:</strong> Arjun started his OPT on June 1 and began a qualifying job on June 11. He never added the job to the SEVP Portal. In August, his counter shows far more days accrued than the 10 he expected. He adds the employer with the correct start date. He then asks his DSO to confirm the counter now matches his records.
+                        </p>
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                        Want a second check? Our free <Link href="/tools/opt-clock" className="text-blue-600 dark:text-blue-400 font-semibold underline">OPT unemployment days calculator</Link> counts days from your own dates. If its estimate and the SEVIS counter differ, trust SEVIS and talk to your DSO. For login problems, see our <Link href="/blog/sevp-portal-guide-opt" className="text-blue-600 dark:text-blue-400 underline">SEVP Portal guide</Link>.
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        Sources: Study in the States, <a href="https://studyinthestates.dhs.gov/sevis-help-hub/student-records/fm-student-employment/unemployment-counter" target="_blank" rel="noopener noreferrer" className="underline">Unemployment Counter</a> and <a href="https://studyinthestates.dhs.gov/sevis-help-hub/student-records/fm-student-employment/sevis-and-the-sevp-portal" target="_blank" rel="noopener noreferrer" className="underline">SEVIS and the SEVP Portal</a>; ICE, <a href="https://www.ice.gov/doclib/sevis/pdf/bcm2303-01.pdf" target="_blank" rel="noopener noreferrer" className="underline">Broadcast Message 2303-01</a> (March 3, 2023).
+                    </p>
                 </section>
 
                 <section id="what-counts" className="mb-12">
@@ -325,7 +373,7 @@ export default function NinetyDayRuleArticle() {
                         <div className="border p-5 rounded-xl border-border bg-card shadow-card">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">2. SEVP Portal</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                Log into the <a href="https://sevp.ice.gov/opt/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">SEVP Portal</a> to check the official SEVIS Unemployment Counter. This shows your allowed, accrued, and remaining unemployment days. See our <Link href="/blog/sevp-portal-guide-opt" className="text-blue-600 underline">SEVP portal guide</Link> for step-by-step login help.
+                                The official count. Your portal record shows the same unemployment counter your DSO sees in SEVIS. See the <a href="#check-sevp-portal" className="text-blue-600 underline">step-by-step SEVP Portal check</a> above.
                             </p>
                         </div>
 

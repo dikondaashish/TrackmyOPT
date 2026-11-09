@@ -2,6 +2,7 @@ import { platformGap, platformSources } from './shared';
 
 export const healthInsuranceGapAfterGraduationOptArticle = platformGap({
   slug: 'health-insurance-gap-after-graduation-opt',
+  hub: 'money-and-life',
   title: 'Health Insurance Between Graduation and Your First OPT Job',
   seoTitle: 'Health Insurance Gap After Graduation on OPT',
   description:

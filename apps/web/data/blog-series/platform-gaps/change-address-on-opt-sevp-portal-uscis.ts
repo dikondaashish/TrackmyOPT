@@ -3,7 +3,7 @@ import { platformGap, platformSources } from './shared';
 
 export const changeAddressOnOptSevpPortalUscisArticle = platformGap({
   slug: 'change-address-on-opt-sevp-portal-uscis',
-  hub: 'case-status',
+  hub: 'opt-rules',
   title:
     'How to Change Your Address on OPT: SEVP Portal, USCIS AR-11, and Your Pending Case',
   seoTitle: 'Change Address on OPT: SEVP Portal and USCIS AR-11',

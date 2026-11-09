@@ -21,6 +21,39 @@ describe('blog hubs', () => {
     }
   });
 
+  it('defines all eight hubs', () => {
+    expect([...BLOG_HUB_SLUGS].sort()).toEqual(
+      [
+        'after-opt',
+        'case-status',
+        'money-and-life',
+        'opt-rules',
+        'policy-news',
+        'processing-times',
+        'stem-opt',
+        'visa-bulletin',
+      ].sort()
+    );
+    for (const slug of BLOG_HUB_SLUGS) {
+      const hub = BLOG_HUBS[slug];
+      expect(hub.slug).toBe(slug);
+      expect(hub.name.length, slug).toBeGreaterThan(0);
+      expect(hub.title.length, slug).toBeGreaterThan(0);
+      expect(hub.description.length, slug).toBeGreaterThan(40);
+      expect(hub.intro.length, slug).toBeGreaterThan(40);
+    }
+  });
+
+  it('puts each post in at most one hub', () => {
+    const seen = new Set<string>();
+    for (const slug of BLOG_HUB_SLUGS) {
+      for (const post of getHubPosts(slug)) {
+        expect(seen.has(post.slug), post.slug).toBe(false);
+        seen.add(post.slug);
+      }
+    }
+  });
+
   it('only uses hub slugs that exist', () => {
     for (const post of blogPosts) {
       if (post.hub) expect(BLOG_HUB_SLUGS).toContain(post.hub);

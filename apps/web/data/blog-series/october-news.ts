@@ -49,6 +49,7 @@ const mitCpt = {
 export const octoberNewsArticles = [
   defineArticle({
     slug: 'opt-fee-proposal-70000-30000-october-2026',
+    hub: 'policy-news',
     title:
       'OPT Fee Proposal 2026: What the $70,000 and $30,000 Fees Would Mean',
     seoTitle: 'OPT Fee Proposal 2026: $70,000 and $30,000 Explained',
@@ -276,6 +277,7 @@ export const octoberNewsArticles = [
   }),
   defineArticle({
     slug: 'cpt-lawsuit-october-2026-internship-rules',
+    hub: 'policy-news',
     title:
       'CPT Lawsuit October 2026: What F-1 Students Should Do About Internships',
     seoTitle: 'CPT Lawsuit October 2026: F-1 Internship Rules Explained',
