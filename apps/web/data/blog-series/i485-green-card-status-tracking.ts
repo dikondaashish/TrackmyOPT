@@ -113,7 +113,7 @@ export const i485StatusGuide: ResearchArticle = defineArticle({
     'AC21 portability',
   ],
   readTime: '10 min read',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-11-06',
   modifiedDate: '2026-11-09',
   showContents: true,
   hub: 'after-opt',

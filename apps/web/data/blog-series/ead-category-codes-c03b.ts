@@ -77,7 +77,7 @@ export const eadCategoryCodes: ResearchArticle = defineArticle({
     'I-765 eligibility category',
   ],
   readTime: '8 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-10-28',
   modifiedDate: '2026-11-08',
   showContents: true,
   cta: 'uscis-tracking',

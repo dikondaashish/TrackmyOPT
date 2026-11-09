@@ -58,7 +58,7 @@ export const premiumProcessingBusinessDays: ResearchArticle = defineArticle({
     'H-1B premium processing',
   ],
   readTime: '8 min read',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-11-03',
   modifiedDate: '2026-11-09',
   showContents: true,
   cta: 'case-status',

@@ -60,7 +60,7 @@ export const jobRelatedToDegreeAnswers: ResearchArticle = defineArticle({
     'OPT examples',
   ],
   readTime: '9 min read',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-11-04',
   modifiedDate: '2026-11-09',
   showContents: true,
   cta: 'opt-timeline',

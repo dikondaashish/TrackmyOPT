@@ -64,7 +64,7 @@ export const optProcessingTimeEs = defineArticle({
     'STEM OPT',
   ],
   readTime: '7 min de lectura',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-10-29',
   modifiedDate: '2026-11-09',
   cta: 'case-status',
   image: `/blog/${SLUG}.png`,

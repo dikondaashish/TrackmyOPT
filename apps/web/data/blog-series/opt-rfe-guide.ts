@@ -93,7 +93,7 @@ export const optRfeGuide: ResearchArticle = defineArticle({
     'OPT NOID',
   ],
   readTime: '10 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-10-27',
   modifiedDate: '2026-11-08',
   showContents: true,
   cta: 'case-status',
