@@ -62,7 +62,7 @@ export const optTravelSignature: ResearchArticle = defineArticle({
     'F-1 reentry',
   ],
   readTime: '8 min read',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-11-05',
   modifiedDate: '2026-11-09',
   showContents: true,
   cta: 'opt-timeline',

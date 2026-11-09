@@ -79,7 +79,7 @@ export const i765AfterBiometricsGuide: ResearchArticle = defineArticle({
     'USCIS processing times',
   ],
   readTime: '8 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-10-25',
   modifiedDate: '2026-11-08',
   showContents: true,
   cta: 'uscis-tracking',

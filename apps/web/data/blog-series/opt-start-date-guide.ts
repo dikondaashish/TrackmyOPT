@@ -69,7 +69,7 @@ export const optStartDateGuide: ResearchArticle = defineArticle({
     'OPT filing window',
   ],
   readTime: '9 min read',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-11-02',
   modifiedDate: '2026-11-09',
   showContents: true,
   cta: 'opt-timeline',

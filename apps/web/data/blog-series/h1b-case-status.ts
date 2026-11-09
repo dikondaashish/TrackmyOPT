@@ -73,7 +73,7 @@ export const h1bCaseStatusGuide: ResearchArticle = defineArticle({
     'cap-gap',
   ],
   readTime: '9 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-10-30',
   modifiedDate: '2026-11-08',
   showContents: true,
   hub: 'case-status',

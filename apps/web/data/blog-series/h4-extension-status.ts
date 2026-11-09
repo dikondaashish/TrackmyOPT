@@ -66,7 +66,7 @@ export const h4ExtensionStatusGuide: ResearchArticle = defineArticle({
     'H-4 change of status',
   ],
   readTime: '8 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-10-31',
   modifiedDate: '2026-11-09',
   showContents: true,
   hub: 'case-status',

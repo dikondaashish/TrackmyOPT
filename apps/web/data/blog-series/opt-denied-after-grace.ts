@@ -110,7 +110,7 @@ export const optDeniedAfterGrace: ResearchArticle = defineArticle({
     'F-1 status',
   ],
   readTime: '9 min read',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-11-07',
   modifiedDate: '2026-11-09',
   showContents: true,
   cta: 'case-status',

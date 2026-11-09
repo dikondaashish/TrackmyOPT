@@ -84,7 +84,7 @@ export const h1bOrStemOptCandidates: ResearchArticle = defineArticle({
     'staffing companies OPT',
   ],
   readTime: '8 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-11-01',
   modifiedDate: '2026-11-08',
   showContents: true,
   hub: 'stem-opt',

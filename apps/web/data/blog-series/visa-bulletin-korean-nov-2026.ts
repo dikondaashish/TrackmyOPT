@@ -141,7 +141,7 @@ export const visaBulletinKoreanNov2026 = defineArticle({
     '비자 블러틴',
   ],
   readTime: '읽는 시간 6분',
-  publishedDate: '2026-11-09',
+  publishedDate: '2026-10-23',
   modifiedDate: '2026-11-09',
   cta: 'uscis-tracking',
   image: `/blog/${SLUG}.png`,

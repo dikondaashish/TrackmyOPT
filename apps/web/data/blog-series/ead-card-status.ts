@@ -69,7 +69,7 @@ export const eadCardStatusGuide: ResearchArticle = defineArticle({
     'EAD processing time',
   ],
   readTime: '9 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-10-24',
   modifiedDate: '2026-11-08',
   showContents: true,
   cta: 'uscis-tracking',

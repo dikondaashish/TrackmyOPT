@@ -70,7 +70,7 @@ export const ioeReceiptNumberGuide: ResearchArticle = defineArticle({
     'I-797 tracking',
   ],
   readTime: '8 min read',
-  publishedDate: '2026-11-08',
+  publishedDate: '2026-10-26',
   modifiedDate: '2026-11-08',
   showContents: true,
   cta: 'uscis-tracking',
