@@ -74,9 +74,12 @@ export function AdSenseInArticle() {
   return (
     <aside
       ref={containerRef}
-      className="not-prose my-10 min-h-[120px] w-full min-w-[250px] overflow-hidden"
+      className="tmo-ad not-prose my-10 min-h-[120px] w-full min-w-[250px] overflow-hidden"
       aria-label="Advertisement"
     >
+      <p className="mb-1 text-center text-[11px] uppercase tracking-wide text-muted-foreground">
+        Advertisement
+      </p>
       <ins
         ref={adRef}
         className="adsbygoogle"

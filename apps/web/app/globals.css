@@ -564,3 +564,8 @@
     transform: none;
   }
 }
+
+/* Hide an in-article ad, label included, when AdSense has nothing to show. */
+.tmo-ad:has(ins.adsbygoogle[data-ad-status="unfilled"]) {
+  display: none;
+}
