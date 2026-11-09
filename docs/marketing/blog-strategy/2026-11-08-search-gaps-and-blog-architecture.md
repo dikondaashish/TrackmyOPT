@@ -253,7 +253,7 @@ Shipped in PRs #155 to #159 and the topic-label PR that follows them.
 | 3. Eight hubs | Done |
 | 3. One topic label per post | Done as a display mapping (`data/blog-categories.ts`): the eight hub names plus "Careers" for job-search posts, which no hub covers |
 | 3. Hub CTAs | Done (hubs end on the case-status CTA) |
-| 3. Priority-date alert capture for bulletin readers | **Not built.** It needs a new table, and the repo rules require the owner's explicit approval for database migrations. Bulletin posts use the USCIS tracking CTA meanwhile |
+| 3. Priority-date alert capture for bulletin readers | **Built 2026-11-09 (owner approved the table).** Double opt-in email form on English Visa Bulletin posts and the two green-card guides; `/api/cron/visa-bulletin-alerts` emails confirmed readers once per new month in `apps/web/data/visa-bulletin/employment-cutoffs.ts`. Each month: append the official tables there and deploy. Measure with the PostHog event `priority_date_alert_requested` |
 | 3. Stable "latest" URLs | Done (`/blog/visa-bulletin-predictions`, `/blog/boletin-de-visas-predicciones`, `/blog/opt-timelines-latest`) |
 | 3. Spanish path | Done with flat slugs plus hreflang instead of `/blog/es/...`, to avoid a second route tree |
 | 3. Data posts from a script | Done (`scripts/community-snapshot.ts`, aggregates only) |
