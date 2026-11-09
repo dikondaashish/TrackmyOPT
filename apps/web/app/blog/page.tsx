@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { topicLabel } from '@/data/blog-categories';
 import Link from 'next/link';
 import { ArrowRight, Clock } from 'lucide-react';
 import { BlogPostImage } from '@/components/blog/BlogPostImage';
@@ -173,7 +174,7 @@ export default async function BlogIndexPage() {
                 </div>
                 <div className="p-6 sm:p-8 flex flex-col flex-grow">
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mb-4">
-                    <span className="font-medium text-primary">{post.category}</span>
+                    <span className="font-medium text-primary">{topicLabel(post)}</span>
                     <span aria-hidden>·</span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
@@ -233,7 +234,7 @@ function PostCard({ post }: { post: (typeof blogPosts)[number] }) {
         </div>
         <div className="p-6 flex flex-col flex-grow">
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mb-3">
-            <span className="font-medium text-primary">{post.category}</span>
+            <span className="font-medium text-primary">{topicLabel(post)}</span>
             <span aria-hidden>·</span>
             <span className="flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
