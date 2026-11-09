@@ -28,6 +28,7 @@ export const currentUpdateArticles = [
   ...octoberNewsArticles,
   defineArticle({
     slug: 'november-2026-visa-bulletin-predictions-opt-workers',
+    hub: 'visa-bulletin',
     title:
       'November 2026 Visa Bulletin: Official Dates vs the Predictions for EB-1, EB-2 and EB-3 India',
     seoTitle: 'November 2026 Visa Bulletin: Official Dates vs Predictions',
@@ -184,6 +185,7 @@ export const currentUpdateArticles = [
   }),
   defineArticle({
     slug: 'september-2026-f1-fixed-admission-rule-opt',
+    hub: 'policy-news',
     title:
       'F-1 Duration of Status Rule Paused: What OPT Students Should Do Now',
     seoTitle: 'F-1 Duration of Status Rule Paused: OPT and Travel',
@@ -1211,6 +1213,7 @@ export const currentUpdateArticles = [
   }),
   defineArticle({
     slug: 'september-2026-visa-bulletin-opt-workers',
+    hub: 'visa-bulletin',
     title:
       'September 2026 Visa Bulletin: Final Action Dates, Dates for Filing and What Happened Next',
     seoTitle: 'September 2026 Visa Bulletin: Dates, Charts & What Changed',
@@ -1386,6 +1389,7 @@ export const currentUpdateArticles = [
   }),
   defineArticle({
     slug: 'october-2026-visa-bulletin-fiscal-year-reset',
+    hub: 'visa-bulletin',
     title: 'October 2026 Visa Bulletin: EB-1, EB-2 and EB-3 India Dates',
     seoTitle: 'October 2026 Visa Bulletin: EB-1, EB-2 & EB-3 India',
     description:

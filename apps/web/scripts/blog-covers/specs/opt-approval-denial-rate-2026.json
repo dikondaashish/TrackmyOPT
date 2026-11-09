@@ -1,0 +1,14 @@
+{
+  "slug": "opt-approval-denial-rate-2026",
+  "chip": "USCIS DATA",
+  "headline": ["OPT Approval Rate:", "What USCIS Data", "Shows in 2026"],
+  "accentLine": 1,
+  "subtitle": ["Approvals and denials for (c)(3)(A), (B), (C)", "from July 2025 to June 2026 I-765 data."],
+  "stats": [
+    { "value": "96.8%", "label": "POST-COMPLETION" },
+    { "value": "95.8%", "label": "STEM OPT" },
+    { "value": "55.2%", "label": "PRE-COMPLETION" }
+  ],
+  "footer": "9 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

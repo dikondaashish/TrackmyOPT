@@ -468,6 +468,7 @@ export const trackingGuides: ResearchArticle[] = [
   }),
   guide({
     slug: 'find-cap-exempt-h1b-employers',
+    hub: 'after-opt',
     title: 'How to Find Cap-Exempt H-1B Employers While on OPT',
     seoTitle: 'Find Cap-Exempt H-1B Employers: An OPT Job-Search Guide',
     description:

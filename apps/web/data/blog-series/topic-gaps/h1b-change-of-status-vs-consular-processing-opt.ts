@@ -3,6 +3,7 @@ import { gap, gapSources } from './shared';
 
 export const h1bChangeOfStatusVsConsularProcessingOptArticle = gap({
     slug: 'h1b-change-of-status-vs-consular-processing-opt',
+    hub: 'after-opt',
     title:
       'H-1B Change of Status vs Consular Processing from OPT: Cap-Gap, Travel, and Work Dates',
     seoTitle: 'H-1B COS vs Consular Processing from OPT Explained',

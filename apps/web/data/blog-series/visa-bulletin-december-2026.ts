@@ -133,6 +133,7 @@ const esRows = (rows: string[][]) =>
 
 export const decemberBulletinPredictions = defineArticle({
   slug: EN_SLUG,
+  hub: 'visa-bulletin',
   lang: 'en',
   translations: { es: ES_SLUG },
   title:
@@ -311,6 +312,7 @@ export const decemberBulletinPredictions = defineArticle({
 
 export const boletinDiciembre2026Predicciones = defineArticle({
   slug: ES_SLUG,
+  hub: 'visa-bulletin',
   lang: 'es',
   translations: { en: EN_SLUG },
   title:

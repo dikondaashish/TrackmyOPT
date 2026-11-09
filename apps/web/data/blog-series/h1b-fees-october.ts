@@ -3,6 +3,7 @@ import { policySources as s, policyVisual } from './october-policy-sources';
 
 export const h1bFeeOctoberArticle = defineArticle({
   slug: 'dhs-proposes-103265-h1b-fee-2026',
+  hub: 'policy-news',
   title:
     'H-1B Fees in October 2026: The $100,000 Payment and $103,265 Proposal',
   seoTitle: 'H-1B Fees October 2026: $100K vs. $103,265 Proposal',

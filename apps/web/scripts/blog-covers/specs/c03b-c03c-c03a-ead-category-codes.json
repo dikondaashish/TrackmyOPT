@@ -1,0 +1,14 @@
+{
+  "slug": "c03b-c03c-c03a-ead-category-codes",
+  "chip": "USCIS TRACKING",
+  "headline": ["EAD Category", "Codes: C03B,", "C03C and C03A"],
+  "accentLine": 1,
+  "subtitle": ["What the Category on your EAD card means,", "how it maps to I-765 and fixing a wrong code."],
+  "stats": [
+    { "value": "C03A", "label": "PRE-COMPLETION OPT" },
+    { "value": "C03B", "label": "POST-COMPLETION OPT" },
+    { "value": "C03C", "label": "STEM OPT EXTENSION" }
+  ],
+  "footer": "8 min read  |  November 8, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

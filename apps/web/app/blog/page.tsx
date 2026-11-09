@@ -125,7 +125,7 @@ export default async function BlogIndexPage() {
           <p className="text-muted-foreground mb-6">
             Every guide on one question, in reading order.
           </p>
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {BLOG_HUB_SLUGS.map((slug) => {
               const hub = BLOG_HUBS[slug];
               return (

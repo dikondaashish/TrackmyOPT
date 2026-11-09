@@ -5,15 +5,19 @@ import { LandingNavbar } from "@/components/landing/LandingNavbar";
 const canonicalUrl = "https://www.trackmyopt.com/e-verify-employer-search";
 
 export const metadata: Metadata = {
-  title: { absolute: "E-Verify Employer Search for STEM OPT | TrackMyOPT" },
+  title: {
+    absolute: "E-Verify Employer Search: Company ID vs EIN | TrackMyOPT",
+  },
   description:
-    "Search the official USCIS E-Verify employer database free. Learn how to verify a STEM OPT employer, find the Company ID, and interpret results.",
+    "Free E-Verify employer search using official USCIS data, updated daily. See where to get the E-Verify Company Identification Number and why it is not an EIN.",
   keywords: [
     "E-Verify employer search",
     "E-Verify company search",
-    "STEM OPT employer verification",
+    "E-Verify Company Identification Number",
     "E-Verify Company ID",
-    "USCIS E-Verify search",
+    "is E-Verify number same as EIN",
+    "E-Verify Company ID vs EIN",
+    "STEM OPT employer verification",
     "is my employer E-Verified",
   ],
   alternates: { canonical: canonicalUrl },
@@ -23,9 +27,9 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   openGraph: {
-    title: "Free E-Verify Employer Search for STEM OPT",
+    title: "Free E-Verify Employer Search: Company ID vs EIN",
     description:
-      "Search the official USCIS database and understand what the result means for STEM OPT.",
+      "Search the official USCIS E-Verify database, learn where the Company ID comes from, and why it is not an EIN.",
     url: canonicalUrl,
     type: "website",
     siteName: "TrackMyOPT",
@@ -40,9 +44,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free E-Verify Employer Search for STEM OPT",
+    title: "Free E-Verify Employer Search: Company ID vs EIN",
     description:
-      "Search the official USCIS database and understand what the result means for STEM OPT.",
+      "Search the official USCIS E-Verify database, learn where the Company ID comes from, and why it is not an EIN.",
     images: ["/og-image.jpg"],
   },
 };

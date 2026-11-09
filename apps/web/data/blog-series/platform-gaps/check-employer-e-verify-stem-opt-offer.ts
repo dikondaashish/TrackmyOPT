@@ -3,6 +3,7 @@ import { platformGap, platformSources } from './shared';
 
 export const checkEmployerEVerifyStemOptOfferArticle = platformGap({
   slug: 'check-employer-e-verify-stem-opt-offer',
+  hub: 'stem-opt',
   title:
     'Is This Employer Enrolled in E-Verify? How to Check Before a STEM OPT Offer',
   seoTitle: 'Check If an Employer Uses E-Verify Before STEM OPT',

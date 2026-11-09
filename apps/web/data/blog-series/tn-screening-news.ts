@@ -8,6 +8,7 @@ import {
 export const tnScreeningArticle = defineArticle({
   ...policyPublication,
   slug: 'tn-td-visa-social-media-screening-october-2026',
+  hub: 'policy-news',
   title: 'TN and TD Visa Social Media Screening: October 2026 Changes',
   seoTitle: 'TN/TD Visa Social Media Screening: October 2026',
   description:

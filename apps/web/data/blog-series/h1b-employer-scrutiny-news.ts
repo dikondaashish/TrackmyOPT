@@ -8,6 +8,7 @@ import {
 export const h1bEmployerScrutinyArticle = defineArticle({
   ...policyPublication,
   slug: 'h1b-employer-scrutiny-september-2026',
+  hub: 'policy-news',
   title: 'New H-1B Employer Scrutiny: What OPT Job Seekers Should Know',
   seoTitle: 'H-1B Employer Scrutiny: October 2026 Job-Seeker Guide',
   description:

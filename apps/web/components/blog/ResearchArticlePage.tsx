@@ -231,7 +231,8 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
               <p className="text-sm">
                 {t.sources}{' '}
                 {section.sources.map((source, sourceIndex) => (
-                  <span key={source.url}>
+                  // Two sources can share a URL (different eCFR paragraphs).
+                  <span key={`${source.url}-${source.label}`}>
                     {sourceIndex > 0 && '; '}
                     <a
                       href={source.url}
@@ -349,7 +350,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           <p>{t.officialIntro}</p>
           <ul>
             {article.sources.map((source) => (
-              <li key={source.url}>
+              <li key={`${source.url}-${source.label}`}>
                 <a href={source.url} target="_blank" rel="noopener noreferrer">
                   {source.label} — {source.publisher}{' '}
                   <ExternalLink className="inline h-4 w-4" />
