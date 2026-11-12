@@ -87,7 +87,6 @@ it('reports missing runs and Oracle failures as separate Sentry issues without r
   expect(m.fingerprint.mock.calls.map((call) => call[0][1])).toEqual([
     'missing-run',
     'oracle-error',
-    'failed-source',
   ]);
   for (const [message] of m.capture.mock.calls)
     expect(message).not.toMatch(/resource busy|s1/);
@@ -133,9 +132,32 @@ it('ignores failures of sources that were disabled afterwards', async () => {
     })),
     error: null,
   };
-  expect(await (await GET(request())).json()).toMatchObject({ ok: false, failedSources: 1 });
+  expect(await (await GET(request())).json()).toMatchObject({ failedSources: 1 });
   m.tables.ingestion_audit_log.data.pop();
   expect(await (await GET(request())).json()).toMatchObject({ ok: true, failedSources: 0 });
+});
+
+it('reports failed sources only when failures are systemic (TRACKMYOPT-27)', async () => {
+  vi.stubEnv('JOB_BOARD_INGESTION_HEALTH_ENABLED', 'true');
+  const audit = (failed: number) =>
+    Array.from({ length: 1_255 }, (_, index) => ({
+      source_id: `s${index}`,
+      scheduler_run_id: 'job-board-hour-2026-10-16T01',
+      status: index < failed ? 'failed' : 'succeeded',
+      error_message: index < failed ? 'ashby HTTP 404' : null,
+      run_at: '2026-10-16T02:00:00Z',
+    }));
+  m.tables.ingestion_audit_log = { data: audit(13), error: null };
+  expect(await (await GET(request())).json()).toMatchObject({
+    ok: true,
+    failedSources: 13,
+    checkedSources: 1_255,
+    failedSourcesAlert: false,
+  });
+  expect(m.capture).not.toHaveBeenCalled();
+  m.tables.ingestion_audit_log = { data: audit(60), error: null };
+  expect(await (await GET(request())).json()).toMatchObject({ ok: false, failedSourcesAlert: true });
+  expect(m.fingerprint.mock.calls.map((call) => call[0][1])).toEqual(['failed-source']);
 });
 
 it('returns 503 when disabled sources cannot be read', async () => {

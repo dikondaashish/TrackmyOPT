@@ -39,8 +39,8 @@ function report(health: IngestionHealth) {
     ],
     [
       'failed-source',
-      health.failedSources > 0,
-      `Job-board ingestion failed for ${health.failedSources} source(s)`,
+      health.failedSourcesAlert,
+      `Job-board ingestion failed for ${health.failedSources} of ${health.checkedSources} source(s)`,
     ],
   ];
   for (const [kind, active, message] of issues) {
@@ -122,7 +122,8 @@ async function handleGET(request: NextRequest) {
   report(health);
   const ok =
     !health.missingRuns.length &&
-    !health.failedSources &&
+    !health.failedSourcesAlert &&
+    !health.oracleErrorSources &&
     !health.stalledSources;
   return NextResponse.json({ ok, ...health });
 }

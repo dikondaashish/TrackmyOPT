@@ -235,10 +235,19 @@ export function isBenignInjectedBridgeRejection(message: string): boolean {
   );
 }
 
-/** Extension content scripts leak their own globals into page error handlers. */
+/**
+ * Extension content scripts leak their own globals into page error handlers.
+ * Safari's extension bridge rejects another extension's runtime.sendMessage
+ * with "Tab not found."; webext-bridge based extensions throw "No Listener:
+ * tabs:..." when their background page is gone; iOS host apps inject a
+ * `MyApp_*` find-in-page highlighter. TrackMyOPT uses none of these.
+ */
 export function isBenignExtensionContentScriptError(message: string): boolean {
   const lower = message.toLowerCase();
   return (
+    lower.includes("invalid call to runtime.sendmessage(). tab not found") ||
+    lower.includes("no listener: tabs:") ||
+    lower.includes("can't find variable: myapp_") ||
     lower.includes("contentscriptdata") ||
     lower.includes("chrome-extension://") ||
     lower.includes("moz-extension://") ||
@@ -272,12 +281,34 @@ export function isBenignExceptionMessage(message: string): boolean {
   );
 }
 
+/**
+ * Our bundles are always served as /_next/ script files, so every frame of a
+ * TrackMyOPT error carries a script URL. When frames exist but none has any
+ * source, the code was evaluated by an extension or the host app (Safari
+ * reports "This frame had no source url"). Frameless errors still report.
+ */
+export function isUnlocatedScriptError(
+  properties: Record<string, unknown> | undefined
+): boolean {
+  if (!properties || !Array.isArray(properties.$exception_list)) return false;
+  let frames = 0;
+  for (const item of properties.$exception_list) {
+    const list = (
+      item as { stacktrace?: { frames?: unknown } } | null | undefined
+    )?.stacktrace?.frames;
+    if (!Array.isArray(list)) continue;
+    frames += list.length;
+  }
+  return frames > 0 && extractExceptionFrameSources(properties).length === 0;
+}
+
 export function shouldDropExceptionEvent(
   properties: Record<string, unknown> | undefined
 ): boolean {
   const text = extractExceptionMessages(properties);
   return (
     isBenignExceptionMessage(text) ||
+    isUnlocatedScriptError(properties) ||
     isBraveWalletInjectionError(properties) ||
     isInjectedPageScriptError(properties) ||
     isBenignAdSenseNetworkError(properties) ||

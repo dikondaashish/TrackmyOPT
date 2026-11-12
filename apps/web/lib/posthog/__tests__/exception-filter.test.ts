@@ -397,3 +397,53 @@ describe('injected page-script recursion (iOS in-app browsers)', () => {
     expect(shouldDropExceptionEvent(properties)).toBe(false);
   });
 });
+
+describe('browser extension and host-app noise (Nov 2026 triage)', () => {
+  it.each([
+    'Invalid call to runtime.sendMessage(). Tab not found.',
+    'No Listener: tabs:outgoing.message.ready',
+    "Can't find variable: MyApp_RemoveAllHighlights",
+  ])('drops %s', (value) => {
+    expect(
+      shouldDropExceptionEvent({ $exception_list: [{ type: 'Error', value }] })
+    ).toBe(true);
+  });
+
+  it('drops errors whose frames carry no script URL', () => {
+    expect(
+      shouldDropExceptionEvent({
+        $exception_list: [
+          {
+            type: 'TypeError',
+            value: 'Cannot call a class as a function',
+            stacktrace: { frames: [{ lineno: 156, colno: 387215 }] },
+          },
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it('keeps errors with a bundle frame or no frames at all', () => {
+    expect(
+      shouldDropExceptionEvent({
+        $exception_list: [
+          {
+            type: 'TypeError',
+            value: 'Cannot call a class as a function',
+            stacktrace: {
+              frames: [
+                { lineno: 1 },
+                { filename: 'https://www.trackmyopt.com/_next/static/chunks/a.js' },
+              ],
+            },
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      shouldDropExceptionEvent({
+        $exception_list: [{ type: 'TypeError', value: 'x is undefined' }],
+      })
+    ).toBe(false);
+  });
+});
