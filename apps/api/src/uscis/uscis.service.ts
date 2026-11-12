@@ -113,21 +113,32 @@ export class UscisService {
     const pendingJobs = jobs.filter((j) => !completed.has(j.opts.jobId));
     if (!pendingJobs.length)
       return { count: cases.length, skippedFree: 0, queued: 0 };
-    const { error: scheduleError } = await this.supabase
-      .from('case_check_jobs')
-      .upsert(
-        scheduledCases
-          .filter(({ c, day }) => !completed.has(`daily-${c.id}-${day}`))
-          .map(({ c, scheduled, day }) => ({
-            job_id: `daily-${c.id}-${day}`,
-            case_id: c.id,
-            user_id: c.user_id,
-            scheduled_for: scheduled.toISOString(),
-            state: 'scheduling',
-          })),
-        { onConflict: 'job_id', ignoreDuplicates: true },
-      );
-    if (scheduleError) throw new Error('Could not persist check schedule');
+    const scheduleRows = scheduledCases
+      .filter(({ c, day }) => !completed.has(`daily-${c.id}-${day}`))
+      .map(({ c, scheduled, day }) => ({
+        job_id: `daily-${c.id}-${day}`,
+        case_id: c.id,
+        user_id: c.user_id,
+        scheduled_for: scheduled.toISOString(),
+        state: 'scheduling',
+      }));
+    // One ~4,000-row upsert failed the whole daily run on 2026-11-11; bounded
+    // batches keep each statement small. Rows are idempotent, so a rerun
+    // after a partial write is safe. Log only the Postgres code, never data.
+    for (let offset = 0; offset < scheduleRows.length; offset += 500) {
+      const { error: scheduleError } = await this.supabase
+        .from('case_check_jobs')
+        .upsert(scheduleRows.slice(offset, offset + 500), {
+          onConflict: 'job_id',
+          ignoreDuplicates: true,
+        });
+      if (scheduleError) {
+        this.logger.error(
+          `Could not persist check schedule (code=${String(scheduleError.code ?? 'unknown').slice(0, 16)})`,
+        );
+        throw new Error('Could not persist check schedule');
+      }
+    }
     if (pendingJobs.length) await this.uscisQueue.addBulk(pendingJobs);
     for (let offset = 0; offset < pendingJobs.length; offset += 100) {
       const { error } = await this.supabase

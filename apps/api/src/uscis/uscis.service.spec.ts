@@ -12,9 +12,13 @@ describe('daily USCIS queue pagination', () => {
     outcomes: { job_id: string; state: string }[] = [],
   ) {
     const ranges: Array<[string, number]> = [];
+    const upserts: number[] = [];
     const from = jest.fn((table: string) => {
       const query = {
-        upsert: jest.fn().mockResolvedValue({ error: null }),
+        upsert: jest.fn((rows: unknown[]) => {
+          upserts.push(rows.length);
+          return Promise.resolve({ error: null });
+        }),
         update: jest.fn().mockReturnThis(),
         in: jest.fn().mockReturnThis(),
         then: (resolve: (value: unknown) => unknown) =>
@@ -52,7 +56,7 @@ describe('daily USCIS queue pagination', () => {
       addBulk,
       getJobs: jest.fn().mockResolvedValue([]),
     } as unknown as Queue);
-    return { service, addBulk, ranges };
+    return { service, addBulk, ranges, upserts };
   }
 
   it('queues every enrolled case beyond 1000 without querying plans', async () => {
@@ -65,6 +69,13 @@ describe('daily USCIS queue pagination', () => {
     expect(ranges).toContainEqual(['case_status', 1000]);
     expect(ranges.some(([table]) => table === 'profiles')).toBe(false);
     expect(addBulk.mock.calls[0][0]).toHaveLength(3362);
+  });
+
+  it('persists the schedule in bounded batches', async () => {
+    const { service, upserts } = setup();
+    await service.queueAllActiveCases();
+    expect(upserts.every((n) => n <= 500)).toBe(true);
+    expect(upserts.reduce((a, b) => a + b, 0)).toBe(3362);
   });
 
   it('does not requeue completed daily checks, but recovers failures after repair', async () => {

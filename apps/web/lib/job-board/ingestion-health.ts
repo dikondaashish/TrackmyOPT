@@ -122,6 +122,10 @@ export type AuditRow = {
 export type IngestionHealth = {
   missingRuns: string[];
   failedSources: number;
+  /** Sources whose latest audit in the lookback was read (the denominator). */
+  checkedSources: number;
+  /** True when failures are systemic rather than a few individual boards. */
+  failedSourcesAlert: boolean;
   oracleErrorSources: number;
   stalledSources: number;
   errorCodes: string[];
@@ -131,6 +135,17 @@ export type IngestionHealth = {
 export const MISSING_RUN_GRACE_MS = 3 * 60 * 60_000;
 /** Look back one day plus slack so every slot is checked at least once. */
 export const LOOKBACK_MS = 26 * 60 * 60_000;
+/**
+ * Individual boards fail every run for external reasons (a company removed its
+ * Ashby board: HTTP 404; a board that briefly lists no jobs: "Ambiguous empty
+ * ATS response"). Around 1% of ~1,250 sources failing that way is normal and
+ * left existing listings untouched, so alerting on it every three hours only
+ * burned Sentry quota (TRACKMYOPT-27). Alert when failures are systemic: more
+ * than 25 sources and more than 2% of the sources checked.
+ */
+export const FAILED_SOURCE_ALERT_MIN = 25;
+export const FAILED_SOURCE_ALERT_RATIO = 0.02;
+
 /** A source audit still "started" after this long is treated as stalled. */
 export const STALLED_AFTER_MS = 90 * 60_000;
 
@@ -189,6 +204,10 @@ export function evaluateIngestionHealth(
   return {
     missingRuns,
     failedSources: failed.length,
+    checkedSources: latest.size,
+    failedSourcesAlert:
+      failed.length > FAILED_SOURCE_ALERT_MIN &&
+      failed.length > latest.size * FAILED_SOURCE_ALERT_RATIO,
     oracleErrorSources: codes.length,
     stalledSources,
     errorCodes: [...new Set(codes)].sort(),
