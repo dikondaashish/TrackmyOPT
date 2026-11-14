@@ -305,6 +305,24 @@ const NETWORK_FAILURE =
 // e.g. "OPT tools: failed to load plan status (stage=network, status=none)".
 const NETWORK_DIAGNOSTIC = /\(stage=network, status=none\)$/;
 
+// Google Analytics / Tag Manager requests are blocked by ad blockers and privacy
+// tools, so a probe of the host fails too and the outage path would report it
+// (TRACKMYOPT-37). Their delivery is never a TrackMyOPT failure.
+const ANALYTICS_HOST =
+  /^(?:[a-z0-9-]+\.)*(?:google-analytics\.com|googletagmanager\.com|analytics\.google\.com)$/i;
+
+/** True for a network failure of a request to Google's analytics hosts. */
+export function isAnalyticsHostNetworkFailure(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  return (
+    values.length > 0 &&
+    values.every((v) => {
+      const host = NETWORK_FAILURE.exec(v.value ?? '')?.[1];
+      return v.type === 'TypeError' && Boolean(host) && ANALYTICS_HOST.test(host!);
+    })
+  );
+}
+
 /** True when every exception is a request that failed before any HTTP response. */
 export function isBrowserNetworkFailure(event: ErrorEvent): boolean {
   const values = event.exception?.values ?? [];
@@ -452,6 +470,10 @@ export async function shouldReportCaughtNetworkFailure(
 // TrackMyOPT failure. PostHog HTTP errors (e.g. a rejected key) still report.
 const POSTHOG_SHUTDOWN_TIMEOUT =
   /^\[PostHog\] Timeout while shutting down PostHog\b/;
+// posthog-js drops events past its own client-side rate limit and says so with
+// console.error (TRACKMYOPT-38). Analytics throttling, not a TrackMyOPT failure.
+const POSTHOG_CLIENT_RATE_LIMIT =
+  /^\[PostHog\.js\] This capture call is ignored due to client rate limiting\.$/;
 const POSTHOG_NETWORK_TYPES = new Set([
   'PostHogFetchNetworkError',
   'AbortError',
@@ -471,7 +493,9 @@ export function isAnalyticsTransportFailure(event: ErrorEvent): boolean {
   ].filter((m): m is string => Boolean(m));
   return (
     messages.length > 0 &&
-    messages.every((m) => POSTHOG_SHUTDOWN_TIMEOUT.test(m))
+    messages.every(
+      (m) => POSTHOG_SHUTDOWN_TIMEOUT.test(m) || POSTHOG_CLIENT_RATE_LIMIT.test(m)
+    )
   );
 }
 
@@ -579,8 +603,11 @@ export function isInjectedHostNoiseEvent(event: ErrorEvent): boolean {
 // Supabase auth-js logs a definitive refresh failure with console.error
 // (GoTrueClient _recoverAndRefresh). A refresh token that was already used or
 // revoked (TRACKMYOPT-1Z) signs the visitor out: an expected auth outcome.
+// Parallel requests that arrive with the same expired session each try to
+// refresh it; Supabase rejects the extras with "Too many concurrent token
+// refresh requests" (TRACKMYOPT-1Z, -39) while one refresh succeeds.
 const EXPECTED_AUTH_REFRESH =
-  /^Invalid Refresh Token: (?:Already Used|Refresh Token Not Found)$/;
+  /^(?:Invalid Refresh Token: (?:Already Used|Refresh Token Not Found)|Too many concurrent token refresh requests on the same session or refresh token)$/;
 
 /** True for Supabase's console report of an expired or reused refresh token. */
 export function isExpectedAuthRefreshEvent(event: ErrorEvent): boolean {
@@ -659,6 +686,7 @@ export function sentryOptions(
         isInAppBrowserBridgeEvent(event) ||
         isInjectedHostNoiseEvent(event) ||
         isExpectedAuthRefreshEvent(event) ||
+        isAnalyticsHostNetworkFailure(event) ||
         isProviderOutageHttpEvent(event)
       )
         return null;

@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
 import {
   applyApiErrorFingerprint,
+  isAnalyticsHostNetworkFailure,
   isAnalyticsTransportFailure,
   isExpectedAuthRefreshEvent,
   isPageUnloadAbortEvent,
@@ -867,6 +868,11 @@ describe('Sentry grouping and expected outcomes (2026-10-19 review)', () => {
     });
     expect(isExpectedAuthRefreshEvent(authEvent('Invalid Refresh Token: Already Used'))).toBe(true);
     expect(isExpectedAuthRefreshEvent(authEvent('Invalid Refresh Token: Refresh Token Not Found'))).toBe(true);
+    expect(
+      isExpectedAuthRefreshEvent(
+        authEvent('Too many concurrent token refresh requests on the same session or refresh token')
+      )
+    ).toBe(true);
     expect(isExpectedAuthRefreshEvent(authEvent('Database error saving new user'))).toBe(false);
     expect(isExpectedAuthRefreshEvent(authEvent('Invalid Refresh Token: Already Used', 'generic'))).toBe(false);
   });
@@ -1083,5 +1089,29 @@ describe('Sentry injected extension and link-scanner noise (2026-11-07 review)',
     const framed = scannerRejection();
     framed.exception!.values![0].stacktrace = { frames: [{ filename: 'app:///_next/static/chunks/app.js' }] };
     expect(isInjectedHostNoiseEvent(framed)).toBe(false);
+  });
+});
+
+describe('2026-11-13 triage', () => {
+  it("drops posthog-js's client rate-limit console message (TRACKMYOPT-38)", () => {
+    const event = (message: string): ErrorEvent => ({ type: undefined, message });
+    expect(
+      isAnalyticsTransportFailure(
+        event('[PostHog.js] This capture call is ignored due to client rate limiting.')
+      )
+    ).toBe(true);
+    expect(isAnalyticsTransportFailure(event('[PostHog.js] Something else broke'))).toBe(false);
+  });
+
+  it('drops network failures to Google analytics hosts only (TRACKMYOPT-37)', () => {
+    const failure = (value: string): ErrorEvent => ({
+      type: undefined,
+      exception: { values: [{ type: 'TypeError', value }] },
+    });
+    expect(isAnalyticsHostNetworkFailure(failure('Failed to fetch (www.google-analytics.com)'))).toBe(true);
+    expect(isAnalyticsHostNetworkFailure(failure('Load failed (www.googletagmanager.com)'))).toBe(true);
+    expect(isAnalyticsHostNetworkFailure(failure('Failed to fetch (www.trackmyopt.com)'))).toBe(false);
+    expect(isAnalyticsHostNetworkFailure(failure('Failed to fetch'))).toBe(false);
+    expect(isAnalyticsHostNetworkFailure(failure('Failed to fetch (evilgoogle-analytics.com)'))).toBe(false);
   });
 });
