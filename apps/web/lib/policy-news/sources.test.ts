@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  collectCandidates,
   federalRegisterQueryUrl,
   htmlToText,
   isOptRelated,
@@ -78,5 +79,56 @@ describe('isOptRelated', () => {
 describe('htmlToText', () => {
   it('drops scripts and tags and keeps paragraph breaks', () => {
     expect(htmlToText('<script>x()</script><p>One &amp; two</p><p>Three</p>')).toBe('One & two\nThree');
+  });
+});
+
+describe('source fetch retry (TRACKMYOPT-2M)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  const reply = (status: number, body = '') =>
+    ({ ok: status < 400, status, text: async () => body }) as Response;
+  const rss = '<?xml version="1.0"?><rss><channel></channel></rss>';
+  const json = JSON.stringify({ results: [] });
+
+  async function run(fetchImpl: (url: string) => Promise<Response>) {
+    const fetchMock = vi.fn(fetchImpl);
+    vi.stubGlobal('fetch', fetchMock);
+    vi.useFakeTimers();
+    const pending = collectCandidates(new Date('2026-11-16T00:00:00Z'));
+    await vi.runAllTimersAsync();
+    return { result: await pending, fetchMock };
+  }
+
+  it('retries a 5xx or dropped request once and recovers', async () => {
+    let uscisCalls = 0;
+    const { result } = await run(async (url) => {
+      if (url.includes('uscis.gov')) {
+        uscisCalls++;
+        if (uscisCalls === 1) throw new TypeError('fetch failed');
+        return reply(200, rss);
+      }
+      return reply(200, url.includes('federalregister') ? json : rss);
+    });
+    expect(uscisCalls).toBe(2);
+    expect(result.failures).toEqual([]);
+  });
+
+  it('reports after the retry fails and does not retry client errors', async () => {
+    const calls: Record<string, number> = {};
+    const { result } = await run(async (url) => {
+      const key = url.includes('uscis.gov') ? 'uscis' : url.includes('federalregister') ? 'fr' : 'sits';
+      calls[key] = (calls[key] ?? 0) + 1;
+      if (key === 'uscis') return reply(503);
+      if (key === 'sits') return reply(404);
+      return reply(200, json);
+    });
+    expect(calls).toMatchObject({ uscis: 2, sits: 1, fr: 1 });
+    expect(result.failures.map((f) => [f.source, f.status])).toEqual([
+      ['uscis_alerts', 503],
+      ['study_in_the_states', 404],
+    ]);
   });
 });

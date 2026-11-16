@@ -49,6 +49,7 @@ function scrubFrame(frame: StackFrame): StackFrame {
 const DIAGNOSTIC_TAGS = new Set([
   'db_error_code',
   'db_operation',
+  'document_scan',
   'extension_code',
   'extension_version',
   'job_board_dispatch_reason',

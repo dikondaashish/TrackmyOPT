@@ -118,21 +118,36 @@ export async function scanFileForViruses(
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), SCAN_TIMEOUT_MS);
+  const token = process.env.MALWARE_SCAN_TOKEN?.trim();
   try {
-    const form = new FormData();
-    form.append(
-      'file',
-      new Blob([new Uint8Array(fileBuffer)], { type: contentType }),
-      filename,
-    );
-    const token = process.env.MALWARE_SCAN_TOKEN?.trim();
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      body: form,
-      signal: controller.signal,
-    });
-    if (!response.ok) return unavailable(startTime, 'scanner-unavailable');
+    // A Render cold start or a dropped connection can fail one request
+    // (TRACKMYOPT-3B); retry once within the same overall deadline.
+    let response: Response | null = null;
+    let reason = 'scanner-network';
+    for (let attempt = 0; attempt < 2 && !controller.signal.aborted; attempt++) {
+      const form = new FormData();
+      form.append(
+        'file',
+        new Blob([new Uint8Array(fileBuffer)], { type: contentType }),
+        filename,
+      );
+      try {
+        response = await fetch(url, {
+          method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          body: form,
+          signal: controller.signal,
+        });
+      } catch {
+        response = null;
+        reason = controller.signal.aborted ? 'scanner-timeout' : 'scanner-network';
+        continue;
+      }
+      if (response.ok || ![502, 503, 504].includes(response.status)) break;
+    }
+    if (!response) return unavailable(startTime, reason);
+    if (!response.ok)
+      return unavailable(startTime, `scanner-http-${response.status}`);
 
     const result: unknown = await response.json();
     if (
@@ -154,7 +169,10 @@ export async function scanFileForViruses(
       scanTime: Date.now() - startTime,
     };
   } catch {
-    return unavailable(startTime, 'scanner-unavailable');
+    return unavailable(
+      startTime,
+      controller.signal.aborted ? 'scanner-timeout' : 'invalid-scanner-response',
+    );
   } finally {
     clearTimeout(timeout);
   }
