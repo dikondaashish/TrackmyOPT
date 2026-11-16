@@ -164,6 +164,8 @@ export function parseRss(xml: string, source: Exclude<PolicyNewsSource, 'federal
   });
 }
 
+export const SOURCE_RETRY_DELAY_MS = 2_000;
+
 export class SourceFetchError extends Error {
   constructor(readonly source: PolicyNewsSource, readonly status: number | null) {
     super(`Policy news source ${source} failed (${status ?? 'network'})`);
@@ -185,12 +187,20 @@ async function fetchSource(source: PolicyNewsSource, now: Date): Promise<PolicyN
     source === 'federal_register' ? federalRegisterQueryUrl(now)
     : source === 'uscis_alerts' ? USCIS_ALERTS_RSS
     : STUDY_IN_THE_STATES_RSS;
-  let response: Awaited<ReturnType<typeof fetchText>>;
-  try {
-    response = await fetchText(url);
-  } catch {
-    throw new SourceFetchError(source, null);
+  // USCIS's feed intermittently drops a request or answers 5xx (TRACKMYOPT-2M),
+  // so retry once after a short pause; client errors are not retried.
+  let response: Awaited<ReturnType<typeof fetchText>> | null = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt) await new Promise((resolve) => setTimeout(resolve, SOURCE_RETRY_DELAY_MS));
+    try {
+      response = await fetchText(url);
+    } catch {
+      response = null;
+      continue;
+    }
+    if (response.ok || (response.status !== 429 && response.status < 500)) break;
   }
+  if (!response) throw new SourceFetchError(source, null);
   if (!response.ok) throw new SourceFetchError(source, response.status);
 
   if (source === 'federal_register') {

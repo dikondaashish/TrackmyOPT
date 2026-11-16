@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Document Upload API Endpoint
@@ -137,6 +138,9 @@ async function handlePOST(request: NextRequest) {
     );
     
     if (!virusScanResult.safe) {
+      // Static reason code only; the HTTP 503 report carries it as a tag.
+      if (virusScanResult.unavailable)
+        Sentry.setTag('document_scan', virusScanResult.scanner);
       return NextResponse.json(
         virusScanResult.unavailable
           ? {
