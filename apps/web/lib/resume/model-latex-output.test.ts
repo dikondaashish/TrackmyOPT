@@ -90,6 +90,38 @@ describe('sanitizeTemplateForPrompt', () => {
         expect(sanitized).not.toContain('Developer Tools Company');
         expect(sanitized).toContain('CANDIDATE NAME');
     });
+
+    it("keeps each template's own sections in the template's order", () => {
+        const template = String.raw`\documentclass{article}
+\def\name{Daniel Okafor}
+\begin{document}
+\section{Summary}
+Demo summary text.
+\section{Education}
+\rEdu{M.S.}{Northeastern University}{Boston, MA}{2026}
+\section{Experience}
+\rRole{Analyst}{Regional Retail Bank}{Boston, MA}{2025}
+\section{Leadership \& Activities}
+\rRole{Vice President}{Graduate Analytics Club}{Boston, MA}{2025}
+\section{Skills}
+\rSkill{Analytics}{SQL}
+\end{document}`;
+
+        const sanitized = sanitizeTemplateForPrompt(template);
+        const sections = [...sanitized.matchAll(/^\\section\{([^}]+)\}/gm)].map((m) => m[1]);
+        expect(sections).toEqual([
+            'Summary',
+            'Education',
+            'Experience',
+            String.raw`Leadership \& Activities`,
+            'Skills',
+        ]);
+        // Demo content is gone; only headings and guidance comments remain.
+        expect(sanitized).not.toContain('Regional Retail Bank');
+        expect(sanitized).not.toContain('Graduate Analytics Club');
+        expect(sanitized).not.toContain('Demo summary text');
+        expect(sanitized).toContain(String.raw`\rSkill`);
+    });
 });
 
 describe('extractResumeStructuralAnchors', () => {

@@ -39,14 +39,22 @@
 \setlength{\parskip}{0pt}
 \justifying
 \raggedbottom
+% ATS: never split a word across lines. A hyphenated line end can be extracted
+% as two fragments (or with the hyphen dropped) and miss a keyword match.
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=3em
 
 %------------------------------------------------------------------
 % Section headings
+% The heading text and its rule are one unbreakable box, so a page break can
+% never strand a heading (or its rule) away from the content below it.
 %------------------------------------------------------------------
+\newcommand{\rSectionTitle}[1]{%
+  \vbox{\hbox to\linewidth{\MakeUppercase{#1}\hfil}\vskip 5pt\hrule height 1pt}}
 \titleformat{\section}
-  {\large\bfseries\color{accent}}{}{0em}{\MakeUppercase}
-  [\vspace{-7pt}{\color{accent}\rule{\linewidth}{1pt}}]
-\titlespacing*{\section}{0pt}{12pt}{6pt}
+  {\large\bfseries\color{accent}}{}{0em}{\rSectionTitle}
+\titlespacing*{\section}{0pt}{14.7pt}{7.0pt}
 
 %------------------------------------------------------------------
 % Shared macro vocabulary (identical across all TrackMyOPT templates)

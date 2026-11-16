@@ -1,0 +1,181 @@
+%==============================================================================
+%  TrackMyOPT — Traditional
+%  Single-column, ATS-safe resume template in the conservative, education-first
+%  format university career offices teach. Built for business, finance,
+%  consulting, and analyst roles.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. Uses only core TeX Live packages so the file compiles
+%     standalone on the remote compiler (no project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed and education-first:
+%       Contact -> Summary -> Education -> Experience -> Projects
+%       -> Leadership & Activities -> Skills -> Certifications
+%   * Body text 11pt, margins 0.75in, Latin Modern Roman (core TeX Live).
+%     Entries lead with the organization, then the title.
+%==============================================================================
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[left=0.75in,right=0.75in,top=0.6in,bottom=0.6in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{ragged2e}
+
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
+\input{glyphtounicode}
+\pdfgentounicode=1
+
+\definecolor{accent}{HTML}{000000}
+\definecolor{bodytext}{HTML}{000000}
+\definecolor{muted}{HTML}{000000}
+\color{bodytext}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\justifying
+\raggedbottom
+% ATS: never split a word across lines. A hyphenated line end can be extracted
+% as two fragments (or with the hyphen dropped) and miss a keyword match.
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=3em
+
+%------------------------------------------------------------------
+% Section headings
+% The heading text and its rule are one unbreakable box, so a page break can
+% never strand a heading (or its rule) away from the content below it.
+%------------------------------------------------------------------
+\newcommand{\rSectionTitle}[1]{%
+  \vbox{\hbox to\linewidth{\hfil\MakeUppercase{#1}\hfil}\vskip 5pt\hrule height 0.4pt}}
+\titleformat{\section}
+  {\normalsize\bfseries\color{accent}}{}{0em}{\rSectionTitle}
+\titlespacing*{\section}{0pt}{13.5pt}{6.5pt}
+
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\hspace{5pt}\textbar\hspace{5pt}}
+
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \vspace{4pt}%
+  \noindent\textbf{#2}\hfill#3\par
+  \noindent\textit{#1}\hfill\textit{#4}\par
+  \vspace{1pt}%
+}
+
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \vspace{4pt}%
+  \noindent\textbf{#1}\ \textbar\ \textit{#2}\hfill#3\par
+  \vspace{1pt}%
+}
+
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \vspace{4pt}%
+  \noindent\textbf{#2}\hfill#3\par
+  \noindent\textit{#1}\hfill\textit{#4}\par
+  \vspace{1pt}%
+}
+
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent\textbf{#1:}\ #2\par\vspace{2pt}}
+
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=15pt,itemsep=1.5pt,parsep=0pt,topsep=3pt,
+                   partopsep=0pt,label=\textbullet]}
+  {\end{itemize}}
+\setlist[itemize]{before=\justifying}
+
+%------------------------------------------------------------------
+% CONTACT INFORMATION
+%------------------------------------------------------------------
+\def\name{Tunde Adeyemi}
+\def\role{Business Analyst}
+\def\phone{(617) 555-0164}
+\def\location{Boston, MA}
+\def\email{tunde.adeyemi@example.com}
+\def\LinkedIn{tundeadeyemi}
+\def\github{tadeyemi}
+
+\begin{document}
+
+%-----------  HEADER  ---------------------------------------------
+\begin{center}
+  {\LARGE\bfseries\name}\\[4pt]
+  {\large\role}\\[5pt]
+  {\small
+    \phone\csep
+    \location\csep
+    \href{mailto:\email}{\email}\csep
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn}\csep
+    \href{https://github.com/\github}{github.com/\github}}
+\end{center}
+
+%-----------  SUMMARY  --------------------------------------------
+\section{Summary}
+Business analyst with an M.S. in Business Analytics and 3 years in financial
+services. Built forecasting models that improved inventory accuracy 14\% and
+dashboards used by 60 managers. Skilled in SQL, Python, Tableau, and turning
+analysis into decisions for non-technical stakeholders.
+
+%-----------  EDUCATION  ------------------------------------------
+\section{Education}
+\rEdu{M.S. in Business Analytics, GPA 3.7/4.0}{Northeastern University}{Boston, MA}{Sep 2024 -- May 2026}
+\begin{rBullets}
+  \item Coursework: Predictive Analytics, Data Visualization, Financial Modeling, Operations Research
+\end{rBullets}
+\rEdu{B.Sc. in Economics, First Class Honours}{University of Lagos}{Lagos, Nigeria}{Sep 2017 -- Jul 2021}
+
+%-----------  EXPERIENCE  -----------------------------------------
+\section{Experience}
+
+\rRole{Business Analyst Intern}{Regional Retail Bank}{Boston, MA}{Jun 2025 -- Aug 2025}
+\begin{rBullets}
+  \item Built a Python churn model on 1.2M customer records, guiding a \$400K retention campaign.
+  \item Designed 5 Tableau dashboards used weekly by 60 branch managers, replacing 12 manual reports.
+  \item Automated monthly variance reporting in SQL, cutting preparation time from 3 days to 4 hours.
+\end{rBullets}
+
+\rRole{Financial Analyst}{Consumer Goods Distributor}{Lagos, Nigeria}{Aug 2021 -- Jul 2024}
+\begin{rBullets}
+  \item Built a demand forecast across 240 products, improving inventory accuracy 14\%.
+\end{rBullets}
+
+%-----------  PROJECTS  -------------------------------------------
+\section{Projects}
+
+\rProject{Loan Default Risk Model}{Python, scikit-learn, SQL}{2025}
+\begin{rBullets}
+  \item Trained a gradient-boosted classifier on 300K loan records, reaching 0.87 AUC; ranked 2nd of 41 teams.
+\end{rBullets}
+
+%-----------  LEADERSHIP & ACTIVITIES  ----------------------------
+\section{Leadership \& Activities}
+
+\rRole{Vice President}{Graduate Analytics Club}{Boston, MA}{Jan 2025 -- Present}
+\begin{rBullets}
+  \item Organized 8 employer case workshops for 180 members and grew club membership 45\% in one year.
+\end{rBullets}
+
+%-----------  SKILLS  ---------------------------------------------
+\section{Skills}
+\rSkill{Analytics}{SQL, Python (pandas, scikit-learn), R, Excel (Power Query, VBA), Financial Modeling}
+\rSkill{Visualization}{Tableau, Power BI, Looker}
+\rSkill{Business}{Forecasting, Budgeting, Variance Analysis, A/B Testing, Stakeholder Reporting}
+
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item Tableau Desktop Specialist (2025)
+\end{rBullets}
+
+\end{document}

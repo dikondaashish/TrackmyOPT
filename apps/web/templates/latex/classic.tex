@@ -1,0 +1,186 @@
+%==============================================================================
+%  TrackMyOPT — Classic One-Page
+%  Single-column, ATS-safe resume template in the plain black-and-white format
+%  engineering recruiters see most often. Built for students and new grads.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. Uses only core TeX Live packages so the file compiles
+%     standalone on the remote compiler (no project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed and education-first:
+%       Contact -> Summary -> Education -> Experience -> Projects
+%       -> Technical Skills -> Certifications
+%   * Body text 11pt, margins 0.5in, Latin Modern Roman (core TeX Live).
+%     Tight vertical spacing so a full student record fits one page.
+%==============================================================================
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{ragged2e}
+
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
+\input{glyphtounicode}
+\pdfgentounicode=1
+
+\definecolor{accent}{HTML}{000000}
+\definecolor{bodytext}{HTML}{000000}
+\definecolor{muted}{HTML}{000000}
+\color{bodytext}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\justifying
+\raggedbottom
+% ATS: never split a word across lines. A hyphenated line end can be extracted
+% as two fragments (or with the hyphen dropped) and miss a keyword match.
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=3em
+
+%------------------------------------------------------------------
+% Section headings
+% The heading text and its rule are one unbreakable box, so a page break can
+% never strand a heading (or its rule) away from the content below it.
+%------------------------------------------------------------------
+\newcommand{\rSectionTitle}[1]{%
+  \vbox{\hbox to\linewidth{\MakeUppercase{#1}\hfil}\vskip 5pt\hrule height 0.4pt}}
+\titleformat{\section}
+  {\large\bfseries\color{accent}}{}{0em}{\rSectionTitle}
+\titlespacing*{\section}{0pt}{9.7pt}{5.4pt}
+
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\hspace{5pt}\textbar\hspace{5pt}}
+
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \vspace{2pt}%
+  \noindent\textbf{#1}\hfill#4\par
+  \noindent\textit{#2}\hfill\textit{#3}\par
+  \vspace{1pt}%
+}
+
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \vspace{2pt}%
+  \noindent\textbf{#1}\ \textbar\ \textit{#2}\hfill#3\par
+  \vspace{1pt}%
+}
+
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \vspace{2pt}%
+  \noindent\textbf{#2}\hfill#3\par
+  \noindent\textit{#1}\hfill\textit{#4}\par
+  \vspace{1pt}%
+}
+
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent\textbf{#1:}\ #2\par\vspace{1pt}}
+
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=14pt,itemsep=0.5pt,parsep=0pt,topsep=2pt,
+                   partopsep=0pt,label=\textbullet]}
+  {\end{itemize}}
+\setlist[itemize]{before=\justifying}
+
+%------------------------------------------------------------------
+% CONTACT INFORMATION
+%------------------------------------------------------------------
+\def\name{Ananya Rao}
+\def\role{Software Engineer}
+\def\phone{(408) 555-0137}
+\def\location{San Jose, CA}
+\def\email{ananya.rao@example.com}
+\def\LinkedIn{ananyarao}
+\def\github{ananyarao-dev}
+
+\begin{document}
+
+%-----------  HEADER  ---------------------------------------------
+\begin{center}
+  {\huge\bfseries\name}\\[3pt]
+  {\large\role}\\[4pt]
+  {\small
+    \phone\csep
+    \location\csep
+    \href{mailto:\email}{\email}\csep
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn}\csep
+    \href{https://github.com/\github}{github.com/\github}}
+\end{center}
+
+%-----------  SUMMARY  --------------------------------------------
+\section{Summary}
+Software engineer completing an M.S. in Computer Science, with two internships
+building backend services in Java and Python. Shipped an API used by 40K daily
+users and cut a data pipeline's runtime 62\%. Strong in distributed systems,
+SQL, and cloud deployment on AWS.
+
+%-----------  EDUCATION  ------------------------------------------
+\section{Education}
+\rEdu{M.S. in Computer Science, GPA 3.8/4.0}{San Jose State University}{San Jose, CA}{Aug 2024 -- May 2026}
+\begin{rBullets}
+  \item Coursework: Distributed Systems, Database Systems, Machine Learning, Cloud Computing, Algorithms
+\end{rBullets}
+\rEdu{B.Tech. in Information Technology, GPA 8.9/10}{Vellore Institute of Technology}{Vellore, India}{Jul 2019 -- May 2023}
+
+%-----------  EXPERIENCE  -----------------------------------------
+\section{Experience}
+
+\rRole{Software Engineer Intern}{Cloud Payments Company}{San Francisco, CA}{May 2025 -- Aug 2025}
+\begin{rBullets}
+  \item Built a Java Spring Boot refund-status API serving 40K daily users at a p95 latency of 85 ms.
+  \item Cut a nightly reconciliation pipeline from 4.2 to 1.6 hours (62\%) by batching writes and adding 3 indexes.
+  \item Wrote 140 unit and integration tests, raising coverage from 61\% to 88\% and catching 9 regressions.
+\end{rBullets}
+
+\rRole{Graduate Research Assistant}{San Jose State University}{San Jose, CA}{Jan 2025 -- May 2025}
+\begin{rBullets}
+  \item Implemented a Python scheduler placing 12K simulated jobs across 200 nodes, raising utilization 18\%.
+  \item Automated experiment runs with Docker and GitHub Actions, cutting setup time from 45 to 5 minutes.
+\end{rBullets}
+
+\rRole{Software Engineer}{Logistics Software Startup}{Bengaluru, India}{Jun 2023 -- Jul 2024}
+\begin{rBullets}
+  \item Developed 14 REST endpoints in Node.js and TypeScript for a tracking platform used by 300 customers.
+  \item Reduced average page load from 3.1 s to 1.2 s by adding Redis caching and paginating 5 high-traffic queries.
+  \item Migrated 22 cron jobs to AWS Lambda and SQS, lowering monthly infrastructure cost by \$2,400.
+\end{rBullets}
+
+%-----------  PROJECTS  -------------------------------------------
+\section{Projects}
+
+\rProject{Distributed Key-Value Store}{Go, Raft, gRPC}{github.com/ananyarao-dev/kvraft}
+\begin{rBullets}
+  \item Implemented Raft consensus with log compaction; sustained 9K writes/second across a 5-node cluster.
+\end{rBullets}
+
+\rProject{Job Application Tracker}{React, FastAPI, PostgreSQL}{2025}
+\begin{rBullets}
+  \item Built a full-stack tracker with OAuth login and email parsing, used by 250 classmates to manage 6K applications.
+\end{rBullets}
+
+%-----------  TECHNICAL SKILLS  -----------------------------------
+\section{Technical Skills}
+\rSkill{Languages}{Java, Python, Go, TypeScript, SQL}
+\rSkill{Frameworks}{Spring Boot, FastAPI, Node.js, React, gRPC}
+\rSkill{Cloud \& DevOps}{AWS (Lambda, SQS, EC2, S3, RDS), Docker, Kubernetes, GitHub Actions, Terraform}
+\rSkill{Data}{PostgreSQL, Redis, Kafka, MongoDB}
+
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item AWS Certified Developer -- Associate (2025)
+\end{rBullets}
+
+\end{document}

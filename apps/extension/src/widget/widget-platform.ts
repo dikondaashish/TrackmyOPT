@@ -209,7 +209,10 @@ const ENUM_VALUES: Record<string, readonly string[]> = {
   signal: ['sponsors', 'no_sponsorship', 'unclear'],
   status: ['Applied', 'Wishlist'],
   outcome: ['success', 'error', 'limit', 'not_signed_in', 'no_job_description', 'no_base_resume'],
-  template_id: ['professional', 'tech', 'modern', 'academic', 'executive', 'creative'],
+  template_id: [
+    'professional', 'tech', 'modern', 'academic', 'executive', 'creative',
+    'classic', 'traditional',
+  ],
   error_code: [
     'network', 'runtime', 'not_signed_in', 'no_job_description',
     'no_base_resume', 'limit', 'compile_failed', 'analyze_failed',
