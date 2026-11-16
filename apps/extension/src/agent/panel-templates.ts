@@ -19,6 +19,7 @@ export const RESUME_TEMPLATES_FOR_PANEL = [
     { id: 'creative', name: 'Creative Clean', hint: 'ATS-safe · frontend & product' },
     { id: 'classic', name: 'Classic One-Page', hint: 'ATS-safe · students & new grads' },
     { id: 'traditional', name: 'Traditional', hint: 'ATS-safe · business & finance' },
+    { id: 'corporate', name: 'Corporate Navy', hint: 'ATS-safe · finance, data & AI' },
 ] as const;
 
 export type PanelTemplateId = (typeof RESUME_TEMPLATES_FOR_PANEL)[number]['id'];

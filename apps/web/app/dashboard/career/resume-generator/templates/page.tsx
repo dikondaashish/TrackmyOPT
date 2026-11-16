@@ -25,6 +25,7 @@ const TemplatePreviewModal = dynamic(() => import("./TemplatePreviewModal").then
 const TEMPLATE_INFO_BG: Record<string, string> = {
     classic: "bg-zinc-50 dark:bg-zinc-900",
     traditional: "bg-neutral-50 dark:bg-neutral-900",
+    corporate: "bg-blue-50 dark:bg-blue-950",
     modern: "bg-sky-50 dark:bg-sky-900",
     tech: "bg-teal-50 dark:bg-teal-900",
     professional: "bg-stone-50 dark:bg-stone-900",

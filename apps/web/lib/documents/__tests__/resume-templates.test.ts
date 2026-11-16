@@ -55,6 +55,21 @@ describe.each(RESUME_TEMPLATES.map((t) => [t.id, t] as const))(
             expect(tex).toContain('\\usepackage{lmodern}');
         });
 
+        it('never requires a font package outside the core set', () => {
+            // An optional typeface (Carlito in Corporate Navy) may only be loaded
+            // behind \IfFileExists, so the file still compiles — in Latin Modern
+            // — on a compiler image that does not ship it.
+            const core = new Set(['lmodern', 'fontenc', 'inputenc']);
+            const fontPackages = ['carlito', 'helvet', 'charter', 'tgheros', 'lato', 'sourcesanspro'];
+            for (const line of tex.split('\n')) {
+                const pkg = line.match(/\\usepackage(?:\[[^\]]*\])?\{([^}]+)\}/);
+                if (!pkg || !fontPackages.includes(pkg[1]) || core.has(pkg[1])) continue;
+                expect(line, `${pkg[1]} must be guarded`).toMatch(
+                    new RegExp(`\\\\IfFileExists\\{${pkg[1]}\\.sty\\}`)
+                );
+            }
+        });
+
         it('uses the shared macro vocabulary', () => {
             for (const macro of REQUIRED_MACROS) {
                 expect(tex).toContain(macro);
@@ -73,10 +88,12 @@ describe.each(RESUME_TEMPLATES.map((t) => [t.id, t] as const))(
         it('uses standard headings and a recognised section order', () => {
             const sections = [...template.sections];
             const indexOf = (pattern: RegExp) => sections.findIndex((s) => pattern.test(s));
-            const summary = indexOf(/^Summary$/);
+            // A heading may carry a qualifier ("Professional Experience",
+            // "Technical Skills") but must contain the standard keyword.
+            const summary = indexOf(/Summary$/);
             const skills = indexOf(/Skills$/);
-            const experience = indexOf(/^Experience$/);
-            const education = indexOf(/^Education$/);
+            const experience = indexOf(/Experience$/);
+            const education = indexOf(/^Education/);
 
             // Headings ATS parsers map to fields — never creative labels.
             for (const index of [summary, skills, experience, education]) {

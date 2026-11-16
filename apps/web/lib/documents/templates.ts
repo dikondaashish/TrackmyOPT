@@ -87,6 +87,32 @@ export const RESUME_TEMPLATES: Template[] = [
         ],
     },
     {
+        id: "corporate",
+        name: "Corporate Navy",
+        description:
+            "Word-style corporate layout: navy name and headings, hairline rules, a bulleted summary, and the employer leading each role with dates at a right tab.",
+        bestFor: "Finance, banking, data & AI roles · 3+ years",
+        latexFile: "corporate.tex",
+        tags: ["ATS-Safe", "Corporate", "Calibri-style"],
+        category: "Corporate",
+        isPremium: false,
+        atsRating: "safe",
+        typeface: "Carlito (Calibri-compatible sans)",
+        typography: "10pt body · 0.5in margins",
+        sections: [
+            "Professional Summary",
+            "Technical Skills",
+            "Educational Details",
+            "Professional Experience",
+            "Certifications",
+        ],
+        colors: [
+            { name: "Navy", class: "bg-[#002060]", ring: "ring-[#002060]", hex: "002060" },
+            { name: "Black", class: "bg-[#000000]", ring: "ring-[#000000]", hex: "000000" },
+            { name: "Burgundy", class: "bg-[#7A2E2E]", ring: "ring-[#7A2E2E]", hex: "7A2E2E" },
+        ],
+    },
+    {
         id: "traditional",
         name: "Traditional",
         description:

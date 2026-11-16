@@ -22,6 +22,23 @@ RUN apk add --no-cache python3 py3-pip git \
   texlive \
   texmf-dist-latexextra \
   texmf-dist-fontsrecommended
+# The Corporate Navy resume template is set in Carlito, the free typeface with
+# the same letter widths as Calibri. Alpine's TeX packages do not ship it, so
+# the CTAN TDS bundle (SIL OFL 1.1, about 4 MB) is vendored in the repository
+# and installed into TEXMFLOCAL. The trailing compile fails the build if the
+# font is not usable; the template itself falls back to Latin Modern Sans when
+# carlito.sty is absent, so an image without this layer still compiles resumes.
+COPY apps/api/vendor/tex/carlito.tds.zip /tmp/tex-vendor/carlito.tds.zip
+RUN TEXMFLOCAL="$(kpsewhich -var-value TEXMFLOCAL)" \
+  && mkdir -p "$TEXMFLOCAL" \
+  && unzip -q -o /tmp/tex-vendor/carlito.tds.zip -d "$TEXMFLOCAL" \
+  && rm -rf /tmp/tex-vendor \
+  && mktexlsr \
+  && updmap-sys --enable Map=carlito.map >/dev/null \
+  && mkdir /tmp/carlito-check && cd /tmp/carlito-check \
+  && printf '%s\n' '\documentclass{article}\usepackage[T1]{fontenc}\usepackage[sfdefault,lining]{carlito}\begin{document}Carlito \textbf{bold} check\end{document}' > check.tex \
+  && pdflatex -interaction=nonstopmode -halt-on-error check.tex >/dev/null \
+  && cd / && rm -rf /tmp/carlito-check
 # Cache system/Python dependencies separately from application source changes.
 COPY apps/api/requirements.job-board.txt apps/api/
 RUN pip3 install --no-cache-dir --break-system-packages --retries 5 --timeout 30 -r apps/api/requirements.job-board.txt

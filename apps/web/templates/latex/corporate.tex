@@ -1,0 +1,244 @@
+%==============================================================================
+%  TrackMyOPT — Corporate Navy
+%  Single-column, ATS-safe resume template in the Word-style corporate format:
+%  navy name and headings, black hairline rules, bulleted summary, and the
+%  employer on the first line of each role with dates at a fixed right tab.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. The file compiles standalone on the remote compiler (no
+%     project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed:
+%       Contact -> Professional Summary -> Technical Skills
+%       -> Educational Details -> Professional Experience -> Certifications
+%   * Body text 10pt on a 12.24pt line, margins 0.5in. Typeface is Carlito
+%     (metric-compatible with Calibri) when the compiler has it, otherwise
+%     Latin Modern Sans (core TeX Live), so the file always compiles.
+%==============================================================================
+\documentclass[letterpaper,10pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+% Carlito needs fontaxes; load it only when both are installed.
+\IfFileExists{carlito.sty}{\IfFileExists{fontaxes.sty}{\usepackage[sfdefault,lining]{carlito}}{}}{}
+\usepackage[protrusion=false,expansion=false]{microtype}
+\usepackage[left=0.5in,right=0.5in,top=0.51in,bottom=0.5in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{ragged2e}
+
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
+\input{glyphtounicode}
+\pdfgentounicode=1
+% Carlito joins letter pairs such as fi, ti and tt into single ligature glyphs.
+% Map each one back to its plain letters so extracted text reads "financial"
+% and "Education", never a private glyph a parser cannot match.
+\pdfglyphtounicode{uniFB00}{0066 0066}
+\pdfglyphtounicode{uniFB01}{0066 0069}
+\pdfglyphtounicode{uniFB02}{0066 006C}
+\pdfglyphtounicode{uniFB03}{0066 0066 0069}
+\pdfglyphtounicode{uniFB04}{0066 0066 006C}
+\pdfglyphtounicode{f_b}{0066 0062}
+\pdfglyphtounicode{f_h}{0066 0068}
+\pdfglyphtounicode{f_j}{0066 006A}
+\pdfglyphtounicode{f_k}{0066 006B}
+\pdfglyphtounicode{f_t}{0066 0074}
+\pdfglyphtounicode{f_dotlessi}{0066 0069}
+\pdfglyphtounicode{f_uni0237}{0066 006A}
+\pdfglyphtounicode{f_f_b}{0066 0066 0062}
+\pdfglyphtounicode{f_f_h}{0066 0066 0068}
+\pdfglyphtounicode{f_f_j}{0066 0066 006A}
+\pdfglyphtounicode{f_f_k}{0066 0066 006B}
+\pdfglyphtounicode{f_f_t}{0066 0066 0074}
+\pdfglyphtounicode{f_f_dotlessi}{0066 0066 0069}
+\pdfglyphtounicode{f_f_uni0237}{0066 0066 006A}
+\pdfglyphtounicode{t_f}{0074 0066}
+\pdfglyphtounicode{t_i}{0074 0069}
+\pdfglyphtounicode{t_t}{0074 0074}
+\pdfglyphtounicode{t_dotlessi}{0074 0069}
+\pdfglyphtounicode{t_t_f}{0074 0074 0066}
+\pdfglyphtounicode{t_t_i}{0074 0074 0069}
+\pdfglyphtounicode{t_t_dotlessi}{0074 0074 0069}
+
+\definecolor{accent}{HTML}{002060}
+\definecolor{bodytext}{HTML}{000000}
+\definecolor{muted}{HTML}{000000}
+\color{bodytext}
+
+\pagestyle{empty}
+\linespread{1.02}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\justifying
+\raggedbottom
+% ATS: never split a word across lines. A hyphenated line end can be extracted
+% as two fragments (or with the hyphen dropped) and miss a keyword match.
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=3em
+% Word-style justification: spaces may stretch but never shrink.
+\AtBeginDocument{{\normalfont\fontdimen4\font=0pt \bfseries\fontdimen4\font=0pt}}
+
+%------------------------------------------------------------------
+% Rules and section headings
+% The heading text and its rule are one unbreakable box, so a page break can
+% never strand a heading (or its rule) away from the content below it. The
+% first heading has no rule of its own: the header rule sits directly above it.
+%------------------------------------------------------------------
+\newcommand{\rRuleBox}{\hbox to\linewidth{\hss\vrule width \dimexpr\linewidth+3pt\relax height 0.5pt\hss}}
+\newif\ifrFirstSection \rFirstSectiontrue
+\newif\ifrAfterHeading \rAfterHeadingfalse
+\newcommand{\rSectionTitle}[1]{%
+  \global\rAfterHeadingtrue
+  \ifrFirstSection
+    \global\rFirstSectionfalse
+    \vbox{\hbox to\linewidth{\smash{#1:}\vphantom{A}\hfil}\vskip 3.16pt}%
+  \else
+    \vbox{\hbox to\linewidth{\smash{#1:}\vphantom{A}\hfil}%
+          \nointerlineskip\vskip 3.9pt\rRuleBox}%
+  \fi}
+\titleformat{\section}
+  {\normalsize\bfseries\color{accent}}{}{0em}{\rSectionTitle}
+\titlespacing*{\section}{0pt}{15.5pt}{-2.7pt}
+
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\ \textbar\ }
+% Dates and locations start at a fixed tab 6in from the left margin.
+\newcommand{\rTab}[1]{\makebox[\dimexpr\linewidth-6in\relax][l]{#1}}
+% A blank line separates entries, except directly under a section heading.
+\newcommand{\rEntryGap}{\ifrAfterHeading\global\rAfterHeadingfalse\else\vspace{12.72pt}\fi}
+
+% \rHeader — name, then role | email | phone | location, then a full rule
+\newcommand{\rHeader}{%
+  {\centering
+   {\fontsize{20pt}{24pt}\selectfont\bfseries\color{accent}\name\par}%
+   \vspace{4.95pt}%
+   {\bfseries\color{accent}\role\csep\href{mailto:\email}{\email}\csep\phone\csep\location\par}}%
+  \nointerlineskip\vskip 3.6pt\rRuleBox\nointerlineskip\vskip -14.06pt\hrule height 0pt}
+
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \rEntryGap
+  {\bfseries\color{accent}\noindent #2\hfill\rTab{#4}\par
+   \noindent #1\hfill\rTab{#3}\par}%
+}
+
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \rEntryGap
+  {\noindent{\bfseries\color{accent}#1}\ \textbar\ #2\hfill{\bfseries\color{accent}#3}\par}%
+}
+
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \global\rAfterHeadingfalse
+  \noindent\textbf{#1}\par
+  \begin{rBullets}
+    \item #2 -- #3\if\relax\detokenize{#4}\relax\else\ \textbar\ #4\fi
+  \end{rBullets}%
+}
+
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent{\bfseries\color{accent}#1:}\ #2\par}
+
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=18pt,labelwidth=18pt,labelsep=0pt,align=left,
+                   itemsep=0.53pt,parsep=0pt,topsep=0pt,partopsep=0pt,
+                   label=\textbullet]}
+  {\end{itemize}\vspace{0.48pt}}
+\setlist[itemize]{before=\justifying}
+
+%------------------------------------------------------------------
+% CONTACT INFORMATION
+%------------------------------------------------------------------
+\def\name{Rohan Mehta}
+\def\role{AI Engineer -- Finance}
+\def\phone{+1 (617) 555-0118}
+\def\location{Boston, MA 02110}
+\def\email{rohan.mehta@example.com}
+\def\LinkedIn{rohanmehta}
+\def\github{rohanmehta-dev}
+
+\begin{document}
+
+%-----------  HEADER  ---------------------------------------------
+\rHeader
+
+%-----------  PROFESSIONAL SUMMARY  -------------------------------
+\section{Professional Summary}
+\begin{rBullets}
+  \item Hands-on \textbf{AI Engineer} with 6+ years of experience building and deploying production-grade \textbf{AI}, \textbf{machine learning}, and automation workflows across banking, insurance, and enterprise data domains.
+  \item Proven record of modernizing finance processes across \textbf{FP\&A}, variance forecasting, and transaction reconciliation by combining \textbf{Python}, \textbf{SQL}, cloud platforms (\textbf{Azure}, \textbf{AWS}), and generative AI frameworks (\textbf{LangChain}, \textbf{RAG}, vector databases).
+  \item Skilled at partnering with Treasury, Controllers, and finance stakeholders to turn complex business logic into productionized \textbf{ML pipelines} that removed 48\% of reporting defects and surfaced \$1.6M in cost efficiencies.
+\end{rBullets}
+
+%-----------  TECHNICAL SKILLS  -----------------------------------
+\section{Technical Skills}
+\rSkill{AI, Generative AI \& Agent Frameworks}{LLMs, Retrieval-Augmented Generation (RAG), LangChain, AI Agents, Vector Databases, Prompt Engineering, Semantic Search, Responsible AI Governance.}
+\rSkill{Machine Learning \& Statistics}{Scikit-learn, Time-Series Forecasting, Anomaly Detection, Predictive Modeling, Variance Analysis, Hypothesis Testing, Feature Engineering, Model Evaluation.}
+\rSkill{Finance Processes \& Analytics}{FP\&A Modeling, Financial Forecasting, General Ledger Reconciliation, Financial KPI Frameworks, Spend Variance Analysis, Controllership Reporting.}
+\rSkill{Programming \& Data Engineering}{Python (Pandas, NumPy, Statsmodels), SQL (T-SQL, PostgreSQL, Query Tuning, Indexing, CTEs), PySpark, REST APIs, JSON, ETL/ELT Design, dbt.}
+\rSkill{Cloud \& MLOps Infrastructure}{Microsoft Azure (Data Factory, Synapse), AWS (S3, Redshift, Glue, Athena), Snowflake, BigQuery, Airflow, CI/CD, Git/GitHub, Model Monitoring, Docker.}
+\rSkill{BI \& Visualization}{Power BI (DAX, Data Modeling, RLS), Tableau (LODs, Parameters), Looker, Financial Dashboards, Executive Data Storytelling.}
+
+%-----------  EDUCATIONAL DETAILS  --------------------------------
+\section{Educational Details}
+\rEdu{Master of Science (M.S.) in Data Science}{Northeastern University}{Boston, MA USA}{Sep 2022 -- May 2024}
+\begin{rBullets}
+  \item Relevant coursework: Machine Learning, Applied Statistics, Database Systems, Data Mining, Big Data Analytics, Cloud Computing
+\end{rBullets}
+\rEdu{Bachelor of Technology (B.Tech.) in Computer Science}{Pune Institute of Technology}{Pune, India}{}
+
+%-----------  PROFESSIONAL EXPERIENCE  ----------------------------
+\section{Professional Experience}
+
+\rRole{AI Engineer -- Finance Transformation}{Atlantic Federal Bank}{New York, NY}{Jun 2024 -- Present}
+\begin{rBullets}
+  \item Architect and deploy production-grade \textbf{machine learning} and automation solutions for enterprise finance workflows, scaling models across transaction datasets of 2B+ financial records.
+  \item Develop end-to-end \textbf{Python} and \textbf{SQL} orchestration pipelines integrated with cloud data platforms, cutting financial data processing latency by 42\% and accelerating daily ledger reconciliation.
+  \item Design and deploy statistical \textbf{anomaly-detection models} for automated monitoring of irregular transactions, improving detection accuracy by 24\% and reducing false-positive review overhead by 17\%.
+  \item Modernize core reporting queries and \textbf{star-schema} financial data models, cutting executive reporting load times by 38\% and enabling daily automated refresh cycles for Controllers and Risk teams.
+  \item Implement automated financial \textbf{data-quality gates} (reconciliation checks, schema validation, freshness SLAs) covering 30+ tables, reducing reporting defects escalated by business users by 48\%.
+  \item Collaborate closely with \textbf{FP\&A}, \textbf{Treasury}, and technology stakeholders to translate compliance and forecasting requirements into productionized \textbf{AI tools} and reusable engineering modules.
+\end{rBullets}
+
+\rRole{Machine Learning Engineer -- Finance Team}{Harborview Health Plans}{Boston, MA}{Jan 2023 -- May 2024}
+\begin{rBullets}
+  \item Engineered production \textbf{machine learning forecasting models} for monthly claims spend and utilization, improving budget-variance accuracy by 21\% for annual \textbf{FP\&A} planning cycles.
+  \item Surfaced \$1.6M in annual cost-saving opportunities by analyzing utilization trends and financial cost drivers across 8M+ records using \textbf{Python} and \textbf{SQL}.
+  \item Automated end-to-end \textbf{data pipelines} and optimized distributed \textbf{SQL} procedures, boosting financial reporting efficiency by 35\% while retiring 11 error-prone manual Excel workflows.
+  \item Established automated validation, cleansing, and \textbf{governance frameworks} across sensitive transaction data, raising overall dataset integrity and reporting accuracy to 99.4\%.
+  \item Designed executive \textbf{Power BI} dashboards with \textbf{DAX} data models tracking operational KPIs, financial variances, and expenditure trends, reducing leadership reporting cycles by 55\%.
+\end{rBullets}
+
+\rRole{Lead Data \& Machine Learning Analyst}{Meridian Commerce Labs}{Bengaluru, India}{Aug 2020 -- Jul 2022}
+\begin{rBullets}
+  \item Developed and operationalized \textbf{predictive cohort and retention models} across 900K+ monthly commercial transactions, translating behavioral and transactional signals into automated decision logic.
+  \item Built automated \textbf{SQL} and \textbf{Python} data pipelines to analyze purchase funnels and unit economics, uncovering transaction bottlenecks and driving an 8-point conversion lift.
+  \item Engineered financial and operational \textbf{KPI dashboards} for leadership, establishing standardized metric governance and automated variance tracking across 4 newly launched business units.
+  \item Collaborated with platform engineers to implement \textbf{event-tracking schemas} and data audit checks, expanding tracking coverage by 28\% across billing and transaction touchpoints.
+\end{rBullets}
+
+\rRole{Data \& Automation Engineer}{Northwind Software Solutions}{Hyderabad, India}{Jun 2018 -- Jul 2020}
+\begin{rBullets}
+  \item Built analytics, \textbf{ML features}, and reporting infrastructure for 12+ SaaS and workflow automation products, enabling enterprise clients to launch data-backed releases 50\% faster.
+  \item Engineered \textbf{Python} and \textbf{SQL} automation scripts that eliminated 10+ hours per week of manual financial and operational reporting across concurrent client engagements.
+  \item Instituted automated \textbf{data reconciliation checks} and release validation pipelines, reducing post-deployment data defects and schema breakages by 25\%.
+  \item Partnered with engineering and finance stakeholders to deliver analytical reports tracking conversion economics, application performance, and operational KPIs for 6 client accounts.
+\end{rBullets}
+
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item AWS Certified Machine Learning -- Specialty (2024)
+  \item Microsoft Certified: Azure Data Scientist Associate (2023)
+  \item Certified Scrum Master, Scrum Alliance (2022)
+\end{rBullets}
+
+\end{document}

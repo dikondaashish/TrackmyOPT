@@ -57,27 +57,74 @@ const SECTION_HINTS: Array<[RegExp, string]> = [
 
 const DEFAULT_SECTION_HINT = 'Real content from the source resume, or omit section if none';
 
+/** The macros a template section is built from, in the order they first appear. */
+function describeSectionFormat(sectionBody: string): string | null {
+    const found: Array<[number, string]> = [];
+    for (const [pattern, label] of [
+        [/\\rRole\{/, '\\rRole'],
+        [/\\rProject\{/, '\\rProject'],
+        [/\\rEdu\{/, '\\rEdu'],
+        [/\\rSkill\{/, '\\rSkill'],
+        [/\\begin\{rBullets\}/, 'rBullets'],
+    ] as Array<[RegExp, string]>) {
+        const index = sectionBody.search(pattern);
+        if (index >= 0) found.push([index, label]);
+    }
+    if (found.length === 0) return sectionBody.trim() ? 'a plain paragraph' : null;
+    return found
+        .sort((x, y) => x[0] - y[0])
+        .map(([, label]) => label)
+        .join(' + ');
+}
+
 /**
- * Rebuild the template body as empty headings in the template's own order, so
- * the model sees each template's real section set (education-first templates,
- * Publications, Leadership & Activities) with none of the demo content.
+ * Rebuild the template body without its demo content: the template's own header
+ * block (it only references the contact macros), then each heading in the
+ * template's order with a note on how that section is formatted. The model sees
+ * every template's real structure — education-first order, a bulleted summary,
+ * Publications, Leadership & Activities — and none of the sample text.
  */
 function buildSectionSkeleton(templateBody: string): string {
-    const sections = [...templateBody.matchAll(/^\\section\{([^}]+)\}/gm)].map((m) => m[1]);
+    const matches = [...templateBody.matchAll(/^\\section\{([^}]+)\}/gm)];
+    const headerEnd = matches.length > 0 ? matches[0].index ?? 0 : templateBody.length;
+    // Comment banners (including the first section's) are not part of the header.
+    const header = templateBody
+        .slice(0, headerEnd)
+        .split('\n')
+        .filter((line) => !line.trimStart().startsWith('%'))
+        .join('\n')
+        .trim();
+    const usesContactMacrosOnly =
+        header.length > 0 && !/\\r(?:Role|Project|Edu|Skill)\{|\\begin\{rBullets\}/.test(header);
+
     const lines = [
         '',
         '%-----------  HEADER  ---------------------------------------------',
         "% Use the candidate's real name, contact info, and target role.",
     ];
-    for (const section of sections) {
+    if (usesContactMacrosOnly) {
+        lines.push(
+            '% Reproduce this header layout; it reads the \\def values above. Remove only a',
+            '% contact item the candidate does not have (never keep a placeholder link).',
+            header,
+        );
+    }
+    matches.forEach((match, i) => {
+        const section = match[1];
+        const start = (match.index ?? 0) + match[0].length;
+        const end = i + 1 < matches.length ? matches[i + 1].index ?? templateBody.length : templateBody.length;
         const hint = SECTION_HINTS.find(([pattern]) => pattern.test(section))?.[1] ?? DEFAULT_SECTION_HINT;
+        const format = describeSectionFormat(
+            templateBody.slice(start, end).replace(/^%[^\n]*$/gm, ''),
+        );
         lines.push(
             '',
             `%-----------  ${section.replace(/\\&/g, '&').toUpperCase()}  -----------`,
             `\\section{${section}}`,
             `% ${hint}`,
         );
-    }
+        if (format) lines.push(`% This template formats the section as: ${format}`);
+    });
     return lines.join('\n');
 }
 

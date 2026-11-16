@@ -122,6 +122,7 @@ const SAFE_STRING_VALUES: Record<string, readonly string[]> = {
     'creative',
     'classic',
     'traditional',
+    'corporate',
   ],
   error_code: [
     'network',
