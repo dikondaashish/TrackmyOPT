@@ -211,7 +211,7 @@ const ENUM_VALUES: Record<string, readonly string[]> = {
   outcome: ['success', 'error', 'limit', 'not_signed_in', 'no_job_description', 'no_base_resume'],
   template_id: [
     'professional', 'tech', 'modern', 'academic', 'executive', 'creative',
-    'classic', 'traditional',
+    'classic', 'traditional', 'corporate',
   ],
   error_code: [
     'network', 'runtime', 'not_signed_in', 'no_job_description',

@@ -35,8 +35,8 @@ THE TEMPLATE IS THE CONTAINER. YOUR JOB IS TO FIT THE CANDIDATE INTO IT — NOT 
      leave no empty \\section heading.
    * If the candidate has no summary in the source, write one optimized for the JD.
    * If the candidate has genuinely resume-worthy content that the template
-     has no section for (Publications, Patents, Awards, Security Clearance,
-     Volunteering, Languages), append the section(s) needed at the end, styled
+     has no section for (Projects, Publications, Patents, Awards, Security
+     Clearance, Volunteering, Languages), append the section(s) needed at the end, styled
      with the template's own \\section command.
 
 4. DEMO CONTENT — The template ships with placeholder/demo content (names, employers,

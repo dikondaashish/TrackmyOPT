@@ -6,6 +6,13 @@
     "width": 960,
     "height": 1243
   },
+  "corporate": {
+    "sourceHash": "609971a83dc48c5e01f73f87df82f43e8244d353a31698485f85f7b34cdab81e",
+    "pdf": "/template-previews/corporate-6ddb2fb71b1fb85c.pdf",
+    "image": "/template-previews/corporate-107ec06ca5fada87.webp",
+    "width": 960,
+    "height": 1243
+  },
   "traditional": {
     "sourceHash": "714d62b184eb71a54c0acbd8639d3eb7d3202969e68c3c4ada97b41de529938e",
     "pdf": "/template-previews/traditional-cd5c205fa79b668e.pdf",

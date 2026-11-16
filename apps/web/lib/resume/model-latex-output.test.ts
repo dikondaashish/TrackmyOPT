@@ -122,6 +122,41 @@ Demo summary text.
         expect(sanitized).not.toContain('Demo summary text');
         expect(sanitized).toContain(String.raw`\rSkill`);
     });
+
+    it('keeps the header block and tells the model how each section is formatted', () => {
+        const template = String.raw`\documentclass{article}
+\newcommand{\rHeader}{\name}
+\def\name{Rohan Mehta}
+\def\email{rohan.mehta@example.com}
+\begin{document}
+
+%-----------  HEADER  ---------------------------------------------
+\rHeader
+
+%-----------  PROFESSIONAL SUMMARY  -------------------------------
+\section{Professional Summary}
+\begin{rBullets}
+  \item Demo summary bullet about Atlantic Federal Bank.
+\end{rBullets}
+
+\section{Professional Experience}
+\rRole{Engineer}{Atlantic Federal Bank}{New York, NY}{2024}
+\begin{rBullets}
+  \item Demo bullet.
+\end{rBullets}
+\end{document}`;
+
+        const sanitized = sanitizeTemplateForPrompt(template);
+        const body = sanitized.slice(sanitized.indexOf(String.raw`\begin{document}`));
+        // The header macro call survives so the model reproduces the layout.
+        expect(body).toMatch(/^\\rHeader$/m);
+        // A bulleted summary is described as bullets, not as a paragraph.
+        expect(body).toContain('% This template formats the section as: rBullets');
+        expect(body).toContain(String.raw`% This template formats the section as: \rRole + rBullets`);
+        expect(sanitized).not.toContain('Atlantic Federal Bank');
+        expect(sanitized).not.toContain('Rohan Mehta');
+        expect(sanitized).not.toContain('Demo summary bullet');
+    });
 });
 
 describe('extractResumeStructuralAnchors', () => {
