@@ -120,6 +120,8 @@ const SAFE_STRING_VALUES: Record<string, readonly string[]> = {
     'academic',
     'executive',
     'creative',
+    'classic',
+    'traditional',
   ],
   error_code: [
     'network',

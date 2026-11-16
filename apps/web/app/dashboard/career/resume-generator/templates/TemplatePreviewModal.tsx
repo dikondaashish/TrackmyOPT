@@ -18,11 +18,7 @@ import {
     FileText,
     Type,
 } from "lucide-react";
-import {
-    Template,
-    TemplateColor,
-    RESUME_TEMPLATE_SECTION_ORDER,
-} from "@/lib/documents/templates";
+import { Template, TemplateColor } from "@/lib/documents/templates";
 import { TemplatePdfPreview } from "./TemplatePdfPreview";
 
 interface TemplatePreviewModalProps {
@@ -173,7 +169,7 @@ function TemplatePreviewBody({
                                     Section order
                                 </h4>
                                 <ol className="space-y-1">
-                                    {RESUME_TEMPLATE_SECTION_ORDER.map((section, i) => (
+                                    {template.sections.map((section, i) => (
                                         <li
                                             key={section}
                                             className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
@@ -184,12 +180,6 @@ function TemplatePreviewBody({
                                             {section}
                                         </li>
                                     ))}
-                                    {template.id === "academic" && (
-                                        <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                            <span className="w-4 text-xs text-gray-400 tabular-nums">+</span>
-                                            Publications
-                                        </li>
-                                    )}
                                 </ol>
                             </div>
 

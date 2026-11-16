@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { RESUME_TEMPLATES, RESUME_TEMPLATE_SECTION_ORDER } from '@/lib/documents/templates';
+import { RESUME_TEMPLATES } from '@/lib/documents/templates';
 import { applyAccentHex, normalizeAccentHex } from '@/lib/documents/template-source';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 
@@ -61,17 +61,34 @@ describe.each(RESUME_TEMPLATES.map((t) => [t.id, t] as const))(
             }
         });
 
-        it('declares sections in recruiter-scan order', () => {
-            const sections = [...tex.matchAll(/^\\section\{([^}]+)\}/gm)].map((m) => m[1]);
-            // Every declared section must be one the template metadata promises,
-            // and they must appear in the canonical order.
-            const canonical = RESUME_TEMPLATE_SECTION_ORDER as readonly string[];
-            const positions = sections
-                .filter((s) => canonical.includes(s))
-                .map((s) => canonical.indexOf(s));
-            expect(positions).toEqual([...positions].sort((a, b) => a - b));
-            // Skills must precede Experience — the 6-second scan requirement.
-            expect(sections.indexOf('Skills')).toBeLessThan(sections.indexOf('Experience'));
+        it('declares exactly the sections its catalog entry promises, in order', () => {
+            const sections = [...tex.matchAll(/^\\section\{([^}]+)\}/gm)].map((m) =>
+                m[1].replace(/\\&/g, '&')
+            );
+            // The quick view lists template.sections and the generator emits the
+            // file's sections, so the two must not drift.
+            expect(sections).toEqual([...template.sections]);
+        });
+
+        it('uses standard headings and a recognised section order', () => {
+            const sections = [...template.sections];
+            const indexOf = (pattern: RegExp) => sections.findIndex((s) => pattern.test(s));
+            const summary = indexOf(/^Summary$/);
+            const skills = indexOf(/Skills$/);
+            const experience = indexOf(/^Experience$/);
+            const education = indexOf(/^Education$/);
+
+            // Headings ATS parsers map to fields — never creative labels.
+            for (const index of [summary, skills, experience, education]) {
+                expect(index).toBeGreaterThanOrEqual(0);
+            }
+            // The summary always opens the page.
+            expect(summary).toBe(0);
+            // Either experience-led (skills in the top third, before Experience)
+            // or education-first (the student/new-grad order).
+            const experienceLed = skills < experience && experience < education;
+            const educationFirst = education < experience;
+            expect(experienceLed || educationFirst).toBe(true);
         });
 
         it('keeps margins between 0.5in and 1in', () => {

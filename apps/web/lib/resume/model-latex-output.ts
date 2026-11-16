@@ -43,6 +43,44 @@ function extractContactDefs(tex: string): string {
     return (chunk.match(CONTACT_DEF) ?? []).join('\n');
 }
 
+/** What the model should put under each heading a template can declare. */
+const SECTION_HINTS: Array<[RegExp, string]> = [
+    [/summary|profile|objective/i, 'JD-tailored summary for the real candidate'],
+    [/skills/i, 'JD keyword groups via \\rSkill'],
+    [/leadership|activities/i, 'Real leadership roles and activities via \\rRole + rBullets, or omit section if none'],
+    [/experience/i, 'One \\rRole + rBullets per employer from the source resume'],
+    [/projects/i, 'Real projects only via \\rProject + rBullets, or omit section if none'],
+    [/education/i, 'Real schools/degrees from the source resume via \\rEdu'],
+    [/publications/i, 'Real publications from the source resume, or omit section if none'],
+    [/certifications/i, 'Real certifications from the source resume, or omit if none'],
+];
+
+const DEFAULT_SECTION_HINT = 'Real content from the source resume, or omit section if none';
+
+/**
+ * Rebuild the template body as empty headings in the template's own order, so
+ * the model sees each template's real section set (education-first templates,
+ * Publications, Leadership & Activities) with none of the demo content.
+ */
+function buildSectionSkeleton(templateBody: string): string {
+    const sections = [...templateBody.matchAll(/^\\section\{([^}]+)\}/gm)].map((m) => m[1]);
+    const lines = [
+        '',
+        '%-----------  HEADER  ---------------------------------------------',
+        "% Use the candidate's real name, contact info, and target role.",
+    ];
+    for (const section of sections) {
+        const hint = SECTION_HINTS.find(([pattern]) => pattern.test(section))?.[1] ?? DEFAULT_SECTION_HINT;
+        lines.push(
+            '',
+            `%-----------  ${section.replace(/\\&/g, '&').toUpperCase()}  -----------`,
+            `\\section{${section}}`,
+            `% ${hint}`,
+        );
+    }
+    return lines.join('\n');
+}
+
 /** Strip demo body and neutralize contact placeholders before sending to the model. */
 export function sanitizeTemplateForPrompt(templateTex: string): string {
     const begin = templateTex.indexOf(DOC_BEGIN);
@@ -60,33 +98,7 @@ export function sanitizeTemplateForPrompt(templateTex: string): string {
 \\def\\LinkedIn{candidate-linkedin}
 \\def\\github{candidate-github}`;
 
-    const skeleton = `
-%-----------  HEADER  ---------------------------------------------
-% Use the candidate's real name, contact info, and target role.
-
-%-----------  SUMMARY  --------------------------------------------
-\\section{Summary}
-% JD-tailored summary for the real candidate
-
-%-----------  SKILLS  ---------------------------------------------
-\\section{Skills}
-% JD keyword groups via \\rSkill
-
-%-----------  EXPERIENCE  -----------------------------------------
-\\section{Experience}
-% One \\rRole + rBullets per employer from the source resume
-
-%-----------  PROJECTS  -------------------------------------------
-\\section{Projects}
-% Real projects only, or omit section if none
-
-%-----------  EDUCATION  ------------------------------------------
-\\section{Education}
-% Real schools/degrees from the source resume
-
-%-----------  CERTIFICATIONS  -------------------------------------
-\\section{Certifications}
-% Real certifications from the source resume, or omit if none`;
+    const skeleton = buildSectionSkeleton(templateTex.slice(begin + DOC_BEGIN.length, end));
 
     return `${preamble}\n${DOC_BEGIN}${skeleton}\n${DOC_END}`;
 }

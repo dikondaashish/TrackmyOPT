@@ -30,8 +30,9 @@ THE TEMPLATE IS THE CONTAINER. YOUR JOB IS TO FIT THE CANDIDATE INTO IT — NOT 
 3. SECTION SET — Emit exactly the sections the template declares, in the
    template's order. Do not add sections the template does not have. Do not
    drop, merge, rename, or reorder the template's sections.
-   * Omit an optional section (Projects, Certifications) ONLY when the candidate
-     supplied nothing for it — leave no empty \\section heading.
+   * Omit an optional section (Projects, Certifications, Publications,
+     Leadership & Activities) ONLY when the candidate supplied nothing for it —
+     leave no empty \\section heading.
    * If the candidate has no summary in the source, write one optimized for the JD.
    * If the candidate has genuinely resume-worthy content that the template
      has no section for (Publications, Patents, Awards, Security Clearance,
