@@ -503,7 +503,7 @@ export function CaseStatusSection() {
             <Card className="p-4 sm:p-6 border-border">
               <CaseStatusPanelErrorBoundary area="analytics">
                 {isPremium === true && isOptCase && (
-                  <VerifiedForecastPanel caseId={caseStatus.id} lastCheckedAt={caseStatus.last_checked_at ?? null} />
+                  <VerifiedForecastPanel caseId={caseStatus.id} lastCheckedAt={caseStatus.last_checked_at ?? null} stemExtension={isStemExtension} />
                 )}
                 <AnalyticsPanels
                   key={caseStatus.id}

@@ -28,6 +28,18 @@ it('shows dates, distinct freshness and uncertainty without invented high confid
   expect(screen.getByText('October 12, 2026')).toBeInTheDocument();
   expect(screen.queryByText('High')).toBeNull();
 });
+it('names STEM OPT for a STEM extension case and OPT otherwise', () => {
+  const f = {
+    ...emptyForecast(null, '2026-11-18T12:00:00Z', 'Being validated.'),
+    waitingDays: 175,
+  };
+  const { rerender } = render(<ForecastDetails forecast={f} stemExtension />);
+  expect(
+    screen.getByText('Estimated STEM OPT Approval Window')
+  ).toBeInTheDocument();
+  rerender(<ForecastDetails forecast={f} />);
+  expect(screen.getByText('Estimated OPT Approval Window')).toBeInTheDocument();
+});
 it('replaces a pending estimate with an explicit verified approval', () => {
   render(
     <ForecastDetails
