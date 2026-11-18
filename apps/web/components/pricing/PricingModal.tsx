@@ -23,6 +23,7 @@ import {
 } from '@/lib/pricing/sales-copy';
 import { PlanPickerGuide } from '@/components/pricing/PlanPickerGuide';
 import { CaseMonitoringOffer } from './CaseMonitoringOffer';
+import { CasePassOffer } from './CasePassOffer';
 import {
   captureClientEvent,
   capturePricingCtaViewed,
@@ -564,6 +565,8 @@ function PricingModalContent({
                 />
               ))}
             </div>
+
+            {!isPremium && <CasePassOffer source={checkoutSource} />}
 
             {promoError && (
               <p

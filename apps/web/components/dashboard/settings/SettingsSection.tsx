@@ -290,6 +290,7 @@ export function SettingsSection() {
           isPremium: premiumData.isPremium || false,
           planName: premiumData.planName,
           expiresAt: premiumData.expiresAt,
+          casePass: premiumData.casePass === true,
         });
       }
 

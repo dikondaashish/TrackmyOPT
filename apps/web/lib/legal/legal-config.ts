@@ -7,6 +7,7 @@ import {
   DEDICATED_ATTORNEY_BENEFIT,
   PLAN_LIMITS,
   PLAN_PRICES,
+  CASE_PASS,
   PRO_PAID_INTRO,
 } from '@/lib/pricing/plan-config';
 
@@ -306,6 +307,14 @@ export function getPricingModalProConsentLabel(params: {
     return `I agree to pay $${PRO_PAID_INTRO_PRICE.toFixed(2)} today for my first ${PRO_TRIAL_DAYS} days. After that, Pro renews at ${price} unless I cancel before the introductory period ends. The $${PRO_PAID_INTRO_PRICE.toFixed(2)} charge is refundable only during those first ${PRO_PAID_INTRO_REFUND_DAYS} days; recurring charges are non-refundable except where required by law.`;
   }
   return `I agree Pro is charged today at ${price} and renews until canceled. This account has already used its introductory offer, and change-of-mind refunds are not available.`;
+}
+
+/**
+ * Consent copy for the one-time Case Pass. The same text is shown at checkout
+ * and stored with the consent record, so keep it a single source.
+ */
+export function getCasePassConsentLabel(): string {
+  return `I agree to pay ${formatUsd(CASE_PASS.price)} today for the TrackMyOPT Case Pass: Pro access for ${CASE_PASS.durationDays} days. It is a one-time payment and does not renew. Case Pass purchases are final and non-refundable except where required by law.`;
 }
 
 /** Inline consent copy on PricingModal Dedicated card (charged today, not after money-back window). */

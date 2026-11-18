@@ -11,6 +11,7 @@ import {
   PRO_PAID_INTRO_PRICE,
   PRO_TRIAL_DAYS,
 } from "@/lib/legal/legal-config";
+import { CASE_PASS } from "@/lib/pricing/plan-config";
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions | TrackMyOPT',
@@ -97,6 +98,7 @@ export default function TermsPage() {
               <ul>
                 <li><strong>Pro:</strong> An eligible account may use the paid introductory offer once: ${PRO_PAID_INTRO_PRICE.toFixed(2)} charged at checkout for the first {PRO_TRIAL_DAYS} days, followed by automatic renewal at the selected monthly or annual price unless canceled before the introduction ends. The ${PRO_PAID_INTRO_PRICE.toFixed(2)} charge is refundable only during those first {PRO_TRIAL_DAYS} days. Pro renewal charges are not refundable for change of mind. Accounts that already used the offer are charged the regular price immediately. Any legacy free trial remains governed by its original checkout terms.</li>
                 <li><strong>Dedicated:</strong> Billed immediately when you subscribe. A 3-day money-back guarantee applies only to your first Dedicated subscription charge, whether monthly or annual, as described in our <Link href="/refund-policy">Refund Policy</Link>.</li>
+                <li><strong>Case Pass:</strong> A one-time payment of ${CASE_PASS.price.toFixed(2)} for Pro access for {CASE_PASS.durationDays} days. It is not a subscription, it does not renew, and there is nothing to cancel. Case Pass purchases are final and non-refundable, except where required by law or for confirmed billing errors or unauthorized charges as stated in the <Link href="/refund-policy">Refund Policy</Link>.</li>
                 <li><strong>After the applicable refund window:</strong> No refunds for change of mind, except where required by law or for confirmed billing errors or unauthorized charges as stated in the Refund Policy.</li>
                 <li><strong>Cancellation:</strong> Use Settings → Subscription → Cancel subscription to open Stripe&apos;s Customer Portal. Cancellation stops future renewals only; access continues through the end of the current paid period.</li>
                 <li><strong>Material changes:</strong> We will provide advance notice by email and/or in-app notice when we materially change subscription price, renewal, cancellation, or refund terms.</li>

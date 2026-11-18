@@ -55,6 +55,10 @@ best effort; these client events do not describe all users or grant access.
 | `premium_checkout_viewed` | Client | `plan_id`, `interval`, `source` | Checkout modal load |
 | `premium_checkout_completed` | Client | `plan_tier`, `stripe_session_id`, `source` | Premium activation observability |
 | `pro_offer_consent_prompted` | Client | `source`, `interval`, `plan_tier` | Pay button pressed before the consent box was ticked (button is no longer disabled) |
+| `case_pass_offer_viewed` | Client | `source` | One-time Case Pass offer shown under the plan comparison |
+| `case_pass_consent_prompted` | Client | `source` | Case Pass button pressed before the consent box was ticked |
+| `case_pass_offer_clicked` | Client | `source` | Case Pass button pressed with consent; checkout request follows |
+| `case_pass_purchased` | Server | `plan_id`, `amount_cents`, `currency`, `source` | Stripe-verified one-time Case Pass payment |
 | `late_case_help_shown` | Client | `plan_tier`, `level` | Late-case panel rendered (`past_typical` or `slow_quarter`) |
 | `free_case_update_email_sent` | Server | — | Free account emailed that a scheduled check found a status change |
 | `checkout_started` | Server | `plan_id`, `amount_cents`, `$insert_id` | Sole emitter: `create-checkout` after Stripe session exists (Phase 5) |

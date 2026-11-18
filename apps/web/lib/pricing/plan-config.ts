@@ -41,6 +41,18 @@ export const PRO_PAID_INTRO = {
   usesPerAccount: 1,
 } as const;
 
+/**
+ * One-time alternative to the Pro subscription: a single payment for Pro
+ * access over a fixed term. It does not renew and is not refundable (owner
+ * decision, 2026-11-18). Checkout builds the Stripe price from these values,
+ * so there is no Stripe Price ID to keep in sync.
+ */
+export const CASE_PASS = {
+  price: 9.99,
+  durationDays: 180,
+  durationLabel: '6 months',
+} as const;
+
 export const RESUME_CREDIT_PACK = {
   priceUsd: 1,
   creditsPerPack: 10,

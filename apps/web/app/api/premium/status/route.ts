@@ -8,6 +8,10 @@ import Stripe from 'stripe';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { logIdPrefix, sanitizeError, secureLog } from '@/lib/secure-logger';
 import {
+  getActiveCasePassExpiry,
+  restoreCasePassAccess,
+} from '@/lib/premium/case-pass';
+import {
   getPlanFromSubscription,
   listValidCustomerSubscriptions,
   pickBestSubscription,
@@ -277,6 +281,24 @@ async function handleGET(req: NextRequest) {
         );
       }
 
+      // A subscription that ended can leave an earlier date on a one-time
+      // Case Pass that is still running; put the pass back instead of revoking.
+      const casePassExpiry = await restoreCasePassAccess(supabase, userId);
+      if (casePassExpiry) {
+        return NextResponse.json(
+          {
+            isPremium: true,
+            planName: 'pro',
+            expiresAt: casePassExpiry.toISOString(),
+            purchasedAt: data.premium_purchased_at,
+            dedicatedStartedAt: data.dedicated_started_at,
+            customerId: data.stripe_customer_id,
+            ...trialPayload(true),
+          },
+          { status: 200, headers: cors }
+        );
+      }
+
       // Stripe confirmed no active subscription — safely revoke.
       const { error: revokeError } = await supabase
         .from('profiles')
@@ -306,6 +328,17 @@ async function handleGET(req: NextRequest) {
       );
     }
 
+    // Access without a Stripe subscription may be a one-time Case Pass, which
+    // settings show without renewal or cancellation wording.
+    let casePass = false;
+    if (!stripeBestSub) {
+      try {
+        casePass = Boolean(await getActiveCasePassExpiry(supabase, userId));
+      } catch {
+        secureLog.error('GET /api/premium/status: Case Pass lookup failed');
+      }
+    }
+
     return NextResponse.json({
       isPremium: true,
       planName: data.plan_tier || 'pro',
@@ -314,6 +347,7 @@ async function handleGET(req: NextRequest) {
       dedicatedStartedAt: data.dedicated_started_at,
       customerId: data.stripe_customer_id,
       billingStatus,
+      casePass,
       ...trialPayload(data.pro_free_trial_consumed),
     }, {
       status: 200,

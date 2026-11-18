@@ -1,5 +1,10 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import type Stripe from "stripe";
+
+const casePass = vi.hoisted(() => ({ restore: vi.fn() }));
+vi.mock("@/lib/premium/case-pass", () => ({
+  restoreCasePassAccess: casePass.restore,
+}));
 import {
   compareSubscriptions,
   getPlanFromStripePriceId,
@@ -206,7 +211,48 @@ describe("stripeSubscriptionSync", () => {
     expect(best?.id).toBe("sub_p");
   });
 
+  it("keeps a running Case Pass when no subscription is left", async () => {
+    casePass.restore.mockResolvedValueOnce(new Date("2027-05-01T00:00:00Z"));
+    const stripe = {
+      subscriptions: {
+        list: vi.fn().mockResolvedValue({ data: [], has_more: false }),
+      },
+    };
+    const supabase = { from: vi.fn() };
+    await expect(
+      reconcileCustomerBilling({
+        stripe: stripe as unknown as Stripe,
+        supabase: supabase as never,
+        customerId: "cus_1",
+        userId: "user-1",
+      }),
+    ).resolves.toEqual({ action: "unchanged" });
+    expect(casePass.restore).toHaveBeenCalledWith(supabase, "user-1");
+    // No revocation write was attempted.
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+
+  it("does not revoke when the Case Pass lookup fails", async () => {
+    casePass.restore.mockRejectedValueOnce(new Error("Case Pass lookup failed"));
+    const stripe = {
+      subscriptions: {
+        list: vi.fn().mockResolvedValue({ data: [], has_more: false }),
+      },
+    };
+    const supabase = { from: vi.fn() };
+    await expect(
+      reconcileCustomerBilling({
+        stripe: stripe as unknown as Stripe,
+        supabase: supabase as never,
+        customerId: "cus_1",
+        userId: "user-1",
+      }),
+    ).rejects.toThrow("Case Pass lookup failed");
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+
   it("throws when revoking premium fails so Stripe can retry", async () => {
+    casePass.restore.mockResolvedValueOnce(null);
     const stripe = {
       subscriptions: {
         list: vi.fn().mockResolvedValue({ data: [], has_more: false }),

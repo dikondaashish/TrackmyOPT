@@ -4,6 +4,7 @@ import { buildCheckoutDisclosures, LEGAL_POLICY_VERSIONS } from "@/lib/legal/leg
 
 type BillingConsentEventType =
   | "checkout_recurring_consent"
+  | "case_pass_checkout_consent"
   | "subscription_cancel_initiated"
   | "policy_material_change_notice";
 

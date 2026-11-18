@@ -36,6 +36,8 @@ interface PremiumStatus {
   planName?: string;
   expiresAt?: string;
   dedicatedStartedAt?: string | null;
+  /** One-time Case Pass: fixed end date, no renewal, nothing to cancel. */
+  casePass?: boolean;
 }
 
 interface SubscriptionSettingsProps {
@@ -509,15 +511,23 @@ export function SubscriptionSettings({
                 </div>
 
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-                  {currentPlan === 'dedicated' ? 'Dedicated Plan' : 'PRO Plan'}
+                  {premium.casePass
+                    ? 'Case Pass'
+                    : currentPlan === 'dedicated'
+                      ? 'Dedicated Plan'
+                      : 'PRO Plan'}
                 </h3>
                 <p className="text-sm text-gray-500 mb-6">
-                  Active Subscription
+                  {premium.casePass
+                    ? 'One-time purchase. Pro access, does not renew.'
+                    : 'Active Subscription'}
                 </p>
 
                 <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Current period ends</span>
+                    <span className="text-gray-500">
+                      {premium.casePass ? 'Access ends' : 'Current period ends'}
+                    </span>
                     <span className="font-medium text-gray-900 dark:text-gray-100">
                       {premium.expiresAt
                         ? new Date(premium.expiresAt).toLocaleDateString()
@@ -550,13 +560,15 @@ export function SubscriptionSettings({
                   />
                 </Button>
 
-                <div className="mt-4">
-                  <CancelSubscriptionCard
-                    accessThroughDate={premium.expiresAt ?? null}
-                    onCancel={onManage}
-                    isLoading={isLoading}
-                  />
-                </div>
+                {!premium.casePass && (
+                  <div className="mt-4">
+                    <CancelSubscriptionCard
+                      accessThroughDate={premium.expiresAt ?? null}
+                      onCancel={onManage}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
 
                 {currentPlan === 'dedicated' &&
                   dedicatedConsultation.eligible && (

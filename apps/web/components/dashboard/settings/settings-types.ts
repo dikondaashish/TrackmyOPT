@@ -27,6 +27,8 @@ export interface PremiumStatus {
   planName?: string;
   expiresAt?: string;
   dedicatedStartedAt?: string | null;
+  /** One-time Case Pass: fixed end date, no renewal. */
+  casePass?: boolean;
 }
 
 export interface CaseStatusSettings {
