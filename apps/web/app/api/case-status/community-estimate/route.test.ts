@@ -29,12 +29,62 @@ it('requires authentication before reading plans or metrics', async () => {
   expect(m.plan).not.toHaveBeenCalled();
   expect(m.estimate).not.toHaveBeenCalled();
 });
-it('does not calculate or return metrics for a free or expired subscription', async () => {
+it('gives a free or expired subscription the headline wait and nothing that places the case', async () => {
   m.plan.mockResolvedValue('free');
+  m.estimate.mockResolvedValue({
+    prediction: {
+      medianDays: 96,
+      cohortSize: 412,
+      caseKind: 'initial_opt',
+      premiumProcessing: false,
+      matchLevel: 'case_kind',
+      sourceNote: 'Community reports',
+      p25Days: 80,
+      p75Days: 120,
+    },
+    stages: {
+      biometrics: { stage: 'biometrics', medianDays: 23, p25Days: 16, p75Days: 28, sampleSize: 900 },
+      cardProduced: null,
+      cardDelivered: null,
+      sourceNote: 'Community reports',
+    },
+    heatmap: [{ month: '2026-04', buckets: [1, 2, 3, 4, 5, 6] }],
+    weeklyTrend: [{ week: '2026-04-06' }],
+    histogram: { bins: [1] },
+    similarFiling: { medianDays: 99 },
+    evidence: { included: 1 },
+    premiumUpgrade: { sampleSize: 3 },
+  });
   const response = await GET(request());
-  expect(response.status).toBe(403);
+  expect(response.status).toBe(200);
   expect(response.headers.get('Cache-Control')).toBe('no-store');
-  expect(m.estimate).not.toHaveBeenCalled();
+  const body = await response.json();
+  expect(body).toEqual({
+    ok: true,
+    planTier: 'free',
+    evidence: null,
+    premiumUpgrade: null,
+    summary: {
+      medianDays: 96,
+      cohortSize: 412,
+      caseKind: 'initial_opt',
+      premiumProcessing: false,
+      matchLevel: 'case_kind',
+      sourceNote: 'Community reports',
+    },
+    prediction: null,
+    heatmap: [],
+    weeklyTrend: [],
+    histogram: null,
+    similarFiling: null,
+    stages: {
+      biometrics: { stage: 'biometrics', medianDays: 23 },
+      cardProduced: null,
+      cardDelivered: null,
+      sourceNote: 'Community reports',
+    },
+  });
+  expect(JSON.stringify(body)).not.toMatch(/p25|p75|sampleSize/);
 });
 it('returns current premium metrics without shared caching', async () => {
   const response = await GET(request());

@@ -324,6 +324,8 @@ type UpgradePromptTrigger =
   | 'stale_status'
   | 'receipt_added'
   | 'case_insight_popup'
+  | 'locked_comparison'
+  | 'late_case_help'
   | 'case_status_attorney_access'
   | 'h1b_limit'
   | 'ats_limit'

@@ -47,6 +47,8 @@ import { NotificationDelivery } from './panels/NotificationDelivery';
 import { CaseInfoFooter } from '@/components/dashboard/case-status/panels/CaseInfoFooter';
 import { CASE_STATUS_MESSAGING } from '@/lib/messaging/product-copy';
 import { deriveJourneyPhase } from '@/lib/community-opt/stages';
+import { assessLateCase } from '@/lib/case-status/late-case-help';
+import { LateCaseHelp } from '@/components/dashboard/case-status/panels/LateCaseHelp';
 import { useCaseStatusController } from '@/components/dashboard/case-status/useCaseStatusController';
 
 export function CaseStatusSection() {
@@ -143,6 +145,25 @@ export function CaseStatusSection() {
   if (isInitialLoad) {
     return <CaseStatusLoading />;
   }
+
+  // A pending OPT/STEM OPT case past the typical community wait gets the
+  // late-case steps (Pro) or a list of what they cover (Free).
+  const lateCase =
+    caseStatus && isPremium !== null
+      ? assessLateCase({
+          daysSinceFiled,
+          medianDays:
+            communityPrediction?.medianDays ?? communitySummary?.medianDays,
+          p75Days: communityPrediction?.p75Days,
+          phase: deriveJourneyPhase(
+            caseStatus.current_status,
+            safeStatusHistory
+          ),
+          currentStatus: caseStatus.current_status,
+          premiumProcessing: Boolean(caseStatus.pp_start_date),
+          estimatesAvailable: isOptCase && !formTypeMismatch,
+        })
+      : null;
 
   return (
     <div className="space-y-5">
@@ -427,8 +448,32 @@ export function CaseStatusSection() {
             </CaseStatusPanelErrorBoundary>
           )}
 
-          {/* ── 5. ANALYTICS SECTION ── */}
-          {isPremium === true && (
+          {/* ── 4c. Late-case help ── */}
+          {lateCase && (
+            <CaseStatusPanelErrorBoundary area="late_case_help">
+              <LateCaseHelp
+                key={caseStatus.id}
+                assessment={lateCase}
+                details={{
+                  receiptNumber: caseStatus.receipt_number,
+                  filedDate: caseStatus.received_date ?? null,
+                  daysSinceFiled: lateCase.daysSinceFiled,
+                  stemExtension: isStemExtension,
+                }}
+                isPro={isPremium === true}
+                onUpgrade={() =>
+                  openProTrialModal(CHECKOUT_UPSELL_TRIGGER.LATE_CASE_HELP)
+                }
+              />
+            </CaseStatusPanelErrorBoundary>
+          )}
+
+          {/* ── 5. ANALYTICS SECTION ──
+              Free sees the typical wait and what each Pro comparison holds;
+              the server withholds the Pro numbers. From Oct 12 to Nov 18, 2026
+              this whole section was hidden on Free, so the page never showed
+              what Pro adds. */}
+          {isPremium !== null && (
             <Card className="p-4 sm:p-6 border-border">
               <CaseStatusPanelErrorBoundary area="analytics">
                 {isPremium === true && isOptCase && (
@@ -438,7 +483,9 @@ export function CaseStatusSection() {
                   key={caseStatus.id}
                   receiptNumber={caseStatus.receipt_number}
                   isPremium={isPremium}
-                  onUpgrade={() => openProTrialModal()}
+                  onUpgrade={() =>
+                    openProTrialModal(CHECKOUT_UPSELL_TRIGGER.LOCKED_COMPARISON)
+                  }
                   daysSinceFiled={daysSinceFiled ?? 0}
                   prediction={communityPrediction ?? undefined}
                   summary={communitySummary}

@@ -249,7 +249,7 @@ export function useCaseStatusController() {
     communityStages,
     communityEstimateLoading,
     communityEvidence,
-  } = useCommunityEstimate(caseStatus, clientNowMs, isPremium === true);
+  } = useCommunityEstimate(caseStatus, clientNowMs, isPremium !== null);
 
   const filingCategoryPromptKey = caseStatus?.id
     ? `tmo_filing_prompt_dismissed_${caseStatus.id}`

@@ -71,6 +71,10 @@ export const CASE_STATUS_MESSAGING = {
   caseInsightInlineBody:
     'Pro checks USCIS daily and emails you when your status changes. Community estimates remain planning guidance, not promised dates.',
   caseInsightCta: 'See daily monitoring options',
+  comparisonInlineTitle: 'See where your case sits',
+  comparisonInlineBody:
+    'Pro compares your wait with cases filed the same week as yours, shows whether the queue is speeding up or slowing down, and marks your place in the full spread of reported waits.',
+  comparisonCta: 'Unlock my comparison',
   disclaimer:
     'Status data comes from USCIS. Processing times vary — check with your DSO or attorney for official guidance.',
 } as const;

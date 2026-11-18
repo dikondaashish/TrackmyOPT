@@ -104,6 +104,8 @@ export const CHECKOUT_UPSELL_TRIGGER = {
   STALE_STATUS: 'stale_status',
   RECEIPT_ADDED: 'receipt_added',
   CASE_INSIGHT: 'case_insight_popup',
+  LOCKED_COMPARISON: 'locked_comparison',
+  LATE_CASE_HELP: 'late_case_help',
   ATTORNEY_ACCESS: 'case_status_attorney_access',
 } as const;
 
