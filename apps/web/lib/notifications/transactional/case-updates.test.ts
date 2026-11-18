@@ -179,7 +179,7 @@ describe('trial progress email', () => {
   });
   it('asks for a receipt when no case is saved, and handles a queued first check', () => {
     const empty = buildTrialProgressEmailBodies({ ...base, checks: 0, cases: 0, changes: 0, introEndDate: null });
-    expect(empty.text).toContain('have not added a USCIS receipt yet');
+    expect(empty.text).toContain('No receipt added yet');
     expect(empty.html).toContain('Add my receipt');
     expect(empty.text).not.toContain('runs through');
     const queued = buildTrialProgressEmailBodies({ ...base, checks: 0, cases: 1, changes: 0 });

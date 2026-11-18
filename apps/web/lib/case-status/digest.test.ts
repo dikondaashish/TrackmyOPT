@@ -65,7 +65,7 @@ it('gives a Free account its last revealed status and only a flag for a newer on
     { free: true }
   );
   expect(text).toContain('OPT: Case Was Received');
-  expect(text).toContain('found a newer USCIS status since then');
+  expect(text).toContain('A newer USCIS status is waiting');
   expect(text).not.toContain('Approved');
   expect(text).toContain('On Pro, each new status');
 
@@ -76,5 +76,5 @@ it('gives a Free account its last revealed status and only a flag for a newer on
   expect(unchanged[0]!.updateWaiting).toBe(false);
   expect(
     buildCaseDigest(unchanged, [], '2026-11-16', new Date(), { free: true })
-  ).toContain('have not found a different status since then');
+  ).toContain('No new status since then.');
 });
