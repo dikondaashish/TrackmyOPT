@@ -81,6 +81,8 @@ describe('Pro checkout failure reporting', () => {
 
 describe('plan comparison consent', () => {
   it('prompts for the consent box instead of starting checkout', async () => {
+    // jsdom has no scrollIntoView; the modal scrolls to `initialPlan` on a timer.
+    Element.prototype.scrollIntoView = vi.fn();
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({ proPaidIntroEligible: true }))
     );
@@ -104,6 +106,10 @@ describe('plan comparison consent', () => {
     expect(fetchMock).not.toHaveBeenCalledWith(
       '/api/premium/create-checkout',
       expect.anything()
+    );
+    // Let the scroll timer run inside the test, not after it.
+    await waitFor(() =>
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalled()
     );
   });
 });
