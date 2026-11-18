@@ -20,6 +20,7 @@ import {
   buildPaymentSucceededCapture,
 } from '@/lib/posthog/billing-analytics';
 import { isResumeCreditCheckout } from '@/lib/resume-credits/fulfillment';
+import { CASE_PASS_PLAN_ID, isCasePassCheckout } from '@/lib/premium/case-pass';
 import {
   refreshPostHogLtv,
   resolveCheckoutAnalyticsUserId,
@@ -90,6 +91,21 @@ export async function handleCheckoutCompleted(
       secureLog.warn('checkout analytics skipped: no user for session', {
         sessionId: logIdPrefix(session.id),
       });
+      return;
+    }
+
+    if (isCasePassCheckout(session)) {
+      // One-time purchase: no subscription events, receipts or intro tracking.
+      if (result.alreadyRecorded) return;
+      await captureServerEvent(userId, 'case_pass_purchased', {
+        $insert_id: billingInsertId('case_pass_purchased', stripeEventId),
+        plan_id: CASE_PASS_PLAN_ID,
+        amount_cents: session.amount_total ?? 0,
+        currency: session.currency || 'usd',
+        source: session.metadata?.checkout_source ?? 'unknown',
+        verified_by: 'stripe',
+      });
+      await refreshPostHogLtv(userId);
       return;
     }
 
@@ -255,7 +271,11 @@ export async function logPaymentFailure(session: Stripe.Checkout.Session) {
       currency: session.currency || 'usd',
       status: 'failed',
       failure_reason: 'Async payment failed',
-      plan_id: isResumeCreditCheckout(session) ? 'resume_credits' : session.metadata?.planId,
+      plan_id: isResumeCreditCheckout(session)
+        ? 'resume_credits'
+        : isCasePassCheckout(session)
+          ? CASE_PASS_PLAN_ID
+          : session.metadata?.planId,
       metadata: isResumeCreditCheckout(session)
         ? { purchase_type: 'resume_credit_pack' }
         : session.metadata,

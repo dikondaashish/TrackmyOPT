@@ -80,10 +80,31 @@ New measures: `upgrade_prompt_shown` with trigger `locked_comparison` or
 The late-case steps were checked against uscis.gov and dhs.gov on
 2026-11-18. Recheck them when USCIS changes its inquiry or premium rules.
 
+## Case Pass
+
+Owner decision, 2026-11-18: $9.99 once for Pro for 180 days, no renewal, no
+refunds. It is offered under the plan comparison and on the pricing page,
+next to the subscription, to accounts without paid access.
+
+| Part | Where |
+| --- | --- |
+| Price and term | `CASE_PASS` in `lib/pricing/plan-config.ts`. Checkout builds the Stripe price inline, so there is no Stripe Price or environment variable. |
+| Checkout | `POST /api/premium/case-pass/checkout`: one-time Stripe Checkout, consent recorded as `case_pass_checkout_consent`. Refused for accounts that already have paid access. |
+| Access | `applyStripeCheckoutSession` grants Pro until 180 days after the purchase and records the payment with `plan_id = case_pass`. |
+| Protection | Subscription code revokes access when Stripe has no active subscription. `reconcileCustomerBilling` and `/api/premium/status` call `restoreCasePassAccess` first, so a running pass survives a cancelled or expired subscription. A fully refunded pass is marked `refunded` and stops counting. |
+| Display | Settings show "Case Pass", the end date and no cancel card. Refund Policy and Terms state that it does not renew and is not refundable. |
+
+Measures: `case_pass_offer_viewed`, `case_pass_consent_prompted`,
+`case_pass_offer_clicked` (client), `checkout_started` with
+`plan_id = case_pass` and `case_pass_purchased` (server), and Stripe
+one-time payments of $9.99. Compare pass purchases with new subscriptions
+per month, and watch refund requests and disputes.
+
+Not built: a reminder before a pass ends, and a way to buy a pass on top of
+a running subscription.
+
 ## Still open
 
-- One-time Case Pass ($9.99 for 6 months, no refunds), tested against the
-  subscription.
 - Phase 3: move approved users to the unemployment clock and job tools.
 - The first-visit NPS prompt still opens right after the first status
   resolves.

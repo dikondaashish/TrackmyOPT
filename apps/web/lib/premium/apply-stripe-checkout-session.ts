@@ -7,6 +7,12 @@
 import type Stripe from "stripe";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendPremiumWelcomeEmail } from "@/lib/notifications/email-service";
+import {
+  CASE_PASS_PLAN_ID,
+  CASE_PASS_PURCHASE_TYPE,
+  casePassExpiryFrom,
+  isCasePassCheckout,
+} from "@/lib/premium/case-pass";
 
 function resolvePaymentIntentId(session: Stripe.Checkout.Session): string {
   const pi = session.payment_intent;
@@ -47,6 +53,11 @@ export async function applyStripeCheckoutSession(args: {
   if (session.metadata?.purchase_type === "resume_credit_pack") {
     return { ok: false, reason: "resume_credit_checkout_requires_credit_fulfillment" };
   }
+  const isCasePass = isCasePassCheckout(session);
+  // A one-time purchase grants access only once it is actually paid.
+  if (isCasePass && session.payment_status !== "paid") {
+    return { ok: false, reason: "case_pass_not_paid" };
+  }
   let userId = session.metadata?.supabase_user_id;
 
   if (!userId) {
@@ -81,6 +92,14 @@ export async function applyStripeCheckoutSession(args: {
   const isAnnual = planId.includes("annual") || planId.includes("yearly") || planId.includes("year");
   let expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 366 : 32));
+
+  // The Case Pass has a fixed term counted from the purchase, so a webhook
+  // retry and /api/premium/confirm-checkout land on the same end date.
+  if (isCasePass) {
+    expiresAt = casePassExpiryFrom(
+      typeof session.created === "number" ? session.created * 1000 : Date.now()
+    );
+  }
 
   // Prefer the real Stripe period_end over the fallback — override when available.
   const subscriptionIdForRetrieve = resolveStripeSubscriptionId(session);
@@ -136,7 +155,10 @@ export async function applyStripeCheckoutSession(args: {
       session_id: session.id,
       plan_id: planTier,
       customer_email: session.customer_details?.email,
+      ...(isCasePass ? { purchase_type: CASE_PASS_PURCHASE_TYPE } : {}),
     },
+    // The pass is found again by this column (see lib/premium/case-pass.ts).
+    ...(isCasePass ? { plan_id: CASE_PASS_PLAN_ID } : {}),
     updated_at: new Date().toISOString(),
   };
 

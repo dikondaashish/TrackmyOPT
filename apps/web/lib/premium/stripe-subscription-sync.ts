@@ -9,6 +9,7 @@
 import type Stripe from 'stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { secureLog, logIdPrefix } from '@/lib/secure-logger';
+import { restoreCasePassAccess } from '@/lib/premium/case-pass';
 
 export type PlanId = 'pro' | 'dedicated';
 export type BillingInterval = 'month' | 'year';
@@ -302,6 +303,10 @@ export async function reconcileCustomerBilling(args: {
   }
 
   if (!best) {
+    // No subscription is left, but a one-time Case Pass may still be running.
+    if (await restoreCasePassAccess(supabase, userId)) {
+      return { action: 'unchanged' };
+    }
     const { error } = await supabase
       .from('profiles')
       .update({

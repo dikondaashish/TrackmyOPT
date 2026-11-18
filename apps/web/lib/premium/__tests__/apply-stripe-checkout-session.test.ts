@@ -156,6 +156,64 @@ describe("applyStripeCheckoutSession", () => {
     expect(mockSupabase.from).toHaveBeenCalledWith("payment_transactions");
   });
 
+  describe("Case Pass", () => {
+    const created = Date.UTC(2026, 10, 18, 12, 0, 0) / 1000;
+    beforeEach(() => {
+      mockSession = {
+        ...mockSession,
+        created,
+        amount_total: 999,
+        payment_status: "paid",
+        metadata: {
+          supabase_user_id: "user_123",
+          planId: "pro",
+          purchase_type: "case_pass",
+        },
+      };
+    });
+
+    it("grants Pro for 180 days counted from the purchase and records the pass", async () => {
+      const { txChainable, profileChainable } = setupSupabaseMock({});
+      const result = await applyStripeCheckoutSession({
+        stripe: mockStripe as Stripe,
+        supabase: mockSupabase as SupabaseClient,
+        session: mockSession as Stripe.Checkout.Session,
+      });
+      expect(result).toEqual({ ok: true, alreadyRecorded: false });
+      expect(profileChainable.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          premium_status: true,
+          plan_tier: "pro",
+          subscription_expires_at: new Date(
+            created * 1000 + 180 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        })
+      );
+      expect(txChainable.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          plan_id: "case_pass",
+          amount: 999,
+          status: "succeeded",
+          stripe_subscription_id: null,
+          metadata: expect.objectContaining({ purchase_type: "case_pass" }),
+        })
+      );
+      expect(mockStripe.subscriptions.retrieve).not.toHaveBeenCalled();
+    });
+
+    it("does not grant access for an unpaid session", async () => {
+      mockSession.payment_status = "unpaid";
+      const { profileChainable } = setupSupabaseMock({});
+      const result = await applyStripeCheckoutSession({
+        stripe: mockStripe as Stripe,
+        supabase: mockSupabase as SupabaseClient,
+        session: mockSession as Stripe.Checkout.Session,
+      });
+      expect(result).toEqual({ ok: false, reason: "case_pass_not_paid" });
+      expect(profileChainable.update).not.toHaveBeenCalled();
+    });
+  });
+
   it("skips insert and returns alreadyRecorded if transaction exists", async () => {
     setupSupabaseMock({ txExists: true, profileUpdated: true });
 

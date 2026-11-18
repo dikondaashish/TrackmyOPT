@@ -26,6 +26,7 @@ import {
   PRO_PAID_INTRO_PRICE,
   PRO_TRIAL_DAYS,
 } from "@/lib/legal/legal-config";
+import { CASE_PASS } from "@/lib/pricing/plan-config";
 
 function SuccessHeroMark({ variant }: { variant: "pro" | "dedicated" }) {
   const ring =
@@ -126,6 +127,8 @@ export function PremiumSuccessClient() {
   const [trialEndLabel, setTrialEndLabel] = useState<string | null>(null);
 
   const isDedicated = planId === "dedicated";
+  // One-time Case Pass: no subscription, so no renewal wording.
+  const isCasePass = searchParams.get("pass") === "1";
   const variant = isDedicated ? "dedicated" : "pro";
 
   useEffect(() => {
@@ -206,6 +209,8 @@ export function PremiumSuccessClient() {
 
   const headline = isDedicated
     ? "You're set for Dedicated"
+    : isCasePass
+      ? "Your Case Pass is active"
     : isTrialing
       ? `Your ${PRO_TRIAL_DAYS}-day paid Pro introduction is live`
       : "You're all set";
@@ -215,7 +220,9 @@ export function PremiumSuccessClient() {
       ? `Daily USCIS auto-checks and status-change emails are on${
           trialEndLabel ? ` through ${trialEndLabel}` : ""
         }. $${PRO_PAID_INTRO_PRICE.toFixed(2)} was charged today; regular billing starts after the introductory period unless you cancel in Settings.`
-      : "Pro is live—here’s what you can use first.";
+      : isCasePass
+        ? `Pro is on for ${CASE_PASS.durationDays} days. This was a one-time payment and it will not renew.`
+        : "Pro is live—here’s what you can use first.";
 
   const proFeatures = [
     {
@@ -312,13 +319,19 @@ export function PremiumSuccessClient() {
                 {syncState === "syncing" && (
                   <>
                     <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" aria-hidden />
-                    <span>Activating subscription…</span>
+                    <span>
+                      {isCasePass
+                        ? "Activating your Case Pass…"
+                        : "Activating subscription…"}
+                    </span>
                   </>
                 )}
                 {syncState === "synced" && (
                   <>
                     <BadgeCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-                    <span>Subscription active</span>
+                    <span>
+                      {isCasePass ? "Case Pass active" : "Subscription active"}
+                    </span>
                   </>
                 )}
                 {syncState === "error" && (

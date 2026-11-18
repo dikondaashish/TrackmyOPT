@@ -9,6 +9,7 @@ import {
   PRO_PAID_INTRO_REFUND_DAYS,
   PRO_TRIAL_DAYS,
 } from "@/lib/legal/legal-config";
+import { CASE_PASS } from "@/lib/pricing/plan-config";
 
 export const metadata: Metadata = {
   title: "Refund Policy | TrackMyOPT",
@@ -21,7 +22,7 @@ export default function RefundPolicyPage() {
     <LegalPageShell title="Refund Policy" policyType="refund_policy">
       <h2>1. Overview</h2>
       <p>
-        This Refund Policy applies to paid subscriptions for TrackMyOPT (operated by Zyene, Inc.). All payments are processed by <strong>Stripe</strong>. By subscribing, you agree to this policy and our{" "}
+        This Refund Policy applies to paid subscriptions and one-time purchases for TrackMyOPT (operated by Zyene, Inc.). All payments are processed by <strong>Stripe</strong>. By subscribing, you agree to this policy and our{" "}
         <Link href="/terms">Terms of Service</Link>.
       </p>
 
@@ -32,6 +33,9 @@ export default function RefundPolicyPage() {
         </li>
         <li>
           <strong>Dedicated</strong> — ${PLAN_DISPLAY_PRICES.dedicated.month}/month or ${PLAN_DISPLAY_PRICES.dedicated.year}/year. Includes a {DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee on the first Dedicated subscription charge only. Subscribers may switch to Pro at any time in the dashboard.
+        </li>
+        <li>
+          <strong>Case Pass</strong> — a one-time payment of ${CASE_PASS.price.toFixed(2)} for Pro access for {CASE_PASS.durationDays} days. It is not a subscription and does not renew.
         </li>
       </ul>
       <p>Exact amounts and discounts shown at checkout before you pay.</p>
@@ -50,6 +54,10 @@ export default function RefundPolicyPage() {
       <h2>5. No refunds after the applicable window</h2>
       <p>
         After the Pro {PRO_PAID_INTRO_REFUND_DAYS}-day paid introductory window, or after the Dedicated {DEDICATED_MONEY_BACK_DAYS}-day first-charge window, we do <strong>not</strong> provide refunds for change of mind, unused time, or partial billing periods (including annual plans), except where required by law or for a confirmed billing error or unauthorized charge.
+      </p>
+
+      <p>
+        The <strong>Case Pass</strong> is a one-time purchase with no refund window. It is <strong>not</strong> refundable for change of mind or unused time, except where required by law or for a confirmed billing error or unauthorized charge.
       </p>
 
       <h2>6. Cancellation vs. refunds</h2>

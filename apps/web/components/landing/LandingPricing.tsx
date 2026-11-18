@@ -11,10 +11,12 @@ import {
   shouldShowDedicatedPlanForSale,
 } from '@/lib/pricing/sales-copy';
 import {
+  CASE_PASS,
   PLAN_LIST_PRICES,
   PLAN_PRICES,
   annualSavingsPercent,
 } from '@/lib/pricing/plan-config';
+import Link from 'next/link';
 import { Layers, Rocket, ShieldCheck } from 'lucide-react';
 
 export function LandingPricing() {
@@ -88,6 +90,19 @@ export function LandingPricing() {
           )}`;
         }}
       />
+      <p className="mx-auto mt-8 max-w-2xl px-4 text-center text-sm text-muted-foreground">
+        Prefer to pay once? The Case Pass gives you Pro for{' '}
+        {CASE_PASS.durationLabel} for a single ${CASE_PASS.price.toFixed(2)}{' '}
+        payment. It does not renew.{' '}
+        <Link
+          href={`/login?redirect=${encodeURIComponent(
+            '/premium/checkout?planId=pro&interval=month'
+          )}`}
+          className="font-semibold text-primary underline underline-offset-4"
+        >
+          Get the Case Pass
+        </Link>
+      </p>
     </section>
   );
 }
