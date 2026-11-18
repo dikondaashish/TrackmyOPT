@@ -84,8 +84,8 @@ export function buildCaseDigest(
       if (options.free)
         return `${clean(c.label || `Case ${index + 1}`)}: ${clean(c.current_status || 'Status not yet revealed')}\nYour last refresh: ${c.last_checked_at || 'Not yet'}. ${
           c.updateWaiting
-            ? 'A scheduled check has found a newer USCIS status since then. Sign in and refresh your case to see it.'
-            : 'Scheduled checks have not found a different status since then.'
+            ? 'A newer USCIS status is waiting. Sign in and refresh to see it.'
+            : 'No new status since then.'
         }\nWhat this means: ${clean(guidance.summary)}\nNext step: ${clean(guidance.nextStep)}`;
       return `${clean(c.label || `Case ${index + 1}`)}: ${clean(c.current_status || 'Status not yet available')}\nLast successful check: ${c.last_checked_at || 'Not confirmed'}. ${changes} recorded change(s) in the last 7 days.\nWhat this means: ${clean(guidance.summary)}\nNext step: ${clean(guidance.nextStep)}`;
     }),
@@ -95,13 +95,13 @@ export function buildCaseDigest(
       ? deadlines.map((d) => `${clean(d.title)} — ${d.due_date}`)
       : ['None saved. This does not confirm that you have no obligations.']),
     '',
-    'Review official notices for required actions and exact deadlines. No status change does not imply that USCIS has not worked on your case.',
+    'Check your official notices for required actions and deadlines. No status change does not mean USCIS has not worked on your case.',
     'https://www.trackmyopt.com/dashboard/case-status',
     ...(options.free
       ? [
-          'On Pro, each new status appears on your case page automatically and is emailed to you the day a scheduled check detects it.',
+          'On Pro, each new status is emailed to you the day we detect it.',
         ]
       : []),
-    'Turn off Weekly summary on your case page to stop these digests. Individual case-change alerts are controlled separately.',
+    'Turn off Weekly summary on your case page to stop these. Case-change alerts are separate.',
   ].join('\n');
 }
