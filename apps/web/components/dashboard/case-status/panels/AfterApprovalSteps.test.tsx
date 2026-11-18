@@ -36,7 +36,7 @@ it('lists the next steps for an approved initial OPT case on Free', async () => 
   );
   expect(
     screen.getByRole('heading', {
-      name: 'Your case is approved. Here is what to do next',
+      name: 'Approved. Here is what to do next',
     })
   ).toBeInTheDocument();
   expect(

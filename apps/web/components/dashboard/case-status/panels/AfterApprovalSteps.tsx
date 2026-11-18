@@ -83,11 +83,10 @@ export function AfterApprovalSteps({
         id="after-approval-title"
         className="text-lg font-semibold text-foreground"
       >
-        Your case is approved. Here is what to do next
+        Approved. Here is what to do next
       </h2>
       <p className="mt-1 text-sm text-foreground">
-        Approval starts a new set of dates to keep track of. These tools are
-        free.
+        New dates to track. These tools are free.
       </p>
 
       <ol className="mt-3 space-y-2">
@@ -139,8 +138,7 @@ export function AfterApprovalSteps({
 
       {!isPro && onUpgrade && (
         <p className="mt-3 text-xs text-muted-foreground">
-          Pro emails you each morning with your unemployment days and the
-          deadlines coming up.{' '}
+          Pro emails your unemployment days and deadlines each morning.{' '}
           <button
             type="button"
             onClick={onUpgrade}
@@ -153,7 +151,7 @@ export function AfterApprovalSteps({
 
       <div className="mt-3 flex flex-col gap-2 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-foreground">
-          Know someone still waiting on their OPT? Send them the free tracker.
+          Know someone still waiting? Send them the free tracker.
         </p>
         <button
           type="button"

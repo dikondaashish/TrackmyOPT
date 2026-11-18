@@ -109,9 +109,9 @@ export function DashboardNextStepCard() {
         return {
           icon: BadgeCheck,
           iconClass: "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950",
-          title: "Your case is approved. Set up what comes next",
+          title: "Approved. Set up what comes next",
           description:
-            "Save the dates on your EAD, start your unemployment count, and add your job when you start. These tools are free.",
+            "Save your EAD dates, start your unemployment clock, add your job. Free.",
           cta: "See my next steps",
         };
       case "no_receipt":

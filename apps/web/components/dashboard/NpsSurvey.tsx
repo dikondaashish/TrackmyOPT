@@ -192,7 +192,7 @@ export function NpsSurvey() {
             Thank you. That helps a lot.
           </p>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-            Two ways to help other students who are still waiting:
+            Two ways to help students still waiting:
           </p>
           <div className="mt-4 flex flex-col gap-2">
             <button

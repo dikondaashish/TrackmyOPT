@@ -40,8 +40,8 @@ export function buildAfterApprovalSteps(args: {
   const steps: AfterApprovalStep[] = [
     {
       id: 'ead_dates',
-      title: 'Save the dates printed on your EAD',
-      body: 'Your unemployment count and reminders run from the start and end dates on the card, not from the approval date.',
+      title: 'Save your EAD dates',
+      body: 'Unemployment days count from the dates on the card, not the approval date.',
       href: '/dashboard/opt-dates',
       cta: hasEadDates ? 'Review my dates' : 'Save my EAD dates',
       done: hasEadDates,
@@ -52,8 +52,8 @@ export function buildAfterApprovalSteps(args: {
         ? 'Watch your 150 unemployment days'
         : 'Watch your 90 unemployment days',
       body: stemExtension
-        ? 'With the STEM extension you may be unemployed for up to 150 days in total, counting the days already used on your first OPT.'
-        : 'On post-completion OPT you may be unemployed for up to 90 days in total. The count starts on your EAD start date.',
+        ? 'You get up to 150 days in total, including days used on your first OPT.'
+        : 'You get up to 90 days in total, counted from your EAD start date.',
       href: stemExtension
         ? '/dashboard/opt-tools/stem-clock'
         : '/dashboard/opt-tools/opt-clock',
@@ -62,15 +62,15 @@ export function buildAfterApprovalSteps(args: {
     {
       id: 'employment',
       title: 'Add your job when you start',
-      body: 'Report a new employer to your DSO or in the SEVP Portal within 10 days. Saving it here stops your unemployment count on the right day.',
+      body: 'Report it to your DSO or the SEVP Portal within 10 days. Saving it here stops your unemployment clock.',
       href: '/dashboard/opt-dates#employment',
       cta: hasEmployment ? 'Review my employment' : 'Add my employer',
       done: hasEmployment,
     },
     {
       id: 'jobs',
-      title: 'Find jobs at employers with an H-1B record',
-      body: 'Browse current openings with each employer\u2019s H-1B petition history and E-Verify status, and keep your applications in one list.',
+      title: 'Find jobs at H-1B employers',
+      body: 'Open jobs with each employer\u2019s H-1B history and E-Verify status.',
       href: '/dashboard/career/jobs',
       cta: 'See verified jobs',
     },
@@ -78,8 +78,8 @@ export function buildAfterApprovalSteps(args: {
   if (!stemExtension)
     steps.push({
       id: 'stem_window',
-      title: 'Check whether you can extend with STEM OPT',
-      body: 'If your degree is on the STEM list, you can apply for a 24-month extension up to 90 days before your OPT EAD ends.',
+      title: 'Check your STEM OPT window',
+      body: 'With a STEM degree you can apply for 24 more months, up to 90 days before your EAD ends.',
       href: '/dashboard/opt-tools/stem-apply',
       cta: 'Check my STEM window',
     });
@@ -87,7 +87,7 @@ export function buildAfterApprovalSteps(args: {
 }
 
 export const AFTER_APPROVAL_DISCLAIMER =
-  'General information, not legal advice. Your EAD, your I-20 and your DSO control your dates and reporting duties.';
+  'General information, not legal advice. Confirm your dates with your DSO.';
 
 /** Link people share with a friend who is still waiting. No reward is attached. */
 export const SHARE_URL =
