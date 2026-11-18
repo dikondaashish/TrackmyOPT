@@ -78,17 +78,17 @@ export function CommunitySummaryCard({
             <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0 text-violet-700 dark:text-violet-300" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-violet-950 dark:text-violet-100">
-                {CASE_STATUS_MESSAGING.caseInsightInlineTitle}
+                {CASE_STATUS_MESSAGING.comparisonInlineTitle}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-violet-800 dark:text-violet-200">
-                {CASE_STATUS_MESSAGING.caseInsightInlineBody}
+                {CASE_STATUS_MESSAGING.comparisonInlineBody}
               </p>
               <button
                 type="button"
                 onClick={onUpgrade}
                 className="mt-2 inline-flex min-h-11 cursor-pointer items-center text-xs font-bold text-violet-700 underline-offset-4 transition-colors hover:text-violet-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 focus-visible:ring-offset-2 dark:text-violet-300 dark:hover:text-violet-100"
               >
-                {CASE_STATUS_MESSAGING.caseInsightCta}
+                {CASE_STATUS_MESSAGING.comparisonCta}
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>

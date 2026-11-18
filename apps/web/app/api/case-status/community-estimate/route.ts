@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { getCommunityEstimate } from '@/lib/community-opt/get-estimate';
 import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
+import { redactStagesForFree } from '@/lib/community-opt/stages';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +13,8 @@ export const dynamic = 'force-dynamic';
  * Only the 3-character receipt prefix is accepted, so full receipt numbers
  * never reach request logs.
  *
- * Metrics require a current premium subscription, checked before data reads.
+ * Free plans get the headline wait only; the full comparison is a paid feature
+ * and is withheld on the server.
  *
  * GET ?receipt_prefix=&case_type=&label=&filing_category=&pp_start=&received=&days=
  */
@@ -31,11 +33,6 @@ async function handleGET(req: NextRequest) {
     const daysSinceFiled = daysRaw ? Number(daysRaw) : 0;
 
     const planTier = await getActiveUserPlanTier(userId);
-    if (planTier === 'free')
-      return NextResponse.json(
-        { ok: false, error: 'Case metrics require premium' },
-        { status: 403, headers: { 'Cache-Control': 'no-store' } }
-      );
     const result = await getCommunityEstimate({
       receiptPrefix: sp.get('receipt_prefix')?.slice(0, 3),
       caseType: sp.get('case_type'),
@@ -51,22 +48,46 @@ async function handleGET(req: NextRequest) {
       'Cache-Control': 'no-store',
     };
 
+    const summary = result.prediction
+      ? {
+          medianDays: result.prediction.medianDays,
+          cohortSize: result.prediction.cohortSize,
+          caseKind: result.prediction.caseKind,
+          premiumProcessing: result.prediction.premiumProcessing,
+          matchLevel: result.prediction.matchLevel,
+          sourceNote: result.prediction.sourceNote,
+        }
+      : null;
+
+    // Free gets the headline only: the typical wait and the typical stage
+    // timings, the same level of detail the public decision-window tool gives
+    // anyone. Nothing that places the case inside the distribution is sent,
+    // so the page can show what Pro adds without leaking it.
+    if (planTier === 'free')
+      return NextResponse.json(
+        {
+          ok: true,
+          planTier,
+          evidence: null,
+          premiumUpgrade: null,
+          summary,
+          prediction: null,
+          heatmap: [],
+          weeklyTrend: [],
+          histogram: null,
+          similarFiling: null,
+          stages: result.stages ? redactStagesForFree(result.stages) : null,
+        },
+        { headers }
+      );
+
     return NextResponse.json(
       {
         ok: true,
         planTier,
         evidence: result.evidence,
         premiumUpgrade: result.premiumUpgrade,
-        summary: result.prediction
-          ? {
-              medianDays: result.prediction.medianDays,
-              cohortSize: result.prediction.cohortSize,
-              caseKind: result.prediction.caseKind,
-              premiumProcessing: result.prediction.premiumProcessing,
-              matchLevel: result.prediction.matchLevel,
-              sourceNote: result.prediction.sourceNote,
-            }
-          : null,
+        summary,
         prediction: result.prediction,
         heatmap: result.heatmap,
         weeklyTrend: result.weeklyTrend,

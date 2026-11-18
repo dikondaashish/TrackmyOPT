@@ -24,10 +24,13 @@ Revenue: $237 in September, $33 in October, $17 in November to the 18th.
 
 Three leaks:
 
-1. **The offer.** Free already shows the status and every community
-   wait-time chart; Pro adds daily checks and an email. The offer opened
-   seconds after the receipt was saved (most offer views came from that
-   moment), and its button stayed disabled until a consent box was ticked.
+1. **The offer.** The offer sold daily checks and an email, which USCIS
+   also gives for free. It opened seconds after the receipt was saved (most
+   offer views came from that moment), and its button stayed disabled until a
+   consent box was ticked. From 2026-10-12 (#73) the whole wait-comparison
+   section was hidden on Free, so the case page showed nothing of what Pro
+   adds. An earlier version of this note said Free already saw every
+   wait-time chart; that was wrong and is corrected here.
 2. **No return path.** 79% of new sign-ups opened the dashboard on one day
    only. 324 Free accounts had a status change in 30 days and none was told.
    The October promotional sequence sent nothing because it needs a marketing
@@ -63,10 +66,24 @@ Compare the four weeks after release with the 60 days above.
 | Subscriptions that reach a full charge | about 1 in 4 | Stripe subscriptions and charges |
 | New paid starts per month | 2–3 | Stripe |
 
+## What Phase 2 changed
+
+| Change | Where |
+| --- | --- |
+| Free accounts see the typical wait for a case like theirs and the typical stage timings, plus a description of each Pro comparison with an unlock button. The server sends Free nothing that places the case inside the distribution. | `app/api/case-status/community-estimate`, `CaseStatusSection.tsx`, `CommunitySummaryCard.tsx` |
+| Late-case help. A pending OPT or STEM OPT case past the typical wait gets the steps in order (USCIS inquiry date, case inquiry, premium processing, congressional inquiry, CIS Ombudsman, DSO) with official links and text to adapt. Pro gets the content; Free sees the step titles and an unlock button. | `lib/case-status/late-case-help.ts`, `panels/LateCaseHelp.tsx` |
+| Plan feature lists name these Pro features and call the Free one "Typical OPT Approval Wait". | `lib/pricing/plan-features.ts` |
+
+New measures: `upgrade_prompt_shown` with trigger `locked_comparison` or
+`late_case_help`, and `late_case_help_shown` (`plan_tier`, `level`).
+
+The late-case steps were checked against uscis.gov and dhs.gov on
+2026-11-18. Recheck them when USCIS changes its inquiry or premium rules.
+
 ## Still open
 
-- Phase 2: put the personal decision window and "my case is late" help in
-  Pro, and test a one-time Case Pass against the subscription.
+- One-time Case Pass ($9.99 for 6 months, no refunds), tested against the
+  subscription.
 - Phase 3: move approved users to the unemployment clock and job tools.
 - The first-visit NPS prompt still opens right after the first status
   resolves.

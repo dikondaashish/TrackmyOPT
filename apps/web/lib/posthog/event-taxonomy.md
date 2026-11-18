@@ -55,6 +55,7 @@ best effort; these client events do not describe all users or grant access.
 | `premium_checkout_viewed` | Client | `plan_id`, `interval`, `source` | Checkout modal load |
 | `premium_checkout_completed` | Client | `plan_tier`, `stripe_session_id`, `source` | Premium activation observability |
 | `pro_offer_consent_prompted` | Client | `source`, `interval`, `plan_tier` | Pay button pressed before the consent box was ticked (button is no longer disabled) |
+| `late_case_help_shown` | Client | `plan_tier`, `level` | Late-case panel rendered (`past_typical` or `slow_quarter`) |
 | `free_case_update_email_sent` | Server | — | Free account emailed that a scheduled check found a status change |
 | `checkout_started` | Server | `plan_id`, `amount_cents`, `$insert_id` | Sole emitter: `create-checkout` after Stripe session exists (Phase 5) |
 | `checkout_recovery_email_sent` | Server | `resume_kind`, `plan_id` | Abandoned checkout cron |
