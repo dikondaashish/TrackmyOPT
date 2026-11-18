@@ -53,7 +53,7 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
             <div role="dialog" aria-modal="true" aria-labelledby="add-job-tracker-title" className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md shadow-2xl p-6 space-y-6">
                 <div className="flex items-center justify-between">
                     <h3 id="add-job-tracker-title" className="text-xl font-bold text-gray-900 dark:text-white">Add to Job Tracker</h3>
-                    <button type="button" onClick={onClose} aria-label="Close add to job tracker dialog" className="min-h-11 min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition">
+                    <button type="button" onClick={onClose} aria-label="Close add to job tracker dialog" className="max-md:min-h-11 max-md:min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition">
                         <X className="w-5 h-5 text-gray-500" />
                     </button>
                 </div>

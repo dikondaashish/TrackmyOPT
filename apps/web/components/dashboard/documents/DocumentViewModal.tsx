@@ -238,7 +238,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
           <button
             onClick={onClose}
             aria-label="Close document preview"
-            className="min-h-11 min-w-11 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
+            className="max-md:min-h-11 max-md:min-w-11 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -267,7 +267,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
             {previewError && (
               <div role="alert" className="rounded-lg bg-gray-100 dark:bg-slate-700 p-4 text-sm text-gray-700 dark:text-slate-300">
                 <p>{previewError} You can still try downloading the original file.</p>
-                <button onClick={() => setPreviewAttempt(value => value + 1)} className="mt-2 min-h-11 font-medium text-blue-600 dark:text-blue-400 underline">Retry preview</button>
+                <button onClick={() => setPreviewAttempt(value => value + 1)} className="mt-2 max-md:min-h-11 font-medium text-blue-600 dark:text-blue-400 underline">Retry preview</button>
               </div>
             )}
 
@@ -295,7 +295,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                   </div>
                 )}
 
-                {viewUrl && !previewError && <button onClick={() => setPreviewAttempt(value => value + 1)} className="min-h-11 text-sm text-blue-600 dark:text-blue-400 underline">Refresh preview</button>}
+                {viewUrl && !previewError && <button onClick={() => setPreviewAttempt(value => value + 1)} className="max-md:min-h-11 text-sm text-blue-600 dark:text-blue-400 underline">Refresh preview</button>}
 
                 {/* Summary */}
                 {document.summary && (
@@ -320,7 +320,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                         disabled={savingType || savingExpiry}
                         value={isCustomType ? 'custom' : documentType}
                         onChange={(e) => handleTypeSelectChange(e.target.value)}
-                        className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-violet-300 dark:border-violet-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
+                        className="max-md:min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-violet-300 dark:border-violet-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
                       >
                         {DEFAULT_DOC_TYPES.map((type) => (
                           <option key={type.value} value={type.value}>{type.label}</option>
@@ -336,21 +336,21 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                           value={customType}
                           onChange={(e) => setCustomType(e.target.value)}
                           placeholder="Enter custom type (e.g., Driving License)"
-                          className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-violet-300 dark:border-violet-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
+                          className="max-md:min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-violet-300 dark:border-violet-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
                         />
                       )}
                       <div className="flex gap-2 mt-2">
                         <button
                           onClick={handleSaveDocumentType}
                           disabled={savingType || savingExpiry}
-                          className="min-h-11 flex-1 px-3 py-1.5 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 disabled:bg-violet-300"
+                          className="max-md:min-h-11 flex-1 px-3 py-1.5 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 disabled:bg-violet-300"
                         >
                           {savingType ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           onClick={handleCancelTypeEdit}
                           disabled={savingType || savingExpiry}
-                          className="min-h-11 flex-1 px-3 py-1.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700"
+                          className="max-md:min-h-11 flex-1 px-3 py-1.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700"
                         >
                           Cancel
                         </button>
@@ -363,7 +363,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                         <button
                           aria-label="Edit document type"
                           onClick={() => { setError(''); setIsEditingType(true); }}
-                          className="min-h-11 px-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+                          className="max-md:min-h-11 px-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
                         >
                           Edit
                         </button>
@@ -387,20 +387,20 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                         type="date"
                         value={expiryDate}
                         onChange={(e) => setExpiryDate(e.target.value)}
-                        className="min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
+                        className="max-md:min-h-11 w-full min-w-0 mt-2 px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white shadow-card"
                       />
                       <div className="flex gap-2 mt-2">
                         <button
                           onClick={handleSaveExpiryDate}
                           disabled={savingExpiry || savingType}
-                          className="min-h-11 flex-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
+                          className="max-md:min-h-11 flex-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
                         >
                           {savingExpiry ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           onClick={handleCancelEdit}
                           disabled={savingExpiry || savingType}
-                          className="min-h-11 flex-1 px-3 py-1.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700"
+                          className="max-md:min-h-11 flex-1 px-3 py-1.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700"
                         >
                           Cancel
                         </button>
@@ -415,7 +415,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                         <button
                           onClick={() => { setError(''); setIsEditingExpiry(true); }}
                           aria-label="Edit expiry date"
-                          className="min-h-11 px-2 text-xs text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 underline"
+                          className="max-md:min-h-11 px-2 text-xs text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 underline"
                         >
                           Edit
                         </button>
@@ -492,7 +492,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
           <button
             onClick={onDelete}
             disabled={savingExpiry || savingType}
-            className="min-h-11 px-3 py-2 border border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition-colors flex items-center justify-center gap-2"
+            className="max-md:min-h-11 px-3 py-2 border border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -501,7 +501,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
           </button>
           <button
             onClick={() => { setError(''); setIsEditingExpiry(true); }}
-            className="min-h-11 px-3 py-2 border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950 transition-colors flex items-center justify-center gap-2"
+            className="max-md:min-h-11 px-3 py-2 border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -511,14 +511,14 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
           <div className="hidden sm:block sm:flex-1"></div>
           <button
             onClick={onClose}
-            className="min-h-11 px-3 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+            className="max-md:min-h-11 px-3 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
           >
             Close
           </button>
           <button
             onClick={onDownload}
             disabled={downloading}
-            className="min-h-11 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-medium"
+            className="max-md:min-h-11 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-medium"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

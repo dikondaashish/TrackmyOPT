@@ -119,7 +119,7 @@ export function LocationPicker({
 
   const row = (option: PlaceOption) => (
     <li key={option.key}>
-      <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2.5 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900">
+      <label className="flex max-md:min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2.5 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900">
         <input
           type="checkbox"
           checked={selected.has(option.key)}
@@ -148,7 +148,7 @@ export function LocationPicker({
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
         onClick={() => setOpen((current) => !current)}
-        className={`inline-flex min-h-11 max-w-56 items-center gap-1.5 rounded-lg border bg-white px-3 text-sm font-medium outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:bg-slate-950 ${selectedOptions.length ? 'border-blue-300 text-blue-800 dark:border-blue-800 dark:text-blue-200' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-100'} shadow-card`}
+        className={`inline-flex max-md:min-h-11 max-w-56 items-center gap-1.5 rounded-lg border bg-white px-3 text-sm font-medium outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:bg-slate-950 ${selectedOptions.length ? 'border-blue-300 text-blue-800 dark:border-blue-800 dark:text-blue-200' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-100'} shadow-card`}
       >
         <MapPin className="size-4 shrink-0" aria-hidden="true" />
         <span className="truncate">{buttonLabel}</span>
@@ -162,7 +162,7 @@ export function LocationPicker({
           className="absolute left-0 top-full z-30 mt-2 flex max-h-[min(28rem,70vh)] w-[22rem] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl max-sm:fixed max-sm:inset-x-4 max-sm:top-24 max-sm:mt-0 max-sm:w-auto dark:border-slate-700 dark:bg-slate-950"
         >
           <div className="border-b border-slate-100 p-2.5 dark:border-slate-800">
-            <label className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 px-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600 dark:border-slate-700">
+            <label className="flex max-md:min-h-11 items-center gap-2 rounded-lg border border-slate-300 px-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600 dark:border-slate-700">
               <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
               <span className="sr-only">Search US states and cities</span>
               <input

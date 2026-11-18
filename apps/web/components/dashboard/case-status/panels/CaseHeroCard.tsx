@@ -214,7 +214,7 @@ export function CaseHeroCard({
           variant="default"
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="gap-2 min-h-11"
+          className="gap-2 max-md:min-h-11"
         >
           {isRefreshing ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -228,7 +228,7 @@ export function CaseHeroCard({
           size="sm"
           variant="outline"
           onClick={handleCopy}
-          className="gap-2 min-h-11"
+          className="gap-2 max-md:min-h-11"
         >
           {copied ? (
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
@@ -242,7 +242,7 @@ export function CaseHeroCard({
           size="sm"
           variant="outline"
           onClick={onManageCase}
-          className="gap-2 min-h-11"
+          className="gap-2 max-md:min-h-11"
         >
           <Settings2 className="w-3.5 h-3.5" />
           Manage case
@@ -254,7 +254,7 @@ export function CaseHeroCard({
             variant="ghost"
             onClick={onDelete}
             disabled={isDeleting}
-            className="gap-2 min-h-11 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 sm:ml-auto"
+            className="gap-2 max-md:min-h-11 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 sm:ml-auto"
           >
             {isDeleting ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />

@@ -138,7 +138,7 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
             supporting records up to date.
           </p>
           <details className="mt-3 border-t border-border pt-3">
-            <summary className="min-h-11 cursor-pointer font-medium focus-visible:ring-2">
+            <summary className="max-md:min-h-11 cursor-pointer font-medium focus-visible:ring-2">
               Counting rules
             </summary>
             <p className="text-sm text-muted-foreground">
@@ -214,7 +214,7 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
             Could not load employment history. Your count is unavailable.{' '}
             <button
               type="button"
-              className="min-h-11 px-2 font-semibold text-blue-700 underline dark:text-blue-300"
+              className="max-md:min-h-11 px-2 font-semibold text-blue-700 underline dark:text-blue-300"
               onClick={() => {
                 setHistoryState('loading');
                 setAttempt((value) => value + 1);
@@ -238,7 +238,7 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
               Add your employment history below, or confirm that you have had no
               qualifying employment during this OPT period.
             </p>
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
+            <label className="flex max-md:min-h-11 cursor-pointer items-center gap-3 text-sm">
               <input
                 type="checkbox"
                 checked={confirmedEmpty}
@@ -393,7 +393,7 @@ function GuestEmployment({
             </div>
             <button
               type="button"
-              className="inline-flex min-h-11 items-center gap-2 px-2 text-sm text-red-700 underline dark:text-red-300"
+              className="inline-flex max-md:min-h-11 items-center gap-2 px-2 text-sm text-red-700 underline dark:text-red-300"
               onClick={() =>
                 onChange(spans.filter((item) => item.id !== span.id))
               }

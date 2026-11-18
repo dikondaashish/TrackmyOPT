@@ -89,7 +89,7 @@ export function SavedOptDates({
         </h3>
         <Link
           href="/dashboard/opt-dates"
-          className="inline-flex min-h-11 items-center text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-300"
+          className="inline-flex max-md:min-h-11 items-center text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-300"
         >
           Manage OPT dates →
         </Link>

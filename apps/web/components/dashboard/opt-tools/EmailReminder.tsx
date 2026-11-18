@@ -126,7 +126,7 @@ export function EmailReminder({
           Could not load your reminder settings.{' '}
           <button
             type="button"
-            className="min-h-11 px-2 underline"
+            className="max-md:min-h-11 px-2 underline"
             onClick={() => {
               setLoading(true);
               setLoadError(false);
@@ -155,7 +155,7 @@ export function EmailReminder({
             value={email}
             disabled={saving}
             onChange={(event) => setEmail(event.target.value)}
-            className="min-h-11 w-full min-w-0 rounded-xl border border-input bg-background px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="max-md:min-h-11 w-full min-w-0 rounded-xl border border-input bg-background px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             placeholder="you@example.com"
           />
           <div className="flex flex-wrap items-center gap-3">
@@ -170,7 +170,7 @@ export function EmailReminder({
               <button
                 type="button"
                 disabled={saving}
-                className="min-h-11 px-3 text-sm font-medium text-red-700 underline focus-visible:ring-2 dark:text-red-300"
+                className="max-md:min-h-11 px-3 text-sm font-medium text-red-700 underline focus-visible:ring-2 dark:text-red-300"
                 onClick={() => save('')}
               >
                 Stop reminders

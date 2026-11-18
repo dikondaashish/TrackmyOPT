@@ -271,7 +271,7 @@ const SidebarNavSection = memo(({
                         aria-expanded={isExpanded}
                         aria-controls={submenuId}
                         onClick={() => onToggle(section.label)}
-                        className="m-1 min-h-11 min-w-11 rounded-md text-slate-500 transition-colors hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary dark:text-zinc-500"
+                        className="m-1 max-md:min-h-11 max-md:min-w-11 rounded-md text-slate-500 transition-colors hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary dark:text-zinc-500"
                     >
                         <ChevronDown className={cn(
                             "mx-auto w-4 h-4 transition-transform",
@@ -448,7 +448,7 @@ export function Sidebar({
                         <span className="text-lg font-semibold text-foreground">Menu</span>
                         <button
                             onClick={onMobileClose}
-                            className="min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-sidebar-accent text-muted-foreground flex items-center justify-center"
+                            className="max-md:min-h-11 max-md:min-w-11 p-2.5 rounded-lg hover:bg-sidebar-accent text-muted-foreground flex items-center justify-center"
                             aria-label="Close menu"
                         >
                             <X className="w-5 h-5" />
@@ -519,7 +519,7 @@ export function Sidebar({
                                 onClick={onToggleCollapse}
                                 onMouseEnter={(e) => handleTooltipEnter(e, isCollapsed ? "Expand" : "Collapse")}
                                 onMouseLeave={handleTooltipLeave}
-                                className="hidden lg:flex group relative min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-slate-500 dark:text-zinc-400 hover:bg-sidebar-accent hover:text-foreground transition-colors"
+                                className="hidden lg:flex group relative max-md:min-h-11 max-md:min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-slate-500 dark:text-zinc-400 hover:bg-sidebar-accent hover:text-foreground transition-colors"
                                 aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                             >
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className={cn("transition-transform duration-200", isCollapsed && "rotate-180")}>

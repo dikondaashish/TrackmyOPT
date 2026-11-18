@@ -79,7 +79,7 @@ export function WeeklyDigestSettings({ isPro }: { isPro: boolean }) {
           aria-label="Weekly case summary email"
           disabled={!ready || busy}
           onClick={() => void toggle()}
-          className="min-h-11 rounded-lg border border-border px-4 font-medium text-blue-600 disabled:opacity-50 dark:text-blue-400"
+          className="max-md:min-h-11 rounded-lg border border-border px-4 font-medium text-blue-600 disabled:opacity-50 dark:text-blue-400"
         >
           {busy ? 'Saving…' : enabled ? 'On' : 'Off'}
         </button>

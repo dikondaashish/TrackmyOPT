@@ -55,7 +55,7 @@ export function EmployerEvidencePanel({
         </div>
         <Link
           href={`/dashboard/career/h1b-sponsors/${match.canonical_h1b_sponsor_id}`}
-          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-blue-800 transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-blue-200 dark:hover:bg-slate-950"
+          className="inline-flex max-md:min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-blue-800 transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-blue-200 dark:hover:bg-slate-950"
         >
           Sponsor profile <ExternalLink className="size-4" aria-hidden="true" />
         </Link>

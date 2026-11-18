@@ -101,7 +101,7 @@ export function EditorHeader({
                             size="sm"
                             onClick={onSave}
                             disabled={isSaving || !generatedLatex}
-                            className="md:hidden min-h-11 min-w-11 p-0"
+                            className="md:hidden max-md:min-h-11 max-md:min-w-11 p-0"
                             aria-label="Save resume"
                         >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -133,7 +133,7 @@ export function EditorHeader({
                             variant="outline"
                             size="sm"
                             onClick={onCopy}
-                            className="md:hidden min-h-11 min-w-11 p-0"
+                            className="md:hidden max-md:min-h-11 max-md:min-w-11 p-0"
                             aria-label="Copy LaTeX source"
                         >
                             {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

@@ -24,7 +24,7 @@ export function Header({ isPremium, onMenuToggle }: HeaderProps) {
                 {onMenuToggle && (
                     <button
                         onClick={onMenuToggle}
-                        className="lg:hidden min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-[#163B73] transition-colors flex items-center justify-center"
+                        className="lg:hidden max-md:min-h-11 max-md:min-w-11 p-2.5 rounded-lg hover:bg-[#163B73] transition-colors flex items-center justify-center"
                         aria-label="Toggle menu"
                     >
                         <Menu className="w-5 h-5 text-white" />
@@ -83,7 +83,7 @@ export function Header({ isPremium, onMenuToggle }: HeaderProps) {
                 {/* Mobile Simple Deals Icon */}
                 <Link
                     href="/dashboard/offers"
-                    className="sm:hidden min-h-11 min-w-11 p-2.5 text-gray-300 hover:text-white transition-colors relative flex items-center justify-center"
+                    className="sm:hidden max-md:min-h-11 max-md:min-w-11 p-2.5 text-gray-300 hover:text-white transition-colors relative flex items-center justify-center"
                 >
                     <Tag className="w-5 h-5" />
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0F3162]" />

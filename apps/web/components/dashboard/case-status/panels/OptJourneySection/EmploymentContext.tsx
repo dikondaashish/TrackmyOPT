@@ -69,7 +69,7 @@ export function EmploymentContext({
         </h3>
         <Link
           href="/dashboard/opt-dates#employment"
-          className="inline-flex min-h-11 items-center text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-300"
+          className="inline-flex max-md:min-h-11 items-center text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-300"
         >
           Manage employment history →
         </Link>

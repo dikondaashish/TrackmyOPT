@@ -80,7 +80,7 @@ export function DocumentFilters({
               key={category.value}
               onClick={() => onCategoryChange(category.value)}
               aria-pressed={selectedCategory === category.value}
-              className={`min-h-11 shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+              className={`max-md:min-h-11 shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                 selectedCategory === category.value
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950'
@@ -114,7 +114,7 @@ export function DocumentFilters({
             placeholder="Search documents..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="min-h-11 w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 shadow-card"
+            className="max-md:min-h-11 w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 shadow-card"
           />
         </div>
 
@@ -122,7 +122,7 @@ export function DocumentFilters({
           aria-label="Sort documents"
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value)}
-          className="min-h-11 px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white shadow-card"
+          className="max-md:min-h-11 px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 dark:text-white shadow-card"
         >
           {sortOptions.map((option) => (
             <option key={option.value} value={option.value}>

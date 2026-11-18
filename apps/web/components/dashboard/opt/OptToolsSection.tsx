@@ -2,17 +2,15 @@
 
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
+import { PageShell } from '@/components/layout/PageShell';
 import { toolLinks, toolThemes } from '../opt-tools/tool-config';
 
 export function OptToolsSection() {
   return (
-    <section className="mx-auto max-w-6xl space-y-5 px-4 sm:px-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-foreground">OPT Tools</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Plan filing dates and review unemployment days.
-        </p>
-      </header>
+    <PageShell
+      title="OPT Tools"
+      description="Plan filing dates and review unemployment days."
+    >
       <div className="grid gap-4 md:grid-cols-2">
         {toolLinks.map((tool) => (
           <Link
@@ -31,12 +29,12 @@ export function OptToolsSection() {
                 className="h-5 w-5 text-muted-foreground"
               />
             </div>
-            <h2 className="mt-4 text-lg font-semibold">{tool.title}</h2>
+            <h2 className="mt-3 text-base font-semibold">{tool.title}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {tool.description}
             </p>
             <span
-              className={`mt-4 inline-block text-sm font-semibold ${toolThemes[tool.slug].text}`}
+              className={`mt-3 inline-block text-sm font-semibold ${toolThemes[tool.slug].text}`}
             >
               Open tool
             </span>
@@ -48,6 +46,6 @@ export function OptToolsSection() {
         estimates, not USCIS approval or legal advice. Confirm your
         circumstances with your DSO.
       </p>
-    </section>
+    </PageShell>
   );
 }

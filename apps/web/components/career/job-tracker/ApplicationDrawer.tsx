@@ -397,7 +397,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
 
                     {application.job_description && (
                         <details open className="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                            <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset dark:text-white">
+                            <summary className="max-md:min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset dark:text-white">
                                 Saved job description
                             </summary>
                             <div className="border-t border-gray-200 px-4 py-3 dark:border-gray-700">
@@ -481,7 +481,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                         <Button
                             type="button"
                             variant="outline"
-                            className="mb-4 min-h-11 w-full gap-2"
+                            className="mb-4 max-md:min-h-11 w-full gap-2"
                             onClick={() => router.push(`/dashboard/career/networking?applicationId=${encodeURIComponent(application.id)}`)}
                         >
                             <MessageSquareText className="h-4 w-4" aria-hidden="true" />

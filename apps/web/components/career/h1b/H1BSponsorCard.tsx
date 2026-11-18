@@ -69,7 +69,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     <button
                         type="button"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSave(sponsor.id); }}
-                        className={`min-h-11 min-w-11 p-2 rounded-lg transition-all shrink-0 ${isSaved
+                        className={`max-md:min-h-11 max-md:min-w-11 p-2 rounded-lg transition-all shrink-0 ${isSaved
                             ? "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400 shadow-sm"
                             : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-700"
                             }`}
@@ -158,7 +158,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                             e.stopPropagation();
                             handleCardClick();
                         }}
-                        className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                        className="flex max-md:min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
                     >
                         Overview
                     </button>
@@ -192,7 +192,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-[#0A66C2] p-2.5 text-white shadow-md transition-colors hover:bg-[#004182] shrink-0"
+                        className="flex max-md:min-h-11 max-md:min-w-11 items-center justify-center rounded-xl bg-[#0A66C2] p-2.5 text-white shadow-md transition-colors hover:bg-[#004182] shrink-0"
                         aria-label={`Find ${sponsor.name} on LinkedIn`}
                     >
                         <Linkedin className="w-4 h-4" />
@@ -201,7 +201,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     <button
                         type="button"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToTracker(sponsor); }}
-                        className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gray-100 p-2.5 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 shrink-0"
+                        className="flex max-md:min-h-11 max-md:min-w-11 items-center justify-center rounded-xl bg-gray-100 p-2.5 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 shrink-0"
                         aria-label={`Add ${sponsor.name} to job tracker`}
                     >
                         <Briefcase className="w-4 h-4" />

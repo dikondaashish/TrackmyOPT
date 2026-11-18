@@ -9,7 +9,7 @@ import { formatDisplayDateNoon } from '@/lib/case-status/safe-dates';
 import { CaseNoticeForm } from './CaseNoticeForm';
 import { NOTICES_CHANGED } from './OptJourneySection/JourneyTaskActions';
 const action =
-  'inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-blue-600 hover:bg-muted focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 disabled:opacity-50';
+  'inline-flex max-md:min-h-11 items-center rounded-lg px-3 text-sm font-medium text-blue-600 hover:bg-muted focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 disabled:opacity-50';
 const REMINDER_LABELS = {
   off: 'Email reminder off',
   pending: 'Email reminder queued',

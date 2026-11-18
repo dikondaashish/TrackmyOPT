@@ -70,7 +70,8 @@ const config: Config = {
         },
       },
       boxShadow: {
-        card: '0 1px 2px 0 hsl(var(--shadow-color) / 0.05), 0 1px 3px 0 hsl(var(--shadow-color) / 0.06)',
+        // The dashboard sets --tmopt-shadow-card to none so its cards sit flat.
+        card: 'var(--tmopt-shadow-card, 0 1px 2px 0 hsl(var(--shadow-color) / 0.05), 0 1px 3px 0 hsl(var(--shadow-color) / 0.06))',
         elevated: '0 2px 4px -1px hsl(var(--shadow-color) / 0.06), 0 12px 24px -8px hsl(var(--shadow-color) / 0.14)',
         button: '0 1px 2px 0 hsl(var(--shadow-color) / 0.12), inset 0 1px 0 0 hsl(0 0% 100% / 0.12)',
       },

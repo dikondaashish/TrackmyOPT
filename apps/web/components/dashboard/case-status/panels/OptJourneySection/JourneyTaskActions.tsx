@@ -93,7 +93,7 @@ export function JourneyTaskActions({
       {!notice?.completed_at && (
         <button
           type="submit"
-          className="min-h-11 font-semibold text-blue-600 underline disabled:opacity-50 dark:text-blue-400"
+          className="max-md:min-h-11 font-semibold text-blue-600 underline disabled:opacity-50 dark:text-blue-400"
           disabled={!ready || busy || notice?.reminder_state === 'sending'}
         >
           {busy ? 'Saving…' : notice ? 'Mark completed' : 'Save confirmed task'}

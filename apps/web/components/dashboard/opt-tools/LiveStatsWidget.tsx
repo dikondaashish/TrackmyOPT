@@ -129,7 +129,7 @@ export function LiveStatsWidget({
         <OfficialProcessingFallback toolType={toolType} />
       )}
       <details className="mt-4 border-t border-border pt-3">
-        <summary className="min-h-11 cursor-pointer text-sm font-medium focus-visible:ring-2">
+        <summary className="max-md:min-h-11 cursor-pointer text-sm font-medium focus-visible:ring-2">
           About these numbers
         </summary>
         {!loading && !error && available ? (
@@ -156,7 +156,7 @@ export function LiveStatsWidget({
         href="https://egov.uscis.gov/processing-times/"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex min-h-11 items-center text-sm font-medium text-blue-700 underline underline-offset-4 focus-visible:ring-2 dark:text-blue-300"
+        className="inline-flex max-md:min-h-11 items-center text-sm font-medium text-blue-700 underline underline-offset-4 focus-visible:ring-2 dark:text-blue-300"
       >
         Check USCIS processing times
       </a>

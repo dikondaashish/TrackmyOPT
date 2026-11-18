@@ -66,7 +66,7 @@ export function OptDatesUnemploymentWarning({
 export function OptDatesDayCountExplainer() {
   return (
     <details className="group rounded-xl border border-border bg-muted text-xs leading-5 text-muted-foreground">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-xl px-4 py-3 font-medium text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+      <summary className="flex max-md:min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-xl px-4 py-3 font-medium text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
         <Info aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />
         How your days are counted
         <ChevronDown

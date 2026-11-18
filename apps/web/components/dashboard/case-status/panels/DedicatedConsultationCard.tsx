@@ -149,7 +149,7 @@ export function DedicatedConsultationCard({
               </p>
             </div>
           </div>
-          <Button type="button" onClick={onCompareDedicated} className="min-h-11 shrink-0 bg-violet-700 text-white hover:bg-violet-800">
+          <Button type="button" onClick={onCompareDedicated} className="max-md:min-h-11 shrink-0 bg-violet-700 text-white hover:bg-violet-800">
             Compare Dedicated
           </Button>
         </div>
@@ -205,7 +205,7 @@ export function DedicatedConsultationCard({
               id="consultation-topic"
               value={topic}
               onChange={(event) => setTopic(event.target.value as (typeof TOPICS)[number][0])}
-              className="min-h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="max-md:min-h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {TOPICS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
@@ -236,7 +236,7 @@ export function DedicatedConsultationCard({
               placeholder="Example: Weekdays after 4 PM ET"
             />
           </div>
-          <Button type="button" onClick={() => void submit()} disabled={submitting} className="min-h-11 bg-violet-700 text-white hover:bg-violet-800">
+          <Button type="button" onClick={() => void submit()} disabled={submitting} className="max-md:min-h-11 bg-violet-700 text-white hover:bg-violet-800">
             {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : <CalendarDays className="mr-2 h-4 w-4" aria-hidden />}
             {submitting ? "Submitting…" : "Request consultation"}
           </Button>

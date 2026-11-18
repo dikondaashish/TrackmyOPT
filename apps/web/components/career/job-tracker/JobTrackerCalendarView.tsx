@@ -221,7 +221,7 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
                         <button
                             type="button"
                             onClick={() => setSelectedDate(null)}
-                            className="min-h-11 min-w-11 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                            className="max-md:min-h-11 max-md:min-w-11 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                             aria-label="Clear selected date"
                         >
                             <X className="w-4 h-4 text-gray-400" />

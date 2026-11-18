@@ -173,14 +173,14 @@ export function CaseStatusSummary() {
             type="button"
             onClick={refreshStatus}
             disabled={isRefreshing}
-            className="min-h-11 min-w-11 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors disabled:opacity-50"
+            className="max-md:min-h-11 max-md:min-w-11 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors disabled:opacity-50"
             aria-label="Refresh case status"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
           </button>
           <Link
             href="/dashboard/case-status"
-            className="flex min-h-11 min-w-11 items-center justify-center p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            className="flex max-md:min-h-11 max-md:min-w-11 items-center justify-center p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
             aria-label="View case status details"
           >
             <ChevronRight className="w-4 h-4" />

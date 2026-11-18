@@ -243,7 +243,7 @@ function DatePicker({
         <button
           type="button"
           onClick={handlePrevMonth}
-          className="min-h-11 min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+          className="max-md:min-h-11 max-md:min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Previous month"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -254,7 +254,7 @@ function DatePicker({
         <button
           type="button"
           onClick={handleNextMonth}
-          className="min-h-11 min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+          className="max-md:min-h-11 max-md:min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Next month"
         >
           <ChevronRight className="h-4 w-4" />
@@ -285,7 +285,7 @@ function DatePicker({
             onClick={() => handleDateClick(day)}
             aria-label={`${months[currentDate.getMonth()]} ${day}, ${currentDate.getFullYear()}`}
             aria-pressed={isSelected(day)}
-            className={`min-h-11 min-w-0 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:ring-2 ${
+            className={`max-md:min-h-11 min-w-0 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:ring-2 ${
               isToday(day) ? 'bg-blue-100 dark:bg-blue-900 font-bold' : ''
             } ${
               isSelected(day) ? 'bg-blue-600 text-white hover:bg-blue-700' : ''
@@ -301,14 +301,14 @@ function DatePicker({
         <button
           type="button"
           onClick={handleClear}
-          className="min-h-11 px-2 text-sm text-blue-600 dark:text-blue-400 hover:underline focus-visible:ring-2"
+          className="max-md:min-h-11 px-2 text-sm text-blue-600 dark:text-blue-400 hover:underline focus-visible:ring-2"
         >
           Clear
         </button>
         <button
           type="button"
           onClick={handleToday}
-          className="min-h-11 px-2 text-sm text-blue-600 dark:text-blue-400 hover:underline focus-visible:ring-2"
+          className="max-md:min-h-11 px-2 text-sm text-blue-600 dark:text-blue-400 hover:underline focus-visible:ring-2"
         >
           Today
         </button>

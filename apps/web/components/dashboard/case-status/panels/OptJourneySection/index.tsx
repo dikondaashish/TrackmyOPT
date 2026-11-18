@@ -129,7 +129,7 @@ export function OptJourneySection({
           </div>
           <Link
             href="/dashboard/opt-dates#employment"
-            className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-300"
+            className="mt-2 inline-flex max-md:min-h-11 items-center text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-300"
           >
             Review employment and reminder settings
           </Link>

@@ -63,7 +63,7 @@ export function OfficialProcessingComparison({
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
         <a
-          className="inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-blue-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-blue-400"
+          className="inline-flex max-md:min-h-11 items-center gap-1.5 text-xs font-medium text-blue-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-blue-400"
           href="https://egov.uscis.gov/processing-times"
           target="_blank"
           rel="noopener noreferrer"
@@ -87,7 +87,7 @@ export function OfficialProcessingComparison({
               Neither is a premium-processing deadline.
             </p>
             <a
-              className="inline-flex min-h-11 items-center text-blue-600 underline dark:text-blue-400"
+              className="inline-flex max-md:min-h-11 items-center text-blue-600 underline dark:text-blue-400"
               href="https://egov.uscis.gov/processing-times/more-info"
               target="_blank"
               rel="noopener noreferrer"

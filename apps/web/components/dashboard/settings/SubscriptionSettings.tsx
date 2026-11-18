@@ -574,7 +574,7 @@ export function SubscriptionSettings({
                   dedicatedConsultation.eligible && (
                     <a
                       href={`mailto:support@trackmyopt.com?subject=${encodeURIComponent('Dedicated 60-minute attorney consultation request')}`}
-                      className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
+                      className="mt-4 flex max-md:min-h-11 items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
                     >
                       <CalendarDays className="h-4 w-4" />
                       Request attorney consultation
