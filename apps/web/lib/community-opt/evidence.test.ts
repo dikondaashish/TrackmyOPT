@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   prepareEvidence,
   premiumUpgradeStats,
+  removeCrossPartnerRedditDuplicates,
   type EvidenceRow,
 } from './evidence';
 import { deriveJourneyPhase } from './stages';
@@ -120,4 +121,67 @@ it('does not treat carrier pickup as delivery to the applicant', () => {
   expect(
     deriveJourneyPhase('Card Was Picked Up By The United States Postal Service')
   ).toBe('card_produced');
+});
+
+describe('cross-partner Reddit duplicates', () => {
+  const reddit = {
+    ...row,
+    source: 'reddit',
+    premium_processing: false,
+    pp_date: null,
+    card_produce_date: null,
+    delivered_date: null,
+  };
+  it('counts a Reddit post reported by both partners once, keeping the fuller report', () => {
+    const result = prepareEvidence(
+      [
+        { ...reddit, external_id: 'optt_a' },
+        { ...reddit, external_id: 'optp_a', card_produce_date: '2026-03-12' },
+      ],
+      now
+    );
+    expect(result.rows.map((r) => r.external_id)).toEqual(['optp_a']);
+    expect(result.evidence).toMatchObject({
+      includedReports: 1,
+      crossSourceDuplicatesRemoved: 1,
+    });
+  });
+  it('never merges reports from one partner, non-Reddit reports, or conflicting dates', () => {
+    const kept = prepareEvidence(
+      [
+        { ...reddit, external_id: 'optt_a' },
+        { ...reddit, external_id: 'optt_b' },
+        { ...reddit, external_id: 'optt_registered', source: 'registered' },
+        { ...reddit, external_id: 'optp_registered_match', source: 'other' },
+        {
+          ...reddit,
+          external_id: 'optp_other_bio',
+          biometrics_date: '2026-01-20',
+        },
+      ].map((r, i) =>
+        i === 0 ? { ...r, biometrics_date: '2026-01-15' } : r
+      ),
+      now
+    );
+    // optp_other_bio cannot pair with optt_a (different biometrics date) but
+    // pairs with optt_b, which has none.
+    expect(kept.evidence.crossSourceDuplicatesRemoved).toBe(1);
+    expect(kept.rows.map((r) => r.external_id).sort()).toEqual(
+      ['optp_other_bio', 'optp_registered_match', 'optt_a', 'optt_registered'].sort()
+    );
+  });
+  it('pairs each report at most once', () => {
+    const base = {
+      case_kind: 'initial_opt' as const,
+      source: 'reddit' as const,
+      premium_processing: false,
+      init_date: '2026-01-01',
+      approve_date: '2026-03-10',
+    };
+    const rows = ['optt_1', 'optt_2', 'optp_1'].map((external_id) => ({
+      ...base,
+      external_id,
+    }));
+    expect(removeCrossPartnerRedditDuplicates(rows)).toHaveLength(2);
+  });
 });

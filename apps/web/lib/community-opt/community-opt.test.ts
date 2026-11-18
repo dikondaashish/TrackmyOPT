@@ -237,6 +237,23 @@ describe("opt-tracker feed paging", () => {
     expect(fetchMock).toHaveBeenCalledTimes(123);
   });
 
+  it("skips cases the partner marked hidden", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            cases: [{ id: "a" }, { id: "b", hidden: true }, { id: "c", hidden: false }],
+            total: 3,
+            total_pages: 1,
+          })
+        )
+      )
+    );
+    const result = await fetchOptTrackerCases();
+    expect(result.cases.map((c) => c.id)).toEqual(["optt_a", "optt_c"]);
+  });
+
   it("names the page limit without fetching an unbounded feed", async () => {
     const fetchMock = stubFeed(401);
     await expect(fetchOptTrackerCases()).rejects.toThrow(
@@ -402,6 +419,36 @@ describe("opt-pulse mapped payload", () => {
     expect(cleaned?.external_id).toBe("optp_zuliee");
     expect(cleaned?.premium_processing).toBe(true);
     expect(cleaned?.days_to_approval).toBe(109);
+  });
+
+  it("keeps RFE, NOID, biometrics request and report dates, rejecting impossible ones", () => {
+    const now = new Date("2026-11-18T12:00:00Z");
+    const cleaned = cleanPartnerCase(
+      {
+        id: "optp_rfe",
+        source: "reddit",
+        type: "Initial OPT",
+        init_date: "2026-03-05",
+        biometrics_requested_date: "2026-03-20",
+        rfe_date: "2026-05-01",
+        noid_date: "2026-02-01",
+        created_at: "2026-03-06T08:00:00Z",
+      },
+      now
+    );
+    expect(cleaned).toMatchObject({
+      biometrics_requested_date: "2026-03-20",
+      rfe_date: "2026-05-01",
+      // Before the filing date: not a real event for this case.
+      noid_date: null,
+      reported_at: "2026-03-06T08:00:00.000Z",
+    });
+    expect(
+      cleanPartnerCase(
+        { id: "optt_future", created_at: "2027-01-01T00:00:00Z" },
+        now
+      )?.reported_at
+    ).toBeNull();
   });
 });
 

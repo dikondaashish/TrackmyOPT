@@ -75,6 +75,17 @@ export function cleanPartnerCase(
   const approve_date = observedDate(raw.approve_date, init_date);
   const card_produce_date = observedDate(raw.card_produce_date, approve_date ?? init_date);
   const delivered_date = observedDate(raw.delivered_date, card_produce_date ?? approve_date ?? init_date);
+  const rfe_date = observedDate(raw.rfe_date, init_date);
+  const noid_date = observedDate(raw.noid_date, init_date);
+  const biometrics_requested_date = observedDate(
+    raw.biometrics_requested_date,
+    init_date
+  );
+  const reportedMs = Date.parse(raw.created_at ?? '');
+  const reported_at =
+    Number.isFinite(reportedMs) && reportedMs <= now.getTime()
+      ? new Date(reportedMs).toISOString()
+      : null;
 
   const rawApproval = daysBetweenDates(init_date, approve_date);
   const days_to_approval = isUsableDuration(rawApproval) ? rawApproval : null;
@@ -107,5 +118,9 @@ export function cleanPartnerCase(
     days_to_produce,
     days_to_deliver,
     external_updated_at: raw.updated_at ?? null,
+    rfe_date,
+    noid_date,
+    biometrics_requested_date,
+    reported_at,
   };
 }

@@ -122,8 +122,10 @@ export function ComparisonEvidence({
             {evidence.freshnessDays} days; {evidence.excludedOlderImport} absent
             from the latest import; {evidence.excludedUnknownFreshness}{' '}
             without valid refresh evidence; {evidence.duplicateIdsRemoved}{' '}
-            repeated record IDs. Missing approvals are not treated as pending
-            cases.
+            repeated record IDs
+            {evidence.crossSourceDuplicatesRemoved > 0 &&
+              `; ${evidence.crossSourceDuplicatesRemoved} Reddit posts reported by both sources, counted once`}
+            . Missing approvals are not treated as pending cases.
           </p>
           {evidence.possibleCrossSourceDuplicates > 0 && (
             <p>

@@ -26,6 +26,16 @@ export type PartnerCasePayload = {
   delivered_date?: string | null;
   nationality?: string | null;
   updated_at?: string | null;
+  /** Request for Evidence date (OPT Pulse). */
+  rfe_date?: string | null;
+  /** Notice of Intent to Deny date (OPT Pulse). */
+  noid_date?: string | null;
+  /** Biometrics request date (OPT Pulse); biometrics_date is completion. */
+  biometrics_requested_date?: string | null;
+  /** When the applicant reported the case to the partner (OPT Tracker). */
+  created_at?: string | null;
+  /** Partner hid the case (OPT Tracker); never imported. */
+  hidden?: boolean | null;
 };
 
 export type CleanedCommunityCase = {
@@ -45,6 +55,10 @@ export type CleanedCommunityCase = {
   days_to_produce: number | null;
   days_to_deliver: number | null;
   external_updated_at: string | null;
+  rfe_date: string | null;
+  noid_date: string | null;
+  biometrics_requested_date: string | null;
+  reported_at: string | null;
 };
 
 export type CommunityEstimate = {

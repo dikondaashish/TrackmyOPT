@@ -54,7 +54,7 @@ export type CommunityEstimateResult = {
 };
 
 const SELECT_COLUMNS =
-  'external_id, updated_at, days_to_approval, approve_date, init_date, pp_date, biometrics_date, card_produce_date, delivered_date, service_center, premium_processing, case_kind';
+  'external_id, updated_at, days_to_approval, approve_date, init_date, pp_date, biometrics_date, card_produce_date, delivered_date, service_center, premium_processing, case_kind, source, rfe_date, noid_date, biometrics_requested_date';
 /** PostgREST caps a single response at the project's `max_rows` (1000 by
  *  default), so a plain `.limit()` silently truncates. */
 const PAGE_SIZE = 1000;
@@ -73,6 +73,10 @@ type TimelineRow = {
   service_center: string | null;
   premium_processing: boolean | null;
   case_kind: string;
+  source?: string | null;
+  rfe_date?: string | null;
+  noid_date?: string | null;
+  biometrics_requested_date?: string | null;
 };
 
 /**
