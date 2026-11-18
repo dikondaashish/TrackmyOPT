@@ -113,7 +113,8 @@ export function MonitorHealthStrip({
           No recent successful check. Refresh manually to retry.
         </div>
       )}
-      <dl className="mt-3 grid gap-4 border-t border-border pt-3 sm:grid-cols-3">
+      {/* One column from xl up, where this sits in the case page side rail. */}
+      <dl className="mt-3 grid gap-4 border-t border-border pt-3 sm:grid-cols-3 xl:grid-cols-1">
         <div className="min-w-0">
           <dt>Last successful check</dt>
           <dd className="mt-1 font-medium text-foreground tabular-nums">

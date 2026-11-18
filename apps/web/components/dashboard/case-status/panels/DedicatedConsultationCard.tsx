@@ -140,7 +140,7 @@ export function DedicatedConsultationCard({
   if (!isDedicated) {
     return (
       <Card className="border-violet-200 bg-violet-50 p-5 shadow-none dark:border-violet-900 dark:bg-violet-950 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between xl:flex-col xl:items-stretch">
           <div>
             <div>
               <h2 className="font-extrabold text-foreground">Need a licensed attorney to review your situation?</h2>
