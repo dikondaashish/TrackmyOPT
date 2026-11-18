@@ -148,14 +148,14 @@ export function DsoDeadlineManager({
                 href={task.sourceHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-1.5 inline-flex min-h-11 items-center text-xs font-semibold text-blue-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400"
+                className="mt-1.5 inline-flex max-md:min-h-11 items-center text-xs font-semibold text-blue-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400"
               >
                 Official guidance
               </a>
               {task.dueDate && task.status !== 'done' && (
                 <button
                   type="button"
-                  className="ml-3 min-h-11 text-xs font-semibold text-blue-600 underline focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400"
+                  className="ml-3 max-md:min-h-11 text-xs font-semibold text-blue-600 underline focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400"
                   onClick={() =>
                     downloadDeadlineCalendar(
                       task.title,

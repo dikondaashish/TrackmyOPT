@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { requestEmailLookup, requestNetworkingDraft } from '@/lib/career/networking/browser-lookup';
 import { parseWorkEmailResult, type EmailResult } from '@/lib/career/networking/email-result';
 
-const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100';
+const buttonClass = 'inline-flex max-md:min-h-11 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100';
 const fieldClass = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white';
 
 // The browser receives the email provider's response directly, as in the manual tool.

@@ -86,7 +86,7 @@ export function CommunitySummaryCard({
               <button
                 type="button"
                 onClick={onUpgrade}
-                className="mt-2 inline-flex min-h-11 cursor-pointer items-center text-xs font-bold text-violet-700 underline-offset-4 transition-colors hover:text-violet-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 focus-visible:ring-offset-2 dark:text-violet-300 dark:hover:text-violet-100"
+                className="mt-2 inline-flex max-md:min-h-11 cursor-pointer items-center text-xs font-bold text-violet-700 underline-offset-4 transition-colors hover:text-violet-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 focus-visible:ring-offset-2 dark:text-violet-300 dark:hover:text-violet-100"
               >
                 {CASE_STATUS_MESSAGING.comparisonCta}
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />

@@ -100,7 +100,7 @@ export function EmploymentSpanForm({
             onChange={(event) => onEmployerDomainChange(event.target.value)}
             aria-describedby={`${websiteId}-help`}
             placeholder="example.com"
-            className="w-full min-h-11 px-3 py-2 text-sm border border-border rounded-md bg-background"
+            className="w-full max-md:min-h-11 px-3 py-2 text-sm border border-border rounded-md bg-background"
           />
           <p
             id={`${websiteId}-help`}

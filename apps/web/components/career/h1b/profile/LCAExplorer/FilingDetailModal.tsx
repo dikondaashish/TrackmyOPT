@@ -243,7 +243,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                     <button
                         type="button"
                         onClick={onClose}
-                        className="-mr-2 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+                        className="-mr-2 flex max-md:min-h-11 max-md:min-w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
                         aria-label="Close LCA case details"
                     >
                         <X className="h-5 w-5 text-gray-500" />
@@ -287,7 +287,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                     <button
                         type="button"
                         onClick={onClose}
-                        className="min-h-11 shrink-0 rounded-xl bg-gray-100 px-6 font-medium text-gray-900 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+                        className="max-md:min-h-11 shrink-0 rounded-xl bg-gray-100 px-6 font-medium text-gray-900 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
                     >
                         Close
                     </button>

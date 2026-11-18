@@ -153,12 +153,12 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
                     "left-0"
                 )}
             >
-                {/* App canvas — THIS IS THE SCROLLABLE AREA. Content sits directly
-                    on the tinted surface so white cards (bg-card + shadow-card)
-                    read as raised panels. */}
+                {/* App canvas — THIS IS THE SCROLLABLE AREA. White cards sit flat on
+                    the tinted surface with a border only (shadow-card is turned off
+                    here), and page titles use the compact 24px size. */}
                 <div className="h-full overflow-x-hidden overflow-y-auto bg-surface">
                     {/* Inner Padding */}
-                    <div className="min-w-0 p-3 sm:p-6 lg:px-8">
+                    <div className="min-w-0 px-3 py-4 sm:px-5 sm:py-5 lg:px-6 [--tmopt-font-title-wide:1.5rem] [--tmopt-shadow-card:0_0_#0000]">
                         {children}
                     </div>
                 </div>

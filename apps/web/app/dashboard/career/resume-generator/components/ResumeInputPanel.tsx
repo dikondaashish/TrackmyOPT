@@ -118,7 +118,7 @@ export function ResumeInputPanel({
                     <button
                         type="button"
                         onClick={onClear}
-                        className="absolute top-1 right-1 min-h-11 min-w-11 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="absolute top-1 right-1 max-md:min-h-11 max-md:min-w-11 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         aria-label="Clear resume text"
                     >
                         <X className="w-4 h-4" />

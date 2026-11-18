@@ -7,7 +7,7 @@ export function JobRunwaySummary({ runway }: { runway: RunwayContext | null }) {
   return (
     <aside aria-label="Your OPT runway">
       <details className="group rounded-lg border border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700">
+        <summary className="flex max-md:min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700">
           <Clock3 className="size-4 shrink-0" aria-hidden="true" />
           <span>You have {runway.remaining} unemployment days remaining.</span>
           <ChevronDown className="ml-auto size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />

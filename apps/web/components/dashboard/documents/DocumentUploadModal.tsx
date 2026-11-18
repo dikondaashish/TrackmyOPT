@@ -146,7 +146,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
             <button
               type="button"
               onClick={handleClose}
-              className="min-h-11 min-w-11 text-gray-400 hover:text-gray-600"
+              className="max-md:min-h-11 max-md:min-w-11 text-gray-400 hover:text-gray-600"
               aria-label="Close document upload"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,7 +274,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
                 </button>
               </div>
             ) : (
-              <button onClick={onComplete} className="min-h-11 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700">View documents</button>
+              <button onClick={onComplete} className="max-md:min-h-11 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700">View documents</button>
             )}
           </div>
         )}

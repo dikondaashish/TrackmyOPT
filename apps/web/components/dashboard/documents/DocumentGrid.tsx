@@ -135,7 +135,7 @@ export function DocumentGrid({
         <p className="text-gray-600 dark:text-slate-300">
           {hasFilters ? 'Try another category or search term.' : 'Upload your first document to get started.'}
         </p>
-        <button onClick={hasFilters ? onClearFilters : onUpload} className="mt-4 min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+        <button onClick={hasFilters ? onClearFilters : onUpload} className="mt-4 max-md:min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
           {hasFilters ? 'Clear filters' : 'Upload document'}
         </button>
         {notice && <p role="status" className="mt-3 text-sm text-gray-600 dark:text-slate-300">{notice}</p>}
@@ -193,8 +193,8 @@ export function DocumentGrid({
           <p id="delete-document-description" className="mt-2 break-words text-sm text-gray-600 dark:text-slate-300">“{deleteTarget.filename}” and its expiry reminders will be permanently deleted. This cannot be undone.</p>
           {deleteError && <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{deleteError}</p>}
           <div className="mt-5 flex justify-end gap-3">
-            <button autoFocus disabled={deleting} onClick={() => setDeleteTarget(null)} className="min-h-11 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 dark:border-slate-600 dark:text-slate-300">Cancel</button>
-            <button disabled={deleting} onClick={handleDelete} className="min-h-11 rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:border-red-600 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50">{deleting ? 'Deleting…' : 'Delete permanently'}</button>
+            <button autoFocus disabled={deleting} onClick={() => setDeleteTarget(null)} className="max-md:min-h-11 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 dark:border-slate-600 dark:text-slate-300">Cancel</button>
+            <button disabled={deleting} onClick={handleDelete} className="max-md:min-h-11 rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:border-red-600 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50">{deleting ? 'Deleting…' : 'Delete permanently'}</button>
           </div>
         </dialog>
       )}

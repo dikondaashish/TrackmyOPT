@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { PageShell } from "@/components/layout/PageShell";
 import { CaseStatusSection } from "@/components/dashboard/case-status/CaseStatusSection";
 
 export const metadata: Metadata = {
@@ -8,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function CaseStatusPage() {
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+    <PageShell>
       <CaseStatusSection />
-    </div>
+    </PageShell>
   );
 }
 

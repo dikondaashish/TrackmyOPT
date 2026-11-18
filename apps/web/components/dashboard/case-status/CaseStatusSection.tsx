@@ -201,7 +201,7 @@ export function CaseStatusSection() {
           {caseStatus && (
             <button
               type="button"
-              className="mt-3 min-h-11 text-sm font-medium text-blue-600 underline dark:text-blue-400"
+              className="mt-3 max-md:min-h-11 text-sm font-medium text-blue-600 underline dark:text-blue-400"
               onClick={() => {
                 setIsEditingEmail(true);
                 document

@@ -120,7 +120,7 @@ function EVerifyPanel() {
       <p className="text-sm text-muted-foreground">
         STEM OPT employers must participate in E-Verify. Search the official USCIS employer database in TrackMyOPT and confirm the legal entity and E-Verify company ID with HR.
       </p>
-      <Button asChild size="sm" variant="outline" className="min-h-11 gap-2">
+      <Button asChild size="sm" variant="outline" className="max-md:min-h-11 gap-2">
         <Link href="/e-verify-employer-search">
           Open E-Verify employer search
           <ChevronRight className="h-3.5 w-3.5" aria-hidden />

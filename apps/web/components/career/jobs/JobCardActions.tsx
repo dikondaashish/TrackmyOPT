@@ -60,7 +60,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
           type="button"
           onClick={saveToTracker}
           disabled={saveState === 'saving' || saveState === 'saved'}
-          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 ${isList ? 'flex-1 lg:flex-none' : ''} shadow-card`}
+          className={`inline-flex max-md:min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 ${isList ? 'flex-1 lg:flex-none' : ''} shadow-card`}
         >
           {saveState === 'saving' ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <BookmarkPlus className="size-4" aria-hidden="true" />}
           {saveState === 'saved' ? (isList ? 'Added' : 'Saved') : (isList ? 'Add to tracker' : 'Save')}
@@ -70,26 +70,26 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
             href={jobUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 ${isList ? 'flex-1 lg:flex-none' : ''}`}
+            className={`inline-flex max-md:min-h-11 items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 ${isList ? 'flex-1 lg:flex-none' : ''}`}
           >
             {isList ? 'Apply now' : 'View role'} <ExternalLink className="size-4" aria-hidden="true" />
           </a>
         )}
         <details className="group relative">
-          <summary className={`inline-flex min-h-11 cursor-pointer list-none items-center justify-center gap-1 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 ${isList ? 'w-full lg:w-auto' : ''}`}>
+          <summary className={`inline-flex max-md:min-h-11 cursor-pointer list-none items-center justify-center gap-1 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 ${isList ? 'w-full lg:w-auto' : ''}`}>
             More tools <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
           </summary>
           <div className={`absolute z-10 mt-2 grid w-[min(21rem,calc(100vw-3rem))] gap-1 rounded-xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-950 ${isList ? 'right-0' : 'left-0'}`}>
             <Link
               href={resumeGeneratorHref(companyName, title)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
+              className="inline-flex max-md:min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
             >
               <FilePenLine className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Tailor resume
             </Link>
             {sponsorId ? (
               <Link
                 href={`/dashboard/career/h1b-sponsors/${sponsorId}`}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
+                className="inline-flex max-md:min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
               >
                 <GitCompareArrows className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Compare sponsor profile
               </Link>
@@ -99,7 +99,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
             <button
               type="button"
               onClick={() => setShowFollowup((current) => !current)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
+              className="inline-flex max-md:min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
               aria-expanded={showFollowup}
             >
               <BellPlus className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Set follow-up date
@@ -112,14 +112,14 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
                     type="date"
                     value={followupDate}
                     onChange={(event) => setFollowupDate(event.target.value)}
-                    className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-white shadow-card"
+                    className="max-md:min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-white shadow-card"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={saveFollowup}
                   disabled={!followupDate || followupState === 'saving' || followupState === 'saved'}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-blue-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex max-md:min-h-11 items-center justify-center gap-2 rounded-xl bg-blue-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {followupState === 'saving' && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
                   {followupState === 'saved' ? 'Follow-up saved' : 'Save follow-up'}
@@ -129,7 +129,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
             )}
             <Link
               href="/dashboard/career/job-tracker"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
+              className="inline-flex max-md:min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-100 dark:hover:bg-blue-900"
             >
               <PencilLine className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Record interview or application manually
             </Link>

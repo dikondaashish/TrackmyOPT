@@ -158,7 +158,7 @@ export function PdfPreviewPane({
                                     <Button
                                         onClick={onImproveForAts}
                                         disabled={isScanning || isGenerating || isAutoFixing || !generatedLatex}
-                                        className="min-h-11 shrink-0 bg-blue-600 px-4 text-white hover:bg-blue-700"
+                                        className="max-md:min-h-11 shrink-0 bg-blue-600 px-4 text-white hover:bg-blue-700"
                                     >
                                         {isGenerating || isAutoFixing ? (
                                             <>

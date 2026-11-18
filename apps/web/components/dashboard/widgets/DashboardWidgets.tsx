@@ -130,7 +130,7 @@ export function DashboardWidgetsSettings({
           </div>
           <button
             onClick={onClose}
-            className="min-h-11 min-w-11 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            className="max-md:min-h-11 max-md:min-w-11 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
             aria-label="Close dashboard customization"
           >
             <X className="w-5 h-5" />

@@ -130,7 +130,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
         <div className="flex gap-2 mt-auto pt-2">
           <button
             onClick={onView}
-            className="min-h-11 flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium hover:shadow-elevated"
+            className="max-md:min-h-11 flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium hover:shadow-elevated"
           >
             View Document
           </button>
@@ -139,7 +139,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
             disabled={downloadDisabled}
             aria-label={downloading ? 'Downloading document' : 'Download document'}
             aria-busy={downloading}
-            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="max-md:min-h-11 max-md:min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title="Download document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +149,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
           <button
             onClick={onDelete}
             aria-label="Delete document"
-            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="max-md:min-h-11 max-md:min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             title="Delete document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

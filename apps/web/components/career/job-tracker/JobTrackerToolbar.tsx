@@ -115,7 +115,7 @@ export function JobTrackerToolbar({
                         <button
                             type="button"
                             onClick={handleClearSearch}
-                            className="absolute right-1 top-1/2 min-h-11 min-w-11 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute right-1 top-1/2 max-md:min-h-11 max-md:min-w-11 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                             aria-label="Clear job search"
                         >
                             <X className="w-4 h-4" />

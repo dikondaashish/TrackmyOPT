@@ -30,13 +30,13 @@ export default function ExtensionPrefillPage() {
             href="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 font-medium text-primary-foreground hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="inline-flex max-md:min-h-11 items-center gap-2 rounded-lg bg-primary px-4 font-medium text-primary-foreground hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <Chrome className="h-4 w-4" /> Install or open extension
           </a>
           <Link
             href="/dashboard/settings?tab=extension"
-            className="inline-flex min-h-11 items-center font-medium text-primary underline-offset-4 hover:underline"
+            className="inline-flex max-md:min-h-11 items-center font-medium text-primary underline-offset-4 hover:underline"
           >
             Check connection
           </Link>

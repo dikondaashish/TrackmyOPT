@@ -74,7 +74,7 @@ export function ToolUpgradePrompt({
       {audience === 'guest' && (
         <Link
           href="/login?redirect=%2Fdashboard%2Fcase-status"
-          className={`mt-1 inline-flex min-h-11 w-full items-center justify-center text-sm font-medium underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 ${theme.focus}`}
+          className={`mt-1 inline-flex max-md:min-h-11 w-full items-center justify-center text-sm font-medium underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 ${theme.focus}`}
         >
           Start with a free account
         </Link>

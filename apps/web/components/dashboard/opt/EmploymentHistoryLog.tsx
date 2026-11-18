@@ -330,7 +330,7 @@ export function EmploymentHistoryLog({
         <button
           type="button"
           onClick={() => setShowInlineForm(true)}
-          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary-muted bg-white px-3 py-2 text-sm font-semibold text-primary shadow-card transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary hover:bg-primary-soft hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card sm:w-auto"
+          className="flex max-md:min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary-muted bg-white px-3 py-2 text-sm font-semibold text-primary shadow-card transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary hover:bg-primary-soft hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card sm:w-auto"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Employment
@@ -409,7 +409,7 @@ export function EmploymentHistoryLog({
           <button
             type="button"
             onClick={openAddJobForm}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="inline-flex max-md:min-h-11 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Plus className="w-4 h-4" />
             Add Your First Job

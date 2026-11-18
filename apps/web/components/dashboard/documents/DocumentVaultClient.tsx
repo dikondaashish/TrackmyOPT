@@ -349,7 +349,7 @@ export function DocumentVaultClient() {
           </div>
           <button
             onClick={handleUploadClick}
-            className="min-h-11 shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-button"
+            className="max-md:min-h-11 shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-button"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -380,7 +380,7 @@ export function DocumentVaultClient() {
           {loading ? 'Loading documents…' : `${visibleDocuments.length} of ${documents.length} documents`}
         </h2>
         {(selectedCategory !== 'all' || searchQuery.trim()) && (
-          <button onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }} className="min-h-11 text-sm font-medium text-blue-600 hover:text-blue-700">
+          <button onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }} className="max-md:min-h-11 text-sm font-medium text-blue-600 hover:text-blue-700">
             Clear filters
           </button>
         )}

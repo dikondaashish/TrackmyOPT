@@ -169,7 +169,7 @@ export function FilingTool({ kind }: { kind: 'opt' | 'stem' }) {
         </div>
       )}
       <details className={panelClass}>
-        <summary className="min-h-11 cursor-pointer font-semibold focus-visible:ring-2">
+        <summary className="max-md:min-h-11 cursor-pointer font-semibold focus-visible:ring-2">
           How this estimate works
         </summary>
         <p className="mt-2 text-sm text-muted-foreground">

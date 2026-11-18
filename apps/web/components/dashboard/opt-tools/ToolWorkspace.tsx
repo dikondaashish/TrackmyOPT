@@ -63,7 +63,7 @@ export function ToolWorkspace({
             key={item.slug}
             href={`${base}/${item.slug}`}
             aria-current={slug === item.slug ? 'page' : undefined}
-            className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${toolThemes[item.slug].focus} ${slug === item.slug ? toolThemes[item.slug].solid : 'border-border bg-card text-foreground hover:bg-muted'} shadow-card`}
+            className={`flex max-md:min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${toolThemes[item.slug].focus} ${slug === item.slug ? toolThemes[item.slug].solid : 'border-border bg-card text-foreground hover:bg-muted'} shadow-card`}
           >
             <item.icon
               aria-hidden="true"
@@ -89,7 +89,7 @@ export function ToolWorkspace({
               href="https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-214/subpart-A/section-214.2#p-214.2(f)"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-blue-700 underline underline-offset-4 focus-visible:ring-2 dark:text-blue-300"
+              className="mt-3 inline-flex max-md:min-h-11 items-center gap-2 text-sm font-medium text-blue-700 underline underline-offset-4 focus-visible:ring-2 dark:text-blue-300"
             >
               Official F-1 regulations{' '}
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
@@ -152,7 +152,7 @@ export function ToolSave({
           <button
             type="button"
             onClick={state.retry}
-            className="min-h-11 px-2 font-semibold underline"
+            className="max-md:min-h-11 px-2 font-semibold underline"
           >
             Try again
           </button>

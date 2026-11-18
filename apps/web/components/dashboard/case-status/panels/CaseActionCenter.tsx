@@ -120,7 +120,7 @@ export function CaseActionCenter({
                     key={action.href}
                     asChild
                     variant="outline"
-                      className="h-auto min-h-11 max-w-full justify-between gap-3 whitespace-normal py-3"
+                      className="h-auto max-md:min-h-11 max-w-full justify-between gap-3 whitespace-normal py-3"
                   >
                     <a
                       href={action.href}
@@ -135,7 +135,7 @@ export function CaseActionCenter({
                     key={action.href}
                     asChild
                     variant="outline"
-                      className="h-auto min-h-11 max-w-full justify-between gap-3 whitespace-normal py-3"
+                      className="h-auto max-md:min-h-11 max-w-full justify-between gap-3 whitespace-normal py-3"
                   >
                     <Link href={action.href}>{content}</Link>
                   </Button>
@@ -154,7 +154,7 @@ export function CaseActionCenter({
             href={plan.officialSource.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="inline-flex max-md:min-h-11 items-center gap-1.5 font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             {plan.officialSource.label}
             <ExternalLink className="h-3.5 w-3.5" aria-hidden />

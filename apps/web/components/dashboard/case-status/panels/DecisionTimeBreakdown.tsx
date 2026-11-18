@@ -111,7 +111,7 @@ export function DecisionTimeBreakdown({
             type="button"
             disabled={!active}
             onClick={() => setSelected(null)}
-            className="min-h-11 rounded-md px-3 text-xs font-medium text-blue-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:text-muted-foreground disabled:no-underline dark:text-blue-300"
+            className="max-md:min-h-11 rounded-md px-3 text-xs font-medium text-blue-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:text-muted-foreground disabled:no-underline dark:text-blue-300"
           >
             {active ? 'Show all time ranges' : 'All time ranges'}
           </button>
@@ -149,7 +149,7 @@ export function DecisionTimeBreakdown({
                         active?.label === group.label ? null : group.label
                       )
                     }
-                    className="flex min-h-11 w-full flex-col justify-center gap-1.5 rounded-md py-1 text-left text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex max-md:min-h-11 w-full flex-col justify-center gap-1.5 rounded-md py-1 text-left text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span className="flex items-center gap-2">
                       <span

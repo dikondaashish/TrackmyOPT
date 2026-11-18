@@ -72,20 +72,20 @@ export function DocumentReminderEmail() {
             <p className="col-start-1 row-start-2 min-w-0 sm:flex-1 break-all text-sm text-gray-600 dark:text-muted-foreground">
               {loading ? 'Loading…' : email}
             </p>
-            {!loading && email && <button onClick={() => { setEditing(true); setSaved(false); setError(''); }} className="col-start-2 row-start-1 row-span-2 min-h-11 px-2 text-xs text-blue-600 hover:text-blue-700 font-medium">Edit</button>}
+            {!loading && email && <button onClick={() => { setEditing(true); setSaved(false); setError(''); }} className="col-start-2 row-start-1 row-span-2 max-md:min-h-11 px-2 text-xs text-blue-600 hover:text-blue-700 font-medium">Edit</button>}
           </>
         )}
       </div>
       {editing && (
         <form onSubmit={save} className="mt-2 flex flex-wrap gap-2">
           <label htmlFor="vault-reminder-email" className="sr-only">Reminder email address</label>
-          <input id="vault-reminder-email" type="email" required maxLength={254} autoComplete="email" value={draft} onChange={e => setDraft(e.target.value)} disabled={saving} aria-describedby="vault-reminder-hint" placeholder="Enter email for document reminders" className="min-h-11 min-w-0 basis-full sm:basis-auto flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-muted dark:text-foreground shadow-card" />
-          <button type="submit" disabled={saving || !draft.trim()} className="min-h-11 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition-colors font-medium">{saving ? 'Saving…' : 'Save'}</button>
-          {email && <button type="button" disabled={saving} onClick={() => { setDraft(email); setEditing(false); setError(''); }} className="min-h-11 px-4 py-2 border border-gray-300 dark:border-border text-gray-700 dark:text-foreground text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors">Cancel</button>}
+          <input id="vault-reminder-email" type="email" required maxLength={254} autoComplete="email" value={draft} onChange={e => setDraft(e.target.value)} disabled={saving} aria-describedby="vault-reminder-hint" placeholder="Enter email for document reminders" className="max-md:min-h-11 min-w-0 basis-full sm:basis-auto flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-muted dark:text-foreground shadow-card" />
+          <button type="submit" disabled={saving || !draft.trim()} className="max-md:min-h-11 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition-colors font-medium">{saving ? 'Saving…' : 'Save'}</button>
+          {email && <button type="button" disabled={saving} onClick={() => { setDraft(email); setEditing(false); setError(''); }} className="max-md:min-h-11 px-4 py-2 border border-gray-300 dark:border-border text-gray-700 dark:text-foreground text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors">Cancel</button>}
         </form>
       )}
       <p id="vault-reminder-hint" className="mt-1 text-xs text-gray-500 dark:text-muted-foreground">Get email reminders before your documents expire.</p>
-      {error && <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">{error} {!editing && <button onClick={() => setAttempt(value => value + 1)} className="min-h-11 px-2 font-medium underline">Retry</button>}</p>}
+      {error && <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">{error} {!editing && <button onClick={() => setAttempt(value => value + 1)} className="max-md:min-h-11 px-2 font-medium underline">Retry</button>}</p>}
       {saved && <p role="status" className="mt-2 text-xs text-gray-600 dark:text-muted-foreground">Reminder email saved.</p>}
     </section>
   );

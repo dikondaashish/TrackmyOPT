@@ -83,7 +83,7 @@ export function BiometricsMilestones({
                   type="button"
                   disabled={busy}
                   onClick={() => setEditing(true)}
-                  className="min-h-11 font-medium underline focus-visible:ring-2"
+                  className="max-md:min-h-11 font-medium underline focus-visible:ring-2"
                 >
                   Edit attendance date
                 </button>
@@ -91,7 +91,7 @@ export function BiometricsMilestones({
                   type="button"
                   disabled={busy}
                   onClick={() => void save(null)}
-                  className="min-h-11 underline focus-visible:ring-2"
+                  className="max-md:min-h-11 underline focus-visible:ring-2"
                 >
                   Undo confirmation
                 </button>
@@ -105,7 +105,7 @@ export function BiometricsMilestones({
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                className="mt-2 min-h-11 rounded-lg bg-blue-600 px-3 font-medium text-white hover:bg-blue-700 focus-visible:ring-2"
+                className="mt-2 max-md:min-h-11 rounded-lg bg-blue-600 px-3 font-medium text-white hover:bg-blue-700 focus-visible:ring-2"
               >
                 Yes, I attended
               </button>
@@ -132,13 +132,13 @@ export function BiometricsMilestones({
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
                 disabled={busy}
-                className="min-h-11 rounded-lg border border-input bg-background px-3 focus-visible:ring-2"
+                className="max-md:min-h-11 rounded-lg border border-input bg-background px-3 focus-visible:ring-2"
               />
               <div className="flex gap-3">
                 <button
                   type="submit"
                   disabled={busy || !date}
-                  className="min-h-11 rounded-lg bg-blue-600 px-3 font-medium text-white disabled:opacity-50 focus-visible:ring-2"
+                  className="max-md:min-h-11 rounded-lg bg-blue-600 px-3 font-medium text-white disabled:opacity-50 focus-visible:ring-2"
                 >
                   {busy ? 'Saving…' : 'Confirm attendance'}
                 </button>
@@ -150,7 +150,7 @@ export function BiometricsMilestones({
                     setDate(savedDate ?? '');
                     setError('');
                   }}
-                  className="min-h-11 underline focus-visible:ring-2"
+                  className="max-md:min-h-11 underline focus-visible:ring-2"
                 >
                   Cancel
                 </button>

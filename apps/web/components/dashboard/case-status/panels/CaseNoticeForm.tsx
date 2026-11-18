@@ -5,7 +5,7 @@ const control =
   'w-full rounded-lg border border-border bg-background p-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500';
 
 const action =
-  'inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-blue-600 hover:bg-muted focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 disabled:opacity-50';
+  'inline-flex max-md:min-h-11 items-center rounded-lg px-3 text-sm font-medium text-blue-600 hover:bg-muted focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 disabled:opacity-50';
 export function CaseNoticeForm({
   prefix,
   editing,
@@ -110,11 +110,11 @@ export function CaseNoticeForm({
           </p>
         )}
       </div>
-      <label className="flex min-h-11 items-center gap-2 text-sm">
+      <label className="flex max-md:min-h-11 items-center gap-2 text-sm">
         <input name="confirmed" type="checkbox" />I verified this deadline
         against my notice or with my DSO.
       </label>
-      <label className="flex min-h-11 items-center gap-2 text-sm">
+      <label className="flex max-md:min-h-11 items-center gap-2 text-sm">
         <input
           name="reminder"
           type="checkbox"
@@ -131,7 +131,7 @@ export function CaseNoticeForm({
       <button
         type="submit"
         disabled={busy}
-        className="min-h-11 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+        className="max-md:min-h-11 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
       >
         {busy ? 'Saving…' : editing ? 'Save changes' : 'Save notice'}
       </button>
