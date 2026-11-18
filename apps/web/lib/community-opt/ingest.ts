@@ -73,11 +73,14 @@ export async function fetchOptTrackerCases(): Promise<SourceFetch> {
     );
   }
   return {
-    cases: raw.map((r) => ({
-      ...r,
-      id: `optt_${r.id}`,
-      source: r.source ?? 'reddit',
-    })),
+    // A case the partner hid is withdrawn by the applicant or the partner.
+    cases: raw
+      .filter((r) => r.hidden !== true)
+      .map((r) => ({
+        ...r,
+        id: `optt_${r.id}`,
+        source: r.source ?? 'reddit',
+      })),
     pages: totalPages,
     total: typeof page1.total === 'number' ? page1.total : null,
   };
@@ -90,6 +93,9 @@ type OptPulseRow = {
   premium_processing?: boolean | null;
   date_applied?: string | null;
   biometrics_completed?: string | null;
+  biometrics_requested_date?: string | null;
+  rfie_date?: string | null;
+  noid_date?: string | null;
   pp_date?: string | null;
   date_approved?: string | null;
   date_card_produced?: string | null;
@@ -123,7 +129,7 @@ async function fetchOptPulseCases(): Promise<SourceFetch> {
   let pages = 0;
   for (let offset = 0; offset < OPT_PULSE_MAX_ROWS; offset += OPT_PULSE_PAGE) {
     const rows = await fetchJson<OptPulseRow[]>(
-      `${url}/rest/v1/cases?select=id,reddit_url,opt_type,premium_processing,date_applied,biometrics_completed,pp_date,date_approved,date_card_produced,date_card_received,country_of_citizenship,processing_center&order=id.asc&limit=${OPT_PULSE_PAGE}&offset=${offset}`,
+      `${url}/rest/v1/cases?select=id,reddit_url,opt_type,premium_processing,date_applied,biometrics_completed,biometrics_requested_date,rfie_date,noid_date,pp_date,date_approved,date_card_produced,date_card_received,country_of_citizenship,processing_center&order=id.asc&limit=${OPT_PULSE_PAGE}&offset=${offset}`,
       { apikey: key, Authorization: `Bearer ${key}` }
     );
     if (!rows.length) break;
@@ -143,6 +149,9 @@ async function fetchOptPulseCases(): Promise<SourceFetch> {
         delivered_date: r.date_card_received ?? null,
         nationality: r.country_of_citizenship ?? null,
         updated_at: null,
+        rfe_date: r.rfie_date ?? null,
+        noid_date: r.noid_date ?? null,
+        biometrics_requested_date: r.biometrics_requested_date ?? null,
       });
     }
     if (rows.length < OPT_PULSE_PAGE) break;
@@ -312,6 +321,10 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
           days_to_produce: r.days_to_produce,
           days_to_deliver: r.days_to_deliver,
           external_updated_at: r.external_updated_at,
+          rfe_date: r.rfe_date,
+          noid_date: r.noid_date,
+          biometrics_requested_date: r.biometrics_requested_date,
+          reported_at: r.reported_at,
           source_evidence: rawDates.get(r.external_id) ?? null,
         })),
         { onConflict: 'external_id' }

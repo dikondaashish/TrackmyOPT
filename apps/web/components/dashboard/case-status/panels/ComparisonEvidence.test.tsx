@@ -12,6 +12,7 @@ it('shows chart coverage at a glance and keeps data-quality details available', 
         excludedOlderImport: 2,
         excludedUnknownFreshness: 5,
         duplicateIdsRemoved: 5,
+        crossSourceDuplicatesRemoved: 0,
         possibleCrossSourceDuplicates: 2,
         sources: [
           { name: 'OPT Tracker', reports: 60, lastRefreshedAt: '2026-09-23' },
