@@ -442,6 +442,7 @@ export function CaseStatusSection() {
                       <VerifiedForecastPanel
                         caseId={caseStatus.id}
                         lastCheckedAt={caseStatus.last_checked_at ?? null}
+                        stemExtension={isStemExtension}
                       />
                     )}
                     <AnalyticsPanels

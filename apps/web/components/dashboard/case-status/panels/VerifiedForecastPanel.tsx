@@ -12,7 +12,14 @@ const displayDate = (value: string | null) =>
         timeZone: 'UTC',
       })
     : 'Not enough data';
-export function ForecastDetails({ forecast: f }: { forecast: Forecast }) {
+export function ForecastDetails({
+  forecast: f,
+  stemExtension = false,
+}: {
+  forecast: Forecast;
+  /** STEM OPT extension cases say "STEM OPT", not "OPT". */
+  stemExtension?: boolean;
+}) {
   return (
     <section
       aria-label="Verified approval forecast"
@@ -21,7 +28,9 @@ export function ForecastDetails({ forecast: f }: { forecast: Forecast }) {
       <h3 className="text-base font-semibold">
         {f.state === 'approved'
           ? 'USCIS approval'
-          : 'Estimated OPT Approval Window'}
+          : stemExtension
+            ? 'Estimated STEM OPT Approval Window'
+            : 'Estimated OPT Approval Window'}
       </h3>
       {f.state === 'approved' && f.approvalDate ? (
         <p className="mt-2 text-lg font-semibold">
@@ -79,9 +88,11 @@ export function ForecastDetails({ forecast: f }: { forecast: Forecast }) {
 export function VerifiedForecastPanel({
   caseId,
   lastCheckedAt,
+  stemExtension = false,
 }: {
   caseId: string;
   lastCheckedAt: string | null;
+  stemExtension?: boolean;
 }) {
   const [result, setResult] = useState<{
     caseId: string;
@@ -148,6 +159,9 @@ export function VerifiedForecastPanel({
       </p>
     );
   return result.forecast ? (
-    <ForecastDetails forecast={result.forecast} />
+    <ForecastDetails
+      forecast={result.forecast}
+      stemExtension={stemExtension}
+    />
   ) : null;
 }
