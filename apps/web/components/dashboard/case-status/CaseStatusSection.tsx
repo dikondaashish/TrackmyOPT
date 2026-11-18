@@ -180,44 +180,7 @@ export function CaseStatusSection() {
         USCIS Case Status
       </h1>
 
-      {isPremium === true && (
-        <Card className="p-5">
-          <h2 className="font-semibold">Set up your Pro case monitoring</h2>
-          <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
-            <li>
-              {caseStatus
-                ? 'Receipt added. Confirm this is the case you want monitored.'
-                : 'Add your receipt below to begin scheduled checks.'}
-            </li>
-            <li>
-              {caseStatus?.notifications_enabled
-                ? 'Status-change emails are enabled for this case.'
-                : 'Enable status-change emails in Notification Settings.'}
-            </li>
-            <li>
-              Review your notification address so alerts reach the right inbox.
-            </li>
-          </ol>
-          {caseStatus && (
-            <button
-              type="button"
-              className="mt-3 max-md:min-h-11 text-sm font-medium text-blue-600 underline dark:text-blue-400"
-              onClick={() => {
-                setIsEditingEmail(true);
-                document
-                  .getElementById('case-notification-settings')
-                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }}
-            >
-              Review notification settings
-            </button>
-          )}
-          <p className="mt-2 text-xs text-muted-foreground">
-            Checks run daily. See the monitoring panel below for the last
-            successful check and scheduled queue time.
-          </p>
-        </Card>
-      )}
+      {isPremium === true && !caseStatus && <ProMonitoringSetup />}
 
       {/* ── Delete success banner ── */}
       {deleteNotice && <DeleteNoticeBanner message={deleteNotice} />}
@@ -329,312 +292,349 @@ export function CaseStatusSection() {
             formTypeMismatch={formTypeMismatch}
           />
 
-          {isPremium === false &&
-            clientNowMs !== null &&
-            isVerifiedPendingCase(caseStatus, clientNowMs) && (
-              <ProductEmailPreference compact />
-            )}
+          {/* Two columns on wide screens: the case and its insights on the
+              left, monitoring, notifications and tools in a narrow rail on
+              the right. Phones and tablets stack the rail after the case. */}
+          <div className="space-y-5 xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start xl:gap-5 xl:space-y-0">
+            <div className="min-w-0 space-y-5">
+              {/* ── 3. MAIN CASE HERO CARD ── */}
+              {isEditingReceipt ? (
+                <CaseStatusReceiptPanel
+                  mode="edit"
+                  receiptNumber={receiptNumber}
+                  filingCategory={filingCategory}
+                  onReceiptChange={setReceiptNumber}
+                  onFilingCategoryChange={setFilingCategory}
+                  onSave={handleSave}
+                  isSaving={isSaving}
+                  isPolling={isPolling}
+                  error={error}
+                  success={success}
+                  onCancelEdit={() => {
+                    setIsEditingReceipt(false);
+                    setReceiptNumber(caseStatus.receipt_number);
+                    setFilingCategory(
+                      normalizeFilingCategory(caseStatus.filing_category)
+                    );
+                    setError(null);
+                    setSuccess(false);
+                  }}
+                />
+              ) : (
+                <CaseStatusPanelErrorBoundary area="hero">
+                  <CaseHeroCard
+                    isPremium={isPremium === true}
+                    onBiometricsSaved={() => void loadCaseStatus()}
+                    key={caseStatus.id}
+                    caseStatus={{
+                      ...caseStatus,
+                      status_history: safeStatusHistory,
+                    }}
+                    caseState={caseState}
+                    ppOverdueDays={ppOverdueDays}
+                    ppDeadlineDate={ppDeadlineDate}
+                    updateCount={safeStatusHistory.length}
+                    isRefreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                    onManageCase={() => {
+                      setIsEditingReceipt(true);
+                      setReceiptNumber(caseStatus.receipt_number);
+                      setFilingCategory(
+                        normalizeFilingCategory(caseStatus.filing_category)
+                      );
+                    }}
+                    onDelete={handleRemove}
+                    isDeleting={isRemoving === caseStatus.id}
+                    refreshError={error}
+                  />
+                </CaseStatusPanelErrorBoundary>
+              )}
 
-          {/* ── 3. MAIN CASE HERO CARD ── */}
-          {isEditingReceipt ? (
-            <CaseStatusReceiptPanel
-              mode="edit"
-              receiptNumber={receiptNumber}
-              filingCategory={filingCategory}
-              onReceiptChange={setReceiptNumber}
-              onFilingCategoryChange={setFilingCategory}
-              onSave={handleSave}
-              isSaving={isSaving}
-              isPolling={isPolling}
-              error={error}
-              success={success}
-              onCancelEdit={() => {
-                setIsEditingReceipt(false);
-                setReceiptNumber(caseStatus.receipt_number);
-                setFilingCategory(
-                  normalizeFilingCategory(caseStatus.filing_category)
-                );
-                setError(null);
-                setSuccess(false);
-              }}
-            />
-          ) : (
-            <CaseStatusPanelErrorBoundary area="hero">
-              <CaseHeroCard
-                isPremium={isPremium === true}
-                onBiometricsSaved={() => void loadCaseStatus()}
-                key={caseStatus.id}
-                caseStatus={{
-                  ...caseStatus,
-                  status_history: safeStatusHistory,
-                }}
-                caseState={caseState}
-                ppOverdueDays={ppOverdueDays}
-                ppDeadlineDate={ppDeadlineDate}
-                updateCount={safeStatusHistory.length}
-                isRefreshing={isRefreshing}
-                onRefresh={handleRefresh}
-                onManageCase={() => {
-                  setIsEditingReceipt(true);
-                  setReceiptNumber(caseStatus.receipt_number);
-                  setFilingCategory(
-                    normalizeFilingCategory(caseStatus.filing_category)
-                  );
-                }}
-                onDelete={handleRemove}
-                isDeleting={isRemoving === caseStatus.id}
-                refreshError={error}
-              />
-            </CaseStatusPanelErrorBoundary>
-          )}
-
-          {/* ── 3a. CASE ACTION CENTER ── */}
-          <CaseStatusPanelErrorBoundary area="case_action_center">
-            <CaseActionCenter
-              statusText={caseStatus.current_status}
-              daysSinceFiled={daysSinceFiled}
-            />
-          </CaseStatusPanelErrorBoundary>
-
-          {/* ── 3b. Refresh failed inline warning ── */}
-          {caseStatus.last_check_failed_at &&
-            (caseStatus.consecutive_failures ?? 0) > 0 && (
-              <RefreshFailedBanner
-                message={
-                  isPremium === true
-                    ? `Last auto-check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we will keep retrying.`
-                    : `Last check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). Try a manual refresh, or upgrade to Pro for daily auto-checks.`
-                }
-              />
-            )}
-
-          {/* ── 4. MONITOR HEALTH STRIP ── */}
-          {isPremium === true && (
-            <CaseStatusPanelErrorBoundary area="monitor_health">
-              <MonitorHealthStrip
-                caseId={caseStatus.id}
-                monitorActive={isPremium === true}
-                lastCheckedAt={caseStatus.last_checked_at}
-                lastCheckFailedAt={caseStatus.last_check_failed_at}
-                lastCheckErrorCode={caseStatus.last_check_error_code}
-                emailAlertsEnabled={caseStatus.notifications_enabled}
-                emailAddress={notificationEmail}
-                onEditEmail={() => setIsEditingEmail(true)}
-              />
-              <NotificationDelivery
-                key={caseStatus.id + (caseStatus.last_checked_at ?? '')}
-                caseId={caseStatus.id}
-                checkedAt={caseStatus.last_checked_at}
-              />
-              <WeeklyDigestSettings isPro={isPremium === true} />
-            </CaseStatusPanelErrorBoundary>
-          )}
-
-          {/* ── 4a. Weekly summary opt-in for Free accounts ── */}
-          {isPremium === false && (
-            <CaseStatusPanelErrorBoundary area="weekly_summary">
-              <WeeklyDigestSettings isPro={false} />
-            </CaseStatusPanelErrorBoundary>
-          )}
-
-          {/* ── 4b. PP Countdown (keep existing component) ── */}
-          {isPremium === true && isOptCase && !formTypeMismatch && (
-            <CaseStatusPanelErrorBoundary area="pp_countdown">
-              <PremiumProcessingCountdown
-                caseId={caseStatus.id}
-                ppStartDate={caseStatus.pp_start_date ?? null}
-                currentStatus={caseStatus.current_status}
-                statusHistory={safeStatusHistory}
-                onSaved={() => void loadCaseStatus()}
-              />
-            </CaseStatusPanelErrorBoundary>
-          )}
-
-          {/* ── 4b2. After approval: what to set up next ── */}
-          {isPremium !== null &&
-            isOptCase &&
-            !formTypeMismatch &&
-            isAfterApprovalPhase(
-              deriveJourneyPhase(caseStatus.current_status, safeStatusHistory)
-            ) && (
-              <CaseStatusPanelErrorBoundary area="after_approval">
-                <AfterApprovalSteps
-                  key={caseStatus.id}
-                  stemExtension={isStemExtension}
-                  isPro={isPremium === true}
-                  onUpgrade={
-                    isPremium === false
-                      ? () =>
-                          openProTrialModal(
-                            CHECKOUT_UPSELL_TRIGGER.AFTER_APPROVAL
-                          )
-                      : undefined
-                  }
+              {/* ── 3a. CASE ACTION CENTER ── */}
+              <CaseStatusPanelErrorBoundary area="case_action_center">
+                <CaseActionCenter
+                  statusText={caseStatus.current_status}
+                  daysSinceFiled={daysSinceFiled}
                 />
               </CaseStatusPanelErrorBoundary>
-            )}
 
-          {/* ── 4c. Late-case help ── */}
-          {lateCase && (
-            <CaseStatusPanelErrorBoundary area="late_case_help">
-              <LateCaseHelp
-                key={caseStatus.id}
-                assessment={lateCase}
-                details={{
-                  receiptNumber: caseStatus.receipt_number,
-                  filedDate: caseStatus.received_date ?? null,
-                  daysSinceFiled: lateCase.daysSinceFiled,
-                  stemExtension: isStemExtension,
-                }}
-                isPro={isPremium === true}
-                onUpgrade={() =>
-                  openProTrialModal(CHECKOUT_UPSELL_TRIGGER.LATE_CASE_HELP)
-                }
-              />
-            </CaseStatusPanelErrorBoundary>
-          )}
-
-          {/* ── 5. ANALYTICS SECTION ──
-              Free sees the typical wait and what each Pro comparison holds;
-              the server withholds the Pro numbers. From Oct 12 to Nov 18, 2026
-              this whole section was hidden on Free, so the page never showed
-              what Pro adds. */}
-          {isPremium !== null && (
-            <Card className="p-4 sm:p-6 border-border">
-              <CaseStatusPanelErrorBoundary area="analytics">
-                {isPremium === true && isOptCase && (
-                  <VerifiedForecastPanel caseId={caseStatus.id} lastCheckedAt={caseStatus.last_checked_at ?? null} stemExtension={isStemExtension} />
+              {/* ── 3b. Refresh failed inline warning ── */}
+              {caseStatus.last_check_failed_at &&
+                (caseStatus.consecutive_failures ?? 0) > 0 && (
+                  <RefreshFailedBanner
+                    message={
+                      isPremium === true
+                        ? `Last auto-check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we will keep retrying.`
+                        : `Last check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). Try a manual refresh, or upgrade to Pro for daily auto-checks.`
+                    }
+                  />
                 )}
-                <AnalyticsPanels
-                  key={caseStatus.id}
-                  receiptNumber={caseStatus.receipt_number}
-                  isPremium={isPremium}
-                  onUpgrade={() =>
-                    openProTrialModal(CHECKOUT_UPSELL_TRIGGER.LOCKED_COMPARISON)
-                  }
-                  daysSinceFiled={daysSinceFiled ?? 0}
-                  prediction={communityPrediction ?? undefined}
-                  summary={communitySummary}
-                  evidence={communityEvidence?.evidence}
-                  premiumUpgrade={communityEvidence?.premiumUpgrade}
-                  currentStatus={caseStatus.current_status}
-                  stages={communityStages}
-                  phase={deriveJourneyPhase(
+
+              {/* ── 4b. PP Countdown (keep existing component) ── */}
+              {isPremium === true && isOptCase && !formTypeMismatch && (
+                <CaseStatusPanelErrorBoundary area="pp_countdown">
+                  <PremiumProcessingCountdown
+                    caseId={caseStatus.id}
+                    ppStartDate={caseStatus.pp_start_date ?? null}
+                    currentStatus={caseStatus.current_status}
+                    statusHistory={safeStatusHistory}
+                    onSaved={() => void loadCaseStatus()}
+                  />
+                </CaseStatusPanelErrorBoundary>
+              )}
+
+              {/* ── 4b2. After approval: what to set up next ── */}
+              {isPremium !== null &&
+                isOptCase &&
+                !formTypeMismatch &&
+                isAfterApprovalPhase(
+                  deriveJourneyPhase(
                     caseStatus.current_status,
                     safeStatusHistory
-                  )}
-                  heatmap={communityHeatmap}
-                  weeklyTrend={communityWeeklyTrend}
-                  histogram={communityHistogram}
-                  similarFiling={communitySimilarFiling}
-                  receivedDate={caseStatus.received_date}
-                  premiumProcessing={Boolean(caseStatus.pp_start_date)}
-                  estimateLoading={communityEstimateLoading}
-                  estimatesAvailable={isOptCase}
-                  filingCategory={caseStatus.filing_category}
-                  caseType={caseStatus.case_type}
+                  )
+                ) && (
+                  <CaseStatusPanelErrorBoundary area="after_approval">
+                    <AfterApprovalSteps
+                      key={caseStatus.id}
+                      stemExtension={isStemExtension}
+                      isPro={isPremium === true}
+                      onUpgrade={
+                        isPremium === false
+                          ? () =>
+                              openProTrialModal(
+                                CHECKOUT_UPSELL_TRIGGER.AFTER_APPROVAL
+                              )
+                          : undefined
+                      }
+                    />
+                  </CaseStatusPanelErrorBoundary>
+                )}
+
+              {/* ── 4c. Late-case help ── */}
+              {lateCase && (
+                <CaseStatusPanelErrorBoundary area="late_case_help">
+                  <LateCaseHelp
+                    key={caseStatus.id}
+                    assessment={lateCase}
+                    details={{
+                      receiptNumber: caseStatus.receipt_number,
+                      filedDate: caseStatus.received_date ?? null,
+                      daysSinceFiled: lateCase.daysSinceFiled,
+                      stemExtension: isStemExtension,
+                    }}
+                    isPro={isPremium === true}
+                    onUpgrade={() =>
+                      openProTrialModal(CHECKOUT_UPSELL_TRIGGER.LATE_CASE_HELP)
+                    }
+                  />
+                </CaseStatusPanelErrorBoundary>
+              )}
+
+              {/* ── 5. ANALYTICS SECTION ──
+                Free sees the typical wait and what each Pro comparison holds;
+                the server withholds the Pro numbers. From Oct 12 to Nov 18, 2026
+                this whole section was hidden on Free, so the page never showed
+                what Pro adds. */}
+              {isPremium !== null && (
+                <Card className="p-4 sm:p-6 border-border">
+                  <CaseStatusPanelErrorBoundary area="analytics">
+                    {isPremium === true && isOptCase && (
+                      <VerifiedForecastPanel
+                        caseId={caseStatus.id}
+                        lastCheckedAt={caseStatus.last_checked_at ?? null}
+                        stemExtension={isStemExtension}
+                      />
+                    )}
+                    <AnalyticsPanels
+                      key={caseStatus.id}
+                      receiptNumber={caseStatus.receipt_number}
+                      isPremium={isPremium}
+                      onUpgrade={() =>
+                        openProTrialModal(
+                          CHECKOUT_UPSELL_TRIGGER.LOCKED_COMPARISON
+                        )
+                      }
+                      daysSinceFiled={daysSinceFiled ?? 0}
+                      prediction={communityPrediction ?? undefined}
+                      summary={communitySummary}
+                      evidence={communityEvidence?.evidence}
+                      premiumUpgrade={communityEvidence?.premiumUpgrade}
+                      currentStatus={caseStatus.current_status}
+                      stages={communityStages}
+                      phase={deriveJourneyPhase(
+                        caseStatus.current_status,
+                        safeStatusHistory
+                      )}
+                      heatmap={communityHeatmap}
+                      weeklyTrend={communityWeeklyTrend}
+                      histogram={communityHistogram}
+                      similarFiling={communitySimilarFiling}
+                      receivedDate={caseStatus.received_date}
+                      premiumProcessing={Boolean(caseStatus.pp_start_date)}
+                      estimateLoading={communityEstimateLoading}
+                      estimatesAvailable={isOptCase}
+                      filingCategory={caseStatus.filing_category}
+                      caseType={caseStatus.case_type}
+                    />
+                  </CaseStatusPanelErrorBoundary>
+                </Card>
+              )}
+
+              {/* ── 6. OPT JOURNEY SECTION ── */}
+              {isOptCase && (
+                <CaseStatusPanelErrorBoundary area="opt_journey">
+                  <OptJourneySection
+                    key={caseStatus.id}
+                    caseId={caseStatus.id}
+                    isPro={isPremium === true}
+                    filingCategory={caseStatus.filing_category}
+                    optFiledDate={
+                      isStemExtension
+                        ? null
+                        : (caseStatus.received_date ?? null)
+                    }
+                    eadProjected={null}
+                    stemWindowOpens={null}
+                    stemFiled={
+                      isStemExtension
+                        ? (caseStatus.received_date ?? null)
+                        : null
+                    }
+                  />
+                </CaseStatusPanelErrorBoundary>
+              )}
+
+              <CaseStatusTimelineAndInfo
+                caseStatus={caseStatus}
+                safeStatusHistory={safeStatusHistory}
+                serviceCenterLocation={serviceCenterLocation}
+                filingCategorySaving={filingCategorySaving}
+                onFilingCategoryChange={(value) =>
+                  void handleFilingCategoryUpdate(value)
+                }
+                filingDateInput={filingDateInput}
+                onFilingDateInputChange={setFilingDateInput}
+                filingDateSaving={filingDateSaving}
+                onSaveFilingDate={() => void handleSaveFilingDate()}
+              />
+
+              {/* ── 8b. Manual refresh / stale upsells ── */}
+              {showManualRefreshUpsell && (
+                <ManualRefreshUpsellPrompt
+                  onStartTrial={() => openProTrialModal()}
+                  onDismiss={() => setShowManualRefreshUpsell(false)}
+                  ctaLabel={proUpgradeCta}
+                />
+              )}
+              {!showManualRefreshUpsell &&
+                !showStatusChangeWedge &&
+                showStaleStatusUpsell && (
+                  <ManualRefreshUpsellPrompt
+                    trigger={CHECKOUT_UPSELL_TRIGGER.STALE_STATUS}
+                    message={CASE_STATUS_MESSAGING.staleStatusNotice}
+                    onStartTrial={() => openProTrialModal()}
+                    onDismiss={() => setShowStaleStatusUpsell(false)}
+                    ctaLabel={proUpgradeCta}
+                  />
+                )}
+
+              {/* ── Dev: mock mode badge ── */}
+              {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&
+                process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' &&
+                process.env.NODE_ENV !== 'production' && <UscisMockModeBadge />}
+            </div>
+
+            <aside
+              className="min-w-0 space-y-4"
+              aria-label="Case monitoring, notifications and tools"
+            >
+              {isPremium === true && (
+                <ProMonitoringSetup
+                  receiptAdded
+                  emailAlertsOn={caseStatus.notifications_enabled}
+                  onReviewSettings={() => {
+                    setIsEditingEmail(true);
+                    document
+                      .getElementById('case-notification-settings')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                />
+              )}
+              {isPremium === false &&
+                clientNowMs !== null &&
+                isVerifiedPendingCase(caseStatus, clientNowMs) && (
+                  <ProductEmailPreference compact />
+                )}
+
+              {/* ── 4. MONITOR HEALTH STRIP ── */}
+              {isPremium === true && (
+                <CaseStatusPanelErrorBoundary area="monitor_health">
+                  <MonitorHealthStrip
+                    caseId={caseStatus.id}
+                    monitorActive={isPremium === true}
+                    lastCheckedAt={caseStatus.last_checked_at}
+                    lastCheckFailedAt={caseStatus.last_check_failed_at}
+                    lastCheckErrorCode={caseStatus.last_check_error_code}
+                    emailAlertsEnabled={caseStatus.notifications_enabled}
+                    emailAddress={notificationEmail}
+                    onEditEmail={() => setIsEditingEmail(true)}
+                  />
+                  <NotificationDelivery
+                    key={caseStatus.id + (caseStatus.last_checked_at ?? '')}
+                    caseId={caseStatus.id}
+                    checkedAt={caseStatus.last_checked_at}
+                  />
+                  <WeeklyDigestSettings isPro={isPremium === true} />
+                </CaseStatusPanelErrorBoundary>
+              )}
+
+              {/* ── 4a. Weekly summary opt-in for Free accounts ── */}
+              {isPremium === false && (
+                <CaseStatusPanelErrorBoundary area="weekly_summary">
+                  <WeeklyDigestSettings isPro={false} />
+                </CaseStatusPanelErrorBoundary>
+              )}
+
+              {/* ── 7. TOOLS ACCORDION ── */}
+              <CaseStatusPanelErrorBoundary area="tools">
+                <ToolsAccordion
+                  notifications={{
+                    isPremium,
+                    emailAlertsOn: caseStatus.notifications_enabled,
+                    emailAddress: notificationEmail,
+                    isEditingEmail,
+                    emailSaving,
+                    onToggleEmail: toggleNotifications,
+                    onStartEditEmail: () => setIsEditingEmail(true),
+                    onCancelEditEmail: () => setIsEditingEmail(false),
+                    onSaveEmail: handleEmailSave,
+                    onEmailChange: setNotificationEmail,
+                    onUpgrade: () => openProTrialModal(),
+                  }}
                 />
               </CaseStatusPanelErrorBoundary>
-            </Card>
-          )}
 
-          {/* ── 6. OPT JOURNEY SECTION ── */}
-          {isOptCase && (
-            <CaseStatusPanelErrorBoundary area="opt_journey">
-              <OptJourneySection
-                key={caseStatus.id}
-                caseId={caseStatus.id}
-                isPro={isPremium === true}
-                filingCategory={caseStatus.filing_category}
-                optFiledDate={
-                  isStemExtension ? null : (caseStatus.received_date ?? null)
-                }
-                eadProjected={null}
-                stemWindowOpens={null}
-                stemFiled={
-                  isStemExtension ? (caseStatus.received_date ?? null) : null
-                }
-              />
-            </CaseStatusPanelErrorBoundary>
-          )}
+              {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
+              <CaseStatusPanelErrorBoundary area="case_notices">
+                <CaseNoticeOrganizer
+                  key={caseStatus.id}
+                  caseId={caseStatus.id}
+                  isPro={isPremium === true}
+                />
+              </CaseStatusPanelErrorBoundary>
+              <CaseStatusPanelErrorBoundary area="dedicated_consultation">
+                <DedicatedConsultationCard
+                  caseId={caseStatus.id}
+                  onCompareDedicated={openDedicatedModal}
+                />
+              </CaseStatusPanelErrorBoundary>
 
-          {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
-          <CaseStatusPanelErrorBoundary area="case_notices">
-            <CaseNoticeOrganizer
-              key={caseStatus.id}
-              caseId={caseStatus.id}
-              isPro={isPremium === true}
-            />
-          </CaseStatusPanelErrorBoundary>
-          <CaseStatusTimelineAndInfo
-            caseStatus={caseStatus}
-            safeStatusHistory={safeStatusHistory}
-            serviceCenterLocation={serviceCenterLocation}
-            filingCategorySaving={filingCategorySaving}
-            onFilingCategoryChange={(value) =>
-              void handleFilingCategoryUpdate(value)
-            }
-            filingDateInput={filingDateInput}
-            onFilingDateInputChange={setFilingDateInput}
-            filingDateSaving={filingDateSaving}
-            onSaveFilingDate={() => void handleSaveFilingDate()}
-          />
-
-          <CaseStatusPanelErrorBoundary area="dedicated_consultation">
-            <DedicatedConsultationCard
-              caseId={caseStatus.id}
-              onCompareDedicated={openDedicatedModal}
-            />
-          </CaseStatusPanelErrorBoundary>
-
-          {/* ── 7. TOOLS ACCORDION ── */}
-          <CaseStatusPanelErrorBoundary area="tools">
-            <ToolsAccordion
-              notifications={{
-                isPremium,
-                emailAlertsOn: caseStatus.notifications_enabled,
-                emailAddress: notificationEmail,
-                isEditingEmail,
-                emailSaving,
-                onToggleEmail: toggleNotifications,
-                onStartEditEmail: () => setIsEditingEmail(true),
-                onCancelEditEmail: () => setIsEditingEmail(false),
-                onSaveEmail: handleEmailSave,
-                onEmailChange: setNotificationEmail,
-                onUpgrade: () => openProTrialModal(),
-              }}
-            />
-          </CaseStatusPanelErrorBoundary>
-
-          {/* ── 8b. Manual refresh / stale upsells ── */}
-          {showManualRefreshUpsell && (
-            <ManualRefreshUpsellPrompt
-              onStartTrial={() => openProTrialModal()}
-              onDismiss={() => setShowManualRefreshUpsell(false)}
-              ctaLabel={proUpgradeCta}
-            />
-          )}
-          {!showManualRefreshUpsell &&
-            !showStatusChangeWedge &&
-            showStaleStatusUpsell && (
-              <ManualRefreshUpsellPrompt
-                trigger={CHECKOUT_UPSELL_TRIGGER.STALE_STATUS}
-                message={CASE_STATUS_MESSAGING.staleStatusNotice}
-                onStartTrial={() => openProTrialModal()}
-                onDismiss={() => setShowStaleStatusUpsell(false)}
-                ctaLabel={proUpgradeCta}
-              />
-            )}
-
-          {/* ── Dev: mock mode badge ── */}
-          {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&
-            process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' &&
-            process.env.NODE_ENV !== 'production' && <UscisMockModeBadge />}
-
-          {/* ── 10. CASE INFO FOOTER (collapsed) ── */}
-          <CaseStatusPanelErrorBoundary area="case_info_footer">
-            <CaseInfoFooter caseStatus={caseStatus} />
-          </CaseStatusPanelErrorBoundary>
+              {/* ── 10. CASE INFO FOOTER (collapsed) ── */}
+              <CaseStatusPanelErrorBoundary area="case_info_footer">
+                <CaseInfoFooter caseStatus={caseStatus} />
+              </CaseStatusPanelErrorBoundary>
+            </aside>
+          </div>
 
           {/* ── 11. DISCLAIMER (single instance) ── */}
           <UscisCaseStatusDisclaimer className="mt-2" />
@@ -681,5 +681,51 @@ export function CaseStatusSection() {
         initialInterval="year"
       />
     </div>
+  );
+}
+
+/** Pro onboarding checklist: above the receipt form before a case exists,
+ *  and at the top of the side rail once one is tracked. */
+function ProMonitoringSetup({
+  receiptAdded = false,
+  emailAlertsOn = false,
+  onReviewSettings,
+}: {
+  receiptAdded?: boolean;
+  emailAlertsOn?: boolean;
+  onReviewSettings?: () => void;
+}) {
+  return (
+    <Card className="p-4">
+      <h2 className="font-semibold">Set up your Pro case monitoring</h2>
+      <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
+        <li>
+          {receiptAdded
+            ? 'Receipt added. Confirm this is the case you want monitored.'
+            : 'Add your receipt below to begin scheduled checks.'}
+        </li>
+        <li>
+          {emailAlertsOn
+            ? 'Status-change emails are enabled for this case.'
+            : 'Enable status-change emails in Notification Settings.'}
+        </li>
+        <li>
+          Review your notification address so alerts reach the right inbox.
+        </li>
+      </ol>
+      {onReviewSettings && (
+        <button
+          type="button"
+          className="mt-3 max-md:min-h-11 text-sm font-medium text-primary underline"
+          onClick={onReviewSettings}
+        >
+          Review notification settings
+        </button>
+      )}
+      <p className="mt-2 text-xs text-muted-foreground">
+        Checks run daily. The monitoring panel shows the last successful check
+        and the next scheduled one.
+      </p>
+    </Card>
   );
 }
