@@ -85,6 +85,8 @@ Defined in `lib/notifications/transactional/` via `queueTransactionalEmailSend`.
 | `free_receipt_reengagement` | `Try Pro: daily USCIS auto-checks + status-change emails` | One-off, flag-gated free-receipt campaign |
 | `at_risk_reengagement` | `Your OPT tools are still here when you need them` | Owner-approved, flag-gated at-risk campaign |
 | `d1_activation_nudge` | Dynamic first-day setup nudge | Free signup activation based on missing dashboard/case setup |
+| `free_case_update` | `Your USCIS case has an update` | Free account: a scheduled check found a status change. No status or receipt number; signed “Stop case emails” link. Pause with `FREE_CASE_UPDATE_EMAILS=false` |
+| `trial_progress` | `Your first days on Pro: what we checked` | Day 3–5 of the paid Pro introduction: scheduled checks run, changes recorded, setup steps (`/api/cron/trial-progress-emails`) |
 | `refund_processed` | `TrackMyOPT: Refund confirmation` | Refund amount; premium ended; processing timeline |
 | `premium_welcome` | `Welcome to TrackMyOPT Premium! 🚀` | Post-checkout premium welcome |
 | `trial_ending` | `TrackMyOPT: Your Premium trial is ending soon` | Stripe trial ending (webhook-driven) |

@@ -25,6 +25,10 @@ import {
 } from './internal';
 import { buildStemOptWindowEmailBodies } from './alerts';
 import {
+  buildFreeCaseUpdateEmailBodies,
+  buildTrialProgressEmailBodies,
+} from './case-updates';
+import {
   buildCheckoutRecoveryEmailBodies,
   buildFreeReceiptReengagementEmailBodies,
   buildAtRiskReengagementEmailBodies,
@@ -150,6 +154,30 @@ export function getTransactionalEmailPreviews(
         checkoutUrl: 'https://checkout.stripe.com/c/pay/preview',
         resumeKind: 'open_session',
       })
+    ),
+    item(
+      'free_case_update',
+      'Reengagement',
+      buildFreeCaseUpdateEmailBodies({
+        firstName,
+        optOutUrl:
+          'https://www.trackmyopt.com/api/email/case-updates/unsubscribe?token=preview',
+      })
+    ),
+    ...[
+      { key: 'no_change', checks: 3, cases: 1, changes: 0 },
+      { key: 'changed', checks: 6, cases: 2, changes: 1 },
+      { key: 'no_case', checks: 0, cases: 0, changes: 0 },
+    ].map(({ key, ...counts }) =>
+      item(
+        `trial_progress_${key}`,
+        'Billing',
+        buildTrialProgressEmailBodies({
+          firstName,
+          ...counts,
+          introEndDate: 'October 17, 2026',
+        })
+      )
     ),
     item(
       'free_receipt_reengagement',

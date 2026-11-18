@@ -37,8 +37,12 @@ it('lets a downgraded user opt out and persists only the authenticated owner', a
     expect.anything()
   );
 });
-it('does not enable free users', async () => {
-  m.tier.mockResolvedValue('free');
-  m.create.mockReturnValue({});
-  expect((await PATCH(req({ enabled: true }))).status).toBe(403);
+it('lets a Free account opt in', async () => {
+  const upsert = vi.fn().mockResolvedValue({ error: null });
+  m.create.mockReturnValue({ from: () => ({ upsert }) });
+  expect((await PATCH(req({ enabled: true }))).status).toBe(200);
+  expect(upsert).toHaveBeenCalledWith(
+    expect.objectContaining({ user_id: 'owner', enabled: true }),
+    expect.anything()
+  );
 });

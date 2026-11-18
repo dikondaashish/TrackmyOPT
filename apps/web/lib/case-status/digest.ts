@@ -13,13 +13,47 @@ type DigestCase = {
   current_status: string | null;
   last_checked_at: string | null;
   change_log?: unknown;
+  /** Free view only: a scheduled check found a status the person has not revealed yet. */
+  updateWaiting?: boolean;
 };
+type StoredDigestCase = DigestCase & { free_visible_status?: unknown };
+
+/**
+ * The cases as their owner is allowed to see them. Pro sees the stored status.
+ * Free sees the status from their last own refresh, plus whether a scheduled
+ * check has found a different one since, never the new status itself.
+ */
+export function digestCasesForViewer(
+  rows: StoredDigestCase[],
+  isPremium: boolean
+): DigestCase[] {
+  return rows.map(({ free_visible_status, ...row }) => {
+    if (isPremium) return row;
+    const seen =
+      free_visible_status && typeof free_visible_status === 'object'
+        ? (free_visible_status as Record<string, unknown>)
+        : {};
+    const seenStatus =
+      typeof seen.current_status === 'string' ? seen.current_status : null;
+    return {
+      label: row.label,
+      current_status: seenStatus,
+      last_checked_at:
+        typeof seen.last_checked_at === 'string' ? seen.last_checked_at : null,
+      change_log: [],
+      updateWaiting: Boolean(
+        row.current_status && row.current_status !== seenStatus
+      ),
+    };
+  });
+}
 type Deadline = { title: string; due_date: string };
 export function buildCaseDigest(
   cases: DigestCase[],
   deadlines: Deadline[],
   week: string,
-  now = new Date()
+  now = new Date(),
+  options: { free?: boolean } = {}
 ) {
   const clean = (value: string) =>
     value
@@ -47,6 +81,12 @@ export function buildCaseDigest(
         statusText: c.current_status,
         daysSinceFiled: null,
       });
+      if (options.free)
+        return `${clean(c.label || `Case ${index + 1}`)}: ${clean(c.current_status || 'Status not yet revealed')}\nYour last refresh: ${c.last_checked_at || 'Not yet'}. ${
+          c.updateWaiting
+            ? 'A scheduled check has found a newer USCIS status since then. Sign in and refresh your case to see it.'
+            : 'Scheduled checks have not found a different status since then.'
+        }\nWhat this means: ${clean(guidance.summary)}\nNext step: ${clean(guidance.nextStep)}`;
       return `${clean(c.label || `Case ${index + 1}`)}: ${clean(c.current_status || 'Status not yet available')}\nLast successful check: ${c.last_checked_at || 'Not confirmed'}. ${changes} recorded change(s) in the last 7 days.\nWhat this means: ${clean(guidance.summary)}\nNext step: ${clean(guidance.nextStep)}`;
     }),
     '',
@@ -57,6 +97,11 @@ export function buildCaseDigest(
     '',
     'Review official notices for required actions and exact deadlines. No status change does not imply that USCIS has not worked on your case.',
     'https://www.trackmyopt.com/dashboard/case-status',
+    ...(options.free
+      ? [
+          'On Pro, each new status appears on your case page automatically and is emailed to you the day a scheduled check detects it.',
+        ]
+      : []),
     'Turn off Weekly summary on your case page to stop these digests. Individual case-change alerts are controlled separately.',
   ].join('\n');
 }

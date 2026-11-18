@@ -117,7 +117,7 @@ it('claims the week and unchanged preference before sending', async () => {
     expect.objectContaining({ state: 'sent' })
   );
 });
-it.each(['lost-claim', 'duplicate', 'optout', 'late-optout', 'free'])(
+it.each(['lost-claim', 'duplicate', 'optout', 'late-optout'])(
   'does not send for %s',
   async (reason) => {
     setup({
@@ -126,11 +126,19 @@ it.each(['lost-claim', 'duplicate', 'optout', 'late-optout', 'free'])(
       optout: reason === 'optout',
       lateOptout: reason === 'late-optout',
     });
-    if (reason === 'free') m.tier.mockReturnValue('free');
     await GET(req());
     expect(m.send).not.toHaveBeenCalled();
   }
 );
+it('sends an opted-in Free account its own view, never the unrevealed status', async () => {
+  setup();
+  m.tier.mockReturnValue('free');
+  expect(await (await GET(req())).json()).toMatchObject({ sent: 1, failed: 0 });
+  const text = m.send.mock.calls[0][0].text;
+  expect(text).not.toContain('Current live status');
+  expect(text).toContain('Status not yet revealed');
+  expect(text).toContain('Sign in and refresh your case to see it.');
+});
 it('records rejection as failed and never retries uncertain SMTP', async () => {
   const q = setup();
   m.send.mockRejectedValue(new Error('timeout'));

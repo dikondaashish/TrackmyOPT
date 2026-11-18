@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { buildCaseDigest, digestWeek } from './digest';
+import { buildCaseDigest, digestCasesForViewer, digestWeek } from './digest';
 it.each([
   ['2026-09-23T23:00:00Z', '2026-09-21'],
   ['2026-09-27T23:59:59Z', '2026-09-21'],
@@ -32,4 +32,49 @@ it('shows actual check freshness and saved deadlines without receipt numbers or 
   expect(text).toContain('DSO report — 2026-09-25');
   expect(text).not.toContain('<b>');
   expect(text).toContain('Turn off Weekly summary');
+});
+it('gives a Free account its last revealed status and only a flag for a newer one', () => {
+  const stored = [
+    {
+      label: 'OPT',
+      current_status: 'Case Was Approved',
+      last_checked_at: '2026-11-18T14:00:00Z',
+      change_log: [{ date: '2026-11-18' }],
+      free_visible_status: {
+        current_status: 'Case Was Received',
+        last_checked_at: '2026-11-01T10:00:00Z',
+      },
+    },
+  ];
+  expect(digestCasesForViewer(stored, true)[0]).toMatchObject({
+    current_status: 'Case Was Approved',
+  });
+  const free = digestCasesForViewer(stored, false);
+  expect(free[0]).toEqual({
+    label: 'OPT',
+    current_status: 'Case Was Received',
+    last_checked_at: '2026-11-01T10:00:00Z',
+    change_log: [],
+    updateWaiting: true,
+  });
+  const text = buildCaseDigest(
+    free,
+    [],
+    '2026-11-16',
+    new Date('2026-11-18T15:00:00Z'),
+    { free: true }
+  );
+  expect(text).toContain('OPT: Case Was Received');
+  expect(text).toContain('found a newer USCIS status since then');
+  expect(text).not.toContain('Approved');
+  expect(text).toContain('On Pro, each new status');
+
+  const unchanged = digestCasesForViewer(
+    [{ ...stored[0]!, current_status: 'Case Was Received' }],
+    false
+  );
+  expect(unchanged[0]!.updateWaiting).toBe(false);
+  expect(
+    buildCaseDigest(unchanged, [], '2026-11-16', new Date(), { free: true })
+  ).toContain('have not found a different status since then');
 });

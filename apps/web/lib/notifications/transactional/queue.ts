@@ -184,6 +184,10 @@ type DedupeMode =
   | { kind: "welcome_free_resend" }
   | { kind: "stem_opt_window" }
   | { kind: "d1_activation_nudge" }
+  /** At most one email of this type per account inside the window. */
+  | { kind: "recent_same_type"; withinHours: number }
+  /** One email of this type per account for a given email_data key/value. */
+  | { kind: "email_data_key"; key: string; value: string }
   | { kind: "none" };
 
 /**
@@ -267,6 +271,38 @@ export async function queueTransactionalEmailSend(args: {
     if (await shouldSkipD1ActivationNudge(supabase, userId)) {
       return { ok: true, skipped: "deduped" };
     }
+  } else if (dedupe.kind === "recent_same_type") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for recent_same_type dedupe" };
+    }
+    const since = new Date(
+      Date.now() - dedupe.withinHours * 60 * 60 * 1000
+    ).toISOString();
+    const recent = await supabase
+      .from("email_queue")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("email_type", emailType)
+      .in("status", ["sent", "pending"])
+      .gte("created_at", since)
+      .limit(1);
+    // A failed lookup must not turn into a duplicate send.
+    if (recent.error) return { ok: false, error: "dedupe_lookup_failed" };
+    if (recent.data?.length) return { ok: true, skipped: "deduped" };
+  } else if (dedupe.kind === "email_data_key") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for email_data_key dedupe" };
+    }
+    const prior = await supabase
+      .from("email_queue")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("email_type", emailType)
+      .contains("email_data", { [dedupe.key]: dedupe.value })
+      .limit(1);
+    if (prior.error) return { ok: false, error: "dedupe_lookup_failed" };
+    if (prior.data?.length) return { ok: true, skipped: "deduped" };
+    dataWithEvent[dedupe.key] = dedupe.value;
   } else if (dedupe.kind === "payment_failed") {
     if (!userId) {
       return { ok: false, error: "user_id required for payment_failed" };

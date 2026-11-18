@@ -13,6 +13,13 @@ export const CASE_INSIGHT_PROMPT_SESSION_KEY =
 
 export const CASE_INSIGHT_PROMPT_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000;
 export const CASE_INSIGHT_PROMPT_DELAY_MS = 8_000;
+/**
+ * The prompt waits for a return visit. In the weeks before this rule it opened
+ * right after the receipt was saved: about 300 people saw the offer and 5
+ * continued to checkout, and the 14-day cooldown then kept it from showing on
+ * the visit where a status change had just been found.
+ */
+export const CASE_INSIGHT_MIN_CASE_AGE_MS = 20 * 60 * 60 * 1000;
 
 type CaseInsightPromptEligibility = {
   isPremium: boolean | null;
@@ -21,6 +28,8 @@ type CaseInsightPromptEligibility = {
   competingPromptOpen: boolean;
   shownThisSession: boolean;
   lastShownAtMs: number | null;
+  /** When the case was saved (ISO). Missing or invalid means "not yet". */
+  caseCreatedAt?: string | null;
   nowMs?: number;
 };
 
@@ -31,11 +40,18 @@ export function shouldShowCaseInsightPrompt({
   competingPromptOpen,
   shownThisSession,
   lastShownAtMs,
+  caseCreatedAt,
   nowMs = Date.now(),
 }: CaseInsightPromptEligibility): boolean {
   if (isPremium !== false) return false;
   if (!hasCase || !hasResolvedStatus) return false;
   if (competingPromptOpen || shownThisSession) return false;
+  const createdAtMs = caseCreatedAt ? Date.parse(caseCreatedAt) : NaN;
+  if (
+    !Number.isFinite(createdAtMs) ||
+    nowMs - createdAtMs < CASE_INSIGHT_MIN_CASE_AGE_MS
+  )
+    return false;
 
   if (lastShownAtMs === null || !Number.isFinite(lastShownAtMs)) return true;
   return nowMs - lastShownAtMs >= CASE_INSIGHT_PROMPT_COOLDOWN_MS;

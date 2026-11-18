@@ -56,6 +56,10 @@
       "schedule": "0 * * * *"
     },
     {
+      "path": "/api/cron/trial-progress-emails",
+      "schedule": "10 16 * * *"
+    },
+    {
       "path": "/api/cron/retry-pending-emails",
       "schedule": "15 * * * *"
     },
