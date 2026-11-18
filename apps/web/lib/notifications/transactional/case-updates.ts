@@ -58,28 +58,28 @@ export function buildFreeCaseUpdateEmailBodies(args: {
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting(args.firstName))}
-${emailTextLead('A scheduled check found a change in the USCIS status of a case you saved on TrackMyOPT.')}
-${emailTextP('Sign in and refresh your case to see the new status and what it means for your next step.')}
+${emailTextLead('We found a new USCIS status on your saved case.')}
+${emailTextP('Sign in and refresh to see it.')}
 ${emailPrimaryButton(caseUrl, 'See the update')}
-${emailTextMuted('Pro members get the new status in the email itself, on the day a scheduled check detects it.')}
-${emailTextMuted('TrackMyOPT is not affiliated with USCIS. Your official USCIS notice and online account control.')}
+${emailTextMuted('On Pro, the new status is in the email itself.')}
+${emailTextMuted('Not affiliated with USCIS. Your official USCIS notice controls.')}
 ${emailTextMuted(
-  `You are getting this because you saved a USCIS case on TrackMyOPT. <a href="${escapeHtml(args.optOutUrl)}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Stop case emails</a>`
+  `You saved a USCIS case on TrackMyOPT. <a href="${escapeHtml(args.optOutUrl)}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Stop case emails</a>`
 )}
 ${emailBodySectionClose()}`,
   });
   const text = [
     args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : 'Hi,',
     '',
-    'A scheduled check found a change in the USCIS status of a case you saved on TrackMyOPT.',
-    'Sign in and refresh your case to see the new status and what it means for your next step.',
+    'We found a new USCIS status on your saved case.',
+    'Sign in and refresh to see it.',
     '',
     caseUrl,
     '',
-    'Pro members get the new status in the email itself, on the day a scheduled check detects it.',
-    'TrackMyOPT is not affiliated with USCIS. Your official USCIS notice and online account control.',
+    'On Pro, the new status is in the email itself.',
+    'Not affiliated with USCIS. Your official USCIS notice controls.',
     '',
-    `You are getting this because you saved a USCIS case on TrackMyOPT. Stop case emails: ${args.optOutUrl}`,
+    `You saved a USCIS case on TrackMyOPT. Stop case emails: ${args.optOutUrl}`,
   ].join('\n');
   return { subject, html, text };
 }
@@ -197,28 +197,28 @@ export function buildTrialProgressEmailBodies(args: {
   const subject = 'Your first days on Pro: what we checked';
   const noCase = args.cases === 0;
   const summary = noCase
-    ? 'You have not added a USCIS receipt yet, so daily checks have not started.'
+    ? 'No receipt added yet, so daily checks have not started.'
     : args.checks === 0
       ? 'Your case is saved and queued for its daily check.'
-      : `Since your Pro introduction started, we checked USCIS for you ${plural(args.checks, 'time')} across ${plural(args.cases, 'saved case')}.`;
+      : `We checked USCIS for you ${plural(args.checks, 'time')} across ${plural(args.cases, 'saved case')}.`;
   const outcome = noCase
-    ? 'Add your receipt number and we will check it every day.'
+    ? 'Add your receipt and we will check it every day.'
     : args.changes > 0
-      ? `We recorded ${plural(args.changes, 'status change')}. The details are on your case page.`
-      : 'No status change so far. That is normal: most cases sit in the same status for weeks. We keep checking so you do not have to.';
+      ? `We recorded ${plural(args.changes, 'status change')}. See your case page.`
+      : 'No status change so far. That is normal. We keep checking.';
   const steps = noCase
     ? [
-        'Add your receipt number on the case page.',
-        'Confirm the email address your alerts go to.',
+        'Add your receipt on the case page.',
+        'Confirm your alert email address.',
       ]
     : [
-        'Confirm the email address your alerts go to.',
-        'Add any other receipts you are waiting on. Pro tracks up to 8.',
-        'Turn on daily OPT reminders if you also track unemployment days or filing windows.',
+        'Confirm your alert email address.',
+        'Add your other receipts. Pro tracks up to 8.',
+        'Turn on daily OPT reminders.',
       ];
   const ending = args.introEndDate
-    ? `Your introduction runs through ${args.introEndDate}. After that, Pro renews on the plan you chose at checkout unless you cancel in Settings → Subscription.`
-    : 'After the introduction, Pro renews on the plan you chose at checkout unless you cancel in Settings → Subscription.';
+    ? `Your introduction runs through ${args.introEndDate}. Then Pro renews on the plan you chose unless you cancel in Settings → Subscription.`
+    : 'After the introduction, Pro renews on the plan you chose unless you cancel in Settings → Subscription.';
 
   const html = buildTransactionalEmail({
     headerTitle: 'What Pro has checked so far',

@@ -137,7 +137,7 @@ it('sends an opted-in Free account its own view, never the unrevealed status', a
   const text = m.send.mock.calls[0][0].text;
   expect(text).not.toContain('Current live status');
   expect(text).toContain('Status not yet revealed');
-  expect(text).toContain('Sign in and refresh your case to see it.');
+  expect(text).toContain('Sign in and refresh to see it.');
 });
 it('records rejection as failed and never retries uncertain SMTP', async () => {
   const q = setup();
