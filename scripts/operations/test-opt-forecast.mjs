@@ -72,8 +72,20 @@ try {
   await sql(
     read('../../supabase/migrations/20261013205252_opt_observation_modified_date.sql')
   );
+  await sql(
+    read('../../supabase/migrations/20261118193500_vacuum_opt_case_observations_daily.sql')
+  );
+  const vacuumOptions = await sql(
+    "SELECT array_to_string(reloptions, ',') FROM pg_class WHERE oid = 'public.opt_case_observations'::regclass;"
+  );
+  for (const option of [
+    'autovacuum_vacuum_insert_threshold=1000',
+    'autovacuum_vacuum_insert_scale_factor=0',
+  ])
+    if (!vacuumOptions.includes(option))
+      throw new Error(`opt_case_observations is missing ${option}`);
   await sql(assertions);
-  console.log('PASS: private immutable history, temporal reads, deduplication, metadata revisions, job claims, deletion and receipt-change invalidation, change-only community snapshots, USCIS modifiedDate allowlist');
+  console.log('PASS: private immutable history, temporal reads, deduplication, metadata revisions, job claims, deletion and receipt-change invalidation, change-only community snapshots, USCIS modifiedDate allowlist, daily observation vacuum');
 } finally {
   await command(['rm', '-f', container]).catch(() => {});
 }

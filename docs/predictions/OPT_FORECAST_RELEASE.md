@@ -75,3 +75,25 @@ Aggregate, receipt-free reads of `deknauqkqqzwuvopqott`:
   size: 427,060,371 bytes. Daily USCIS observations (about 1,850 rows at about
   0.5 KB each) remain the expected growth; measure it after several full days.
 - No unresolved Sentry issues in the preceding 24 hours.
+
+## Refresh outage and all-cohort rollout — November 18, 2026
+
+**Outage.** From Nov 13 every daily refresh ended in `error` ("OPT forecast
+evidence read failed", Sentry TRACKMYOPT-36 / -2Y). One page of
+`read_opt_case_observations` took about 12.7 s against the API role's 8 s
+statement timeout, because the insert-only observation table had a stale
+visibility map and the index-only boundary scan fetched every heap row. A
+manual `VACUUM (ANALYZE)` brought a page to about 1.4 s, and migration
+`20261118193500` now vacuums the table after every 1,000 inserts. While no
+run was ready, promoted cases saw "needs a fresh daily update".
+
+**Rollout step 2.** At the owner's request the policy now serves forecasts for
+all four cohorts: `initial_opt:premium` (step 1, Oct 13),
+`initial_opt:regular_unconfirmed`, `stem_extension:premium` and
+`stem_extension:regular_unconfirmed`. `validation.previousCohorts` keeps the
+step 1 list. This went ahead without a new backtest. The Oct 13 retrospective
+measured a 20.5-day mean error for Initial OPT regular and had no supported
+STEM forecasts. Cohorts with too little data still return "Limited Data", but
+re-run the retrospective against the new outcomes and narrow the list if a
+cohort's error is unacceptable. To revert, set `validation.cohorts` back to
+`validation.previousCohorts` in `opt_forecast_policy`.
