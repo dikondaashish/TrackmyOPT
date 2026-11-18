@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { resolveDashboardNextStep } from "@/lib/dashboard/resolve-dashboard-next-step";
+import { isOptFilingCategory } from "@/lib/case-status/filing-category";
 import {
   captureDashboardNextStepClicked,
   captureDashboardNextStepShown,
@@ -24,6 +25,7 @@ type CaseStatusSnapshot = {
   receipt_number: string | null;
   current_status: string | null;
   last_checked_at: string | null;
+  filing_category: string | null;
 };
 
 export function DashboardNextStepCard() {
@@ -48,6 +50,7 @@ export function DashboardNextStepCard() {
             receipt_number: payload.data.receipt_number ?? null,
             current_status: payload.data.current_status ?? null,
             last_checked_at: payload.data.last_checked_at ?? null,
+            filing_category: payload.data.filing_category ?? null,
           });
         }
       } catch {
@@ -69,6 +72,7 @@ export function DashboardNextStepCard() {
       hasReceipt: Boolean(caseStatus?.receipt_number),
       lastCheckedAt: caseStatus?.last_checked_at ?? null,
       currentStatus: caseStatus?.current_status ?? null,
+      isOptCase: isOptFilingCategory(caseStatus?.filing_category),
     });
   }, [premium.isLoading, premium.isPremium, isLoading, caseStatus]);
 
@@ -101,6 +105,15 @@ export function DashboardNextStepCard() {
 
   const content = (() => {
     switch (step.state) {
+      case "after_approval":
+        return {
+          icon: BadgeCheck,
+          iconClass: "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950",
+          title: "Your case is approved. Set up what comes next",
+          description:
+            "Save the dates on your EAD, start your unemployment count, and add your job when you start. These tools are free.",
+          cta: "See my next steps",
+        };
       case "no_receipt":
         return {
           icon: ClipboardList,

@@ -106,6 +106,7 @@ export const CHECKOUT_UPSELL_TRIGGER = {
   CASE_INSIGHT: 'case_insight_popup',
   LOCKED_COMPARISON: 'locked_comparison',
   LATE_CASE_HELP: 'late_case_help',
+  AFTER_APPROVAL: 'after_approval',
   ATTORNEY_ACCESS: 'case_status_attorney_access',
 } as const;
 

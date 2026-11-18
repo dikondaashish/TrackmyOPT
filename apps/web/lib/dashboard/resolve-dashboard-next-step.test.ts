@@ -61,4 +61,50 @@ describe("resolveDashboardNextStep", () => {
     expect(step.state).toBe("pro_active");
     expect(step.state).not.toBe("free_upsell");
   });
+
+  it("sends an approved OPT case to the after-approval steps on every plan", () => {
+    for (const isPremium of [false, true]) {
+      const step = resolveDashboardNextStep({
+        isPremium,
+        hasReceipt: true,
+        lastCheckedAt: "2026-11-18T12:00:00.000Z",
+        currentStatus: "Card Was Delivered To Me By The Post Office",
+        isOptCase: true,
+      });
+      expect(step.state).toBe("after_approval");
+      expect(step.action).toBe("after_approval_steps");
+      expect(step.href).toBe("/dashboard/case-status#after-approval");
+    }
+  });
+
+  it("keeps the usual step for a pending case, a non-OPT approval, or no receipt", () => {
+    expect(
+      resolveDashboardNextStep({
+        isPremium: true,
+        hasReceipt: true,
+        lastCheckedAt: "2026-11-18T12:00:00.000Z",
+        currentStatus: "Case Was Received",
+        isOptCase: true,
+      }).state
+    ).toBe("pro_active");
+    // An approved H-1B or I-140 has no EAD dates to save.
+    expect(
+      resolveDashboardNextStep({
+        isPremium: false,
+        hasReceipt: true,
+        lastCheckedAt: "2026-11-18T12:00:00.000Z",
+        currentStatus: "Case Was Approved",
+        isOptCase: false,
+      }).state
+    ).toBe("status_live");
+    expect(
+      resolveDashboardNextStep({
+        isPremium: false,
+        hasReceipt: false,
+        lastCheckedAt: null,
+        currentStatus: "Case Was Approved",
+        isOptCase: true,
+      }).state
+    ).toBe("no_receipt");
+  });
 });

@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils";
 import { hasConsent } from "@/lib/privacy/privacy-manager";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { supabase } from "@/lib/supabase/client";
+import { SHARE_URL } from "@/lib/case-status/after-approval";
 import {
+  captureClientEvent,
   captureNpsDismissed,
   captureNpsShown,
   captureNpsSubmitted,
@@ -58,6 +60,9 @@ export function NpsSurvey() {
   const [visible, setVisible] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState("");
+  // Promoters get one more card: a link to pass on and a way to send a story.
+  const [followUp, setFollowUp] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const contextRef = useRef<NpsContext | null>(null);
   const shownThisMount = useRef(false);
 
@@ -101,6 +106,8 @@ export function NpsSurvey() {
         contextRef.current = nextContext;
         setScore(null);
         setFeedback("");
+        setFollowUp(false);
+        setLinkCopied(false);
         setVisible(true);
       }, NPS_SHOW_DELAY_MS);
     } catch {
@@ -146,10 +153,81 @@ export function NpsSurvey() {
       ...(trimmedFeedback ? { feedback: trimmedFeedback } : {}),
       category: resolveNpsCategory(score),
     });
+    if (resolveNpsCategory(score) === "promoter") {
+      captureClientEvent("nps_promoter_followup_shown", {
+        trigger: context.trigger,
+        plan_tier: context.planTier,
+      });
+      setFollowUp(true);
+      return;
+    }
     setVisible(false);
   }, [feedback, score]);
 
   if (!visible) return null;
+
+  if (followUp) {
+    return (
+      <div
+        className="fixed bottom-4 right-4 z-[100] w-[calc(100%-2rem)] max-w-sm"
+        role="dialog"
+        aria-modal="false"
+        aria-label="Thank you"
+      >
+        <div
+          className={cn(
+            "relative overflow-hidden rounded-xl border bg-white p-6 pr-10 shadow-xl",
+            "dark:border-gray-700 dark:bg-gray-800"
+          )}
+        >
+          <button
+            type="button"
+            onClick={() => setVisible(false)}
+            className="absolute right-3 top-3 rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Thank you. That helps a lot.
+          </p>
+          <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+            Two ways to help other students who are still waiting:
+          </p>
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                void navigator.clipboard
+                  ?.writeText(SHARE_URL)
+                  .then(() => {
+                    setLinkCopied(true);
+                    captureClientEvent("share_link_copied", { source: "nps" });
+                  })
+                  .catch(() => setLinkCopied(false));
+              }}
+              className="min-h-10 rounded-md bg-violet-600 px-3 text-sm font-medium text-white hover:bg-violet-700"
+            >
+              {linkCopied ? "Link copied" : "Copy a link to share"}
+            </button>
+            <a
+              href={`mailto:support@trackmyopt.com?subject=${encodeURIComponent(
+                "My TrackMyOPT story"
+              )}&body=${encodeURIComponent(
+                "A sentence or two about how TrackMyOPT helped you. Tell us if we may quote it, and how to credit you (for example: first name, degree, university)."
+              )}`}
+              onClick={() =>
+                captureClientEvent("testimonial_email_opened", { source: "nps" })
+              }
+              className="flex min-h-10 items-center justify-center rounded-md border border-gray-200 px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
+            >
+              Send us your story by email
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

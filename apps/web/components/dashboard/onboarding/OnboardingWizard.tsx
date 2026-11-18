@@ -33,7 +33,6 @@ import {
 } from "@/lib/case-status/filing-category";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
-import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
 import { checkStemEligibility } from "./onboarding-majors";
 import type { JourneyStatus, WizardStep } from "./onboarding-types";
 import { WelcomeStep } from "./steps/WelcomeStep";
@@ -390,10 +389,6 @@ export function OnboardingWizard({
         captureCaseStatusCheckCompletedClient({
           trigger: "initial",
           receipt_prefix: getReceiptPrefix(validation.normalized),
-        });
-        requestNpsSurvey({
-          trigger: "case_status_first_success",
-          planTier: "free",
         });
       }
       if (!saveResult.statusResolved) {

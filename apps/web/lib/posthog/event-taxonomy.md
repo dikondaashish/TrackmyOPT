@@ -78,7 +78,12 @@ best effort; these client events do not describe all users or grant access.
 | `ai_generation_completed` | Server | `ai_task`, `ai_model`, `ai_estimated_cost_usd`, `ai_*_tokens`, `ai_request_id` | Per model call (generate, latex_fix, scan, …) |
 | `resume_downloaded` | Client | `ats_score` | PDF export |
 | `resume_ats_scored` | Client | `score` | Deep scan complete |
-| `nps_shown` | Client | `trigger`, `plan_tier`, `pathname`, `days_since_signup` | 0–10 NPS shown after a success milestone |
+| `nps_shown` | Client | `trigger`, `plan_tier`, `pathname`, `days_since_signup` | 0–10 NPS shown after a success milestone. From 2026-11-18 the case trigger is `case_approved_viewed`; `case_status_first_success` is no longer requested |
+| `nps_promoter_followup_shown` | Client | `trigger`, `plan_tier` | Share and story card shown after a score of 9 or 10 |
+| `share_link_copied` | Client | `source` | Share link copied (`after_approval` or `nps`) |
+| `testimonial_email_opened` | Client | `source` | "Send us your story" email link pressed |
+| `after_approval_steps_shown` | Client | `plan_tier`, `case_kind` | After-approval steps rendered on the case page |
+| `after_approval_step_clicked` | Client | `step`, `plan_tier` | A step link was followed |
 | `nps_dismissed` | Client | `trigger`, `plan_tier`, `pathname`, `days_since_signup` | NPS dismissed after being shown |
 | `nps_submitted` | Client | `score`, `category`, `feedback`, trigger context | NPS submitted; only interpret after 50 valid responses |
 

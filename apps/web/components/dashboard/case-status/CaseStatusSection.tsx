@@ -48,6 +48,8 @@ import { CaseInfoFooter } from '@/components/dashboard/case-status/panels/CaseIn
 import { CASE_STATUS_MESSAGING } from '@/lib/messaging/product-copy';
 import { deriveJourneyPhase } from '@/lib/community-opt/stages';
 import { assessLateCase } from '@/lib/case-status/late-case-help';
+import { isAfterApprovalPhase } from '@/lib/case-status/after-approval';
+import { AfterApprovalSteps } from '@/components/dashboard/case-status/panels/AfterApprovalSteps';
 import { LateCaseHelp } from '@/components/dashboard/case-status/panels/LateCaseHelp';
 import { useCaseStatusController } from '@/components/dashboard/case-status/useCaseStatusController';
 
@@ -447,6 +449,30 @@ export function CaseStatusSection() {
               />
             </CaseStatusPanelErrorBoundary>
           )}
+
+          {/* ── 4b2. After approval: what to set up next ── */}
+          {isPremium !== null &&
+            isOptCase &&
+            !formTypeMismatch &&
+            isAfterApprovalPhase(
+              deriveJourneyPhase(caseStatus.current_status, safeStatusHistory)
+            ) && (
+              <CaseStatusPanelErrorBoundary area="after_approval">
+                <AfterApprovalSteps
+                  key={caseStatus.id}
+                  stemExtension={isStemExtension}
+                  isPro={isPremium === true}
+                  onUpgrade={
+                    isPremium === false
+                      ? () =>
+                          openProTrialModal(
+                            CHECKOUT_UPSELL_TRIGGER.AFTER_APPROVAL
+                          )
+                      : undefined
+                  }
+                />
+              </CaseStatusPanelErrorBoundary>
+            )}
 
           {/* ── 4c. Late-case help ── */}
           {lateCase && (

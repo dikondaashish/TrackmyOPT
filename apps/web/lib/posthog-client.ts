@@ -326,6 +326,7 @@ type UpgradePromptTrigger =
   | 'case_insight_popup'
   | 'locked_comparison'
   | 'late_case_help'
+  | 'after_approval'
   | 'case_status_attorney_access'
   | 'h1b_limit'
   | 'ats_limit'
@@ -410,13 +411,15 @@ export type DashboardNextStepState =
   | "no_receipt"
   | "free_upsell"
   | "status_live"
-  | "pro_active";
+  | "pro_active"
+  | "after_approval";
 
 export type DashboardNextStepAction =
   | "add_receipt"
   | "upgrade_pro"
   | "view_case_status"
-  | "pro_manage";
+  | "pro_manage"
+  | "after_approval_steps";
 
 type DashboardNextStepShownProperties = {
   state: DashboardNextStepState;
