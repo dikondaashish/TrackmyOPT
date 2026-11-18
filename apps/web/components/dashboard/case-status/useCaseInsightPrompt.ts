@@ -27,8 +27,9 @@ interface UseCaseInsightPromptArgs {
 }
 
 /**
- * Owns the "case insight" upgrade prompt: the idle-timer reveal and the
- * post-receipt reveal. `pendingReceiptInsightRef` is flagged by the save flow.
+ * Owns the "case insight" upgrade prompt: an idle-timer reveal on a return
+ * visit. It no longer opens right after a receipt is saved; see
+ * CASE_INSIGHT_MIN_CASE_AGE_MS.
  */
 export function useCaseInsightPrompt({
   caseStatus,
@@ -42,7 +43,6 @@ export function useCaseInsightPrompt({
   setShowPricingModal,
 }: UseCaseInsightPromptArgs) {
   const caseInsightPromptHandledRef = useRef(false);
-  const pendingReceiptInsightRef = useRef(false);
 
   const revealCaseInsightUpgrade = useCallback(
     (trigger: CheckoutUpsellTrigger) => {
@@ -80,6 +80,7 @@ export function useCaseInsightPrompt({
             showPricingModal || showStatusChangeWedge || showCaseInsightUpgrade,
           shownThisSession,
           lastShownAtMs,
+          caseCreatedAt: caseStatus?.created_at,
           nowMs,
         })
       ) {
@@ -146,6 +147,7 @@ export function useCaseInsightPrompt({
         showCaseInsightUpgrade,
       shownThisSession,
       lastShownAtMs,
+      caseCreatedAt: caseStatus?.created_at,
     });
 
     if (!eligible) return;
@@ -168,22 +170,5 @@ export function useCaseInsightPrompt({
     showStatusChangeWedge,
   ]);
 
-  useEffect(() => {
-    if (!pendingReceiptInsightRef.current) return;
-    if (
-      isPremium !== false ||
-      !caseStatus?.current_status ||
-      caseStatus.current_status === 'Status will be fetched shortly...'
-    ) {
-      return;
-    }
-
-    pendingReceiptInsightRef.current = false;
-    const timer = window.setTimeout(() => {
-      revealCaseInsightUpgrade(CHECKOUT_UPSELL_TRIGGER.RECEIPT_ADDED);
-    }, 700);
-    return () => window.clearTimeout(timer);
-  }, [caseStatus, isPremium, revealCaseInsightUpgrade]);
-
-  return { revealCaseInsightUpgrade, pendingReceiptInsightRef };
+  return { revealCaseInsightUpgrade };
 }

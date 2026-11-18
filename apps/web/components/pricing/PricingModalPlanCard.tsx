@@ -6,6 +6,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   getPricingModalDedicatedConsentLabel,
@@ -50,6 +51,8 @@ interface PricingModalPlanCardProps {
   onProConsentToggle: () => void;
   onDedicatedConsentToggle: () => void;
   onUpgrade: (planId: string) => void;
+  /** The pay button was pressed before the consent box was ticked. */
+  onConsentMissing?: (planId: string) => void;
 }
 
 export function PricingModalPlanCard({
@@ -64,7 +67,23 @@ export function PricingModalPlanCard({
   onProConsentToggle,
   onDedicatedConsentToggle,
   onUpgrade,
+  onConsentMissing,
 }: PricingModalPlanCardProps) {
+  const [consentPrompt, setConsentPrompt] = useState(false);
+  const consentRef = useRef<HTMLInputElement>(null);
+  const hasConsent = plan.id === 'pro' ? proConsent : dedicatedConsent;
+  const showConsentPrompt = consentPrompt && !hasConsent;
+  // Checkout still cannot start without consent. An unticked box now gets a
+  // visible prompt on click; the button used to sit greyed out and unresponsive.
+  const handleCta = () => {
+    if (plan.id === 'pro' ? !proConsent : !dedicatedConsent) {
+      setConsentPrompt(true);
+      consentRef.current?.focus();
+      onConsentMissing?.(plan.id);
+      return;
+    }
+    onUpgrade(plan.id);
+  };
   const Icon = plan.icon;
   const monthlyDisplay = plan.monthlyPrice;
   const yearlyTotal = plan.yearlyPrice;
@@ -299,6 +318,7 @@ export function PricingModalPlanCard({
               <label
                 className={cn(
                   'flex items-start gap-2.5 rounded-lg border p-2.5 my-3 cursor-pointer min-h-[44px] select-none transition-all duration-200',
+                  showConsentPrompt && 'ring-2 ring-red-500',
                   plan.id === 'pro'
                     ? proConsent
                       ? 'border-violet-500 bg-violet-50 dark:bg-violet-950'
@@ -309,7 +329,13 @@ export function PricingModalPlanCard({
                 )}
               >
                 <input
+                  ref={consentRef}
                   type="checkbox"
+                  aria-describedby={
+                    showConsentPrompt
+                      ? `pricing-consent-prompt-${plan.id}`
+                      : undefined
+                  }
                   checked={plan.id === 'pro' ? proConsent : dedicatedConsent}
                   onChange={() =>
                     plan.id === 'pro'
@@ -341,6 +367,16 @@ export function PricingModalPlanCard({
                       })}
                 </span>
               </label>
+
+              {showConsentPrompt && (
+                <p
+                  id={`pricing-consent-prompt-${plan.id}`}
+                  role="alert"
+                  className="-mt-1 mb-2 text-xs font-medium text-red-700 dark:text-red-400"
+                >
+                  Tick the box above to continue.
+                </p>
+              )}
 
               <p
                 className={cn(
@@ -379,19 +415,15 @@ export function PricingModalPlanCard({
               </p>
 
               <Button
-                onClick={() => onUpgrade(plan.id)}
+                onClick={handleCta}
                 disabled={
-                  isLoading ||
-                  (plan.id === 'pro' && proIntroEligible === null) ||
-                  (plan.id === 'pro' ? !proConsent : !dedicatedConsent)
+                  isLoading || (plan.id === 'pro' && proIntroEligible === null)
                 }
                 className={cn(
                   'w-full h-9 md:h-8 text-xs md:text-[11px] font-semibold shadow-button transition-colors',
                   plan.popular
                     ? 'bg-violet-600 hover:bg-violet-700'
-                    : 'bg-amber-500 hover:bg-amber-600',
-                  (plan.id === 'pro' ? !proConsent : !dedicatedConsent) &&
-                    '!opacity-40 !cursor-not-allowed'
+                    : 'bg-amber-500 hover:bg-amber-600'
                 )}
               >
                 <span className="flex items-center gap-1.5">

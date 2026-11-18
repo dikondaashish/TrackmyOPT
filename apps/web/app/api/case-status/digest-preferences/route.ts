@@ -2,7 +2,6 @@ import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
-import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 import { z } from 'zod';
 export const dynamic = 'force-dynamic';
 const db = () =>
@@ -45,12 +44,8 @@ async function handlePATCH(req: NextRequest) {
     .strict()
     .safeParse(await req.json().catch(() => null));
   if (!parsed.success) return reply({ error: 'Invalid preference' }, 400);
+  // Every plan can opt in. Free accounts get the free view of their case.
   const client = db();
-  if (
-    parsed.data.enabled &&
-    (await getActiveUserPlanTier(userId, client)) === 'free'
-  )
-    return reply({ error: 'Weekly digests require Pro.' }, 403);
   const result = await client
     .from('case_digest_preferences')
     .upsert(

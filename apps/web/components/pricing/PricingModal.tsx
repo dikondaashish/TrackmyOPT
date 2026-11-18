@@ -171,6 +171,15 @@ function PricingModalContent({
     return () => window.clearTimeout(timer);
   }, [open, initialPlan]);
 
+  // How many people press pay before ticking the consent box.
+  const reportConsentMissing = (selectedPlan: string) => {
+    captureClientEvent('pro_offer_consent_prompted', {
+      source: checkoutSource,
+      interval: isYearly ? 'year' : 'month',
+      plan_tier: selectedPlan,
+    });
+  };
+
   const handleUpgrade = async (selectedPlan: string) => {
     if (
       (selectedPlan === 'pro' &&
@@ -408,6 +417,7 @@ function PricingModalContent({
             onYearlyChange={changeBillingInterval}
             onConsentChange={setProConsent}
             onContinue={() => void handleUpgrade('pro')}
+            onConsentMissing={() => reportConsentMissing('pro')}
             onCompare={() => setComparePlans(true)}
             onClose={onClose}
           />
@@ -550,6 +560,7 @@ function PricingModalContent({
                     setDedicatedConsent((v) => !v)
                   }
                   onUpgrade={handleUpgrade}
+                  onConsentMissing={reportConsentMissing}
                 />
               ))}
             </div>

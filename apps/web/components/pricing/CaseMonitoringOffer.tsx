@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRef, useState } from 'react';
 import { ArrowRight, Bell, CalendarCheck, Clock3 } from 'lucide-react';
 import { PLAN_PRICES } from '@/lib/pricing/plan-config';
 import {
@@ -20,12 +21,27 @@ type Props = {
   onYearlyChange: (yearly: boolean) => void;
   onConsentChange: (accepted: boolean) => void;
   onContinue: () => void;
+  /** Continue was pressed before the consent box was ticked. */
+  onConsentMissing?: () => void;
   onCompare: () => void;
   onClose: () => void;
 };
 
 export function CaseMonitoringOffer(props: Props) {
   const { eligible, yearly, consent, loading, eligibilityError } = props;
+  const [consentPrompt, setConsentPrompt] = useState(false);
+  const consentRef = useRef<HTMLInputElement>(null);
+  const showConsentPrompt = consentPrompt && !consent;
+  // Checkout still cannot start without consent; an unticked box gets a prompt.
+  const handleContinue = () => {
+    if (!consent) {
+      setConsentPrompt(true);
+      consentRef.current?.focus();
+      props.onConsentMissing?.();
+      return;
+    }
+    props.onContinue();
+  };
   const renewal = yearly
     ? `$${PLAN_PRICES.pro.year.toFixed(2)}/year`
     : `$${PLAN_PRICES.pro.month.toFixed(2)}/month`;
@@ -145,8 +161,12 @@ export function CaseMonitoringOffer(props: Props) {
       {eligible !== null && !eligibilityError && (
         <label className="flex min-h-11 cursor-pointer items-start gap-3 text-xs leading-[18px] text-slate-700">
           <input
-            className="mt-1 h-4 w-4 shrink-0"
+            ref={consentRef}
+            className={`mt-1 h-4 w-4 shrink-0 ${showConsentPrompt ? 'outline outline-2 outline-offset-2 outline-red-700' : ''}`}
             type="checkbox"
+            aria-describedby={
+              showConsentPrompt ? 'case-offer-consent-prompt' : undefined
+            }
             checked={consent}
             disabled={loading}
             onChange={(e) => props.onConsentChange(e.target.checked)}
@@ -158,6 +178,15 @@ export function CaseMonitoringOffer(props: Props) {
           </span>
         </label>
       )}
+      {showConsentPrompt && (
+        <p
+          id="case-offer-consent-prompt"
+          role="alert"
+          className="mt-2 text-sm font-medium text-red-900"
+        >
+          Tick the box above to continue.
+        </p>
+      )}
       {props.error && (
         <p role="alert" className="mt-3 text-sm text-red-900">
           {props.error}
@@ -165,8 +194,8 @@ export function CaseMonitoringOffer(props: Props) {
       )}
       <button
         type="button"
-        disabled={loading || !consent || eligible === null || eligibilityError}
-        onClick={props.onContinue}
+        disabled={loading || eligible === null || eligibilityError}
+        onClick={handleContinue}
         className={`mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#5846d9] px-4 text-base font-semibold text-white transition-colors hover:bg-[#4935c4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-800 disabled:cursor-not-allowed disabled:bg-[#7565c7] ${styles.button}`}
       >
         {loading

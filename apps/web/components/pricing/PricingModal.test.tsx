@@ -8,6 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import { PricingModal } from './PricingModal';
+import { captureClientEvent } from '@/lib/posthog-client';
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }));
 vi.mock('@/lib/posthog-client', () => ({
@@ -75,5 +76,40 @@ describe('Pro checkout failure reporting', () => {
       new Error('Pro checkout request failed (stage=network, status=none)')
     );
     expect(screen.getByText(/could not start checkout/i)).toBeInTheDocument();
+  });
+});
+
+describe('plan comparison consent', () => {
+  it('prompts for the consent box instead of starting checkout', async () => {
+    // jsdom has no scrollIntoView; the modal scrolls to `initialPlan` on a timer.
+    Element.prototype.scrollIntoView = vi.fn();
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ proPaidIntroEligible: true }))
+    );
+    render(<PricingModal open onClose={vi.fn()} initialPlan="pro" />);
+    const button = await screen.findByRole('button', {
+      name: /start 7 days for \$0\.99/i,
+    });
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Tick the box above to continue.'
+    );
+    expect(captureClientEvent).toHaveBeenCalledWith(
+      'pro_offer_consent_prompted',
+      { source: 'pricing_modal', interval: 'year', plan_tier: 'pro' }
+    );
+    expect(captureClientEvent).not.toHaveBeenCalledWith(
+      'pro_offer_clicked',
+      expect.anything()
+    );
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/premium/create-checkout',
+      expect.anything()
+    );
+    // Let the scroll timer run inside the test, not after it.
+    await waitFor(() =>
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalled()
+    );
   });
 });

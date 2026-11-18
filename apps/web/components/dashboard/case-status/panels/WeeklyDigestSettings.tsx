@@ -63,10 +63,13 @@ export function WeeklyDigestSettings({ isPro }: { isPro: boolean }) {
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="font-medium">Weekly summary</h3>
+          <h3 className="font-medium">
+            {isPro ? 'Weekly summary' : 'Get a weekly email about this case'}
+          </h3>
           <p className="text-xs text-muted-foreground">
-            Your case checks and saved deadlines in one email. Opt-in only;
-            separate from instant alerts.
+            {isPro
+              ? 'Your case checks and saved deadlines in one email. Opt-in only; separate from instant alerts.'
+              : 'One email a week: where your case stands, whether a newer USCIS update is waiting, and your saved deadlines. Free, and off until you turn it on.'}
           </p>
         </div>
         <button
@@ -74,7 +77,7 @@ export function WeeklyDigestSettings({ isPro }: { isPro: boolean }) {
           role="switch"
           aria-checked={enabled}
           aria-label="Weekly case summary email"
-          disabled={!ready || busy || (!isPro && !enabled)}
+          disabled={!ready || busy}
           onClick={() => void toggle()}
           className="min-h-11 rounded-lg border border-border px-4 font-medium text-blue-600 disabled:opacity-50 dark:text-blue-400"
         >
@@ -83,7 +86,7 @@ export function WeeklyDigestSettings({ isPro }: { isPro: boolean }) {
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
         One summary per UTC week, starting Monday. New opt-ins are picked up
-        hourly. {!isPro && 'Requires Pro.'}
+        hourly.
       </p>
       {message && (
         <p role="status" className="mt-2 text-xs">

@@ -36,7 +36,17 @@ describe('case monitoring purchase path', () => {
     expect(
       screen.getByRole('radio', { name: 'Monthly · $4.99/month' })
     ).toBeChecked();
-    expect(button).toBeDisabled();
+    // The button responds, but checkout cannot start until the box is ticked.
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Tick the box above to continue.'
+    );
+    expect(screen.getByRole('checkbox')).toHaveFocus();
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/premium/create-checkout',
+      expect.anything()
+    );
     expect(
       screen.getByRole('heading', { name: 'Special one-time offer' })
     ).toBeInTheDocument();
@@ -82,7 +92,7 @@ describe('case monitoring purchase path', () => {
     );
   });
   it('shows the standard price for an ineligible account', async () => {
-    show(false);
+    const fetchMock = show(false);
     await screen.findByText('Pro for $4.99/month');
     expect(
       screen.queryByRole('heading', { name: 'Special one-time offer' })
@@ -90,9 +100,16 @@ describe('case monitoring purchase path', () => {
     expect(
       screen.queryByRole('button', { name: 'Start 7 days for $0.99' })
     ).not.toBeInTheDocument();
-    expect(
+    fireEvent.click(
       screen.getByRole('button', { name: 'Continue to Pro checkout' })
-    ).toBeDisabled();
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Tick the box above to continue.'
+    );
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/premium/create-checkout',
+      expect.anything()
+    );
   });
   it('blocks checkout when eligibility cannot be verified', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CASE_INSIGHT_MIN_CASE_AGE_MS,
   CASE_INSIGHT_PROMPT_COOLDOWN_MS,
   parsePromptTimestamp,
   shouldShowCaseInsightPrompt,
@@ -17,6 +18,7 @@ function eligible(
     competingPromptOpen: false,
     shownThisSession: false,
     lastShownAtMs: null,
+    caseCreatedAt: new Date(NOW - 3 * 24 * 60 * 60 * 1000).toISOString(),
     nowMs: NOW,
     ...overrides,
   });
@@ -40,6 +42,19 @@ describe('shouldShowCaseInsightPrompt', () => {
   it('does not compete with another prompt or repeat in the same session', () => {
     expect(eligible({ competingPromptOpen: true })).toBe(false);
     expect(eligible({ shownThisSession: true })).toBe(false);
+  });
+
+  it('waits for a return visit instead of opening right after the receipt is saved', () => {
+    const savedAgo = (ms: number) => new Date(NOW - ms).toISOString();
+    expect(eligible({ caseCreatedAt: savedAgo(60_000) })).toBe(false);
+    expect(
+      eligible({ caseCreatedAt: savedAgo(CASE_INSIGHT_MIN_CASE_AGE_MS - 1) })
+    ).toBe(false);
+    expect(
+      eligible({ caseCreatedAt: savedAgo(CASE_INSIGHT_MIN_CASE_AGE_MS) })
+    ).toBe(true);
+    expect(eligible({ caseCreatedAt: null })).toBe(false);
+    expect(eligible({ caseCreatedAt: 'not-a-date' })).toBe(false);
   });
 
   it('enforces the fourteen-day cooldown', () => {

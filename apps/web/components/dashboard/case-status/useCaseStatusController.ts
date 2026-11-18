@@ -124,7 +124,7 @@ export function useCaseStatusController() {
     });
   }, []);
 
-  const { pendingReceiptInsightRef } = useCaseInsightPrompt({
+  useCaseInsightPrompt({
     caseStatus,
     isPremium,
     showPricingModal,
@@ -453,14 +453,6 @@ export function useCaseStatusController() {
         setIsAddingCase(false);
       }
       setSuccess(true);
-
-      if (
-        isPremium === false &&
-        (wasFirstCase || isNewCase) &&
-        statusResolved
-      ) {
-        pendingReceiptInsightRef.current = true;
-      }
 
       if (wasFirstCase && statusResolved) {
         requestNpsSurvey({

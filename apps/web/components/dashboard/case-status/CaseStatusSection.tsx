@@ -407,6 +407,13 @@ export function CaseStatusSection() {
             </CaseStatusPanelErrorBoundary>
           )}
 
+          {/* ── 4a. Weekly summary opt-in for Free accounts ── */}
+          {isPremium === false && (
+            <CaseStatusPanelErrorBoundary area="weekly_summary">
+              <WeeklyDigestSettings isPro={false} />
+            </CaseStatusPanelErrorBoundary>
+          )}
+
           {/* ── 4b. PP Countdown (keep existing component) ── */}
           {isPremium === true && isOptCase && !formTypeMismatch && (
             <CaseStatusPanelErrorBoundary area="pp_countdown">

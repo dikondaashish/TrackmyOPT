@@ -22,6 +22,8 @@ import {
 } from '@/lib/posthog/case-status-analytics';
 import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 import { applyFreeUserChangeWedgeToUpdate } from '@/lib/case-status/free-change-wedge';
+import { sendFreeCaseUpdateEmail } from '@/lib/notifications/transactional/case-updates';
+import { captureServerEvent } from '@/lib/posthog-server';
 import { resolveReceivedDate } from '@/lib/case-status/filing-date';
 import { resolvePpStartDateForStorage } from '@/lib/case-status/premium-processing';
 import { recordPendingCaseEmailSequence } from '@/lib/notifications/pending-case-email';
@@ -653,6 +655,30 @@ async function handlePOST(req: NextRequest) {
         .catch(() => {
           console.error('USCIS notification request failed');
         });
+    }
+
+    // A Free account is told that its case changed, without the status, so the
+    // change is not missed. Only scheduled checks send it: on a manual refresh
+    // the person is already looking at the page.
+    if (
+      hasStatusChanged &&
+      currentCase &&
+      !isPremium &&
+      isDailyWorker &&
+      currentCase.notifications_enabled
+    ) {
+      try {
+        const notice = await sendFreeCaseUpdateEmail({
+          supabase,
+          userId: bodyUserId,
+          caseId,
+        });
+        if (!notice.ok) console.error('Free case update email failed');
+        else if (notice.skipped === false)
+          await captureServerEvent(bodyUserId, 'free_case_update_email_sent');
+      } catch {
+        console.error('Free case update email failed');
+      }
     }
 
     await finishCompleted(uscisStatus.status, 200);

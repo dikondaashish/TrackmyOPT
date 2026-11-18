@@ -13,8 +13,18 @@ const mocks = vi.hoisted(() => ({
   fetchCaseStatus: vi.fn(),
   removedAfterFetch: false,
   profileMissing: false,
+  /** Stored status and email switch of the enrolled case row. */
+  storedStatus: null as string | null,
+  notificationsEnabled: true,
+  premium: false,
+  freeNotice: vi.fn(),
   rpc: vi.fn().mockResolvedValue({ data: true, error: null }),
 }));
+
+vi.mock('@/lib/notifications/transactional/case-updates', () => ({
+  sendFreeCaseUpdateEmail: mocks.freeNotice,
+}));
+vi.mock('@/lib/posthog-server', () => ({ captureServerEvent: vi.fn() }));
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
@@ -46,8 +56,13 @@ vi.mock('@supabase/supabase-js', () => ({
             table === 'profiles'
               ? mocks.profileMissing
                 ? null
-                : { premium_status: false }
-              : { id: 'case-row-a', user_id: 'user-a', current_status: null },
+                : { premium_status: mocks.premium }
+              : {
+                  id: 'case-row-a',
+                  user_id: 'user-a',
+                  current_status: mocks.storedStatus,
+                  notifications_enabled: mocks.notificationsEnabled,
+                },
           error: null,
         }),
         single: async () => ({
@@ -56,8 +71,13 @@ vi.mock('@supabase/supabase-js', () => ({
             (mocks.profileMissing && table === 'profiles')
               ? null
               : table === 'profiles'
-                ? { premium_status: false }
-                : { id: 'case-row-a', user_id: 'user-a', current_status: null },
+                ? { premium_status: mocks.premium }
+                : {
+                    id: 'case-row-a',
+                    user_id: 'user-a',
+                    current_status: mocks.storedStatus,
+                    notifications_enabled: mocks.notificationsEnabled,
+                  },
           error:
             mocks.profileMissing && table === 'profiles'
               ? { code: 'PGRST116' }
@@ -357,4 +377,78 @@ it('daily sync persists free data without changing the free display snapshot', a
   expect(updates).toHaveLength(1);
   expect(updates[0]?.payload?.current_status).toBe('Case Was Approved');
   expect(updates[0]?.payload).not.toHaveProperty('free_visible_status');
+});
+
+describe('Free case update email', () => {
+  const check = (trigger: 'daily' | 'manual') =>
+    POST(
+      new NextRequest('https://example.test/api/case-status/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Secret': 'test-secret',
+          'X-Force-Refresh': 'true',
+          ...(trigger === 'daily' ? { 'X-Check-Trigger': 'daily' } : {}),
+        },
+        body: JSON.stringify({
+          receipt_number: 'IOE0000000001',
+          user_id: 'user-a',
+        }),
+      })
+    );
+
+  beforeEach(() => {
+    mocks.queries.length = 0;
+    mocks.removedAfterFetch = false;
+    mocks.profileMissing = false;
+    mocks.storedStatus = 'Case Was Received';
+    mocks.notificationsEnabled = true;
+    mocks.premium = false;
+    mocks.rpc.mockReset().mockResolvedValue({ data: true, error: null });
+    mocks.freeNotice
+      .mockReset()
+      .mockResolvedValue({ ok: true, skipped: false, queueId: 'q1' });
+    vi.stubEnv('CRON_SECRET', 'test-secret');
+    vi.stubEnv('USCIS_MOCK', 'false');
+    mocks.fetchCaseStatus.mockReset().mockResolvedValue({
+      success: true,
+      data: {
+        receiptNumber: 'IOE0000000001',
+        status: 'Case Was Approved',
+        description: 'Approved.',
+        caseType: 'I-765',
+        receivedDate: null,
+        histCaseStatus: [],
+      },
+    });
+  });
+  afterEach(() => {
+    mocks.storedStatus = null;
+    vi.unstubAllEnvs();
+  });
+
+  it('tells a Free account when a scheduled check finds a new status', async () => {
+    expect((await check('daily')).status).toBe(200);
+    expect(mocks.freeNotice).toHaveBeenCalledTimes(1);
+    expect(mocks.freeNotice).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-a', caseId: 'case-row-a' })
+    );
+  });
+
+  it('stays quiet on a manual refresh, an unchanged status, or with case emails off', async () => {
+    await check('manual');
+    mocks.storedStatus = 'Case Was Approved';
+    await check('daily');
+    mocks.storedStatus = 'Case Was Received';
+    mocks.notificationsEnabled = false;
+    await check('daily');
+    expect(mocks.freeNotice).not.toHaveBeenCalled();
+  });
+
+  it('does not let a failed notice fail the check', async () => {
+    mocks.freeNotice.mockRejectedValue(new Error('smtp down'));
+    expect((await check('daily')).status).toBe(200);
+    mocks.freeNotice.mockResolvedValue({ ok: false, error: 'lookup_failed' });
+    expect((await check('daily')).status).toBe(200);
+  });
 });

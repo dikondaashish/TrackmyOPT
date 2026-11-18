@@ -6,7 +6,11 @@ import nodemailer from 'nodemailer';
 import { observeCaseWorker } from '@/lib/case-status/worker-observability';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
-import { buildCaseDigest, digestWeek } from '@/lib/case-status/digest';
+import {
+  buildCaseDigest,
+  digestCasesForViewer,
+  digestWeek,
+} from '@/lib/case-status/digest';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 async function handleGET(req: NextRequest) {
@@ -89,7 +93,7 @@ async function run(req: NextRequest) {
           .maybeSingle(),
         db
           .from('case_status')
-          .select('label,current_status,last_checked_at,change_log')
+          .select('label,current_status,last_checked_at,change_log,free_visible_status')
           .eq('user_id', userId)
           .order('created_at')
           .limit(100),
@@ -109,8 +113,9 @@ async function run(req: NextRequest) {
       }
       const address =
         profile.data?.notification_email?.trim() || profile.data?.email?.trim();
+      // Free accounts can opt in too; they get the free view of their case.
+      const isPremium = resolveActivePlanTier(profile.data) !== 'free';
       const allowed =
-        resolveActivePlanTier(profile.data) !== 'free' &&
         prefs.data?.email_enabled !== false &&
         !!address &&
         !!cases.data?.length;
@@ -156,7 +161,7 @@ async function run(req: NextRequest) {
           .select('email_enabled')
           .eq('user_id', userId)
           .maybeSingle(),
-        db.from('case_status').select('label,current_status,last_checked_at,change_log')
+        db.from('case_status').select('label,current_status,last_checked_at,change_log,free_visible_status')
           .eq('user_id', userId).order('created_at').limit(100),
         db.from('case_notices').select('title,due_date').eq('user_id', userId)
           .is('completed_at', null).gte('due_date', today).lte('due_date', horizon)
@@ -173,7 +178,13 @@ async function run(req: NextRequest) {
       } else if (latest.error || global.error || liveCases.error || liveNotices.error) failed++;
       else
         try {
-          const text = buildCaseDigest(liveCases.data ?? [], liveNotices.data ?? [], week);
+          const text = buildCaseDigest(
+            digestCasesForViewer(liveCases.data ?? [], isPremium),
+            liveNotices.data ?? [],
+            week,
+            new Date(),
+            { free: !isPremium }
+          );
           const info = await transport.sendMail({
             from: getSmtpFromHeader(),
             to: address,
