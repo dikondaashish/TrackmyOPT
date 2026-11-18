@@ -11,15 +11,15 @@
     --tmopt-font-title: 1.5rem;
     --tmopt-font-title-wide: 1.875rem;
 
-    /* Apple-inspired Light Mode - Clean, bright, airy */
+    /* Light mode. One neutral family (slate) and one brand blue. */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 222 47% 11%;
 
     --primary: 221 83% 43%;
     /* Darker blue so white CTA text meets WCAG AA (was Apple Blue #007AFF) */
@@ -33,36 +33,56 @@
        separate sections; `ink` is the deep navy used for the few sections
        that deserve a stronger, darker character. Accents are purposeful:
        violet = job search, amber = documents/attention, emerald = outcomes. */
-    --surface: 216 33% 97%;
-    --surface-strong: 216 30% 94%;
+    --surface: 210 40% 98%;
+    --surface-strong: 210 40% 96%;
     --ink: 222 47% 12%;
     --ink-foreground: 210 40% 98%;
     --ink-muted: 217 24% 72%;
     --ink-border: 220 33% 22%;
     --shadow-color: 222 40% 20%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 42%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 211 100% 50%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 43%;
 
-    /* Sidebar - Light grey with subtle warmth */
-    --sidebar: 240 4.8% 97%;
-    --sidebar-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 92%;
-    --sidebar-accent: 240 4.8% 93%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    /* Status colours. One family per meaning, each as a solid, a soft
+       background, a border and a strong text tone for use on the soft
+       background. Info shares the brand blue. */
+    --success: 161 94% 30%;
+    --success-soft: 152 81% 96%;
+    --success-border: 152 76% 80%;
+    --success-text: 163 94% 24%;
+    --warning: 32 95% 44%;
+    --warning-soft: 48 100% 96%;
+    --warning-border: 48 97% 77%;
+    --warning-text: 26 90% 37%;
+    --danger: 0 72% 51%;
+    --danger-soft: 0 86% 97%;
+    --danger-border: 0 96% 89%;
+    --danger-text: 0 74% 42%;
+    --info: 221 83% 43%;
+    --info-soft: 221 75% 96%;
+    --info-border: 221 70% 85%;
+    --info-text: 221 83% 37%;
+
+    /* Sidebar - white, matching the header and cards */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
 
     /* ── Data-viz palette ──────────────────────────────────────────────
        Whole colours, not HSL triplets, so they can be handed straight to
@@ -97,15 +117,15 @@
   }
 
   .dark {
-    /* Apple-inspired Dark Mode - True black with subtle depth */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Dark mode. Slate-tinted neutrals and the same status families. */
+    --background: 222 30% 5%;
+    --foreground: 210 40% 98%;
 
-    --card: 240 10% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 25% 9%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 240 10% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 25% 9%;
+    --popover-foreground: 210 40% 98%;
 
     --primary: 217 91% 55%;
     /* Lighter primary on dark bg for readable filled buttons */
@@ -114,36 +134,54 @@
     --primary-muted: 219 45% 28%;
     --primary-hover: 217 85% 49%;
 
-    --surface: 230 12% 6.5%;
-    --surface-strong: 230 10% 10%;
+    --surface: 222 28% 6.5%;
+    --surface-strong: 222 22% 11%;
     --ink: 224 40% 9%;
     --ink-foreground: 210 40% 98%;
     --ink-muted: 217 20% 70%;
     --ink-border: 222 30% 18%;
     --shadow-color: 0 0% 0%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 217 25% 16%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 217 25% 16%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 217 25% 16%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 211 100% 50%;
+    --border: 217 22% 18%;
+    --input: 217 22% 18%;
+    --ring: 217 91% 55%;
+
+    /* Status colours, re-picked for the dark surface. */
+    --success: 158 64% 45%;
+    --success-soft: 164 50% 10%;
+    --success-border: 163 60% 20%;
+    --success-text: 156 72% 67%;
+    --warning: 38 92% 50%;
+    --warning-soft: 32 60% 10%;
+    --warning-border: 32 70% 22%;
+    --warning-text: 46 97% 65%;
+    --danger: 0 72% 51%;
+    --danger-soft: 0 50% 11%;
+    --danger-border: 0 55% 24%;
+    --danger-text: 0 94% 82%;
+    --info: 217 91% 55%;
+    --info-soft: 220 40% 12%;
+    --info-border: 219 45% 28%;
+    --info-text: 213 94% 78%;
 
     /* Sidebar - Slightly elevated from background */
-    --sidebar: 240 10% 6%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 12%;
-    --sidebar-accent: 240 3.7% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar: 222 28% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-border: 217 22% 13%;
+    --sidebar-accent: 217 22% 13%;
+    --sidebar-accent-foreground: 210 40% 98%;
 
     /* Data-viz palette, stepped for the dark card surface (#121217) — see
        the light block above. Same hues, re-picked rather than inverted. */

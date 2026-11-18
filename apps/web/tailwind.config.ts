@@ -4,6 +4,8 @@ const {
   default: flattenColorPalette,
 } = require("tailwindcss/lib/util/flattenColorPalette");
 
+const tailwindColors = require("tailwindcss/colors");
+
 const config: Config = {
   darkMode: 'class',
   content: [
@@ -14,7 +16,38 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Apple-inspired color system
+        // One neutral family: every gray/zinc/neutral/stone class renders as
+        // slate, and green renders as emerald, so screens never mix greys.
+        gray: tailwindColors.slate,
+        zinc: tailwindColors.slate,
+        neutral: tailwindColors.slate,
+        stone: tailwindColors.slate,
+        green: tailwindColors.emerald,
+        // Status families (use these instead of raw red/amber/emerald)
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          soft: 'hsl(var(--success-soft))',
+          border: 'hsl(var(--success-border))',
+          text: 'hsl(var(--success-text))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          soft: 'hsl(var(--warning-soft))',
+          border: 'hsl(var(--warning-border))',
+          text: 'hsl(var(--warning-text))',
+        },
+        danger: {
+          DEFAULT: 'hsl(var(--danger))',
+          soft: 'hsl(var(--danger-soft))',
+          border: 'hsl(var(--danger-border))',
+          text: 'hsl(var(--danger-text))',
+        },
+        info: {
+          DEFAULT: 'hsl(var(--info))',
+          soft: 'hsl(var(--info-soft))',
+          border: 'hsl(var(--info-border))',
+          text: 'hsl(var(--info-text))',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
