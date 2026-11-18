@@ -73,6 +73,12 @@ try {
     read('../../supabase/migrations/20261013205252_opt_observation_modified_date.sql')
   );
   await sql(
+    read('../../supabase/migrations/20261114035000_faster_opt_case_observation_read.sql')
+  );
+  await sql(
+    read('../../supabase/migrations/20261118213000_opt_case_observation_read_any_cutoff.sql')
+  );
+  await sql(
     read('../../supabase/migrations/20261118193500_vacuum_opt_case_observations_daily.sql')
   );
   const vacuumOptions = await sql(
@@ -85,7 +91,7 @@ try {
     if (!vacuumOptions.includes(option))
       throw new Error(`opt_case_observations is missing ${option}`);
   await sql(assertions);
-  console.log('PASS: private immutable history, temporal reads, deduplication, metadata revisions, job claims, deletion and receipt-change invalidation, change-only community snapshots, USCIS modifiedDate allowlist, daily observation vacuum');
+  console.log('PASS: private immutable history, temporal reads, deduplication, metadata revisions, job claims, deletion and receipt-change invalidation, change-only community snapshots, USCIS modifiedDate allowlist, daily observation vacuum, boundary-driven observation reads');
 } finally {
   await command(['rm', '-f', container]).catch(() => {});
 }
