@@ -103,8 +103,36 @@ per month, and watch refund requests and disputes.
 Not built: a reminder before a pass ends, and a way to buy a pass on top of
 a running subscription.
 
+## What Phase 3 changed
+
+On 2026-11-18, 1,453 accounts had an approved case. 217 had saved EAD dates,
+49 had recorded a job, 13 had a resume and 4 had a job application. The case
+page went quiet at approval.
+
+| Change | Where |
+| --- | --- |
+| After-approval steps on the case page for OPT and STEM OPT: save the EAD dates, open the unemployment clock (90 or 150 days), add the job, see verified jobs, check the STEM window. Free on every plan, with "done" marks for saved dates and employment. | `lib/case-status/after-approval.ts`, `panels/AfterApprovalSteps.tsx` |
+| The dashboard "Next step" card sends an approved OPT case to those steps on every plan. | `lib/dashboard/resolve-dashboard-next-step.ts` |
+| The recommendation question is asked when someone views an approved case. It is no longer asked seconds after the first status loads at sign-up, where 339 people saw it in 60 days and 6 answered. | `nps-survey.ts`, `OnboardingWizard.tsx`, `useCaseStatusController.ts` |
+| A score of 9 or 10 gets a second card: copy a link to share, or send a story by email. The case page also has a "send them the free tracker" link. No reward is attached. | `NpsSurvey.tsx` |
+
+Measures: `after_approval_steps_shown`, `after_approval_step_clicked`
+(`step`), `nps_shown` with trigger `case_approved_viewed`,
+`nps_promoter_followup_shown`, `share_link_copied` (`source`),
+`testimonial_email_opened`, visits with `utm_campaign=after_approval`, and
+the share of approved accounts with saved EAD dates and a recorded job.
+
+Not done, and why:
+
+- No email to the accounts already approved. That is a marketing send and
+  needs the opt-in.
+- No referral reward. The `referrals` table is for partner codes.
+- The Pro status email does not mention the steps, because it does not know
+  whether the case is an OPT filing.
+
 ## Still open
 
-- Phase 3: move approved users to the unemployment clock and job tools.
+- A reminder before a Case Pass ends.
+- Stories arrive by email; publishing one is a manual step.
 - The first-visit NPS prompt still opens right after the first status
   resolves.

@@ -7,7 +7,10 @@ export const NPS_REQUEST_EVENT = "trackmyopt:nps-request";
 
 export type NpsCategory = "detractor" | "passive" | "promoter";
 export type NpsTrigger =
+  /** Legacy: asked seconds after the first status loaded. No longer requested. */
   | "case_status_first_success"
+  /** The person is looking at an approved case. */
+  | "case_approved_viewed"
   | "resume_downloaded"
   | "ats_scan_completed";
 export type NpsPlanTier = "free" | "pro" | "dedicated";

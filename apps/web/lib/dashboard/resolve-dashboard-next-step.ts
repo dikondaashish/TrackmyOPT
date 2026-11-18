@@ -1,12 +1,16 @@
 import { getStatusExplainer, isPlaceholderStatus } from "@/lib/uscis/status-explainer";
+import { isAfterApprovalPhase } from "@/lib/case-status/after-approval";
+import { deriveJourneyPhase } from "@/lib/community-opt/stages";
 
 export type DashboardNextStepState =
+  | "after_approval"
   | "no_receipt"
   | "free_upsell"
   | "status_live"
   | "pro_active";
 
 export type DashboardNextStepAction =
+  | "after_approval_steps"
   | "add_receipt"
   | "upgrade_pro"
   | "view_case_status"
@@ -17,6 +21,8 @@ type DashboardNextStepInput = {
   hasReceipt: boolean;
   lastCheckedAt: string | null;
   currentStatus: string | null;
+  /** Initial OPT or STEM OPT. The after-approval steps are about the EAD. */
+  isOptCase?: boolean;
 };
 
 type ResolvedDashboardNextStep = {
@@ -40,7 +46,8 @@ function formatLastChecked(iso: string): string {
 export function resolveDashboardNextStep(
   input: DashboardNextStepInput
 ): ResolvedDashboardNextStep {
-  const { isPremium, hasReceipt, lastCheckedAt, currentStatus } = input;
+  const { isPremium, hasReceipt, lastCheckedAt, currentStatus, isOptCase } =
+    input;
 
   if (!hasReceipt) {
     return {
@@ -49,6 +56,24 @@ export function resolveDashboardNextStep(
       href: "/dashboard/case-status",
       plainEnglishStatus: null,
       statusCategory: null,
+      lastCheckedLabel: null,
+    };
+  }
+
+  // An approved case has nothing left to check; the next job is the EAD dates
+  // and the unemployment count, on every plan.
+  if (
+    hasReceipt &&
+    isOptCase === true &&
+    !isPlaceholderStatus(currentStatus) &&
+    isAfterApprovalPhase(deriveJourneyPhase(currentStatus))
+  ) {
+    return {
+      state: "after_approval",
+      action: "after_approval_steps",
+      href: "/dashboard/case-status#after-approval",
+      plainEnglishStatus: null,
+      statusCategory: "approved",
       lastCheckedLabel: null,
     };
   }
