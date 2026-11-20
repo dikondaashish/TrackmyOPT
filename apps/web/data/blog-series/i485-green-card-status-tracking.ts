@@ -331,6 +331,7 @@ export const i485StatusGuide: ResearchArticle = defineArticle({
     src.fees,
   ],
   related: [
+    { label: 'I-140 approved: what happens next', href: '/blog/i-140-approved-what-next' },
     { label: 'I-140 case status tracker', href: '/blog/i-140-case-status-tracking' },
     { label: 'Green card after OPT', href: '/blog/green-card-after-opt' },
     { label: 'OPT to green card without H-1B', href: '/blog/opt-to-green-card-without-h1b' },

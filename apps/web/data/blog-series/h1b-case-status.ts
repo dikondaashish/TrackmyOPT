@@ -249,6 +249,7 @@ export const h1bCaseStatusGuide: ResearchArticle = defineArticle({
   ],
   sources: [src.status, src.i129, src.h1b, src.registration, src.times, src.premium, src.capGap, src.i94],
   related: [
+    { label: 'H-1B processing time 2026: premium, transfer, extension', href: '/blog/h1b-processing-time-2026' },
     { label: 'OPT to H-1B transition', href: '/blog/opt-to-h1b-transition' },
     { label: 'H-1B cap-gap extension', href: '/blog/h1b-cap-gap-extension' },
     { label: 'H-1B transfer and portability while on OPT', href: '/blog/h1b-transfer-portability-while-on-opt' },

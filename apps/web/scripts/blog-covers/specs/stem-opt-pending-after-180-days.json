@@ -1,0 +1,30 @@
+{
+  "slug": "stem-opt-pending-after-180-days",
+  "chip": "STEM OPT",
+  "headline": [
+    "STEM OPT Pending",
+    "Past 180 Days:",
+    "What Now?"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "The 180 days start when your OPT",
+    "EAD expires, not when you file."
+  ],
+  "stats": [
+    {
+      "value": "180",
+      "label": "DAYS FROM EAD EXPIRY"
+    },
+    {
+      "value": "32 of 61",
+      "label": "TOOK OVER 180 DAYS"
+    },
+    {
+      "value": "$1,780",
+      "label": "PREMIUM PROCESSING"
+    }
+  ],
+  "footer": "6 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

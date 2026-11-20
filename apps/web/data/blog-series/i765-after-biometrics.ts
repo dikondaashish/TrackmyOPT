@@ -289,6 +289,10 @@ export const i765AfterBiometricsGuide: ResearchArticle = defineArticle({
   ],
   related: [
     {
+      label: '"Fingerprints Were Taken": what the status means',
+      href: '/blog/fingerprints-were-taken-uscis-status-i765',
+    },
+    {
       label: '"Case Is Being Actively Reviewed": meaning and how long',
       href: '/blog/case-is-being-actively-reviewed-uscis-meaning',
     },

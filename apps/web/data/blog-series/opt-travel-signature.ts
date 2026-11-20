@@ -242,6 +242,7 @@ export const optTravelSignature: ResearchArticle = defineArticle({
   ],
   sources: [src.cfr2142, src.iceTravel, src.sitsTravel, src.i765, src.uw, src.cornell],
   related: [
+    { label: 'Travel while OPT or STEM OPT is pending', href: '/blog/travel-while-opt-pending' },
     { label: 'Can you travel on OPT? Complete guide', href: '/blog/can-you-travel-on-opt-complete-guide' },
     { label: 'Renewing your F-1 visa on OPT', href: '/blog/renewing-f1-visa-on-opt' },
     {
