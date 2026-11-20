@@ -392,6 +392,10 @@ export const editorialRefreshes: ResearchArticle[] = [
     sources: [source.i983, i983Instructions, source.stem, source.i765, optRule],
     related: [
       {
+        label: 'Form I-983 sample answers',
+        href: '/blog/form-i-983-sample-answers',
+      },
+      {
         label: 'STEM OPT extension guide',
         href: '/blog/stem-opt-extension-guide',
       },

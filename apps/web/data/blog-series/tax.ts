@@ -2,6 +2,10 @@ import { defineArticle, source } from './shared';
 
 const taxRelated = [
   {
+    label: '1040-NR deadline 2027',
+    href: '/blog/1040-nr-deadline-2027',
+  },
+  {
     label: 'F-1 student tax filing guide',
     href: '/blog/f1-student-tax-filing-guide-2026',
   },

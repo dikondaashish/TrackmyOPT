@@ -1,0 +1,30 @@
+{
+  "slug": "h1b-wage-level-by-zip-code-salary",
+  "chip": "H-1B",
+  "headline": [
+    "H-1B Wage Level",
+    "by Zip Code",
+    "and Salary"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Look up the four level wages for",
+    "your occupation and work area."
+  ],
+  "stats": [
+    {
+      "value": "4",
+      "label": "WAGE LEVELS"
+    },
+    {
+      "value": "2026-27",
+      "label": "WAGE YEAR"
+    },
+    {
+      "value": "1 to 4",
+      "label": "LOTTERY ENTRIES"
+    }
+  ],
+  "footer": "6 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

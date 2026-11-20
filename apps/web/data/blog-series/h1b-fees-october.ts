@@ -188,6 +188,10 @@ export const h1bFeeOctoberArticle = defineArticle({
   ],
   related: [
     {
+      label: 'Does the $100,000 fee apply to F-1 and OPT students?',
+      href: '/blog/h1b-100k-fee-f1-opt-students',
+    },
+    {
       label: 'H-1B employer scrutiny update',
       href: '/blog/h1b-employer-scrutiny-september-2026',
     },

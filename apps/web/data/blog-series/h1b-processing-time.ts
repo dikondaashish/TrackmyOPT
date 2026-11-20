@@ -130,6 +130,7 @@ export const h1bProcessingTimeGuide: ResearchArticle = defineArticle({
         'Selected employers then file the petition. If it asks for a change of status and your OPT is still valid when it is filed, cap-gap can carry your status and work authorization forward.',
       ],
       links: [
+        { label: 'H-1B lottery 2027 (FY2028): dates, fee and odds', href: '/blog/h1b-lottery-2027-fy2028' },
         { label: 'H-1B cap-gap extension', href: '/blog/h1b-cap-gap-extension' },
         { label: 'OPT to H-1B transition', href: '/blog/opt-to-h1b-transition' },
         { label: 'Change of status or consular processing?', href: '/blog/h1b-change-of-status-vs-consular-processing-opt' },
