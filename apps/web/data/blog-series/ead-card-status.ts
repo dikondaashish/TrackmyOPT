@@ -304,6 +304,14 @@ export const eadCardStatusGuide: ResearchArticle = defineArticle({
   ],
   related: [
     {
+      label: '"Card Is Being Produced": how long it takes',
+      href: '/blog/card-is-being-produced-how-long',
+    },
+    {
+      label: 'Card mailed but tracking number unavailable',
+      href: '/blog/card-was-mailed-tracking-number-unavailable',
+    },
+    {
       label: 'USCIS case status tracking guide',
       href: '/blog/uscis-case-status-tracking-guide',
     },

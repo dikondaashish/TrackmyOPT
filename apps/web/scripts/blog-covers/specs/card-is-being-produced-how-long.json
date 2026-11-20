@@ -1,0 +1,30 @@
+{
+  "slug": "card-is-being-produced-how-long",
+  "chip": "USCIS TRACKING",
+  "headline": [
+    "\"Card Is Being",
+    "Produced\":",
+    "How Long?"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "What the message means and when",
+    "the EAD reaches your mailbox."
+  ],
+  "stats": [
+    {
+      "value": "5 days",
+      "label": "MEDIAN TO PRODUCED"
+    },
+    {
+      "value": "98%",
+      "label": "WITHIN 7 DAYS"
+    },
+    {
+      "value": "1,290",
+      "label": "TRACKED CASES"
+    }
+  ],
+  "footer": "5 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

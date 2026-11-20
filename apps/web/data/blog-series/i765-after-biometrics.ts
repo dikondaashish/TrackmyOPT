@@ -289,6 +289,10 @@ export const i765AfterBiometricsGuide: ResearchArticle = defineArticle({
   ],
   related: [
     {
+      label: '"Case Is Being Actively Reviewed": meaning and how long',
+      href: '/blog/case-is-being-actively-reviewed-uscis-meaning',
+    },
+    {
       label: 'OPT biometrics appointment in 2026',
       href: '/blog/opt-biometrics-appointment-2026',
     },

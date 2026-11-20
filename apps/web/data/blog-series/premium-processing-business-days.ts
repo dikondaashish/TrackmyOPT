@@ -270,6 +270,7 @@ export const premiumProcessingBusinessDays: ResearchArticle = defineArticle({
   ],
   sources: [src.cfr1064, src.premium, src.i907, src.holidays, src.status],
   related: [
+    { label: 'OPT expedite request: why USCIS will not take it', href: '/blog/opt-expedite-request-i765' },
     { label: 'Premium processing for OPT and STEM OPT: full guide', href: '/blog/premium-processing-opt-stem-opt-2026-complete-guide' },
     { label: 'OPT premium processing timeline 2026', href: '/blog/opt-premium-processing-timeline-2026' },
     { label: 'OPT premium processing real case timelines', href: '/blog/opt-premium-processing-real-case-timelines-2026' },

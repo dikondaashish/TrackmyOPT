@@ -273,6 +273,10 @@ export const ioeReceiptNumberGuide: ResearchArticle = defineArticle({
   ],
   related: [
     {
+      label: 'USCIS silent update: what it means',
+      href: '/blog/uscis-silent-update-api-update-meaning',
+    },
+    {
       label: 'USCIS case status tracking guide',
       href: '/blog/uscis-case-status-tracking-guide',
     },
