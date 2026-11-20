@@ -42,14 +42,14 @@ export default function F1TaxFilingArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "F-1 Student Tax Filing Guide 2026", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide-2026" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-19" modifiedDate="2026-05-19" author="Vinay Kumar" faqItems={[
-                { question: "Do F-1 students have to pay taxes?", answer: "F-1 students on OPT are required to pay federal income taxes on wages earned in the US, FICA taxes (Social Security & Medicare), and state taxes if applicable. You are considered a nonresident alien for tax purposes in your first 5 years." },
-                { question: "What form does an F-1 student file?", answer: "F-1 students typically file Form 1040-NR (Nonresident Alien Income Tax Return) instead of Form 1040. You must also file Form 8843 to claim the Substantial Presence Test exception or to report if you were exempt from taxation." },
-                { question: "What is Form 8843 used for?", answer: "Form 8843 is filed by nonresident aliens to claim exemption from the Substantial Presence Test or to report that they were exempt from US income tax. It must be filed even if you have no US income." },
-                { question: "Can F-1 students claim FICA exemptions?", answer: "Yes, F-1 students can be exempt from Social Security and Medicare taxes (FICA) if they are on valid F-1 status. You must provide a copy of your valid I-94 to your employer when hired to claim this exemption." },
-                { question: "What is the tax deadline for international students?", answer: "The tax filing deadline for F-1 students is April 15, 2027 for the 2026 tax year. If you cannot file by this date, you can file Form 4868 to request a 6-month automatic extension." },
-                { question: "Do I need to file if I didn't work?", answer: "If you received no US income during the year, you typically do not need to file a federal tax return. However, you may still need to file Form 8843 to claim Substantial Presence Test exemption." },
-                { question: "What is the Substantial Presence Test?", answer: "The Substantial Presence Test determines your tax residency. If you fail this test, you must file Form 1040-NR. F-1 students are generally exempt from this test for the first 5 years, but must file Form 8843 to claim the exemption." },
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-19" modifiedDate="2026-11-20" author="Vinay Kumar" faqItems={[
+                { question: "Do F-1 students have to pay taxes?", answer: "Yes. F-1 students pay federal income tax on U.S. wages, and state tax where it applies. While you are a nonresident for tax purposes, usually your first 5 calendar years, wages from authorized work are generally exempt from Social Security and Medicare tax." },
+                { question: "What form does an F-1 student file?", answer: "Nonresident F-1 students file Form 1040-NR, not Form 1040, and attach Form 8843. With no U.S. income, you file Form 8843 alone." },
+                { question: "What is Form 8843 used for?", answer: "Form 8843 explains why your days in the United States do not count toward the substantial presence test. It is not a tax return. File it even if you had no U.S. income." },
+                { question: "Can F-1 students claim FICA exemptions?", answer: "Yes. While you are a nonresident for tax purposes, usually your first 5 calendar years, wages from work your F-1 status allows, such as OPT, are exempt from Social Security and Medicare tax. Tell payroll your status. If the taxes were withheld by mistake, ask your employer for a refund first." },
+                { question: "What is the tax deadline for international students?", answer: "For tax year 2026, Form 1040-NR is due April 15, 2027 if you had wages subject to U.S. withholding, and June 15, 2027 if you did not. Form 4868 gives six more months to file. It does not give more time to pay." },
+                { question: "Do I need to file if I didn't work?", answer: "With no U.S. income you usually have no tax return to file, but you still file Form 8843. Mail it alone by June 15, 2027." },
+                { question: "What is the Substantial Presence Test?", answer: "The substantial presence test counts your days in the United States to decide tax residency. F-1 students generally do not count days for their first 5 calendar years, so most remain nonresidents and file Form 1040-NR. Form 8843 documents this." },
                 { question: "Should I file a state tax return?", answer: "This depends on your state of residence and income. Generally, if you earned income in a state, you should file that state's tax return even if you're not a US citizen. Rules vary by state, so check your specific state's requirements." },
             ]} />
 
@@ -86,7 +86,7 @@ export default function F1TaxFilingArticle() {
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                <span>Last Updated: February 2026</span>
+                <span>Last updated: November 20, 2026</span>
             </div>
 
             <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
@@ -102,7 +102,7 @@ export default function F1TaxFilingArticle() {
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
-                    F-1 students earning US income file <strong>Form 1040-NR</strong> (not Form 1040) and must file <strong>Form 8843</strong> by April 15, 2027. You must claim your FICA exemption with your employer using a valid I-94. Take advantage of tax treaty benefits to reduce your tax burden.
+                    F-1 students earning U.S. income file <strong>Form 1040-NR</strong> (not Form 1040) with <strong>Form 8843</strong> attached. It is due April 15, 2027 if you had U.S. wages, and June 15, 2027 if you did not. Nonresident F-1 students are generally exempt from FICA on authorized work. A tax treaty may lower your tax.
                 </p>
                 <p className="text-blue-700 dark:text-blue-300 text-sm mt-2">
                     Source: <a href="https://www.irs.gov/individuals/international-individuals/nonresident-aliens" target="_blank" rel="noopener noreferrer" className="underline">IRS.gov</a>, Publication 519
@@ -120,7 +120,7 @@ export default function F1TaxFilingArticle() {
                         ["#fica-exemption", "Understanding FICA Exemption for F-1 Students"],
                         ["#tax-treaty", "Tax Treaty Benefits for International Students"],
                         ["#step-by-step", "Step-by-Step Filing Instructions"],
-                        ["#deadlines", "Key Tax Deadlines for 2026"],
+                        ["#deadlines", "Key Tax Deadlines in 2027"],
                         ["#common-mistakes", "Common Tax Filing Mistakes to Avoid"],
                     ].map(([href, text]) => (
                         <a key={href} href={href} className="block text-blue-600 dark:text-blue-400 hover:underline text-sm">
@@ -141,17 +141,8 @@ export default function F1TaxFilingArticle() {
                         <strong>Yes, F-1 students on OPT are required to pay federal and state income taxes</strong> on any wages earned in the United States. This applies regardless of whether you're a US citizen or permanent resident.
                     </p>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        As a nonresident alien for tax purposes (during your first 5 years in the US), you file a different tax form than US citizens and may qualify for specific exemptions and tax treaty benefits.
+                        As a nonresident alien for tax purposes (usually your first 5 calendar years in the US), you file a different tax form than US citizens and may qualify for specific exemptions and tax treaty benefits.
                     </p>
-
-                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-l-amber-500 p-4 rounded-r-xl my-6">
-                        <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
-                            "F-1 students earning US wages must file federal income tax returns and report all compensation earned on OPT, even if the employer is a sponsoring company."
-                        </p>
-                        <p className="text-amber-700 dark:text-amber-300 text-sm mt-1">
-                            — IRS Publication 519: US Tax Guide for Aliens
-                        </p>
-                    </div>
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">What Taxes Must You Pay?</h3>
                     <div className="space-y-4 mb-6">
@@ -159,7 +150,7 @@ export default function F1TaxFilingArticle() {
                             <DollarSign className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white">Federal Income Tax</h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Withheld from your paycheck based on your W-4 form. File Form 1040-NR by April 15, 2027.</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Withheld from your paycheck based on your W-4 form. With wages, file Form 1040-NR by April 15, 2027.</p>
                             </div>
                         </div>
 
@@ -167,7 +158,7 @@ export default function F1TaxFilingArticle() {
                             <DollarSign className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white">FICA Taxes (Social Security & Medicare)</h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">F-1 students may be exempt if they provide proper documentation (I-94 copy) to their employer. Self-employed F-1 students must pay self-employment tax.</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Nonresident F-1 students are generally exempt on work their status allows, such as OPT, usually for their first 5 calendar years. After that, FICA applies.</p>
                             </div>
                         </div>
 
@@ -242,23 +233,23 @@ export default function F1TaxFilingArticle() {
                             <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
                                 This is the main tax return for nonresident aliens. You report all US-source income (wages, interest, dividends) and claim any applicable deductions or exemptions.
                             </p>
-                            <p className="text-blue-700 dark:text-blue-300 text-sm"><strong>Due:</strong> April 15, 2027 | <strong>Extension available:</strong> Form 4868</p>
+                            <p className="text-blue-700 dark:text-blue-300 text-sm"><strong>Due:</strong> April 15, 2027 with U.S. wages, June 15, 2027 without | <strong>Extension:</strong> Form 4868</p>
                         </div>
 
                         <div className="p-5 bg-emerald-50 dark:bg-emerald-950 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                            <h3 className="font-bold text-emerald-900 dark:text-emerald-100 mb-2">Form 8843 (Statement for Individuals Exempt From Withholding)</h3>
+                            <h3 className="font-bold text-emerald-900 dark:text-emerald-100 mb-2">Form 8843 (Statement for Exempt Individuals)</h3>
                             <p className="text-emerald-800 dark:text-emerald-200 text-sm mb-3">
-                                Filed by nonresident aliens to claim exemption from the Substantial Presence Test or to report being exempt. F-1 students must file this even if they have no taxable income.
+                                Explains why your days in the U.S. do not count toward the Substantial Presence Test. It is not a tax return. F-1 students file it even with no income.
                             </p>
-                            <p className="text-emerald-700 dark:text-emerald-300 text-sm"><strong>Due:</strong> April 15, 2027 (same deadline as 1040-NR)</p>
+                            <p className="text-emerald-700 dark:text-emerald-300 text-sm"><strong>Due:</strong> with your 1040-NR. With no return to file, mail it alone by June 15, 2027.</p>
                         </div>
 
                         <div className="p-5 bg-purple-50 dark:bg-purple-950 rounded-xl border border-purple-100 dark:border-purple-800">
                             <h3 className="font-bold text-purple-900 dark:text-purple-100 mb-2">W-2 or 1099 Forms (From Your Employer)</h3>
                             <p className="text-purple-800 dark:text-purple-200 text-sm mb-3">
-                                Your employer sends W-2 (if you're an employee) or 1099 (if contract/self-employed) by January 31, 2027. Use this to complete your 1040-NR.
+                                Your employer sends a W-2 (if you're an employee) or a 1099 (if contract/self-employed) by February 1, 2027. January 31 is a Sunday, so the date moves to Monday. Use it to complete your 1040-NR.
                             </p>
-                            <p className="text-purple-700 dark:text-purple-300 text-sm"><strong>Received:</strong> January 31, 2027</p>
+                            <p className="text-purple-700 dark:text-purple-300 text-sm"><strong>Sent by:</strong> February 1, 2027</p>
                         </div>
 
                         <div className="p-5 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-100 dark:border-orange-800">
@@ -276,16 +267,16 @@ export default function F1TaxFilingArticle() {
                         Understanding FICA Exemption for F-1 Students
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        F-1 students are typically exempt from FICA taxes (Social Security and Medicare) if they maintain valid F-1 status. However, you must notify your employer of this exemption.
+                        The IRS exempts nonresident F-1 students from FICA taxes (Social Security and Medicare) on wages for work their status allows, such as on-campus jobs, CPT and OPT. This usually covers your first 5 calendar years. Once you become a resident for tax purposes, FICA applies.
                     </p>
 
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">How to Claim FICA Exemption</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">How to Make Sure FICA Is Not Withheld</h3>
                     <div className="space-y-3">
                         {[
-                            { step: "Request the exemption form from your employer's HR department when hired.", detail: "Most employers use Form I-94 photocopy or state this on I-9 completion." },
-                            { step: "Provide a valid, unexpired I-94 showing F-1 status.", detail: "Digital I-94 from CBP website acceptable. Passport stamp also works." },
-                            { step: "Employer reports exemption to Social Security Administration.", detail: "They'll add 'F' code to your record indicating FICA exemption." },
-                            { step: "Your paycheck shows $0 FICA withholding.", detail: "You'll only see federal income tax, not Social Security (6.2%) or Medicare (1.45%)." },
+                            { step: "Tell payroll you are a nonresident F-1 student when you are hired.", detail: "Employers usually confirm your status from your I-20, EAD and I-94." },
+                            { step: "Check your first pay stub.", detail: "It should show federal income tax, and no Social Security (6.2%) or Medicare (1.45%)." },
+                            { step: "If FICA was withheld, ask your employer for a refund first.", detail: "If the employer will not refund it, you can claim it from the IRS with Form 843 and Form 8316." },
+                            { step: "Know when the exemption ends.", detail: "It ends when you become a resident for tax purposes, usually in your sixth calendar year." },
                         ].map((item, i) => (
                             <div key={i} className="border flex gap-3 p-4 rounded-xl border-border bg-card shadow-card">
                                 <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-950 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm">
@@ -301,7 +292,7 @@ export default function F1TaxFilingArticle() {
 
                     <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800">
                         <p className="text-red-800 dark:text-red-200 text-sm">
-                            <strong>⚠️ Important:</strong> If you're self-employed or have 1099 income, you must pay self-employment tax (15.3%) even as an F-1 student. This exemption only applies to W-2 employment.
+                            <strong>⚠️ Important:</strong> Self-employment tax is a separate rule. A nonresident owes it only if a social security agreement between their country and the United States covers them under the U.S. system. Check that your F-1 status allows any self-employed work before you take it.
                         </p>
                     </div>
                 </section>
@@ -317,20 +308,19 @@ export default function F1TaxFilingArticle() {
                     <div className="border rounded-xl p-5 mb-6 border-primary-muted bg-primary-soft">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Common Tax Treaty Benefits</h3>
                         <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
-                            <li className="flex gap-2"><span>✓</span> <span>Waived or reduced FICA taxes on certain scholarships</span></li>
-                            <li className="flex gap-2"><span>✓</span> <span>Exemption from income tax on stipends/scholarships (Article 20)</span></li>
-                            <li className="flex gap-2"><span>✓</span> <span>Reduced tax rates on student wages</span></li>
-                            <li className="flex gap-2"><span>✓</span> <span>Income exclusion for certain types of support</span></li>
+                            <li className="flex gap-2"><span>✓</span> <span>Exemption from income tax on scholarships and stipends</span></li>
+                            <li className="flex gap-2"><span>✓</span> <span>Exemption for a set amount of student wages</span></li>
+                            <li className="flex gap-2"><span>✓</span> <span>The standard deduction for students from India (treaty Article 21(2))</span></li>
                         </ul>
                     </div>
 
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        To claim tax treaty benefits, you typically file <strong>Form W-8BEN</strong> with your employer. Check the <a href="https://www.irs.gov/individuals/international-individuals/tax-treaties" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">IRS Treaty section</a> to see if your country has a treaty with the US.
+                        To claim a treaty exemption on wages, give your employer <strong>Form 8233</strong>. For scholarship or fellowship income, the form is usually <strong>W-8BEN</strong>. You also report the treaty claim on your 1040-NR. Check the <a href="https://www.irs.gov/individuals/international-individuals/tax-treaties" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">IRS Treaty section</a> to see if your country has a treaty with the US.
                     </p>
 
                     <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-900 dark:text-amber-100 font-medium text-sm">
-                            Not all countries have treaties, and treaty benefits vary widely. Consult a tax professional familiar with your country's tax treaty to maximize your benefits.
+                            Not all countries have treaties, and the article numbers and amounts differ by treaty. Read your own treaty or ask a tax professional who knows it.
                         </p>
                     </div>
                 </section>
@@ -345,12 +335,12 @@ export default function F1TaxFilingArticle() {
 
                     <div className="space-y-4">
                         {[
-                            { title: "Step 1: Gather Your Documents", items: ["W-2 from employer(s) (arrives by January 31)", "Any 1099 forms if self-employed or contracted", "Proof of FICA exemption claim (if applicable)", "Social Security Number or ITIN", "Documentation of travel dates outside US (if applicable)"] },
-                            { title: "Step 2: Determine Your Filing Status", items: ["Most F-1s file as 'Single' (or appropriate status)", "Check if claimed as dependent on parents' return (affects your deductions)", "F-1 exemption claim requires Form 8843 filing"] },
-                            { title: "Step 3: Complete Form 1040-NR", items: ["Report all W-2 and 1099 income", "Claim only US-source income deductions", "Do NOT claim standard deduction if claiming SPT exemption", "Include all pages and schedules (Schedules NEC, etc)"] },
-                            { title: "Step 4: Complete Form 8843", items: ["List your days in the US during tax year", "Claim exemption status (must check F-1 box if applicable)", "Include your visa status and SEVIS number"] },
-                            { title: "Step 5: Calculate State Taxes (if applicable)", items: ["Check if your state requires nonresident filing", "Calculate income tax based on state's nonresident rules", "File state return by April 15, 2027"] },
-                            { title: "Step 6: File Your Return", items: ["File electronically via IRS e-file (required for most filers)", "Use tax software (TurboTax, H&R Block, etc) or hire a tax professional", "Keep copies of everything for 3 years", "File before April 15, 2027 deadline"] },
+                            { title: "Step 1: Gather Your Documents", items: ["W-2 from employer(s) (sent by February 1, 2027)", "Any 1099 forms if self-employed or contracted", "Form 1042-S if you had scholarship or treaty-exempt income (sent by March 15, 2027)", "Social Security Number or ITIN", "Your U.S. entry and exit dates"] },
+                            { title: "Step 2: Determine Your Filing Status", items: ["Confirm you are still a nonresident for 2026", "Most F-1 students file as 'Single'", "Every F-1 student also files Form 8843"] },
+                            { title: "Step 3: Complete Form 1040-NR", items: ["Report all W-2, 1042-S and 1099 income", "Nonresidents cannot take the standard deduction. Students from India are the exception, under treaty Article 21(2)", "Answer every question on Schedule OI", "Add Schedule NEC or Schedule A only if they apply to you"] },
+                            { title: "Step 4: Complete Form 8843", items: ["Complete Part I and Part III (students)", "Enter your days in the US for 2026, 2025 and 2024", "Enter your visa type, school and program director"] },
+                            { title: "Step 5: Calculate State Taxes (if applicable)", items: ["Check if your state requires nonresident filing", "Calculate income tax based on state's nonresident rules", "File by your state's deadline (April 15, 2027 in most states)"] },
+                            { title: "Step 6: File Your Return", items: ["E-file or mail the return. E-filing is optional", "Use software built for nonresident returns, or a tax professional. TurboTax does not support Form 1040-NR", "Keep copies of everything for 3 years", "File by your deadline: April 15 or June 15, 2027"] },
                         ].map((section, i) => (
                             <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-3">{section.title}</h3>
@@ -369,33 +359,43 @@ export default function F1TaxFilingArticle() {
 
                 <section id="deadlines" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                        Key Tax Deadlines for 2026
+                        Key Tax Deadlines in 2027
                     </h2>
 
                     <div className="space-y-3">
                         <div className="border p-4 rounded-xl border-border bg-card shadow-card">
-                            <p className="font-bold text-gray-900 dark:text-white text-sm">April 15, 2027 — Federal Tax Filing Deadline</p>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">File Form 1040-NR and Form 8843 with IRS</p>
+                            <p className="font-bold text-gray-900 dark:text-white text-sm">February 1, 2027 — W-2 and 1099 forms</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Employers must send them by this date. January 31, 2027 is a Sunday.</p>
                         </div>
 
                         <div className="border p-4 rounded-xl border-border bg-card shadow-card">
-                            <p className="font-bold text-gray-900 dark:text-white text-sm">April 15, 2027 — State Tax Deadline (varies)</p>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Most states follow federal deadline but verify your state</p>
+                            <p className="font-bold text-gray-900 dark:text-white text-sm">March 15, 2027 — Form 1042-S</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Reports scholarships and treaty-exempt income.</p>
                         </div>
 
                         <div className="border p-4 rounded-xl border-border bg-card shadow-card">
-                            <p className="font-bold text-gray-900 dark:text-white text-sm">April 15, 2027 — Filing Extension Deadline</p>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">File Form 4868 to request automatic 6-month extension (by April 15)</p>
+                            <p className="font-bold text-gray-900 dark:text-white text-sm">April 15, 2027 — Federal deadline with U.S. wages</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">File Form 1040-NR with Form 8843 attached.</p>
                         </div>
 
                         <div className="border p-4 rounded-xl border-border bg-card shadow-card">
-                            <p className="font-bold text-gray-900 dark:text-white text-sm">January 31, 2027 — W-2/1099 Receipt Deadline</p>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Employers must provide W-2/1099 statements by this date</p>
+                            <p className="font-bold text-gray-900 dark:text-white text-sm">April 15, 2027 — State deadline in most states</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">A few states use another date. Check your state tax agency.</p>
                         </div>
 
                         <div className="border p-4 rounded-xl border-border bg-card shadow-card">
-                            <p className="font-bold text-gray-900 dark:text-white text-sm">October 15, 2027 — Extended Filing Deadline</p>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Final deadline if extended with Form 4868</p>
+                            <p className="font-bold text-gray-900 dark:text-white text-sm">June 15, 2027 — Federal deadline without U.S. wages</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">File Form 1040-NR if you had other U.S. income. With no income, mail Form 8843 alone.</p>
+                        </div>
+
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
+                            <p className="font-bold text-gray-900 dark:text-white text-sm">Your original due date — Form 4868</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Gives six more months to file. It does not give more time to pay.</p>
+                        </div>
+
+                        <div className="border p-4 rounded-xl border-border bg-card shadow-card">
+                            <p className="font-bold text-gray-900 dark:text-white text-sm">October 15, 2027 — Extended deadline for April filers</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">December 15, 2027 for June filers.</p>
                         </div>
                     </div>
                 </section>
@@ -406,12 +406,12 @@ export default function F1TaxFilingArticle() {
                     </h2>
                     <div className="space-y-4">
                         {[
-                            { mistake: "Filing Form 1040 instead of 1040-NR", solution: "Nonresident aliens must file 1040-NR. Form 1040 is for US citizens and residents only." },
-                            { mistake: "Not filing Form 8843", solution: "All F-1 students must file Form 8843 to claim SPT exemption, even if no income." },
-                            { mistake: "Forgetting to claim FICA exemption", solution: "Give your employer proof of F-1 status to avoid unnecessary FICA withholding ($1,400+ per year)." },
-                            { mistake: "Claiming unrelated deductions", solution: "Nonresident aliens can only deduct US-source income deductions. No personal exemptions or standard deduction." },
+                            { mistake: "Filing Form 1040 instead of 1040-NR", solution: "Nonresident aliens must file 1040-NR. Form 1040 is for US citizens and residents only. TurboTax does not support Form 1040-NR." },
+                            { mistake: "Not filing Form 8843", solution: "Every F-1 student files Form 8843, even with no income." },
+                            { mistake: "Not checking your pay stub for FICA", solution: "If Social Security and Medicare are withheld while you are a nonresident, ask payroll to stop and refund it." },
+                            { mistake: "Claiming unrelated deductions", solution: "Nonresidents cannot take the standard deduction, except students from India under the treaty. Itemized deductions are limited." },
                             { mistake: "Missing state tax filing", solution: "If you earned income in a state, file that state's nonresident return even if federal liability is zero." },
-                            { mistake: "Not reporting days outside the US", solution: "Form 8843 requires detailed information about your time in and outside the US. Keep records of trips." },
+                            { mistake: "Guessing your days in the US", solution: "Form 8843 asks for your days in the US for the last three years. Keep your travel records." },
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
                                 <h3 className="font-semibold text-red-900 dark:text-red-100">{item.mistake}</h3>
@@ -428,12 +428,12 @@ export default function F1TaxFilingArticle() {
                     </h2>
                     <div className="space-y-4">
                         {[
-                            { question: "Do F-1 students have to pay taxes?", answer: "Yes, F-1 students on OPT must pay federal income taxes on wages earned in the US, FICA taxes (if not exempt), and state taxes if applicable. You are considered a nonresident alien for tax purposes in your first 5 years." },
-                            { question: "What form does an F-1 student file?", answer: "F-1 students file Form 1040-NR (Nonresident Alien Income Tax Return) instead of Form 1040. You must also file Form 8843 to claim Substantial Presence Test exemption even if you have no taxable income." },
-                            { question: "What is Form 8843 used for?", answer: "Form 8843 is filed by nonresident aliens to claim exemption from the Substantial Presence Test or to report that they were exempt from US income tax requirements during the tax year." },
-                            { question: "Can F-1 students claim FICA exemptions?", answer: "Yes, F-1 students on valid F-1 status are exempt from Social Security and Medicare taxes (FICA) for W-2 employment. You must provide a copy of your valid I-94 to your employer to claim this exemption." },
-                            { question: "What is the tax deadline for international students?", answer: "The federal tax filing deadline for F-1 students is April 15, 2027 for the 2026 tax year. You can request a 6-month extension by filing Form 4868, making the extended deadline October 15, 2027." },
-                            { question: "Do I need to file if I didn't work?", answer: "If you received no US income, you typically don't need to file a federal income tax return. However, you should still file Form 8843 to claim your Substantial Presence Test exemption and report your status." },
+                            { question: "Do F-1 students have to pay taxes?", answer: "Yes. F-1 students pay federal income tax on U.S. wages, and state tax where it applies. While you are a nonresident for tax purposes, usually your first 5 calendar years, wages from authorized work are generally exempt from Social Security and Medicare tax." },
+                            { question: "What form does an F-1 student file?", answer: "Nonresident F-1 students file Form 1040-NR, not Form 1040, and attach Form 8843. With no U.S. income, you file Form 8843 alone." },
+                            { question: "What is Form 8843 used for?", answer: "Form 8843 explains why your days in the United States do not count toward the substantial presence test. It is not a tax return. File it even if you had no U.S. income." },
+                            { question: "Can F-1 students claim FICA exemptions?", answer: "Yes. While you are a nonresident for tax purposes, usually your first 5 calendar years, wages from work your F-1 status allows, such as OPT, are exempt from Social Security and Medicare tax. Tell payroll your status. If the taxes were withheld by mistake, ask your employer for a refund first." },
+                            { question: "What is the tax deadline for international students?", answer: "For tax year 2026, Form 1040-NR is due April 15, 2027 if you had wages subject to U.S. withholding, and June 15, 2027 if you did not. Form 4868 gives six more months to file. It does not give more time to pay." },
+                            { question: "Do I need to file if I didn't work?", answer: "With no U.S. income you usually have no tax return to file, but you still file Form 8843. Mail it alone by June 15, 2027." },
                         ].map((faq, i) => (
                             <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
@@ -450,7 +450,8 @@ export default function F1TaxFilingArticle() {
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
-                    <Link href="/blog/opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete OPT Extension Guide 2026</Link>
+                    <Link href="/blog/1040-nr-deadline-2027" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ 1040-NR Deadline 2027</Link>
+                    <Link href="/blog/fica-tax-refund-f1-opt-forms-843-8316" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ FICA Refund With Forms 843 and 8316</Link>
                     <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
                     <Link href="/blog/opt-ead-card-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT EAD Card Guide 2026</Link>
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>

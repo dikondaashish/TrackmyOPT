@@ -7,7 +7,7 @@ import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export const metadata: Metadata = {
     title: "FY 2027 H-1B Weighted Selection Process Explained (2026 Update)",
-    description: "USCIS has implemented a new weighted selection process for the FY 2027 H-1B cap season. Learn how this favors higher-skilled workers and what it means for applicants.",
+    description: "Since FY 2027 the H-1B lottery is weighted by wage level: level IV gets four entries, level III three, level II two and level I one. What that means for OPT students.",
     keywords: ["H1B weighted selection", "H1B FY 2027", "USCIS H1B rules 2026", "H1B lottery 2027", "H1B wage levels", "H1B cap reached 2026"],
     openGraph: {
         title: "FY 2027 H-1B Weighted Selection Process Explained | TrackMyOPT",
@@ -37,11 +37,11 @@ export default function H1BWeightedSelectionArticle() {
                 title={metadata.title as string} 
                 description={metadata.description as string} 
                 publishedDate="2026-03-08" 
-                modifiedDate="2026-03-08" 
+                modifiedDate="2026-11-20" 
                 author="Vinay Kumar" 
                 faqItems={[
-                    {question: "What is the H-1B weighted selection process?", answer: "Starting with the FY 2027 cap season, USCIS uses a weighted system that favors higher-skilled and higher-paid beneficiaries rather than a purely random lottery, prioritizing Level 4 and Level 3 wages."}, 
-                    {question: "Has the FY 2027 H-1B cap been reached?", answer: "Yes, USCIS confirmed that it received enough electronic registrations during the initial period to reach the FY 2027 numerical allocations, including the master's cap."} 
+                    {question: "What is the H-1B weighted selection process?", answer: "Since the FY 2027 cap season, USCIS weights the H-1B lottery by wage level. A level IV registration is entered four times, level III three times, level II twice and level I once. Every level is in the same pool."}, 
+                    {question: "Has the FY 2027 H-1B cap been reached?", answer: "Yes. USCIS announced on July 17, 2026 that it had received enough petitions to reach the 65,000 regular cap and the 20,000 master's cap for FY 2027."} 
                 ]} 
             />
             
@@ -61,9 +61,9 @@ export default function H1BWeightedSelectionArticle() {
                     FY 2027 H-1B Weighted Selection Process Explained (2026 Update)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                    The H-1B lottery is no longer purely random. This article is for employers and international professionals navigating the new wage-based selection system implemented for the FY 2027 season.
+                    The H-1B lottery is no longer purely random. Since FY 2027, a higher wage level means more entries. Here is how it works and what it means for OPT students.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: March 8, 2026 • Written by Vinay Kumar</div>
+                <div className="mt-6 text-sm text-gray-500">Published: March 8, 2026 • Updated: November 20, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <Image
@@ -75,13 +75,13 @@ export default function H1BWeightedSelectionArticle() {
                 className="w-full h-[400px] object-cover rounded-xl border border-border shadow-card" 
             />
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
-                The new H-1B weighted selection process prioritizes candidates with higher wage levels.
+                The weighted selection process gives more entries to higher wage levels.
             </figcaption>
 
             <div className="border rounded-xl p-6 mb-10 border-primary-muted bg-primary-soft">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    USCIS has shifted away from a pure lottery. The new weighted selection system prioritizes registrations based on the OES wage level that the offered wage equals or exceeds. Higher-paid workers at Level 3 and 4 wages now have statistically massive advantages over entry-level applicants.
+                    USCIS still runs a lottery, but it is weighted. Each registration gets one to four entries, based on the highest OEWS wage level that the offered wage equals or exceeds: four at level IV, three at level III, two at level II and one at level I. Every level can be selected. Higher levels have better odds.
                 </p>
             </div>
 
@@ -105,18 +105,22 @@ export default function H1BWeightedSelectionArticle() {
                         How the Weighted Selection Works
                     </h2>
                     <p>
-                        As of February 27, 2026, a new rule went into effect altering how <a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">USCIS</a> selects H-1B registrations. Under this <strong>weighted selection process</strong>, USCIS ranks and selects registrations based on the Occupational Employment Statistics (OES) wage level that the proffered wage equals or exceeds.
+                        A <a href="https://www.govinfo.gov/content/pkg/FR-2025-12-29/html/2025-23853.htm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">final rule</a> took effect on February 27, 2026 and changed how <a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations/h-1b-cap-season" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">USCIS</a> selects H-1B registrations. Selection is still random, but it is <strong>weighted</strong> by the Occupational Employment and Wage Statistics (OEWS) wage level that the offered wage equals or exceeds.
                     </p>
                     <p>
-                        Based on initial estimates, this creates a staggered selection probability:
+                        Each registration goes into one pool. The wage level sets how many times it is entered:
                     </p>
                     <ul>
-                        <li><strong>Level 4 and Level 3 wages:</strong> Highest priority. Projected to receive near <strong>100%</strong> selection rates.</li>
-                        <li><strong>Level 2 wages:</strong> Selected if allocations remain after higher levels are exhausted. Estimated selection rates drop to roughly <strong>45% to 60%</strong>.</li>
-                        <li><strong>Level 1 wages:</strong> Entry-level positions face the steepest competition. Statistical probability of selection is anticipated to fall below <strong>15%</strong>.</li>
+                        <li><strong>Level IV:</strong> 4 entries. DHS projected a <strong>61.16%</strong> chance of selection.</li>
+                        <li><strong>Level III:</strong> 3 entries. Projected <strong>45.87%</strong>.</li>
+                        <li><strong>Level II:</strong> 2 entries. Projected <strong>30.58%</strong>.</li>
+                        <li><strong>Level I:</strong> 1 entry. Projected <strong>15.29%</strong>.</li>
                     </ul>
                     <p>
-                        The goal of this policy shift is to ensure that the H-1B program is utilized to recruit the highest-skilled and highest-paid international talent, protecting the American labor market from wage undercutting.
+                        These are the projections DHS gave in the final rule, not results. Under the old random selection it estimated 29.59% for everyone. No level is guaranteed and no level is shut out. Each person counts once toward the cap, however many entries they have.
+                    </p>
+                    <p>
+                        DHS says the goal is to favor higher-skilled and higher-paid workers while keeping the program open to every wage level.
                     </p>
                 </section>
 
@@ -130,11 +134,11 @@ export default function H1BWeightedSelectionArticle() {
                             Allocations Exhausted
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">
-                            USCIS has confirmed that it received enough electronic registrations during the initial period to reach the FY 2027 H-1B numerical allocations (which includes the <strong>65,000</strong> regular cap and the <strong>20,000</strong> master's cap).
+                            On July 17, 2026, <a href="https://www.uscis.gov/newsroom/alerts/uscis-reaches-fiscal-year-2027-h-1b-cap" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">USCIS announced</a> that it had received enough petitions to reach the <strong>65,000</strong> regular cap and the <strong>20,000</strong> master's cap for FY 2027.
                         </p>
                     </div>
                     <p>
-                        Because the cap was reached, the new weighted system was fully utilized to conduct the selection. Employers whose registrations were selected have been notified to proceed with submitting the full I-129 petition.
+                        Registration ran from March 4 to 19, 2026. USCIS finished the weighted selection by March 31, and employers with selected registrations could file petitions from April 1. USCIS has not published selection rates by wage level. For next season, see the <Link href="/blog/h1b-lottery-2027-fy2028" className="text-blue-600 dark:text-blue-400 hover:underline">H-1B lottery 2027 (FY2028) guide</Link>.
                     </p>
                 </section>
 
@@ -145,26 +149,26 @@ export default function H1BWeightedSelectionArticle() {
                             What This Means for International Students
                         </h2>
                         <p className="text-amber-800 dark:text-amber-200 font-medium text-sm mb-3">
-                            For recent graduates on OPT, this makes the transition to H-1B significantly more challenging. Because over <strong>75%</strong> of recent graduates enter the workforce at Level 1 or Level 2 wages, their statistical probability of selection is now lower than experienced professionals.
+                            For recent graduates on OPT, this makes the move to H-1B harder. Many new graduates start at level I or level II wages, so they get one or two entries where an experienced professional gets three or four.
                         </p>
                         <p className="text-amber-800 dark:text-amber-200 text-sm">
-                            <strong>Action Item:</strong> Focus heavily on maximizing your STEM OPT extension, negotiating higher starting salaries if possible, or looking into cap-exempt employers (universities, non-profit research organizations) where the weighted lottery does not apply.
+                            <strong>Action item:</strong> Use your STEM OPT extension for more tries, ask what salary and wage level your registration will state, and look at cap-exempt employers (universities, nonprofit research organizations), where the lottery does not apply.
                         </p>
                     </div>
                     
                     {/* Practical Tool */}
-                    <div className="mt-8 p-6 border rounded-xl flex items-center justify-between border-primary-muted bg-primary-soft">
+                    <div className="mt-8 p-6 border rounded-xl flex flex-wrap items-center justify-between gap-4 border-primary-muted bg-primary-soft">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
-                                H-1B Cap-Exempt Employer Database
+                                Cap-exempt employers skip the lottery
                             </h3>
                             <p className="text-sm text-blue-800 dark:text-blue-200 mb-0">
-                                Download our list of over 500 cap-exempt organizations that bypass the lottery entirely.
+                                Universities, their nonprofit affiliates and nonprofit or government research organizations can file at any time of year.
                             </p>
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap shadow-button">
-                            Download CSV
-                        </button>
+                        <Link href="/blog/find-cap-exempt-h1b-employers" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap shadow-button no-underline">
+                            How to find them
+                        </Link>
                     </div>
                 </section>
 
@@ -172,8 +176,8 @@ export default function H1BWeightedSelectionArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { question: "What is the H-1B weighted selection process?", answer: "Starting with the FY 2027 cap season, USCIS uses a weighted system that favors higher-skilled and higher-paid beneficiaries rather than a purely random lottery, specifically prioritizing OES Level 4 and Level 3 wages." },
-                            { question: "Will Level 1 wage earners still get selected?", answer: "Yes, but at a significantly lower rate. If the demand for Level 2, 3, and 4 wages fills the 85,000 cap, no Level 1 wage earners will be selected." },
+                            { question: "What is the H-1B weighted selection process?", answer: "Since the FY 2027 cap season, USCIS weights the H-1B lottery by OEWS wage level. A level IV registration is entered four times, level III three times, level II twice and level I once. Every level is in the same pool." },
+                            { question: "Will level I wage earners still get selected?", answer: "Yes. Level I registrations are in the same pool with one entry each. DHS projected a 15.29% chance at level I. In FY 2027, 17.7% of selected registrations were at level I, according to the law firm Fragomen's report of USCIS figures." },
                             { question: "Does this affect cap-exempt H-1B petitions?", answer: "No. The weighted selection process only applies to the H-1B cap lottery. Cap-exempt employers, such as universities and non-profit research institutes, are unaffected." },
                         ].map((faq, i) => (
                             <div key={i} className="border p-5 rounded-xl border-border bg-card shadow-card">
@@ -187,10 +191,10 @@ export default function H1BWeightedSelectionArticle() {
                 <section id="conclusion" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Conclusion & Action Steps</h2>
                     <p>
-                        The implementation of the weighted selection process permanently changes the H-1B landscape. High-wage earners have a clear, predictable path, while entry-level graduates must rely heavily on STEM OPT extensions or cap-exempt routes. 
+                        The implementation of the weighted selection process permanently changes the H-1B landscape. Higher wage levels have better odds, but no level is guaranteed. Entry-level graduates should plan for more than one try, using STEM OPT or cap-exempt routes.
                     </p>
                     <p>
-                        <strong>Next Step:</strong> Review your current OES wage level using the Foreign Labor Certification Data Center, and discuss with your employer whether a promotion or wage increase before the next lottery season is feasible.
+                        <strong>Next step:</strong> Look up your OEWS wage level with the Labor Department's <a href="https://flag.dol.gov/wage-data/wage-search" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">OFLC Wage Search</a>, then ask your employer what salary and wage level the registration will state. Our <Link href="/blog/h1b-wage-level-by-zip-code-salary" className="text-blue-600 dark:text-blue-400 hover:underline">wage level lookup guide</Link> walks through it.
                     </p>
                 </section>
             </div>
@@ -199,6 +203,7 @@ export default function H1BWeightedSelectionArticle() {
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Updates</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/h1b-lottery-2027-fy2028" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Lottery 2027 (FY2028): Dates, Fee and Odds</Link>
                     <Link href="/blog/dhs-proposes-103265-h1b-fee-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ $103,265 H-1B Fee Proposal: What It Means</Link>
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company</Link>
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The OPT to H-1B Transition Guide</Link>

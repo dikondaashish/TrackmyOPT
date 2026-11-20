@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 export default function EmployerRefusesI983Page() {
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-07-27" modifiedDate="2026-07-27" author="TrackMyOPT Immigration Team" canonicalUrl={CANONICAL} />
+      <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-07-27" modifiedDate="2026-11-20" author="TrackMyOPT Immigration Team" canonicalUrl={CANONICAL} />
       <BreadcrumbSchema items={[{ name: "Home", url: "https://www.trackmyopt.com" }, { name: "Blog", url: "https://www.trackmyopt.com/blog" }, { name: "Employer Refuses Form I-983", url: CANONICAL }]} />
 
       <header className="mb-10">
@@ -57,7 +57,7 @@ export default function EmployerRefusesI983Page() {
           <span>•</span>
           <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 12 min read</span>
           <span>•</span>
-          <span>Updated July 27, 2026</span>
+          <span>Updated November 20, 2026</span>
         </div>
       </header>
 
@@ -128,7 +128,7 @@ export default function EmployerRefusesI983Page() {
           <ul className="space-y-2 my-4">
             {[
               "A brief explanation of STEM OPT and the purpose of Form I-983",
-              "The specific sections the employer needs to complete (Sections 2–5 and the signatures)",
+              "The sections the employer completes: Section 3, the signatures in Sections 4 and 6, and the training plan in Section 5 with you",
               "A link to the DHS Form I-983 overview page for official reference",
               "The DHS STEM OPT reporting requirements PDF as context",
               "A specific deadline by which you need the form completed (10 days from the training end date or before your start date)",
@@ -157,9 +157,9 @@ export default function EmployerRefusesI983Page() {
             at your company, including learning objectives, supervision, and compensation. 
             The employer&apos;s obligations under this form are outlined in the DHS STEM OPT 
             guidance at: [DHS link]<br /><br />
-            I have attached the form. The sections that require employer completion are Sections
-            2 through 5 and the employer signature in Section 5. The deadline for this form to
-            be submitted to my university is [date].<br /><br />
+            I have attached the form. The employer completes Section 3 and signs Section 4.
+            We complete the training plan in Section 5 together, and an employer official signs
+            Section 6. The deadline for this form to be submitted to my university is [date].<br /><br />
             Please let me know who the authorized signatory will be, and feel free to contact
             my DSO at [DSO email and phone] if you have questions about the requirements.<br /><br />
             Thank you for your prompt attention to this matter.
