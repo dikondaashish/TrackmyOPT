@@ -1,0 +1,30 @@
+{
+  "slug": "fingerprints-were-taken-uscis-status-i765",
+  "chip": "USCIS TRACKING",
+  "headline": [
+    "\"Fingerprints",
+    "Were Taken\":",
+    "What Next?"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "A checkpoint, not a decision. Most",
+    "I-765 cases never show it."
+  ],
+  "stats": [
+    {
+      "value": "7 days",
+      "label": "RECEIPT TO NOTICE"
+    },
+    {
+      "value": "125 days",
+      "label": "NOTICE TO APPROVAL"
+    },
+    {
+      "value": "1,980",
+      "label": "TRACKED CASES"
+    }
+  ],
+  "footer": "5 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

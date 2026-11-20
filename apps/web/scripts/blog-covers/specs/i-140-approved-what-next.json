@@ -1,0 +1,30 @@
+{
+  "slug": "i-140-approved-what-next",
+  "chip": "GREEN CARD",
+  "headline": [
+    "I-140 Approved:",
+    "What Happens",
+    "Next?"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Priority date, H-1B extensions,",
+    "layoffs and premium processing."
+  ],
+  "stats": [
+    {
+      "value": "15",
+      "label": "BUSINESS DAYS, MOST"
+    },
+    {
+      "value": "45",
+      "label": "EB-1C AND NIW"
+    },
+    {
+      "value": "180",
+      "label": "DAY RULE ON WITHDRAWAL"
+    }
+  ],
+  "footer": "6 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

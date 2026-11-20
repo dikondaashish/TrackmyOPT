@@ -1,0 +1,30 @@
+{
+  "slug": "travel-while-opt-pending",
+  "chip": "TRAVEL",
+  "headline": [
+    "Travel While",
+    "OPT Is Pending:",
+    "Rules and Risks"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Allowed, with caution. What can go",
+    "wrong and what to carry."
+  ],
+  "stats": [
+    {
+      "value": "7 days",
+      "label": "MEDIAN TO BIOMETRICS"
+    },
+    {
+      "value": "EAD",
+      "label": "NEEDED IF APPROVED"
+    },
+    {
+      "value": "I-797C",
+      "label": "CARRY THE RECEIPT"
+    }
+  ],
+  "footer": "6 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

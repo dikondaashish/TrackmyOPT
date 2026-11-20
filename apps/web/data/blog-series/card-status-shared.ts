@@ -79,6 +79,61 @@ export const statusSources = {
     publisher: 'United States Postal Service',
     url: 'https://www.usps.com/help/missing-mail.htm',
   },
+  biometrics: {
+    label: 'Preparing for Your Biometric Services Appointment',
+    publisher: 'USCIS',
+    url: 'https://www.uscis.gov/forms/filing-guidance/preparing-for-your-biometric-services-appointment',
+  },
+  stemBridge: {
+    label: '8 CFR 274a.12(b)(6)(iv): STEM OPT extension pending',
+    publisher: 'eCFR',
+    url: 'https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-274a/subpart-B/section-274a.12',
+  },
+  i9Students: {
+    label: 'Handbook for Employers M-274, 7.4.2: F-1 and M-1 Nonimmigrant Students',
+    publisher: 'USCIS',
+    url: 'https://www.uscis.gov/i-9-central/form-i-9-resources/handbook-for-employers-m-274/70-evidence-of-employment-authorization-for-certain-categories/74-exchange-visitors-and-students/742-f-1-and-m-1-nonimmigrant-students',
+  },
+  sevpTravel: {
+    label: 'Travel: Re-entry for F-1 Nonimmigrants',
+    publisher: 'ICE SEVP',
+    url: 'https://www.ice.gov/sevis/travel',
+  },
+  berkeleyTravel: {
+    label: 'Travel and Re-entry to the U.S. While on OPT',
+    publisher: 'Berkeley International Office',
+    url: 'https://internationaloffice.berkeley.edu/students/employment/opt/travel',
+  },
+  h1b: {
+    label: 'H-1B Specialty Occupations',
+    publisher: 'USCIS',
+    url: 'https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations',
+  },
+  cfrH: {
+    label: '8 CFR 214.2(h): H-1B portability, extensions beyond six years, H-4 employment',
+    publisher: 'eCFR',
+    url: 'https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-214/subpart-A/section-214.2',
+  },
+  cfr240: {
+    label: '8 CFR 274a.12(b)(20): 240-day rule for timely filed extensions',
+    publisher: 'eCFR',
+    url: 'https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-274a/subpart-B/section-274a.12',
+  },
+  priorityDate: {
+    label: '8 CFR 204.5(d) and (e): priority dates and retention',
+    publisher: 'eCFR',
+    url: 'https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-204/subpart-A/section-204.5',
+  },
+  revocation: {
+    label: '8 CFR 205.1: automatic revocation and the 180-day rule',
+    publisher: 'eCFR',
+    url: 'https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-205/section-205.1',
+  },
+  visaBulletin: {
+    label: 'Visa Bulletin',
+    publisher: 'U.S. Department of State',
+    url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html',
+  },
   asu: {
     label: 'EAD card guidance for OPT students',
     publisher: 'Arizona State University ISSC',
