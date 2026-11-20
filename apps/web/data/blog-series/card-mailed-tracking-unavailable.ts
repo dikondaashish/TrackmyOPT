@@ -74,6 +74,13 @@ export const cardMailedTrackingGuide: ResearchArticle = defineArticle({
     },
     {
       heading: 'Three ways to find the card without a number',
+      figure: {
+        src: '/blog/illustrations/card-was-mailed-tracking-number-unavailable.webp',
+        alt: 'Painted illustration of a hand placing a white envelope into a row of brass apartment mailboxes.',
+        caption: 'The card goes to the mailing address USCIS has on file. Illustration generated with AI.',
+        width: 1200,
+        height: 675,
+      },
       paragraphs: [
         'You do not need the number to locate the envelope.',
       ],

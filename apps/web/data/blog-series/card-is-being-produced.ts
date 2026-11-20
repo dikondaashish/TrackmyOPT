@@ -101,6 +101,13 @@ export const cardIsBeingProducedGuide: ResearchArticle = defineArticle({
     },
     {
       heading: 'Four things to do while you wait',
+      figure: {
+        src: '/blog/illustrations/card-is-being-produced-how-long.webp',
+        alt: 'Painted illustration of a blank card on a card printer tray beside a stack of white envelopes on a wooden desk.',
+        caption: 'After approval the card is printed, then mailed. Illustration generated with AI.',
+        width: 1200,
+        height: 675,
+      },
       paragraphs: [
         'The card goes to the mailing address USCIS has on file. Most late cards trace back to an address problem, so fix that first.',
       ],

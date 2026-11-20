@@ -97,6 +97,13 @@ export const optExpediteRequestGuide: ResearchArticle = defineArticle({
     },
     {
       heading: 'Other ways to move a slow OPT case',
+      figure: {
+        src: '/blog/illustrations/opt-expedite-request-i765.webp',
+        alt: 'Painted illustration of an hourglass on an office desk beside a stack of folders and a closed laptop.',
+        caption: 'Waiting on a pending OPT case. Illustration generated with AI.',
+        width: 1200,
+        height: 675,
+      },
       paragraphs: [
         'These cost nothing. None of them is a promise of a faster decision.',
       ],

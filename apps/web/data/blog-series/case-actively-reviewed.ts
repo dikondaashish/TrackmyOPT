@@ -106,6 +106,13 @@ export const caseActivelyReviewedGuide: ResearchArticle = defineArticle({
     },
     {
       heading: 'What to do while it sits',
+      figure: {
+        src: '/blog/illustrations/case-is-being-actively-reviewed-uscis-meaning.webp',
+        alt: 'Painted illustration of a long row of paper folders on a shelf with one pulled halfway out, beside a lamp and an empty chair.',
+        caption: 'One case among many in line. Illustration generated with AI.',
+        width: 1200,
+        height: 675,
+      },
       paragraphs: [
         'You cannot speed this stage by calling. These steps keep you ready.',
       ],

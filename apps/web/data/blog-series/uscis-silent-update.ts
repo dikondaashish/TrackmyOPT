@@ -44,6 +44,13 @@ export const uscisSilentUpdateGuide: ResearchArticle = defineArticle({
   sections: [
     {
       heading: 'What people mean by a silent update',
+      figure: {
+        src: '/blog/illustrations/uscis-silent-update-api-update-meaning.webp',
+        alt: 'Painted illustration of an open laptop on a wooden desk by a window at dusk, with tea, a notebook and a plant.',
+        caption: 'A silent update changes a date, not the status message. Illustration generated with AI.',
+        width: 1200,
+        height: 675,
+      },
       paragraphs: [
         'USCIS shows one short status message per case. Behind that message the case record also carries dates. Some apps and browser tools read those dates and show a "last updated" value.',
         'When that value changes and the message does not, applicants call it a silent update. "API update" is the same thing, named after the data feed the tools read.',
