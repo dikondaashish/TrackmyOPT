@@ -5,6 +5,7 @@ import { decemberBulletinArticles } from './visa-bulletin-december-2026';
 import { sevisDsoExplainers } from './sevis-dso-explainers';
 import { week4Guides } from './week-4-guides';
 import { backlogGuidesNovember2026 } from './backlog-guides-2026-11';
+import { statusMessageGuidesNovember2026 } from './status-message-guides-2026-11';
 import { dataResearchArticles } from './data-research';
 import { statusAndEmploymentArticles } from './status-and-employment';
 import { taxArticles } from './tax';
@@ -14,6 +15,7 @@ import type { ResearchArticle } from './types';
 
 /** Served by `app/blog/[slug]` — exclude articles that have their own static page.tsx */
 export const researchArticles: ResearchArticle[] = [
+  ...statusMessageGuidesNovember2026,
   ...trackingGuides,
   ...decemberBulletinArticles,
   ...sevisDsoExplainers,

@@ -1,0 +1,30 @@
+{
+  "slug": "uscis-silent-update-api-update-meaning",
+  "chip": "USCIS TRACKING",
+  "headline": [
+    "USCIS Silent",
+    "Update:",
+    "What It Means"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "A date changed, the status did not.",
+    "What that can and cannot tell you."
+  ],
+  "stats": [
+    {
+      "value": "Date",
+      "label": "WHAT CHANGED"
+    },
+    {
+      "value": "Status",
+      "label": "WHAT DID NOT"
+    },
+    {
+      "value": "Notice",
+      "label": "WHAT MATTERS"
+    }
+  ],
+  "footer": "5 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

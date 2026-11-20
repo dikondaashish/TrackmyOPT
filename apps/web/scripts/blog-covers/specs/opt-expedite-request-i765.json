@@ -1,0 +1,30 @@
+{
+  "slug": "opt-expedite-request-i765",
+  "chip": "WAITING ON USCIS",
+  "headline": [
+    "OPT Expedite",
+    "Request:",
+    "What Works"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "USCIS will not consider it where",
+    "premium processing is available."
+  ],
+  "stats": [
+    {
+      "value": "$0",
+      "label": "EXPEDITE REQUEST"
+    },
+    {
+      "value": "$1,780",
+      "label": "PREMIUM PROCESSING"
+    },
+    {
+      "value": "30",
+      "label": "BUSINESS DAYS"
+    }
+  ],
+  "footer": "6 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

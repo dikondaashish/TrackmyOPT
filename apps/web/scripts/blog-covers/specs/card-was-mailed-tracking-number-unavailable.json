@@ -1,0 +1,30 @@
+{
+  "slug": "card-was-mailed-tracking-number-unavailable",
+  "chip": "USCIS TRACKING",
+  "headline": [
+    "Card Was Mailed,",
+    "No Tracking",
+    "Number?"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Where the number appears and how",
+    "to find the card without it."
+  ],
+  "stats": [
+    {
+      "value": "Account",
+      "label": "USCIS ONLINE"
+    },
+    {
+      "value": "USPS",
+      "label": "INFORMED DELIVERY"
+    },
+    {
+      "value": "Day 7",
+      "label": "MISSING MAIL SEARCH"
+    }
+  ],
+  "footer": "5 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}
