@@ -138,6 +138,10 @@ export const h1bWageLevelsExplainedOptArticle = platformGap({
   ],
   related: [
     {
+      label: 'Find your H-1B wage level from your salary and location',
+      href: '/blog/h1b-wage-level-by-zip-code-salary',
+    },
+    {
       label: 'OPT to H-1B transition',
       href: '/blog/opt-to-h1b-transition',
     },

@@ -1,0 +1,30 @@
+{
+  "slug": "h1b-lottery-2027-fy2028",
+  "chip": "H-1B",
+  "headline": [
+    "H-1B Lottery 2027",
+    "(FY2028): Dates,",
+    "Fee and Odds"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "When registration opens, what it",
+    "costs and the odds by wage level."
+  ],
+  "stats": [
+    {
+      "value": "$215",
+      "label": "FY2027 FEE"
+    },
+    {
+      "value": "1 to 4",
+      "label": "ENTRIES BY LEVEL"
+    },
+    {
+      "value": "March",
+      "label": "LAST 3 REGISTRATIONS"
+    }
+  ],
+  "footer": "6 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

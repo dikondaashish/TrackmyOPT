@@ -1,0 +1,30 @@
+{
+  "slug": "1040-nr-deadline-2027",
+  "chip": "TAXES",
+  "headline": [
+    "1040-NR Deadline",
+    "2027 for F-1 and",
+    "OPT Students"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Filing dates for tax year 2026,",
+    "Form 8843 and extensions."
+  ],
+  "stats": [
+    {
+      "value": "Apr 15",
+      "label": "WITH U.S. WAGES"
+    },
+    {
+      "value": "Jun 15",
+      "label": "NO U.S. WAGES"
+    },
+    {
+      "value": "6 months",
+      "label": "EXTENSION TO FILE"
+    }
+  ],
+  "footer": "6 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}

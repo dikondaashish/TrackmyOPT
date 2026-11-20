@@ -1,0 +1,30 @@
+{
+  "slug": "form-i-983-sample-answers",
+  "chip": "STEM OPT",
+  "headline": [
+    "Form I-983",
+    "Sample Answers",
+    "and Evaluations"
+  ],
+  "accentLine": 1,
+  "subtitle": [
+    "Section 5, the 12-month evaluation",
+    "and the final evaluation."
+  ],
+  "stats": [
+    {
+      "value": "4",
+      "label": "SECTION 5 BOXES"
+    },
+    {
+      "value": "2",
+      "label": "EVALUATIONS"
+    },
+    {
+      "value": "10 days",
+      "label": "EACH DEADLINE"
+    }
+  ],
+  "footer": "7 min read  |  November 20, 2026  |  Vinay Kumar",
+  "lang": "en"
+}
