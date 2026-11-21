@@ -5,8 +5,6 @@ vi.mock('@sentry/nextjs', () => ({ captureException: m.capture }));
 
 import {
   checkOracleFilingsHealth,
-  hasSupabaseFilingsFallback,
-  isOracleFilingsStoreSelected,
   listOracleFilings,
   reportOracleFilingsFailure,
 } from './filings-store';
@@ -20,23 +18,6 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
-});
-
-describe('filings store selection', () => {
-  it('selects Oracle only on an explicit opt-in', () => {
-    vi.stubEnv('H1B_FILINGS_STORE', '');
-    expect(isOracleFilingsStoreSelected()).toBe(false);
-    vi.stubEnv('H1B_FILINGS_STORE', 'oracle');
-    expect(isOracleFilingsStoreSelected()).toBe(true);
-  });
-
-  it('offers the Supabase fallback only when fully configured', () => {
-    vi.stubEnv('SUPABASE_FILINGS_URL', 'https://filings.example.test');
-    vi.stubEnv('SUPABASE_FILINGS_SERVICE_ROLE_KEY', '');
-    expect(hasSupabaseFilingsFallback()).toBe(false);
-    vi.stubEnv('SUPABASE_FILINGS_SERVICE_ROLE_KEY', 'synthetic');
-    expect(hasSupabaseFilingsFallback()).toBe(true);
-  });
 });
 
 describe('listOracleFilings', () => {
@@ -93,10 +74,8 @@ describe('health and reporting', () => {
   });
 
   it('reports failures with a fixed, data-free message', () => {
-    reportOracleFilingsFailure('profile', true);
+    reportOracleFilingsFailure('profile');
     const error = m.capture.mock.calls[0][0] as Error;
-    expect(error.message).toBe(
-      'H-1B filings Oracle profile read failed; served from Supabase fallback'
-    );
+    expect(error.message).toBe('H-1B filings Oracle profile read failed');
   });
 });

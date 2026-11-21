@@ -6,19 +6,6 @@ export type FilingRecord = Record<string, unknown>;
 
 const ORACLE_TIMEOUT_MS = 8_000;
 
-/** True only when an explicit opt-in serves filings from the Oracle copy. */
-export function isOracleFilingsStoreSelected() {
-  return process.env.H1B_FILINGS_STORE === "oracle";
-}
-
-/** The Supabase filings project remains a fallback while it is configured. */
-export function hasSupabaseFilingsFallback() {
-  return Boolean(
-    process.env.SUPABASE_FILINGS_URL &&
-      process.env.SUPABASE_FILINGS_SERVICE_ROLE_KEY
-  );
-}
-
 function apiConfiguration() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   const apiKey = process.env.API_SECRET_KEY;
@@ -64,18 +51,9 @@ export async function checkOracleFilingsHealth() {
   );
 }
 
-/**
- * Report an Oracle read failure without applicant data. Called even when the
- * request still succeeds through the Supabase fallback, so the degraded path
- * is visible in Sentry.
- */
-export function reportOracleFilingsFailure(
-  stage: "profile" | "health",
-  fallback: boolean
-) {
+/** Report an Oracle read failure without applicant data. */
+export function reportOracleFilingsFailure(stage: "profile" | "health") {
   Sentry.captureException(
-    new Error(
-      `H-1B filings Oracle ${stage} read failed${fallback ? "; served from Supabase fallback" : ""}`
-    )
+    new Error(`H-1B filings Oracle ${stage} read failed`)
   );
 }
