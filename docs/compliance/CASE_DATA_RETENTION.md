@@ -22,6 +22,18 @@ not counsel's certification of the USCIS agreement or every applicable law.
 | Ordinary deletion email block | Do not create it; remove an existing block with reason `account_deleted`. Other fraud/security blocks are unaffected. |
 | Daily service counts | Keep only UTC day and allowed/blocked/success/failure totals. No receipts, users, status text, decision dates, nationality, or event-level identifiers. No historical backfill. |
 
+## Age-based operational retention
+
+A daily pg_cron job (`purge_expired_operational_rows`, 04:30 UTC, migration
+`20261121230000_operational_row_retention.sql`) removes old operational rows:
+
+| Table | Kept |
+| --- | --- |
+| `uscis_check_log`, `uscis_api_audit` | 30 days |
+| `case_check_jobs` | 30 days, every unfinished job, and each case's newest job |
+| `ingestion_audit_log` | 30 days, every `started` row, and the newest row per source and status |
+| `opt_case_observations` | 15 days in full; older rows only the first and last per case and evidence, plus the last per week |
+
 The database triggers protect direct SQL/Auth deletion and alternate callers;
 the shared account cleanup helper also covers the web endpoint and admin script.
 Case-trigger cleanup is transactional: a database failure rolls back the case
