@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know (2026)",
     description: "Day 1 CPT vs OPT comparison for F-1 students. Understand the differences in eligibility, work authorization, risks, and long-term immigration impact. Make an informed decision.",
@@ -59,6 +60,8 @@ export default function Day1CPTArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="opt-apply" sourcePage="/blog/day-1-cpt-vs-opt" placement="top" />
+
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Quick Comparison: Day 1 CPT vs OPT</h2>
                     <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
@@ -166,11 +169,7 @@ export default function Day1CPTArticle() {
             </div>
 
             <AuthorBio />
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Choosing OPT? Track Every Day That Matters</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT helps you manage OPT deadlines, unemployment days, and H-1B transition — all in one place.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
-            </div>
+            <BlogProductCTA variant="opt-apply" sourcePage="/blog/day-1-cpt-vs-opt" placement="bottom" />
         </article>
     );
 }

@@ -1,19 +1,13 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  Globe2,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, ExternalLink } from 'lucide-react';
 import { AuthorBio } from '@/components/blog/AuthorBio';
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
+import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 
 const CANONICAL =
   'https://www.trackmyopt.com/blog/f1-visa-interview-country-of-residence-rule-2026';
@@ -205,6 +199,8 @@ export default function F1VisaInterviewCountryRulePage() {
       </nav>
 
       <div className="prose prose-lg prose-longform dark:prose-invert max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400">
+        <BlogProductCTA variant="dashboard" sourcePage="/blog/f1-visa-interview-country-of-residence-rule-2026" placement="top" />
+
         <section id="rule" className="scroll-mt-24">
           <h2>What Does the 2026 F-1 Visa Interview Country Rule Say?</h2>
           <p>
@@ -515,27 +511,7 @@ export default function F1VisaInterviewCountryRulePage() {
           </p>
         </section>
 
-        <section className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
-          <div className="flex items-start gap-4">
-            <Globe2 className="w-9 h-9 text-ink-muted flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-3 mt-0">
-                Travel With an Organized OPT Record
-              </h2>
-              <p className="text-ink-muted mb-6 text-lg">
-                TrackMyOPT helps students monitor employment, unemployment days,
-                reporting milestones, and immigration documents before travel
-                creates a deadline emergency.
-              </p>
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-              >
-                Create Your Free Account <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <BlogProductCTA variant="dashboard" sourcePage="/blog/f1-visa-interview-country-of-residence-rule-2026" placement="bottom" />
 
         <section className="text-sm">
           <h2>Official Sources</h2>

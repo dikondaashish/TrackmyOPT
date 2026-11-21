@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, ArrowRight, MessageSquare, ShieldAlert } from "lucide-react";
+import { Clock, ShieldAlert } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const PAGE_TITLE = "Will You Require Sponsorship? OPT Sample Answers";
 const PAGE_DESCRIPTION = "How to answer \"Will you now or in the future require sponsorship?\" on OPT or STEM OPT, with truthful sample answers and a recruiter phone-screen script.";
@@ -201,6 +202,8 @@ export default function SponsorshipQuestionGuide() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/how-to-answer-sponsorship-question" placement="top" />
+
                 <section id="question-types" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         The Two Types of Sponsorship Questions
@@ -383,25 +386,7 @@ export default function SponsorshipQuestionGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-600 rounded-lg">
-                                <MessageSquare className="w-6 h-6 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-bold">Find H-1B Friendly Employers</h3>
-                        </div>
-                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
-                            Spend your applications on employers that can work with your timeline. Use TrackMyOPT to research E-Verify employers and historical H-1B sponsors.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-                        >
-                            Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
-                        </Link>
-                    </div>
-                </div>
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/how-to-answer-sponsorship-question" placement="bottom" />
             </div>
 
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

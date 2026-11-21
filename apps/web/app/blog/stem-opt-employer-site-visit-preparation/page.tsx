@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/stem-opt-employer-site-visit-preparation";
 
@@ -79,6 +80,8 @@ export default function StemOptEmployerSiteVisitPage() {
       </div>
 
       <div className="prose prose-lg dark:prose-invert max-w-none">
+
+        <BlogProductCTA variant="stem-opt" sourcePage="/blog/stem-opt-employer-site-visit-preparation" placement="top" />
 
         <h2>What Are SEVP/ICE Site Visits?</h2>
         <p>
@@ -424,6 +427,8 @@ export default function StemOptEmployerSiteVisitPage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="stem-opt" sourcePage="/blog/stem-opt-employer-site-visit-preparation" placement="bottom" />
 
       <AuthorBio />
     </article>

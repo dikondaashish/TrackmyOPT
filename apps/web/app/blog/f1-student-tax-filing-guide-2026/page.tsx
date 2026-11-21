@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, DollarSign } from "lucide-react";
+import { Clock, DollarSign } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "F-1 Student Tax Filing Guide 2026: Forms, Deadlines & Step-by-Step",
@@ -132,6 +133,8 @@ export default function F1TaxFilingArticle() {
 
             {/* Content */}
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="tax" sourcePage="/blog/f1-student-tax-filing-guide-2026" placement="top" />
 
                 <section id="do-f1-pay" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -466,15 +469,7 @@ export default function F1TaxFilingArticle() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Calculate Your Tax Obligation Free</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Use TrackMyOPT's Tax Calculator to estimate your federal, state, and FICA obligations based on your specific situation.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Calculate Your Tax Obligation <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="tax" sourcePage="/blog/f1-student-tax-filing-guide-2026" placement="bottom" />
 
 
         </article>

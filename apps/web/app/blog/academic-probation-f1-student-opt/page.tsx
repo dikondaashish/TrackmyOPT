@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Academic Probation on an F-1 Visa: Will It Ruin Your OPT? | TrackMyOPT",
@@ -69,6 +70,8 @@ export default function AcademicProbationPage() {
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">
                     US universities have strict academic standards. If your cumulative GPA falls below a certain threshold (usually 2.0 for undergraduates and 3.0 for graduate students), you will receive a formal letter from your dean placing you on <strong>Academic Probation</strong>. For international students, this triggers a wave of panic: Will I lose my visa? Will this show up on my OPT application?
                 </p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/academic-probation-f1-student-opt" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Does Academic Probation Cancel Your Visa?</h2>
                 <p>
@@ -143,22 +146,7 @@ export default function AcademicProbationPage() {
             </div>
 
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Maintain Your Status, No Matter What
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    TrackMyOPT is designed to keep you organized from your first day of class to your final day of OPT. Use free OPT/STEM calculators and clocks, and Pro daily USCIS auto-checks when you need automated case monitoring.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Your TrackMyOPT Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/academic-probation-f1-student-opt" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

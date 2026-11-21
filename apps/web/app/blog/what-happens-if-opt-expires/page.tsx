@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "What Happens If Your OPT Expires? Next Steps & Options (2026)",
     description: "Your OPT is expiring or expired — what now? Learn about the 60-day grace period, STEM OPT extension, H-1B cap-gap, and what happens to your F-1 status when OPT ends.",
@@ -77,6 +78,8 @@ export default function OPTExpiresArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/what-happens-if-opt-expires" placement="top" />
 
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -169,13 +172,7 @@ export default function OPTExpiresArticle() {
                 </div>
             </div>
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Don't Let Your OPT Deadlines Sneak Up</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT sends automated alerts 90, 60, and 30 days before your OPT expires.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Set Up Alerts Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/what-happens-if-opt-expires" placement="bottom" />
 
         </article>
     );

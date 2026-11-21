@@ -25,7 +25,7 @@ export const taxArticles = [
     category: 'F-1 Taxes',
     tags: ['Form 8843', 'Zero Income', 'Nonresident Alien', 'F-1'],
     readTime: '9 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       'An F-1 student who is treated as an exempt individual for the substantial presence test generally files Form 8843 to explain the days excluded from that test—even with no income and no Form 1040-NR requirement. Each F-2 dependent generally files a separate Form 8843. If you file 1040-NR, attach it; if Form 8843 is the only form, mail it to the address in the current instructions by the applicable deadline.',
     keyTakeaways: [
@@ -103,7 +103,7 @@ export const taxArticles = [
     category: 'OPT Taxes',
     tags: ['FICA Refund', 'Form 843', 'Form 8316', 'OPT'],
     readTime: '12 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       'A nonresident F-1 student may be exempt from Social Security and Medicare tax on wages for services permitted by the F-1 status, including qualifying OPT work. Ask the employer to refund and correct the payroll reporting first. If it will not, file Form 843 with Form 8316 and the supporting records requested by the IRS. Resident aliens for tax and work not authorized or not connected to the status may not qualify for the student FICA exemption.',
     keyTakeaways: [
@@ -181,7 +181,7 @@ export const taxArticles = [
     category: 'F-1 Taxes',
     tags: ['1040-NR', '1040', 'Five-Year Rule', 'Tax Residency'],
     readTime: '12 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       'F-1 students generally exclude U.S. days from the substantial presence test during their first five calendar years as qualifying exempt individuals. After that, days usually count unless an exception applies. If you remain a nonresident alien, Form 1040-NR is generally the federal income-tax return; if you become a resident alien for tax, Form 1040 generally applies. Count calendar years touched—not exactly sixty months—and include prior F/J/M/Q history.',
     keyTakeaways: [
@@ -258,7 +258,7 @@ export const taxArticles = [
     category: 'F-1 Taxes',
     tags: ['Resident Alien', 'F-1 Status', 'Substantial Presence Test'],
     readTime: '9 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       '‘Resident alien for tax purposes’ is an IRS classification based primarily on the green card test or substantial presence test. F-1 status is a DHS immigration classification based on admission, SEVIS, study, and authorized employment. After the student-exempt calendar years end, an F-1 student may meet the tax test and file like a U.S. tax resident while still needing an I-20, maintaining SEVIS, and following OPT rules.',
     keyTakeaways: [
@@ -335,7 +335,7 @@ export const taxArticles = [
     category: 'OPT Taxes',
     tags: ['Form W-4', 'Nonresident Alien', 'OPT Payroll'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       'A nonresident-alien F-1 or OPT employee completes the current Form W-4 and applies the additional instructions in IRS Notice 1392. The special rules can affect filing status, Step 4 income adjustments, and withholding calculations. Do not claim exempt unless you satisfy the narrow W-4 conditions. Income-tax treaty wage exemptions are generally claimed through Form 8233, not by improvising on W-4.',
     keyTakeaways: [
@@ -414,7 +414,7 @@ export const taxArticles = [
     category: 'F-1 Taxes',
     tags: ['Tax Treaty', 'India', 'China', 'F-1 Students'],
     readTime: '12 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       'Indian F-1 students commonly examine Article 21(2) of the U.S.–India treaty, which can allow the same standard deduction as U.S. students for qualifying nonresident students and business apprentices. Chinese F-1 students commonly examine Article 20, which can exempt up to $5,000 of qualifying compensation for personal services under its conditions. The benefits are not interchangeable, may require Form 8233 or return disclosure, and depend on treaty residence and income type.',
     keyTakeaways: [
@@ -491,7 +491,7 @@ export const taxArticles = [
     category: 'OPT Taxes',
     tags: ['State Taxes', 'Part-Year Return', 'Multi-State', 'OPT'],
     readTime: '11 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       'An OPT worker who moves states may need a part-year resident return in the old state, a part-year resident return in the new state, and sometimes a nonresident return where work was physically performed or withholding occurred. Each state defines residence and income sourcing separately. Record the move date, physical workdays, addresses, leases, payroll withholding, and domicile actions before preparing the returns.',
     keyTakeaways: [
@@ -570,7 +570,7 @@ export const taxArticles = [
     category: 'F-1 Taxes',
     tags: ['Scholarship Tax', 'Fellowship', 'Assistantship', 'Stipend'],
     readTime: '12 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     directAnswer:
       'A qualified scholarship used for tuition and required fees, books, supplies, and equipment may be excludable under the applicable rules, while amounts for room, board, travel, optional equipment, or services can be taxable. An assistantship payment tied to teaching or research services is generally compensation, even if the university calls it a stipend. Nonresident students must also evaluate withholding, Forms W-2 or 1042-S, and any treaty article.',
     keyTakeaways: [

@@ -265,6 +265,8 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                 </div>
             </div>
 
+            <BlogProductCTA variant="unemployment" sourcePage="/blog/opt-unemployment-days-calculator-guide" placement="bottom" />
+
             <AuthorBio />
         </article>
     );

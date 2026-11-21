@@ -143,7 +143,7 @@ export const visaBulletinKoreanNov2026 = defineArticle({
   readTime: '읽는 시간 6분',
   publishedDate: '2026-10-23',
   modifiedDate: '2026-11-09',
-  cta: 'uscis-tracking',
+  cta: 'green-card',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT 표지: 2026년 11월 영주권 문호, 한국 포함 기타 모든 국가 기준 취업이민 최종 승인일.',

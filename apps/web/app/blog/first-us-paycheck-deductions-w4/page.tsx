@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Understanding Your First US Paycheck: Deductions, W-4 & Net Pay Explained | TrackMyOPT",
@@ -43,6 +44,8 @@ export default function FirstPaycheckPage() {
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You started your OPT job, worked hard for two weeks, and excitedly opened your first pay stub. The gross pay says $3,000, but the net pay (what you actually received) is only $2,100. Where did the other $900 go? Let's break down every single deduction line by line.</p>
+
+                <BlogProductCTA variant="tax" sourcePage="/blog/first-us-paycheck-deductions-w4" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Your Pay Stub Decoded</h2>
                 <div className="overflow-x-auto my-8 surface-card [&>table]:border-hidden [&>table]:my-0">
@@ -89,13 +92,7 @@ export default function FirstPaycheckPage() {
                 <p>If you can choose where to work, consider these 9 states with no state income tax: <strong>Alaska, Florida, Nevada, New Hampshire, South Dakota, Tennessee, Texas, Washington, and Wyoming.</strong> Working in one of these states means one less deduction from your paycheck.</p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Start Your OPT Journey Right</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Your first paycheck is just the beginning. TrackMyOPT ensures you stay compliant from Day 1 with automated employment tracking, SEVIS alerts, and secure document storage.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Create Your TrackMyOPT Account</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="tax" sourcePage="/blog/first-us-paycheck-deductions-w4" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

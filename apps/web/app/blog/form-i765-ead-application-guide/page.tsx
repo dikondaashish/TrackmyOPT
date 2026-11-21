@@ -110,6 +110,8 @@ export default function FormI765GuidePage() {
             </div>
 
             {/* Section 1 */}
+            <BlogProductCTA variant="case-status" sourcePage="/blog/form-i765-ead-application-guide" placement="top" />
+
             <section id="what-is-i765" className="mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">1. What Is Form I-765?</h2>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">

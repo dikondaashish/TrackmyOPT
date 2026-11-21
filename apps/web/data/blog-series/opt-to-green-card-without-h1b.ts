@@ -156,7 +156,7 @@ export const optToGreenCardWithoutH1b: ResearchArticle = defineArticle({
   modifiedDate: '2026-11-09',
   showContents: true,
   hub: 'after-opt',
-  cta: 'uscis-tracking',
+  cta: 'green-card',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: green card paths from OPT that do not require H-1B, including PERM, NIW, EB-1 and status bridges.',

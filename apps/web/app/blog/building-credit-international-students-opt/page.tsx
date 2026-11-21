@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, TrendingUp } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Building Credit as an International Student on OPT | TrackMyOPT",
@@ -69,6 +70,8 @@ export default function BuildingCreditPage() {
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">
                     In the United States, your credit score is your financial reputation. Without a good credit score, you will struggle to rent an apartment, you will pay massive deposits for utilities, you won't be able to lease a car, and you will be denied the best credit cards. For F-1 international students, building credit is a catch-22: you need credit to get a credit card, but you need a credit card to build credit.
                 </p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/building-credit-international-students-opt" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Can You Build Credit Without an SSN?</h2>
                 <p>
@@ -169,6 +172,8 @@ export default function BuildingCreditPage() {
                 </p>
 
             </div>
+
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/building-credit-international-students-opt" placement="bottom" />
 
 
             <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">

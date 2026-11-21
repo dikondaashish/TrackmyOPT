@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "STEM OPT Unemployment Limit: The 150-Day Rule Explained (2026)",
     description: "The STEM OPT unemployment limit is 150 cumulative days (90 from initial OPT + 60 additional). Learn counting rules, what qualifies as employment, and how to stay compliant on STEM OPT.",
@@ -81,6 +82,8 @@ export default function StemOPTUnemploymentArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="stem-unemployment" sourcePage="/blog/stem-opt-unemployment-limit" placement="top" />
 
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -193,15 +196,7 @@ export default function StemOPTUnemploymentArticle() {
             </div>
 
             {/* CTA */}
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Track Your STEM OPT Unemployment Days</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    TrackMyOPT monitors your unemployment days, sends alerts before you hit the 150-day limit, and tracks your reporting deadlines.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Start Tracking Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="stem-unemployment" sourcePage="/blog/stem-opt-unemployment-limit" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

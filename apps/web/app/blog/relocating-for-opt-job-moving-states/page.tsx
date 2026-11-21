@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Relocating for Your OPT Job: Moving States Checklist for F-1 Students | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function RelocatingPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Congratulations on landing your OPT job! But there is a catch: the job is in San Francisco, and you went to school in Boston. Moving across the country as an international student involves a lot more than just packing boxes. Here is the immigration-critical checklist you must follow.</p>
 
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/relocating-for-opt-job-moving-states" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">The 10-Day Address Update Rule</h2>
                 <p>Under federal immigration law, you are required to update your physical US address with both <strong>USCIS (via AR-11 form)</strong> and <strong>SEVP (via the SEVP Portal)</strong> within <strong>10 days</strong> of moving to a new address. This is not optional—failure to comply can be grounds for SEVIS termination.</p>
 
@@ -77,13 +80,7 @@ export default function RelocatingPage() {
                 </div>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Move with Confidence</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">TrackMyOPT makes sure you never miss an immigration deadline during your relocation. Automated alerts, document storage, and compliance tracking—all in one place.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/relocating-for-opt-job-moving-states" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

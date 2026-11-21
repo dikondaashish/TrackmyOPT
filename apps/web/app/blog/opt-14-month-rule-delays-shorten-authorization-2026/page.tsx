@@ -432,6 +432,8 @@ export default function Opt14MonthRuleDelaysPage() {
         </section>
       </div>
 
+      <BlogProductCTA variant="case-status" sourcePage="/blog/opt-14-month-rule-delays-shorten-authorization-2026" placement="bottom" />
+
       <AuthorBio />
     </article>
   );

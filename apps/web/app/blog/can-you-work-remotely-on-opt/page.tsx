@@ -5,6 +5,7 @@ import { Clock, ArrowRight, AlertTriangle, CheckCircle2, Laptop } from "lucide-r
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Can You Work Remotely on OPT? Remote Work Rules for F-1 Students (2026)",
@@ -126,6 +127,8 @@ export default function RemoteWorkOPTGuide() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/can-you-work-remotely-on-opt" placement="top" />
 
                 <section id="rules" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -355,15 +358,7 @@ export default function RemoteWorkOPTGuide() {
 
             <AuthorBio />
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Track Your Remote OPT Employment</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Stay compliant with automated unemployment tracking, deadline alerts, and USCIS case monitoring — wherever you work.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Start Tracking Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/can-you-work-remotely-on-opt" placement="bottom" />
         </article>
     );
 }

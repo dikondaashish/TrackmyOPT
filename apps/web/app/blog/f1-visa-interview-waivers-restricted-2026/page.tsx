@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, Calendar, Plane } from "lucide-react";
+import { Clock, AlertTriangle, Calendar, Plane } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "F-1 Visa Interview Waivers Restricted in 2026: Plan Your Travel | TrackMyOPT",
@@ -108,6 +109,8 @@ export default function InterviewWaiverPage() {
                     </p>
                 </div>
 
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/f1-visa-interview-waivers-restricted-2026" placement="top" />
+
                 <h2>Why the Change?</h2>
                 <p>
                     During the pandemic, the State Department expanded interview waivers to alleviate massive backlogs at consulates worldwide. Now that operations have normalized, the government is returning to stricter security and vetting protocols, reverting to the standard requirement that nonimmigrant visa applicants be interviewed by a consular officer in person.
@@ -142,15 +145,7 @@ export default function InterviewWaiverPage() {
                     <li><strong>Gather Strong Documentation:</strong> In-person interviews mean higher scrutiny. Bring your valid EAD card, a recent employment verification letter, your I-20 endorsed for travel, and paystubs to prove you are legitimately employed on OPT.</li>
                 </ol>
 
-                <div className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
-                    <h3 className="text-2xl font-bold text-white mb-4 mt-0">Track Your OPT Compliance</h3>
-                    <p className="text-ink-muted mb-6 text-lg">
-                        Don't let a travel delay cost you your OPT status. Use TrackMyOPT to monitor your unemployment days and critical deadlines.
-                    </p>
-                    <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                        Get Started <ArrowRight className="w-5 h-5" />
-                    </Link>
-                </div>
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/f1-visa-interview-waivers-restricted-2026" placement="bottom" />
 
                 <section className="mb-12 mt-12 not-prose">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>

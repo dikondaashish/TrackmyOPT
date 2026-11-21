@@ -28,7 +28,7 @@ export const form1040nrDeadlineGuide: ResearchArticle = defineArticle({
   publishedDate: PLANNING_GUIDE_DATE,
   modifiedDate: PLANNING_GUIDE_DATE,
   showContents: true,
-  cta: 'opt-timeline',
+  cta: 'tax',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: Form 1040-NR is due April 15, 2027 with wages and June 15, 2027 without.',

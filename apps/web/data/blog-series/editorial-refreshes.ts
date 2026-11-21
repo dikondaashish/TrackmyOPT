@@ -405,7 +405,7 @@ export const editorialRefreshes: ResearchArticle[] = [
       },
       { label: 'OPT timeline tool', href: '/tools/opt-clock' },
     ],
-    cta: 'opt-timeline',
+    cta: 'stem-opt',
   }),
   defineArticle({
     slug: 'spring-graduates-opt-application-timing-2026',
@@ -593,6 +593,6 @@ export const editorialRefreshes: ResearchArticle[] = [
       },
       { label: 'OPT timeline tool', href: '/tools/opt-clock' },
     ],
-    cta: 'opt-timeline',
+    cta: 'opt-apply',
   }),
 ];

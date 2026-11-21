@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, FileWarning } from "lucide-react";
+import { Clock, FileWarning } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Tax Filing Mistakes to Avoid on F-1 OPT/STEM OPT (2026)",
@@ -116,6 +117,8 @@ export default function F1OptTaxMistakesBlogPage() {
             </header>
 
             <div className="prose prose-lg dark:prose-invert max-w-none">
+                <BlogProductCTA variant="tax" sourcePage="/blog/f1-opt-stem-opt-tax-filing-mistakes" placement="top" />
+
                 <section className="mb-10">
                     <div className="p-5 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-0 mb-3">Quick Answer</h2>
@@ -220,15 +223,7 @@ export default function F1OptTaxMistakesBlogPage() {
 
             <AuthorBio />
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Stay Organized for Tax Season</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Keep your OPT timeline, job records, and compliance docs in one place with TrackMyOPT so tax season is easier each year.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Get Started <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="tax" sourcePage="/blog/f1-opt-stem-opt-tax-filing-mistakes" placement="bottom" />
         </article>
     );
 }

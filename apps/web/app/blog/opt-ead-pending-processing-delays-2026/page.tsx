@@ -162,6 +162,8 @@ export default function OptEadPendingDelaysBlogPage() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
+                <BlogProductCTA variant="case-status" sourcePage="/blog/opt-ead-pending-processing-delays-2026" placement="top" />
+
                 <section id="why-delays" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Why OPT Processing Is So Slow in 2026

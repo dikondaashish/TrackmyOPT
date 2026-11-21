@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, ShieldCheck } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "HSI Is Cracking Down on OPT Fraud: What Every Legitimate OPT/STEM OPT Student Must Know (2026)",
@@ -163,6 +164,8 @@ export default function HsiOptFraudBlogPage() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="e-verify" sourcePage="/blog/hsi-opt-fraud-crackdown-legitimate-students-guide" placement="top" />
 
                 <section id="what-happened" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -539,15 +542,7 @@ export default function HsiOptFraudBlogPage() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Stay Fully Documented and Compliant on OPT</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    TrackMyOPT keeps your unemployment days, employer updates, SEVP records, and USCIS deadlines organized and audit-ready — so you can prove compliance instantly if you ever need to.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Track Your OPT Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="e-verify" sourcePage="/blog/hsi-opt-fraud-crackdown-legitimate-students-guide" placement="bottom" />
         </article>
     );
 }

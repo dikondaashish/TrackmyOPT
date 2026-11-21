@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Networking for H-1B Sponsorship: The International Student Playbook | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function NetworkingPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">If you are an international student spending 6 hours a day clicking "Easy Apply" on LinkedIn or submitting resumes to company portals, you are wasting your time. The moment you check the box that says "I will require sponsorship in the future," the ATS (Applicant Tracking System) automatically rejects or deprioritizes your application at most companies.</p>
 
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/networking-international-student-sponsorship" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Goal: Bypass the ATS</h2>
                 <p>The only way to get a job on OPT is to bypass the automated filters and get your resume directly into the hands of a hiring manager or an internal recruiter. To do this, you must network aggressively.</p>
 
@@ -78,13 +81,7 @@ export default function NetworkingPage() {
                 </div>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Network Without the Panic</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Building relationships takes weeks. Knowing exactly how many days of unemployment you have left allows you to network strategically instead of desperately.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/networking-international-student-sponsorship" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

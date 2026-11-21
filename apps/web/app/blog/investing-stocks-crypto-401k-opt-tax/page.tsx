@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Can You Invest in Stocks, Crypto & 401(k) on OPT? Tax Implications Explained | TrackMyOPT",
@@ -43,6 +44,8 @@ export default function InvestingOnOPTPage() {
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You just received your first US paycheck on OPT. After paying rent and groceries, you want to start investing. The good news: <strong>F-1 students on OPT are 100% legally allowed to invest</strong> in US stocks, bonds, ETFs, mutual funds, cryptocurrency, and even real estate. But the tax treatment is dramatically different from what US citizens and residents face.</p>
+
+                <BlogProductCTA variant="tax" sourcePage="/blog/investing-stocks-crypto-401k-opt-tax" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Nonresident Alien (NRA) vs. Resident Alien: Why It Matters</h2>
                 <p>Most F-1 students on OPT are classified as <strong>Nonresident Aliens (NRA)</strong> for tax purposes during their first 5 calendar years in the US. This classification changes everything about how your investment income is taxed:</p>
@@ -93,13 +96,7 @@ export default function InvestingOnOPTPage() {
                 </ul>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Invest in Your Future—and Your Status</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Building wealth on OPT starts with staying compliant. Use TrackMyOPT to monitor your employment deadlines, SEVIS reporting, and unemployment days while you grow your portfolio.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="tax" sourcePage="/blog/investing-stocks-crypto-401k-opt-tax" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

@@ -373,6 +373,8 @@ export default function STEMOPTAutoExtensionPage() {
         </section>
       </div>
 
+      <BlogProductCTA variant="case-status" sourcePage="/blog/stem-opt-180-day-auto-extension-explained-2026" placement="bottom" />
+
       <AuthorBio />
     </article>
   );

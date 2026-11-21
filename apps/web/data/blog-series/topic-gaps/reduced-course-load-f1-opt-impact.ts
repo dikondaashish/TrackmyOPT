@@ -16,7 +16,7 @@ export const reducedCourseLoadF1OptImpactArticle = gap({
       'OPT eligibility',
     ],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'opt-apply',
     image: '/blog/topic-gaps-2026-10/reduced-course-load-f1-opt-impact.webp',
     imageAlt: 'Fictional international student and advisor reviewing a reduced course load authorization form',
     imageCaption: 'Conceptual illustration for educational context; not an official USCIS document.',

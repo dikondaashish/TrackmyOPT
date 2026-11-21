@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, Award, Compass } from "lucide-react";
+import { Clock, AlertTriangle, Award } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "EB-2 NIW Green Card Guide for OPT & STEM OPT Students (2026)",
@@ -138,6 +139,8 @@ export default function EB2NIWGuide() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
+                <BlogProductCTA variant="green-card" sourcePage="/blog/eb2-niw-green-card-opt" placement="top" />
+
                 <section id="dhanasar-framework" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         The Legal Framework: Matter of Dhanasar
@@ -217,25 +220,7 @@ export default function EB2NIWGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-600 rounded-lg">
-                                <Compass className="w-6 h-6 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-bold">Consolidate Your Case Records</h3>
-                        </div>
-                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
-                            TrackMyOPT helps you manage status details during major transitions. Log employer histories, timeline requirements, and maintain active status seamlessly.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-                        >
-                            Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
-                        </Link>
-                    </div>
-                </div>
+                <BlogProductCTA variant="green-card" sourcePage="/blog/eb2-niw-green-card-opt" placement="bottom" />
             </div>
 
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

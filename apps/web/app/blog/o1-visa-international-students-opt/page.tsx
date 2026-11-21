@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, Star } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "O-1 Visa for International Students: The H-1B Alternative | TrackMyOPT",
@@ -80,6 +81,8 @@ export default function O1VisaGuidePage() {
                         <li><strong>No Prevailing Wage:</strong> Startups can sponsor you without being forced to pay massive Department of Labor-mandated salaries.</li>
                     </ul>
                 </div>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/o1-visa-international-students-opt" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">What is the O-1 Visa?</h2>
                 <p>
@@ -208,22 +211,7 @@ export default function O1VisaGuidePage() {
 
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Maximize Your OPT Time to Build Your O-1 Profile
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Building an O-1 profile takes time. You need to squeeze every possible day out of your OPT and STEM OPT extensions to publish papers, judge events, and gather press. Use TrackMyOPT to perfectly time your STEM extension and track your remaining days while you build your portfolio.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/o1-visa-international-students-opt" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, GraduationCap, XCircle, ShieldAlert, MonitorCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Withdrawing from Classes on an F-1 Visa: Avoid Losing Your Status | TrackMyOPT",
@@ -69,6 +70,8 @@ export default function WithdrawingClassesPage() {
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">
                     College is stressful, and sometimes you find yourself in a class that is simply too difficult. For domestic students, dropping a class halfway through the semester (taking a "W" on their transcript) is a normal part of academic life. But for F-1 international students, clicking "Withdraw" on your student portal without permission can instantly trigger deportation proceedings and permanently ruin your chances of working on OPT.
                 </p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/withdrawing-from-classes-f1-visa" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Golden Rule: Full-Time Enrollment</h2>
                 <p>
@@ -159,22 +162,7 @@ export default function WithdrawingClassesPage() {
 
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Secure Your OPT Future
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Every semester matters when you are building up to your OPT application. TrackMyOPT provides the tools you need to stay compliant, organize your immigration documents, and track your employment deadlines once you graduate.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Your TrackMyOPT Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/withdrawing-from-classes-f1-visa" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

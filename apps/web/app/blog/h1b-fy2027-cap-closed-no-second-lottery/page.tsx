@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, ShieldCheck, Briefcase } from "lucide-react";
+import { Clock, AlertTriangle, FileText, CheckCircle2, ShieldCheck, Briefcase } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "USCIS Closes FY 2027 H-1B Cap: No Second Lottery & Next Steps | TrackMyOPT",
@@ -111,6 +112,8 @@ export default function H1BCapClosedPage() {
                     </p>
                 </div>
 
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-fy2027-cap-closed-no-second-lottery" placement="top" />
+
                 <h2>Backup Plans for Unselected OPT Students</h2>
                 <p>
                     If your OPT or STEM OPT is expiring soon and you didn't get selected, you are not out of options. Depending on your situation, here are the most viable alternatives to remain and work legally in the U.S.
@@ -157,15 +160,7 @@ export default function H1BCapClosedPage() {
                     With the H-1B door closed for this year, managing your remaining OPT days is more critical than ever. Under the new <Link href="/blog/september-2026-f1-fixed-admission-rule-opt">2026 fixed-admission rules</Link>, the grace period and filing steps can depend on whether you remain in the D/S transition or receive a date-specific I-94.
                 </p>
 
-                <div className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
-                    <h3 className="text-2xl font-bold text-white mb-4 mt-0">Don't Lose Track of Your OPT Dates</h3>
-                    <p className="text-ink-muted mb-6 text-lg">
-                        Use TrackMyOPT to monitor your exact OPT expiration, unemployment days, and visa grace periods so you never fall out of status unexpectedly.
-                    </p>
-                    <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                        Start Tracking for Free <ArrowRight className="w-5 h-5" />
-                    </Link>
-                </div>
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-fy2027-cap-closed-no-second-lottery" placement="bottom" />
 
                 <section className="mb-12 mt-12 not-prose">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>

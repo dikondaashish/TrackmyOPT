@@ -4,6 +4,7 @@ import { CheckCircle2, Clock, ArrowRight, Target, FileText, Wand2 } from "lucide
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Leverage Your Job Search with TrackMyOPT Resume Generator (2026)",
@@ -116,6 +117,8 @@ export default function LeverageResumeGeneratorBlogPage() {
             </header>
 
             <div className="prose prose-lg dark:prose-invert max-w-none">
+                <BlogProductCTA variant="resume" sourcePage="/blog/leverage-job-search-trackmyopt-resume-generator" placement="top" />
+
                 <section className="mb-10">
                     <div className="p-5 rounded-xl border border-primary-muted bg-primary-soft">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-0 mb-3">Quick Answer</h2>
@@ -251,15 +254,7 @@ export default function LeverageResumeGeneratorBlogPage() {
 
             <AuthorBio />
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Build Better Resumes in Minutes</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Use TrackMyOPT Resume Generator to tailor each application, improve ATS compatibility, and increase interview calls.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Try Resume Generator <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="resume" sourcePage="/blog/leverage-job-search-trackmyopt-resume-generator" placement="bottom" />
         </article>
     );
 }

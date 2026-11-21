@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Multiple Jobs on OPT: Can You Work for Two Employers at Once? | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function MultipleJobsPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You landed a great 40-hour-per-week job in your field, but you also got an offer to consult part-time for a startup for 10 hours a week. Can you legally accept both? For F-1 students on OPT, the answer is usually yes, but with major caveats depending on whether you are on standard OPT or the STEM extension.</p>
 
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/multiple-jobs-opt-two-employers" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">Standard 12-Month OPT Rules</h2>
                 <p>During your first 12 months of post-completion OPT, you are allowed to work for as many employers as you want simultaneously, provided you follow these rules:</p>
                 <ul>
@@ -78,13 +81,7 @@ export default function MultipleJobsPage() {
                 <p>When you have two jobs, both employers will ask you to fill out a W-4 form. Because the US tax system is progressive, working two jobs might bump your combined income into a higher tax bracket. You must carefully adjust your W-4 withholdings, or you may face a massive unexpected tax bill in April.</p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Manage Multiple Jobs Without the Stress</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">TrackMyOPT is the only platform that cleanly handles concurrent OPT employment. Track hours per employer, store multiple I-983s, and never miss a separate reporting deadline.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Multiple Jobs</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/multiple-jobs-opt-two-employers" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

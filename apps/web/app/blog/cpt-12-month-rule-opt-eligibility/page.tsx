@@ -5,6 +5,7 @@ import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Should I Use 11 Months of CPT? The OPT 12-Month Rule",
@@ -113,6 +114,8 @@ export default function CPT12MonthRulePage() {
                     </p>
                 </div>
 
+                <BlogProductCTA variant="opt-apply" sourcePage="/blog/cpt-12-month-rule-opt-eligibility" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">What is the 12-Month Rule?</h2>
                 <p>
                     Under 8 CFR 214.2(f)(10)(i) and <a href="https://www.ice.gov/sevis/practical-training" target="_blank" rel="noopener noreferrer">ICE practical-training guidance</a>:
@@ -216,22 +219,7 @@ export default function CPT12MonthRulePage() {
             </div>
 
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Track Your CPT Days Automatically
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Don&apos;t guess how much CPT you have used. Log each authorization from your I-20 so you can compare your records with your DSO&apos;s official calculation before you approach the one-year full-time CPT limit.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="opt-apply" sourcePage="/blog/cpt-12-month-rule-opt-eligibility" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

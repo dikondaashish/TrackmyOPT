@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, Briefcase } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "H-1B Visa Alternatives: Top 8 Work Visas for F-1 OPT Students (2026)",
@@ -141,6 +142,8 @@ export default function H1BAlternativesGuide() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-alternatives-work-visas" placement="top" />
 
                 <section id="cap-exempt" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -290,25 +293,7 @@ export default function H1BAlternativesGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-600 rounded-lg">
-                                <Briefcase className="w-6 h-6 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-bold">Track Your OPT Deadlines</h3>
-                        </div>
-                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
-                            Ensure you never miss a compliance deadline while planning your next visa step. Use TrackMyOPT to track unemployment days for free, and Pro for daily USCIS auto-checks.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-                        >
-                            Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
-                        </Link>
-                    </div>
-                </div>
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-alternatives-work-visas" placement="bottom" />
 
                 <section id="faq" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">

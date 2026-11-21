@@ -1,20 +1,13 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  AlertTriangle,
-  ArrowRight,
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  FileClock,
-} from 'lucide-react';
+import { AlertTriangle, CalendarDays, CheckCircle2, Clock, ExternalLink, FileClock } from 'lucide-react';
 import { AuthorBio } from '@/components/blog/AuthorBio';
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
+import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 
 const CANONICAL =
   'https://www.trackmyopt.com/blog/august-2026-visa-bulletin-opt-workers';
@@ -233,6 +226,8 @@ export default function August2026VisaBulletinPage() {
       </nav>
 
       <div className="prose prose-lg prose-longform dark:prose-invert max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400">
+        <BlogProductCTA variant="green-card" sourcePage="/blog/august-2026-visa-bulletin-opt-workers" placement="top" />
+
         <section id="snapshot" className="scroll-mt-24">
           <h2>August 2026 Employment-Based Visa Bulletin: India Snapshot</h2>
           <p>
@@ -518,27 +513,7 @@ export default function August2026VisaBulletinPage() {
           </p>
         </section>
 
-        <section className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
-          <div className="flex items-start gap-4">
-            <CalendarDays className="w-9 h-9 text-ink-muted flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-3 mt-0">
-                Keep Today’s Status Separate From Tomorrow’s Queue
-              </h2>
-              <p className="text-ink-muted mb-6 text-lg">
-                TrackMyOPT helps F-1 students monitor OPT milestones,
-                unemployment days, employment changes, and document deadlines
-                while long-term immigration plans develop.
-              </p>
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-              >
-                Create Your Free Account <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <BlogProductCTA variant="green-card" sourcePage="/blog/august-2026-visa-bulletin-opt-workers" placement="bottom" />
 
         <section className="text-sm">
           <h2>Official Sources</h2>

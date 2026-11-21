@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, Calendar, Home, Briefcase } from "lucide-react";
+import { Clock, Calendar, Home, Briefcase } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
@@ -132,6 +133,8 @@ export default function OPTReportingRequirements() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/opt-reporting-requirements-dso" placement="top" />
+
                 <section id="reporting-timeline" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         OPT Reporting Timeline Checklist
@@ -194,25 +197,7 @@ export default function OPTReportingRequirements() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground relative overflow-hidden bg-ink border border-ink-border shadow-elevated">
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-600 rounded-lg">
-                                <CheckCircle2 className="w-6 h-6 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-bold">Track Deadlines Automatically</h3>
-                        </div>
-                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
-                            TrackMyOPT sends automated alerts for your 6-month validation reports and annual self-evaluation milestones so you never miss a deadline.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-                        >
-                            Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
-                        </Link>
-                    </div>
-                </div>
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/opt-reporting-requirements-dso" placement="bottom" />
             </div>
 
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

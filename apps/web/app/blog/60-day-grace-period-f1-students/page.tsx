@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "OPT Grace Period: 60 Days After Graduation or OPT",
@@ -84,6 +85,8 @@ export default function GracePeriodPage() {
 
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">The US immigration system gives F-1 students a short buffer when a program or OPT ends. This buffer is the 60-day grace period. Many students misunderstand when it starts, what they can do during it, and how travel affects it.</p>
+
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/60-day-grace-period-f1-students" placement="top" />
 
                 <h2 id="grace-period-compared" className="text-2xl font-bold mt-12 mb-6">OPT Grace Period: After Graduation, After OPT, and While OPT Is Pending</h2>
                 <p>The rule comes from 8 CFR 214.2(f)(5)(iv). A student who has completed a program and any authorized practical training gets an additional 60 days to prepare to depart or to transfer. Here is how that plays out in the three most common situations.</p>
@@ -178,13 +181,7 @@ export default function GracePeriodPage() {
                 </p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Track Your Status with Confidence</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Don&apos;t guess when your status expires. Use TrackMyOPT&apos;s timeline tools to see when your OPT and grace period end.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/60-day-grace-period-f1-students" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

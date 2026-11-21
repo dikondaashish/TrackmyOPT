@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "SEVIS Transfer Guide: How Moving Schools Impacts Your OPT | TrackMyOPT",
@@ -69,6 +70,8 @@ export default function SevisTransferPage() {
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">
                     A SEVIS transfer allows you to move your F-1 student record from your current school to a new school without having to leave the US, pay the SEVIS fee again, or get a new visa stamp. While the process itself is straightforward, its impact on your current employment authorization (like OPT) is immediate and unforgiving. 
                 </p>
+
+                <BlogProductCTA variant="opt-apply" sourcePage="/blog/sevis-transfer-guide-opt-impact" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Golden Rule: Transfer = Cancellation</h2>
                 <div className="bg-red-50 dark:bg-red-950 border-l-4 border-l-red-500 p-6 rounded-r-xl mb-8">
@@ -143,22 +146,7 @@ export default function SevisTransferPage() {
 
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Manage Your Transition Safely
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Don't guess when your grace period ends or when your SEVIS transfer must be initiated. TrackMyOPT helps you map out your school transfers and alerts you to critical deadlines before you accidentally fall out of status.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="opt-apply" sourcePage="/blog/sevis-transfer-guide-opt-impact" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

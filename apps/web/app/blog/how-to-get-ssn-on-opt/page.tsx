@@ -5,6 +5,7 @@ import { Clock, ArrowRight, AlertTriangle, CheckCircle2, CreditCard, Building2, 
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "How to Get a Social Security Number (SSN) on OPT: Step-by-Step Guide (2026)",
@@ -141,6 +142,8 @@ export default function HowToGetSSNOnOPT() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/how-to-get-ssn-on-opt" placement="top" />
 
                 <section id="why-ssn" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -430,15 +433,7 @@ export default function HowToGetSSNOnOPT() {
 
             <AuthorBio />
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Track Your EAD Card Status</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Know the moment your EAD is approved so you can apply for your SSN immediately. TrackMyOPT Pro runs daily USCIS auto-checks and can email you when status changes.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Start Tracking Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/how-to-get-ssn-on-opt" placement="bottom" />
         </article>
     );
 }

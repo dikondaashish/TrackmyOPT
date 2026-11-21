@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/employer-refuses-form-i983";
 
@@ -80,6 +81,8 @@ export default function EmployerRefusesI983Page() {
       </div>
 
       <div className="prose prose-lg dark:prose-invert max-w-none">
+
+        <BlogProductCTA variant="stem-opt" sourcePage="/blog/employer-refuses-form-i983" placement="top" />
 
         <h2>Why Employers Refuse: The Four Most Common Reasons</h2>
         <p>
@@ -385,6 +388,8 @@ export default function EmployerRefusesI983Page() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="stem-opt" sourcePage="/blog/employer-refuses-form-i983" placement="bottom" />
 
       <AuthorBio />
     </article>

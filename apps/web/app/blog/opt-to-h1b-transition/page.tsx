@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, Calendar } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)",
     description: "Complete guide to transitioning from OPT to H-1B in 2026. Learn the timeline, cap-gap extension, employer requirements, and what happens if your H-1B isn't selected in the lottery.",
@@ -77,6 +78,8 @@ export default function OPTtoH1BArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/opt-to-h1b-transition" placement="top" />
 
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -179,6 +182,8 @@ export default function OPTtoH1BArticle() {
                     </div>
                 </section>
             </div>
+
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/opt-to-h1b-transition" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

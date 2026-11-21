@@ -15,7 +15,7 @@ export const healthInsuranceGapAfterGraduationOptArticle = platformGap({
     'OPT coverage gap',
   ],
   readTime: '8 min read',
-  cta: 'opt-timeline',
+  cta: 'health-insurance',
   imageAlt:
     'Illustration of a graduate holding a phone beside a heart shield and a calendar with a gap',
   imageCaption: 'Conceptual illustration for educational context.',

@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "OPT for MBA Students: Maximizing ROI and Securing H-1B Sponsorship | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function MBAOPTPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Pursuing an MBA in the US as an international student is a massive financial and emotional investment. But graduating with that prestigious degree doesn't make you immune to the harsh realities of the US immigration system. Navigating OPT as an MBA requires a highly strategic approach to recruitment.</p>
 
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/opt-mba-students-career-paths" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Game-Changer: The STEM-Designated MBA</h2>
                 <p>Over the last few years, many top US business schools (like Wharton, Booth, and Kellogg) have reclassified their MBA programs (or specific majors within the MBA, like Business Analytics or Management Science) as STEM degrees. <strong>This is the most critical factor in your OPT journey.</strong></p>
                 
@@ -78,13 +81,7 @@ export default function MBAOPTPage() {
                 </div>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Focus on the Offer, We Handle the Paperwork</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">MBA recruiting is a full-time job. Let TrackMyOPT automate your OPT compliance and unemployment tracking so you can focus on landing that six-figure offer.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/opt-mba-students-career-paths" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

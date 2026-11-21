@@ -382,6 +382,8 @@ export default function FY2027H1BNoSecondLotteryPage() {
         </section>
       </div>
 
+      <BlogProductCTA variant="case-status" sourcePage="/blog/fy2027-h1b-no-second-lottery-opt-backup-plan" placement="bottom" />
+
       <AuthorBio />
     </article>
   );

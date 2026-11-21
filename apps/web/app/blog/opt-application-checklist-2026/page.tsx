@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "OPT Application Checklist 2026: Complete I-765 Filing Guide",
     description: "Step-by-step OPT application checklist. Every document, form, and deadline for filing Form I-765. Avoid RFEs with our comprehensive 2026 checklist for F-1 students.",
@@ -93,6 +94,8 @@ export default function OPTChecklistArticle() {
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 {/* Step 1 */}
+                <BlogProductCTA variant="opt-apply" sourcePage="/blog/opt-application-checklist-2026" placement="top" />
+
                 <section className="mb-10">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Step 1: Before Applying (Pre-Filing)
@@ -227,15 +230,7 @@ export default function OPTChecklistArticle() {
             </div>
 
             {/* CTA */}
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Ready to Apply for OPT?</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    TrackMyOPT guides you through every step — from I-765 filing to EAD tracking to your first job search.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Get Started Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="opt-apply" sourcePage="/blog/opt-application-checklist-2026" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

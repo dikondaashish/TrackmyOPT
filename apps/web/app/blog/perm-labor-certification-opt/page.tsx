@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileCheck, DollarSign, Search } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "PERM Labor Certification Process: What OPT Workers Need to Know | TrackMyOPT",
@@ -82,6 +83,8 @@ export default function PermLaborCertificationPage() {
                         PERM stands for Program Electronic Review Management. Before an employer can sponsor a foreign worker for a permanent green card, they must prove to the US government that there are <strong>no willing, able, and qualified US workers</strong> available for the position.
                     </p>
                 </div>
+
+                <BlogProductCTA variant="green-card" sourcePage="/blog/perm-labor-certification-opt" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">The 3 Stages of the PERM Process</h2>
                 <p>
@@ -191,22 +194,7 @@ export default function PermLaborCertificationPage() {
 
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Manage Your OPT Timeline Carefully
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    The PERM process is a race against the clock of your expiring OPT. Use TrackMyOPT to map out your remaining STEM OPT days, calculate when your employer must file for H-1B, and track all your employment authorizations in one secure dashboard.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="green-card" sourcePage="/blog/perm-labor-certification-opt" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

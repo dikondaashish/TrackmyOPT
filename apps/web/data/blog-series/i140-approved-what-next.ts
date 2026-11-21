@@ -28,7 +28,7 @@ export const i140ApprovedGuide: ResearchArticle = defineArticle({
   publishedDate: STATUS_GUIDE_DATE,
   modifiedDate: STATUS_GUIDE_DATE,
   showContents: true,
-  cta: 'uscis-tracking',
+  cta: 'green-card',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: an approved I-140 locks the priority date; premium processing takes 15 or 45 business days.',

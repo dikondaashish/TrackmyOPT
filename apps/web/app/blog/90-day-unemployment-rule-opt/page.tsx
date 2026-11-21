@@ -445,15 +445,7 @@ export default function NinetyDayRuleArticle() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Track Your OPT Unemployment Days Automatically</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Join 3,500+ people who have signed up for TrackMyOPT. Use it to monitor unemployment days and plan ahead.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Start Tracking Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="unemployment" sourcePage="/blog/90-day-unemployment-rule-opt" placement="bottom" />
 
 
         </article>

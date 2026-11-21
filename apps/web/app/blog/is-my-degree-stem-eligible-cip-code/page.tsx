@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, GraduationCap } from "lucide-react";
+import { Clock } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -11,6 +11,7 @@ import {
     STEM_CIP_LIST_EDITION,
     STEM_CIP_LIST_URL,
 } from "@/data/stem-cip-list";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL_URL = "https://www.trackmyopt.com/blog/is-my-degree-stem-eligible-cip-code";
 const DESCRIPTION =
@@ -224,6 +225,8 @@ export default function CIPCodeGuide() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
+                <BlogProductCTA variant="stem-opt" sourcePage="/blog/is-my-degree-stem-eligible-cip-code" placement="top" />
+
                 <section id="search-stem-list" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Search the 2026 STEM CIP code list
@@ -387,25 +390,7 @@ export default function CIPCodeGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground bg-ink border border-ink-border shadow-elevated">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-600 rounded-lg">
-                                <GraduationCap className="w-6 h-6 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-bold">Simplify Your STEM OPT Transition</h3>
-                        </div>
-                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
-                            TrackMyOPT helps you log and verify your employment records so you never fall out of status. Get reminders when it&apos;s time to report changes.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors shadow-lg bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-                        >
-                            Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
-                        </Link>
-                    </div>
-                </div>
+                <BlogProductCTA variant="stem-opt" sourcePage="/blog/is-my-degree-stem-eligible-cip-code" placement="bottom" />
 
                 <section id="faq" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">

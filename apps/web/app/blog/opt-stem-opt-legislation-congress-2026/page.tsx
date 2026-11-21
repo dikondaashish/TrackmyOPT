@@ -7,6 +7,7 @@ import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Dueling Congress Bills Target OPT & STEM OPT: What You Need to Know (2026)",
@@ -91,6 +92,8 @@ export default function OPTCongressArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/opt-stem-opt-legislation-congress-2026" placement="top" />
+
                 <section id="the-threat" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <AlertTriangle className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -181,6 +184,8 @@ export default function OPTCongressArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("opt-stem-opt-legislation-congress-2026")} />
             <AuthorBio />
             </div>
+
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/opt-stem-opt-legislation-congress-2026" placement="bottom" />
         </article>
     );
 }

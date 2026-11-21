@@ -11,7 +11,7 @@ export const itinVsSsnF1OptStudentsArticle = gap({
     category: 'Tax & Finance',
     tags: ['ITIN', 'SSN F-1', 'OPT taxes', 'Form W-7'],
     readTime: '9 min read',
-    cta: 'opt-timeline',
+    cta: 'tax',
     image: '/blog/topic-gaps-2026-10/itin-vs-ssn-f1-opt-students.webp',
     imageAlt: 'Fictional F-1 student comparing Social Security and ITIN tax-ID documents for payroll',
     imageCaption: 'Conceptual illustration for educational context; not an official USCIS document.',

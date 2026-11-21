@@ -7,6 +7,7 @@ import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "USCIS Adjustment of Status Policy Shift: Discretionary Grace Explained (2026)",
@@ -94,6 +95,8 @@ export default function GreenCardUpdateArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="green-card" sourcePage="/blog/uscis-green-card-adjustment-of-status-update-2026" placement="top" />
+
                 <section id="the-memo" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <Scale className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -182,6 +185,8 @@ export default function GreenCardUpdateArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("uscis-green-card-adjustment-of-status-update-2026")} />
             <AuthorBio />
             </div>
+
+            <BlogProductCTA variant="green-card" sourcePage="/blog/uscis-green-card-adjustment-of-status-update-2026" placement="bottom" />
         </article>
     );
 }

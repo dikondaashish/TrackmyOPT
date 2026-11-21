@@ -16,7 +16,7 @@ export const optOnlineHybridProgramEligibilityArticle = gap({
       'full course of study',
     ],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'opt-apply',
     image: '/blog/topic-gaps-2026-10/opt-online-hybrid-program-eligibility.webp',
     imageAlt: 'Fictional F-1 student balancing a laptop and campus classroom for hybrid enrollment',
     imageCaption: 'Conceptual illustration for educational context; not an official USCIS document.',

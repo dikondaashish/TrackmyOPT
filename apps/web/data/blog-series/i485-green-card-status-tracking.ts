@@ -117,7 +117,7 @@ export const i485StatusGuide: ResearchArticle = defineArticle({
   modifiedDate: '2026-11-09',
   showContents: true,
   hub: 'after-opt',
-  cta: 'uscis-tracking',
+  cta: 'green-card',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: the I-485 green card path from receipt through biometrics, interview, approval and card delivery.',

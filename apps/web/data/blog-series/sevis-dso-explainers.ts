@@ -57,7 +57,7 @@ export const isssDsoPdsoGuide: ResearchArticle = defineArticle({
   readTime: '6 min read',
   publishedDate: '2026-10-21',
   modifiedDate: '2026-11-08',
-  cta: 'opt-timeline',
+  cta: 'opt-apply',
   image: `/blog/${ISSS_SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: ISSS office, DSO and PDSO roles in the F-1 status chain.',
@@ -197,7 +197,7 @@ export const sevisIdGuide: ResearchArticle = defineArticle({
   readTime: '5 min read',
   publishedDate: '2026-10-22',
   modifiedDate: '2026-11-08',
-  cta: 'opt-timeline',
+  cta: 'opt-apply',
   image: `/blog/${SEVIS_SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: the SEVIS ID location on Form I-20 and the forms that ask for it.',

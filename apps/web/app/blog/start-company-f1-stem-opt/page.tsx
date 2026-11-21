@@ -7,6 +7,7 @@ import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Can You Run a Startup on STEM OPT? The E-Verify Rules Explained (2026)",
@@ -96,6 +97,8 @@ export default function STEMOPTStartupArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="stem-opt" sourcePage="/blog/start-company-f1-stem-opt" placement="top" />
+
                 <section id="the-prohibition" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <AlertTriangle className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -178,6 +181,8 @@ export default function STEMOPTStartupArticle() {
                     </p>
                 </section>
             </div>
+
+            <BlogProductCTA variant="stem-opt" sourcePage="/blog/start-company-f1-stem-opt" placement="bottom" />
 
             
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-stem-opt")} />

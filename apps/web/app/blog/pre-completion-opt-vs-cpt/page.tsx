@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, Briefcase, GraduationCap } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Pre-Completion OPT vs CPT: Which Should You Choose? | TrackMyOPT",
@@ -77,6 +78,8 @@ export default function PreCompletionOPTvsCPTPage() {
                         Whenever possible, <strong>choose CPT</strong>. It is faster, free, authorized entirely by your school, and does not eat into your post-graduation OPT time (unless you work full-time CPT for 12 months or more). Pre-Completion OPT should only be used as a backup if you do not qualify for CPT.
                     </p>
                 </div>
+
+                <BlogProductCTA variant="opt-apply" sourcePage="/blog/pre-completion-opt-vs-cpt" placement="top" />
 
                 <h2 className="flex items-center gap-2 text-2xl font-bold mt-12 mb-6">
                     <Briefcase className="w-7 h-7 text-primary" />
@@ -213,22 +216,7 @@ export default function PreCompletionOPTvsCPTPage() {
                 </div>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Keep Track of Your Authorized Dates
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Working even one day past your CPT or Pre-OPT end date is a violation of your F-1 status. Use TrackMyOPT to log your employment authorizations, set up reminders for upcoming expiration dates, and seamlessly transition your data when you apply for Post-Completion OPT.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="opt-apply" sourcePage="/blog/pre-completion-opt-vs-cpt" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

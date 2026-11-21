@@ -72,7 +72,7 @@ export const optStartDateGuide: ResearchArticle = defineArticle({
   publishedDate: '2026-11-02',
   modifiedDate: '2026-11-09',
   showContents: true,
-  cta: 'opt-timeline',
+  cta: 'opt-apply',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: choosing a post-completion OPT start date, with the 60-day start limit, the 14-month rule and the 90-day unemployment limit.',

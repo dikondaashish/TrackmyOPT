@@ -5,6 +5,7 @@ import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "F-1 Visa Jobs 2026: How to Find Jobs as an International Student",
     description: "Complete guide to finding jobs on F-1 visa in 2026. OPT jobs, CPT employment, on-campus work, H-1B sponsor companies, and job search strategies for international students.",
@@ -61,6 +62,8 @@ export default function F1JobsArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/f1-visa-jobs-guide" placement="top" />
+
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">F-1 Student Work Authorization Types</h2>
                     <div className="overflow-x-auto my-6 surface-card [&>table]:border-hidden [&>table]:my-0">
@@ -139,6 +142,8 @@ export default function F1JobsArticle() {
                     </div>
                 </section>
             </div>
+
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/f1-visa-jobs-guide" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

@@ -155,7 +155,7 @@ export const decemberBulletinPredictions = defineArticle({
   modifiedDate: '2026-11-09',
   newsSitemapEligible: true,
   newsPublishedAt: '2026-11-08T22:00:00Z',
-  cta: 'uscis-tracking',
+  cta: 'green-card',
   image: `/blog/${EN_SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: December 2026 Visa Bulletin predictions with the October to November movement for EB-2 and EB-3.',
@@ -334,7 +334,7 @@ export const boletinDiciembre2026Predicciones = defineArticle({
   modifiedDate: '2026-11-09',
   newsSitemapEligible: true,
   newsPublishedAt: '2026-11-08T22:00:00Z',
-  cta: 'uscis-tracking',
+  cta: 'green-card',
   image: `/blog/${ES_SLUG}.png`,
   imageAlt:
     'Portada de TrackMyOPT: predicciones del Boletín de visas de diciembre 2026 con el movimiento de octubre a noviembre para EB-2 y EB-3.',

@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AuthorBio } from '@/components/blog/AuthorBio';
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
+import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import {
   AccountsAndForms,
@@ -148,6 +149,9 @@ export default function FbarGuidePage() {
           are illustrations, not personal filing determinations.
         </figcaption>
       </figure>
+      <div className={styles.productBox}>
+        <BlogProductCTA variant="tax" sourcePage="/blog/f1-visa-fbar-filing-requirements-2026" placement="top" />
+      </div>
       <nav className={styles.toc} aria-label="Table of contents">
         <h2>Find your question</h2>
         <ol>
@@ -163,6 +167,9 @@ export default function FbarGuidePage() {
         <ResidencyExamples />
         <AccountsAndForms />
         <NextSteps />
+      </div>
+      <div className={styles.productBox}>
+        <BlogProductCTA variant="tax" sourcePage="/blog/f1-visa-fbar-filing-requirements-2026" placement="bottom" />
       </div>
     </article>
   );

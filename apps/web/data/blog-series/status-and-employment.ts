@@ -10,7 +10,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Basics',
     tags: ['F-1 Status', 'I-20', 'I-94', 'Visa Stamp'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       "The F-1 visa is a travel document used to request entry. Status is the legal classification you maintain inside the United States. The I-20 is the school's SEVIS eligibility and recommendation record. The I-94 records CBP's admission class and admit-until notation. An expired visa does not automatically end status inside the United States, but a valid visa does not excuse a status violation.",
     keyTakeaways: [
@@ -96,7 +96,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Compliance',
     tags: ['Five-Month Rule', 'SEVIS', 'Travel', 'Study Break'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'A student outside the United States and not enrolled in a full course of study for more than five months may need a new initial I-20 and SEVIS record before returning, but the result depends on why the student was away. Approved study abroad tied to the U.S. program, an annual vacation, a leave, or a status violation can be treated differently. Ask the DSO to document the SEVIS plan before departure.',
     keyTakeaways: [
@@ -186,7 +186,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Travel',
     tags: ['Automatic Visa Revalidation', 'Canada', 'Mexico', 'Expired Visa'],
     readTime: '11 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'Automatic visa revalidation may allow an eligible F-1 student with an expired visa to return after a trip of 30 days or less to Canada, Mexico, or in some F/J cases adjacent islands, while maintaining valid status and carrying a valid passport, endorsed I-20, and I-94 evidence. It generally does not apply if you apply for a new U.S. visa during the trip, are denied a visa, travel beyond the permitted territory or time, or fall within excluded nationality rules.',
     keyTakeaways: [
@@ -276,7 +276,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Status',
     tags: ['Reinstatement', 'Form I-539', 'SEVIS', 'Reentry'],
     readTime: '12 min read',
-    cta: 'opt-timeline',
+    cta: 'uscis-tracking',
     directAnswer:
       'A student who loses F-1 status may ask USCIS for reinstatement using Form I-539 if the regulatory requirements are met, or may leave and seek reentry with a new initial I-20. Reinstatement can preserve continuity but may take time and does not authorize employment while pending. Reentry can be faster but creates travel and visa risk and generally starts a new initial-status timeline that can affect CPT/OPT eligibility.',
     keyTakeaways: [
@@ -365,7 +365,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Status',
     tags: ['SEVIS Terminated', 'F-1 Status', 'Reinstatement'],
     readTime: '11 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'If your DSO says the SEVIS record is Terminated, stop any employment that depends on F-1 authorization, obtain the exact termination reason and date, and discuss recovery immediately. Depending on the facts, options may include correcting a school error, applying to USCIS for reinstatement, or leaving and returning with a new initial I-20. A valid visa stamp does not override termination.',
     keyTakeaways: [
@@ -459,7 +459,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Employment',
     tags: ['Economic Hardship', 'EAD', 'Off-Campus Work', 'I-765'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'uscis-tracking',
     directAnswer:
       'Severe economic hardship employment is for an F-1 student who has generally completed one full academic year, maintains valid status and good academic standing, and faces serious unforeseen financial circumstances beyond their control. The student must work with the DSO and obtain USCIS approval and an EAD before off-campus work begins; the job does not have to relate to the major.',
     keyTakeaways: [
@@ -545,7 +545,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Employment',
     tags: ['Special Student Relief', 'SSR', 'Reduced Course Load', 'EAD'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'uscis-tracking',
     directAnswer:
       "Special Student Relief is not a standing benefit for every F-1 student facing hardship. DHS must publish a Federal Register notice for a country or circumstance, and the student must meet that notice's nationality or habitual-residence, presence, enrollment, status, and financial-hardship requirements. A DSO must authorize any reduced course load, and off-campus work may require Form I-765 and an EAD.",
     keyTakeaways: [
@@ -632,7 +632,7 @@ export const statusAndEmploymentArticles = [
     category: 'F-1 Employment',
     tags: ['On-Campus Work', 'Graduation', 'Grace Period', 'OPT'],
     readTime: '9 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'Ordinary F-1 on-campus employment generally ends on the program end date because the job authorization is tied to pursuing the program. The 60-day grace period does not authorize work. Employment after program completion requires another valid basis, such as approved post-completion OPT during the EAD dates; a campus employer does not become exempt merely because it is the same university.',
     keyTakeaways: [
@@ -726,7 +726,7 @@ export const statusAndEmploymentArticles = [
     category: 'STEM OPT',
     tags: ['E-Verify Number', 'EIN', 'I-765', 'I-983'],
     readTime: '9 min read',
-    cta: 'opt-timeline',
+    cta: 'e-verify',
     directAnswer:
       "An EIN is the employer's federal tax identification number. The E-Verify company identification number identifies the employer's E-Verify account and is the number requested for the STEM OPT employer in Form I-765. Form I-983 also asks for employer identifiers and details. Do not substitute the EIN, a client company's number, or the memorandum-of-understanding number; obtain the correct E-Verify company ID from the employer's authorized administrator.",
     keyTakeaways: [
@@ -820,7 +820,7 @@ export const statusAndEmploymentArticles = [
     category: 'STEM OPT',
     tags: ['I-983', 'Material Change', 'Remote Work', 'STEM OPT'],
     readTime: '11 min read',
-    cta: 'opt-timeline',
+    cta: 'stem-opt',
     directAnswer:
       'A new or modified Form I-983 is required when there is a material change to the existing training plan. Examples can include a significant decrease in compensation, reduction in hours below the required minimum, change in employer EIN, or changes that affect the training goals, supervision, learning objectives, or work arrangement. Remote work, supervisor, salary, and worksite changes should be evaluated with the employer and DSO rather than assumed immaterial.',
     keyTakeaways: [
@@ -916,7 +916,7 @@ export const statusAndEmploymentArticles = [
     category: 'STEM OPT',
     tags: ['STEM OPT Pending', 'Employer Change', 'I-983', 'E-Verify'],
     readTime: '12 min read',
-    cta: 'opt-timeline',
+    cta: 'stem-opt',
     directAnswer:
       'A pending STEM OPT applicant can change employers only if the new job independently meets STEM requirements: E-Verify participation, at least 20 hours per week, compensation, a bona fide employer-employee relationship, and a signed Form I-983. Report the end of the old employment and submit the new I-983 to the DSO promptly. Because USCIS is adjudicating an application based on employer information, ask the DSO or counsel whether and how updated evidence should be sent to USCIS.',
     keyTakeaways: [

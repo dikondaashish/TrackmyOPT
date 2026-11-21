@@ -103,6 +103,8 @@ export default function OPTDeniedArticle() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
+                <BlogProductCTA variant="case-status" sourcePage="/blog/opt-application-denied" placement="top" />
+
                 <section id="reasons" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Common Reasons for OPT Denial</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">

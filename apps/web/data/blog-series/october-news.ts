@@ -69,7 +69,7 @@ export const octoberNewsArticles = [
     newsSitemapEligible: true,
     newsPublishedAt: '2026-10-12T00:27:47Z',
     readTime: '9 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     showContents: true,
     image: '/blog/october-2026/opt-fees-cover.webp',
     imageAlt:
@@ -297,7 +297,7 @@ export const octoberNewsArticles = [
     newsSitemapEligible: true,
     newsPublishedAt: '2026-10-12T00:27:47Z',
     readTime: '9 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     showContents: true,
     image: '/blog/october-2026/cpt-lawsuit-cover.webp',
     imageAlt:

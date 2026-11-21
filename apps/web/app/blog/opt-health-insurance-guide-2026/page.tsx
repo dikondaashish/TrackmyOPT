@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Health Insurance While on OPT (2026): Plans, Costs & Options",
@@ -130,6 +131,8 @@ export default function OPTHealthInsuranceArticle() {
 
             {/* Content */}
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="health-insurance" sourcePage="/blog/opt-health-insurance-guide-2026" placement="top" />
 
                 <section id="is-required" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -515,15 +518,7 @@ export default function OPTHealthInsuranceArticle() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-red-500 rounded-xl p-8 text-center text-white mt-12">
-                <h2 className="text-2xl font-bold mb-3">Compare OPT Health Plans Today</h2>
-                <p className="text-red-100 mb-6 max-w-lg mx-auto">
-                    Use TrackMyOPT's health insurance comparison tool to find the best plan matching your needs and budget.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-colors">
-                    Compare Health Plans <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="health-insurance" sourcePage="/blog/opt-health-insurance-guide-2026" placement="bottom" />
 
 
         </article>

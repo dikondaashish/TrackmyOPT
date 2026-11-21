@@ -16,7 +16,7 @@ export const dualDegreeJointProgramOptEligibilityArticle = gap({
       'CIP code STEM',
     ],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'opt-apply',
     image: '/blog/topic-gaps-2026-10/dual-degree-joint-program-opt-eligibility.webp',
     imageAlt: 'Fictional dual-degree graduate reviewing two diplomas and CIP program codes',
     imageCaption: 'Conceptual illustration for educational context; not an official USCIS document.',

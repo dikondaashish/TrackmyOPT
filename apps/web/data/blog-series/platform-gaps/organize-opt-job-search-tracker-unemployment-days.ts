@@ -16,7 +16,7 @@ export const organizeOptJobSearchTrackerUnemploymentDaysArticle = platformGap({
     'post-completion OPT',
   ],
   readTime: '9 min read',
-  cta: 'unemployment',
+  cta: 'job-tracker',
   imageAlt:
     'Illustration of a job seeker arranging sticky notes in columns on a board beside a day-counter dial',
   imageCaption: 'Conceptual illustration for educational context.',
