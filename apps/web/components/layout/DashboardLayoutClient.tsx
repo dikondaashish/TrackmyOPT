@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
-import { ResumePromoBanner } from "@/components/promo/ResumePromoBanner";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { safeStorageGet, safeStorageSet } from "@/lib/safe-storage";
@@ -118,8 +117,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
             <PolicyUpdateConsentModal />
             <PastDueBillingBanner />
             <DedicatedMigrationBanner />
-            <ResumePromoBanner variant="dashboard" />
-            {/* Fixed Header — below promo banner */}
+            {/* Fixed Header */}
             <Header
                 userEmail={user.email}
                 userName={user.name}
