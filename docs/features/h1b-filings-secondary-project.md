@@ -1,4 +1,30 @@
-# Secondary H-1B filings project
+# Secondary H-1B filings project (retired)
+
+## Retirement (2026-11-21)
+
+The web app no longer reads this Supabase project. Sponsor profiles and the
+`/api/cron/filings-health` probe use only the Oracle copy through the API
+service. The Supabase fallback, `lib/supabase/filings.ts`, and the
+`H1B_FILINGS_STORE` switch were removed; Sentry showed no Oracle filings
+failures in the 90 days before removal, so the fallback was never used.
+
+Before deleting the project (`piozuntknzemmqwpivrk`):
+
+1. Wait for this change to deploy and for `/api/cron/filings-health` to return
+   200 from Oracle.
+2. Remove `SUPABASE_FILINGS_URL`, `SUPABASE_FILINGS_SERVICE_ROLE_KEY`, and
+   `H1B_FILINGS_STORE` from Vercel production.
+3. Keep the 2026-09-02 gzip JSONL export (below). After deletion, Oracle
+   `TRACKMYOPT_JOB_APP.H1B_FILINGS` is the only live copy.
+
+The offline loaders in `apps/web/scripts/data/` (`enrich-sponsors.ts`,
+`populate_db.py`, `process_lca_2025.py`, `process_state_lca.py`,
+`update_company_websites.py`, `update_sponsor_locations.py`) and the
+Supabase-to-Oracle tools in `apps/api/scripts/` still target this project.
+Point them at Oracle before the next DOL data load; they will not run once the
+project is deleted.
+
+The sections below are the historical record.
 
 The static `h1b_filings` reference table is replicated to the free Supabase
 project `piozuntknzemmqwpivrk` in `us-east-1`. The primary project continues to
