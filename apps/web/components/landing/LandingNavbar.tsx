@@ -11,7 +11,6 @@ import { signOutWithAnalytics } from "@/lib/auth/sign-out-with-analytics";
 import { supabase } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
-import { ResumePromoBanner } from "@/components/promo/ResumePromoBanner";
 
 export function LandingNavbar() {
     const prefersReducedMotion = usePrefersReducedMotion();
@@ -71,7 +70,6 @@ export function LandingNavbar() {
 
     return (
         <>
-        <ResumePromoBanner variant="marketing" />
         {/* ponytail: initial={false} — skip slide-in so SSR HTML matches client (hydration #418). */}
         <motion.nav
             initial={false}
