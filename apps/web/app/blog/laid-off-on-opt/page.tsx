@@ -13,6 +13,7 @@ import {
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/laid-off-on-opt";
 
@@ -134,6 +135,8 @@ export default function LaidOffOnOPTPage() {
             </div>
           ))}
         </div>
+
+        <BlogProductCTA variant="unemployment" sourcePage="/blog/laid-off-on-opt" placement="top" />
 
         <h2>The Moment You Are Laid Off: The First 24 Hours</h2>
         <p>
@@ -591,6 +594,8 @@ export default function LaidOffOnOPTPage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="unemployment" sourcePage="/blog/laid-off-on-opt" placement="bottom" />
 
       <AuthorBio />
     </article>

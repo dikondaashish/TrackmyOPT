@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "FY 2027 H-1B Weighted Selection Process Explained (2026 Update)",
@@ -100,6 +101,8 @@ export default function H1BWeightedSelectionArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-weighted-selection-process-fy2027" placement="top" />
+
                 <section id="how-it-works" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         How the Weighted Selection Works
@@ -198,6 +201,8 @@ export default function H1BWeightedSelectionArticle() {
                     </p>
                 </section>
             </div>
+
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-weighted-selection-process-fy2027" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

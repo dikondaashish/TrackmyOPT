@@ -5,6 +5,7 @@ import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "Top H-1B Sponsor Companies 2026: Data-Driven Rankings & Analysis",
     description: "Comprehensive rankings of the top H-1B sponsor companies in 2026. Data-driven analysis of petition counts, approval rates, salary data, and industry breakdowns from USCIS data.",
@@ -95,6 +96,8 @@ export default function TopH1BSponsorArticle() {
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 {/* Section 1 */}
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/top-h1b-sponsor-companies-2026" placement="top" />
+
                 <section id="what-to-know" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         1. H-1B Sponsorship: What You Need to Know
@@ -477,6 +480,8 @@ export default function TopH1BSponsorArticle() {
                     </div>
                 </section>
             </div>
+
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/top-h1b-sponsor-companies-2026" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

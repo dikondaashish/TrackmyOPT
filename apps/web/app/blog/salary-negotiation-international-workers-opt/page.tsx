@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Salary Negotiation for International Students on OPT | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function SalaryNegotiationPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">When an employer finally says "Yes, we will sponsor your H-1B," the immediate instinct for an international student is to sign the offer letter immediately. The fear is that if you push for more money, they will realize you are too "expensive" or "difficult" and rescind the offer. This fear costs international students thousands of dollars every year.</p>
 
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/salary-negotiation-international-workers-opt" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Psychology of the Offer</h2>
                 <p>If a company has extended an offer to you—knowing you require OPT and eventual H-1B sponsorship—they have already decided you are the best candidate. They have already had the internal HR battle about immigration legal fees. <strong>You have more leverage than you think.</strong> Rescinding an offer because a candidate asked for a standard 5-10% increase is exceptionally rare in the corporate world.</p>
 
@@ -76,13 +79,7 @@ export default function SalaryNegotiationPage() {
                 </div>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Negotiate with Confidence</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Know exactly how much time you have left to safely negotiate. Use TrackMyOPT's unemployment tracker to maintain your leverage during the hiring process.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/salary-negotiation-international-workers-opt" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

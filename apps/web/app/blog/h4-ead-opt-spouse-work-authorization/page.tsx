@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "H-4 EAD: Can Your Spouse Work While You Are on OPT or H-1B? | TrackMyOPT",
@@ -69,6 +70,8 @@ export default function H4EADPage() {
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">
                     One of the most common questions from married international students and professionals: "My spouse came with me to the US on a dependent visa. Can they work?" The answer depends entirely on which dependent visa your spouse holds and how far along you are in the Green Card process.
                 </p>
+
+                <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/h4-ead-opt-spouse-work-authorization" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">F-2 Spouses: No Work Authorization</h2>
                 <p>
@@ -169,22 +172,7 @@ export default function H4EADPage() {
             </div>
 
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Plan Your Immigration Journey
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Your spouse's ability to work depends on your OPT compliance, H-1B approval, and I-140 processing. TrackMyOPT helps you navigate each step with automated reminders, document storage, and compliance tracking.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Start Planning Your Future
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/h4-ead-opt-spouse-work-authorization" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/opt-employment-evidence-checklist";
 
@@ -79,6 +80,8 @@ export default function OptEmploymentEvidenceChecklistPage() {
       </div>
 
       <div className="prose prose-lg dark:prose-invert max-w-none">
+
+        <BlogProductCTA variant="documents" sourcePage="/blog/opt-employment-evidence-checklist" placement="top" />
 
         <h2>Why OPT Employment Evidence Matters Beyond OPT</h2>
         <p>
@@ -402,6 +405,8 @@ export default function OptEmploymentEvidenceChecklistPage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="documents" sourcePage="/blog/opt-employment-evidence-checklist" placement="bottom" />
 
       <AuthorBio />
     </article>

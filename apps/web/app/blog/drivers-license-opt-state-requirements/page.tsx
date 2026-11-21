@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Getting a US Driver's License on OPT: State-by-State Requirements | TrackMyOPT",
@@ -43,6 +44,8 @@ export default function DriversLicensePage() {
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">A US driver's license is more than just a license to drive. It is your primary form of identification in America. You will use it to open bank accounts, pick up packages, enter bars, board domestic flights (if REAL ID compliant), and verify your identity at job interviews. Here is how F-1 students on OPT can get one.</p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/drivers-license-opt-state-requirements" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Documents You Need to Bring to the DMV</h2>
                 <p>While every state's DMV has slightly different requirements, most will ask for the following:</p>
@@ -86,13 +89,7 @@ export default function DriversLicensePage() {
                 <p>In most states, you can drive with your foreign driver's license for a limited time (usually 30-90 days) after arriving. After that, you must get a US license. Some states accept an International Driving Permit (IDP) alongside your foreign license, but an IDP is never a substitute for a US license.</p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Never Miss an Expiration Date</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Your license, EAD, and I-20 all have different expiration dates. TrackMyOPT helps you track all of them with automated reminders and a secure document vault.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your Documents</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/drivers-license-opt-state-requirements" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

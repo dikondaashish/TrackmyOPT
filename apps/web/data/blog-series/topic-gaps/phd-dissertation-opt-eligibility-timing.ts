@@ -16,7 +16,7 @@ export const phdDissertationOptEligibilityTimingArticle = gap({
       'doctoral students',
     ],
     readTime: '11 min read',
-    cta: 'opt-timeline',
+    cta: 'opt-apply',
     image: '/blog/topic-gaps-2026-10/phd-dissertation-opt-eligibility-timing.webp',
     imageAlt: 'Fictional doctoral student reviewing dissertation notes and an OPT calendar with a DSO advisor',
     imageCaption: 'Conceptual illustration for educational context; not an official USCIS document.',

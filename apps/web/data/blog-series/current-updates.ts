@@ -49,7 +49,7 @@ export const currentUpdateArticles = [
     modifiedDate: '2026-11-08',
     newsSitemapEligible: true,
     newsPublishedAt: '2026-09-01T14:00:00Z',
-    cta: 'uscis-tracking',
+    cta: 'green-card',
     image: '/blog/august-2026-visa-bulletin-opt-workers.png',
     imageAlt:
       'Calendar and abstract employment-based priority-date timelines showing a stopped category',
@@ -204,7 +204,7 @@ export const currentUpdateArticles = [
     publishedDate: '2026-09-15',
     modifiedDate: '2026-10-11',
     newsSitemapEligible: false,
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     image: '/blog/september-2026-f1-fixed-admission-rule-opt.svg',
     imageAlt:
       'TrackMyOPT illustration of the F-1 Duration of Status court update',
@@ -435,7 +435,7 @@ export const currentUpdateArticles = [
     category: 'F-1 Visa',
     tags: ['221(g)', 'Administrative Processing', 'CEAC', 'F-1 Visa'],
     readTime: '11 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'A 221(g) refusal means the consular officer could not conclude that you were eligible at that time. The post may request documents or place the case in administrative processing. Follow the written instructions from the embassy, submit exactly what is requested through the stated channel, and avoid making irreversible travel or school decisions based only on a changing CEAC label.',
     keyTakeaways: [
@@ -528,7 +528,7 @@ export const currentUpdateArticles = [
     category: 'F-1 Visa',
     tags: ['214(b)', 'Visa Denial', 'F-1 Interview'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'There is no mandatory waiting period after a 214(b) refusal, but a fast reapplication with the same facts usually produces the same problem and requires a new application and fee. Reapply when something material has changed—or when you can clearly and truthfully explain significant facts that were not understood before—while keeping the new DS-160 consistent with the record.',
     keyTakeaways: [
@@ -615,7 +615,7 @@ export const currentUpdateArticles = [
     category: 'OPT Deadline',
     tags: ['OPT I-20', '30-Day Rule', 'I-765', 'SEVIS'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'opt-apply',
     directAnswer:
       'For initial post-completion OPT, file Form I-765 no later than 30 days after your DSO enters the OPT recommendation in SEVIS. The date is not simply when you download or sign the I-20. You must also remain inside the overall filing window: no earlier than 90 days before the program end date and no later than 60 days after it. STEM OPT uses a separate 60-day recommendation rule.',
     keyTakeaways: [
@@ -768,7 +768,7 @@ export const currentUpdateArticles = [
     category: 'F-1 Visa',
     tags: ['CEAC Refused', '214(b)', '221(g)', 'Visa Denial'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       "‘Refused’ is the State Department's legal status for a visa application that was not issued at adjudication. A 214(b) refusal generally closes that application and has no appeal, while a 221(g) refusal can remain unresolved pending documents or administrative processing. ‘Administrative processing’ describes additional review, not a separate visa category. Read the legal citation and consular instructions together.",
     keyTakeaways: [
@@ -857,7 +857,7 @@ export const currentUpdateArticles = [
     category: 'F-1 Travel',
     tags: ['Fall 2026', 'F-1 Entry', 'CBP', 'I-94'],
     readTime: '12 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'Before flying, confirm that your passport is valid, your F-1 visa can be used for the trip, your I-20 has the correct SEVIS information and travel signature, and—if you are a new student—you are not attempting entry more than 30 days before the program start date. Carry documents in hand luggage, answer CBP truthfully, and download your I-94 after admission to verify F-1 and D/S.',
     keyTakeaways: [
@@ -948,7 +948,7 @@ export const currentUpdateArticles = [
     category: 'F-1 Visa',
     tags: ['Visa Appointment', 'Program Start Date', 'Deferral'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       "Contact your DSO as soon as the interview date threatens your school's latest-arrival deadline. The school decides whether late arrival is academically possible, whether to defer the admission, and whether to update or issue an I-20. You may use the embassy's emergency-appointment process if you qualify, but approval is discretionary; do not book multiple conflicting appointments or travel on a stale I-20.",
     keyTakeaways: [
@@ -1038,7 +1038,7 @@ export const currentUpdateArticles = [
     category: 'F-1 Travel',
     tags: ['CBP', 'Secondary Inspection', 'Airport', 'SEVIS'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'At secondary inspection, CBP can review your passport, visa, I-20, SEVIS record, travel history, school information, and—if you are on OPT—employment evidence. Wait times vary. Answer truthfully, keep documents accessible, and request permission to contact your DSO or attorney if a complex status issue arises. Before leaving the airport, understand what admission document or instructions you received.',
     keyTakeaways: [
@@ -1128,7 +1128,7 @@ export const currentUpdateArticles = [
     category: 'F-1 Compliance',
     tags: ['I-94', 'D/S', 'CBP Correction', 'F-1 Status'],
     readTime: '10 min read',
-    cta: 'opt-timeline',
+    cta: 'dashboard',
     directAnswer:
       'Download the I-94 after every entry. If CBP recorded the wrong class of admission, personal data, or admit-until notation, contact a CBP deferred inspection site or the port of entry using its published correction process. Bring the passport, visa, I-20, admission stamp, itinerary, and proof of the correct facts. If the error came from USCIS on an approval notice with an I-94, follow USCIS correction procedures instead.',
     keyTakeaways: [
@@ -1230,7 +1230,7 @@ export const currentUpdateArticles = [
     ],
     readTime: '8 min read',
     modifiedDate: '2026-11-08',
-    cta: 'uscis-tracking',
+    cta: 'green-card',
     badgeLabel: 'Official tables · archived month',
     statusNote:
       'Updated November 8, 2026: this page now carries the official September 2026 tables (internal date August 10, 2026) and a note on what the October and November bulletins did afterwards. September was the last month of fiscal year 2026; the current bulletin is November 2026 and the December outlook is linked below.',
@@ -1405,7 +1405,7 @@ export const currentUpdateArticles = [
     ],
     readTime: '8 min read',
     modifiedDate: '2026-10-10',
-    cta: 'opt-timeline',
+    cta: 'green-card',
     statusNote:
       'Updated October 10, 2026: the October bulletin has been published. This guide now uses its official employment-based dates. These are October dates; consult the bulletin for the month in which you plan to act and USCIS’s separate filing-chart selection.',
     directAnswer:

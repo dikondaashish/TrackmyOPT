@@ -7,6 +7,7 @@ import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "The Founder's Guide to Starting a Company on F-1 OPT (2026)",
@@ -96,6 +97,8 @@ export default function OPTStartupArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/start-company-f1-opt-visa" placement="top" />
+
                 <section id="the-golden-window" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -181,6 +184,8 @@ export default function OPTStartupArticle() {
                     </p>
                 </section>
             </div>
+
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/start-company-f1-opt-visa" placement="bottom" />
 
             
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-opt-visa")} />

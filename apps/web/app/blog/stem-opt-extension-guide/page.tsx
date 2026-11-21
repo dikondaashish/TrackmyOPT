@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Shield } from "lucide-react";
+import { Clock, CheckCircle2, AlertTriangle, Shield } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -101,7 +101,7 @@ export default function STEMOPTGuideArticle() {
             </div>
 
             <BlogProductCTA
-                variant="opt-timeline"
+                variant="stem-opt"
                 sourcePage="/blog/stem-opt-extension-guide"
             />
 
@@ -359,11 +359,7 @@ export default function STEMOPTGuideArticle() {
 
             <AuthorBio />
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Track Your STEM OPT Timeline & Unemployment Days</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">Join 3,500+ people who have signed up for TrackMyOPT. Use it to plan STEM OPT deadlines, employer reporting, and unemployment days.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
-            </div>
+            <BlogProductCTA variant="stem-opt" sourcePage="/blog/stem-opt-extension-guide" placement="bottom" />
 
         </article>
     );

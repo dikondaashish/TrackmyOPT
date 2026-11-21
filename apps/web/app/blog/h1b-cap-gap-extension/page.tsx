@@ -6,6 +6,7 @@ import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "H-1B Cap-Gap Extension Explained: Timeline, Work Auth & Rules (2026)",
     description: "H-1B cap-gap extension explained for F-1 OPT students. How the automatic extension works, timeline from OPT to H-1B, work authorization during cap-gap, and what happens if your H-1B is denied.",
@@ -63,6 +64,8 @@ export default function CapGapArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/h1b-cap-gap-extension" placement="top" />
+
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Is the H-1B Cap-Gap?</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">The cap-gap is a regulation (<strong>8 CFR 214.2(f)(5)(vi)</strong>) that fills the timing gap between:</p>
@@ -173,11 +176,7 @@ export default function CapGapArticle() {
             </div>
 
             <AuthorBio />
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Track Your H-1B Timeline & Cap-Gap Status</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT monitors your H-1B registration, lottery results, and cap-gap dates — all in one dashboard.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
-            </div>
+            <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/h1b-cap-gap-extension" placement="bottom" />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is the H-1B cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "An automatic extension of F-1 status and OPT work authorization bridging OPT expiration and October 1 H-1B start date." } }, { "@type": "Question", "name": "Can I travel during cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "Travel is risky. If you leave the US, re-entry on F-1 may not be possible. Most attorneys recommend not traveling." } }, { "@type": "Question", "name": "Do I need a new EAD for cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "No. Your existing EAD is automatically extended. Keep your original EAD and updated I-20 together." } }] }) }} />
         </article>
     );

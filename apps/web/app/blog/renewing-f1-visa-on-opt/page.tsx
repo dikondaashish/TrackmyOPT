@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Renewing Your F-1 Visa Stamp While on OPT (2026 Guide) | TrackMyOPT",
@@ -76,6 +77,8 @@ export default function RenewF1VisaPage() {
                     It is a common scenario: You are in the middle of your OPT or STEM OPT, working a great job, but your F-1 visa stamp (the sticker in your passport) has expired. You want to travel to your home country for a vacation, but to re-enter the US, you will need to apply for a brand new F-1 visa stamp at a US embassy abroad. Is it safe to do this?
                 </p>
 
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/renewing-f1-visa-on-opt" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">Can You Renew an F-1 Visa While on OPT?</h2>
                 <p>
                     <strong>Yes, absolutely.</strong> OPT is not a separate visa; it is simply a continuation of your F-1 student status. The US Department of State explicitly allows students on OPT to apply for a renewed F-1 visa stamp to return to the US to resume their employment.
@@ -145,22 +148,7 @@ export default function RenewF1VisaPage() {
 
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Don't Risk Your SEVIS Record
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Before you book an international flight, make sure your SEVIS record is perfect. TrackMyOPT monitors your unemployment days, organizes your documents, and sends you alerts for mandatory SEVIS reporting. A clean record means a stress-free visa interview.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Secure Your OPT Status Now
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/renewing-f1-visa-on-opt" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

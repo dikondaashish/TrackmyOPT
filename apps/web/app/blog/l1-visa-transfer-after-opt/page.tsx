@@ -5,6 +5,7 @@ import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "L-1 Visa Transfer: The Ultimate H-1B Backup Plan for OPT Workers | TrackMyOPT",
@@ -71,6 +72,8 @@ export default function L1VisaPage() {
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">
                     With H-1B lottery selection rates hovering around 25%, relying entirely on the H-1B to stay in the United States after your OPT expires is incredibly risky. If you are approaching the end of your STEM OPT and have not been selected, the <strong>L-1 Intracompany Transferee Visa</strong> is the most reliable "Plan B" available to corporate workers.
                 </p>
+
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/l1-visa-transfer-after-opt" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">What is the L-1 Strategy?</h2>
                 <p>
@@ -159,22 +162,7 @@ export default function L1VisaPage() {
             </div>
 
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Track Your H-1B and L-1 Timelines
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Knowing exactly how many days you have left on OPT is critical to executing a successful L-1 transfer. Use TrackMyOPT to map out your lottery deadlines and calculate exactly when you need to trigger your global relocation plan.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/l1-visa-transfer-after-opt" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">More Visa Alternatives</h3>

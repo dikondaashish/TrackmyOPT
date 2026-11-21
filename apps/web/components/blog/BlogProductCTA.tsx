@@ -3,11 +3,19 @@
 import Link from 'next/link';
 import {
   ArrowRight,
+  BadgeCheck,
   Bell,
   BriefcaseBusiness,
+  CalendarClock,
+  ClipboardList,
   Clock,
-  Puzzle,
   FileText,
+  FolderLock,
+  GraduationCap,
+  HeartPulse,
+  LayoutDashboard,
+  Puzzle,
+  Receipt,
   Shield,
   Users,
 } from 'lucide-react';
@@ -16,13 +24,35 @@ import { captureClientEvent } from '@/lib/posthog-client';
 export type BlogProductCtaVariant =
   | 'case-status'
   | 'uscis-tracking'
+  | 'green-card'
   | 'opt-timeline'
+  | 'opt-apply'
   | 'unemployment'
+  | 'stem-opt'
+  | 'stem-unemployment'
+  | 'e-verify'
   | 'sponsors'
   | 'resume'
+  | 'job-tracker'
+  | 'extension'
+  | 'tax'
+  | 'health-insurance'
+  | 'documents'
   | 'community'
-  | 'extension';
+  | 'dashboard';
 
+type SecondaryLink = { href: string; label: string };
+
+const CASE_STATUS_FEATURES: SecondaryLink = {
+  href: '/features/case-status',
+  label: 'USCIS case status tracker features',
+};
+
+/**
+ * One box per product feature. Each blog post shows the box that matches its
+ * topic, so the copy here must stay true to what the linked page does and to
+ * what is free (lib/pricing/plan-features.ts).
+ */
 const VARIANTS: Record<
   BlogProductCtaVariant,
   {
@@ -31,6 +61,7 @@ const VARIANTS: Record<
     description: string;
     href: string;
     cta: string;
+    secondary: SecondaryLink;
   }
 > = {
   'uscis-tracking': {
@@ -40,6 +71,7 @@ const VARIANTS: Record<
       'Save your receipt for free manual checks. Pro adds daily USCIS checks and email alerts when we detect a status change.',
     href: '/dashboard/case-status',
     cta: 'Save my case',
+    secondary: CASE_STATUS_FEATURES,
   },
   // Primary destination is the free case tracker (account required), as it was
   // before Oct 5, 2026. Sending this CTA to the guest decision-window tool
@@ -52,6 +84,19 @@ const VARIANTS: Record<
       'Add your receipt number once. See plain-English status updates, refresh free anytime, and add daily checks with email alerts on Pro.',
     href: '/dashboard/case-status',
     cta: 'Check my status free',
+    secondary: {
+      href: '/tools/opt-decision-window',
+      label: 'a free decision-window estimate (no account needed)',
+    },
+  },
+  'green-card': {
+    icon: Bell,
+    title: 'Track your I-140 or I-485 status',
+    description:
+      'Save your receipt number and check your status free. Pro adds daily USCIS checks and email alerts when it changes.',
+    href: '/dashboard/case-status',
+    cta: 'Track my case free',
+    secondary: CASE_STATUS_FEATURES,
   },
   'opt-timeline': {
     icon: Clock,
@@ -60,6 +105,19 @@ const VARIANTS: Record<
       'Track processing milestones, unemployment days, and deadlines alongside your case status.',
     href: '/tools/opt-clock',
     cta: 'Open OPT timeline',
+    secondary: CASE_STATUS_FEATURES,
+  },
+  'opt-apply': {
+    icon: CalendarClock,
+    title: 'Find your OPT filing window',
+    description:
+      'Free filing-window calculator and Form I-765 checklist for F-1 students. No account needed.',
+    href: '/tools/opt-apply',
+    cta: 'Calculate my window',
+    secondary: {
+      href: '/features/compliance',
+      label: 'OPT deadline and compliance features',
+    },
   },
   unemployment: {
     icon: Shield,
@@ -68,6 +126,43 @@ const VARIANTS: Record<
       'Avoid the 90-day limit — live counter synced to your OPT dates with compliance reminders.',
     href: '/tools/opt-clock',
     cta: 'Check unemployment days',
+    secondary: CASE_STATUS_FEATURES,
+  },
+  'stem-opt': {
+    icon: GraduationCap,
+    title: 'Plan your STEM OPT extension',
+    description:
+      'Free filing-window calculator with Form I-983 reminders and E-Verify planning steps. No account needed.',
+    href: '/tools/stem-apply',
+    cta: 'Open STEM OPT planner',
+    secondary: {
+      href: '/tools/stem-clock',
+      label: 'the STEM OPT unemployment calculator',
+    },
+  },
+  'stem-unemployment': {
+    icon: Shield,
+    title: 'Count your STEM OPT unemployment days',
+    description:
+      'Track your days against the 150-day combined limit in a free calculator. No account needed.',
+    href: '/tools/stem-clock',
+    cta: 'Check my days',
+    secondary: {
+      href: '/tools/stem-apply',
+      label: 'the STEM OPT filing-window calculator',
+    },
+  },
+  'e-verify': {
+    icon: BadgeCheck,
+    title: 'Check if an employer is in E-Verify',
+    description:
+      'Search the official E-Verify employer list free before you accept a STEM OPT offer.',
+    href: '/e-verify-employer-search',
+    cta: 'Search employers',
+    secondary: {
+      href: '/tools/stem-apply',
+      label: 'the STEM OPT filing-window calculator',
+    },
   },
   sponsors: {
     icon: BriefcaseBusiness,
@@ -76,6 +171,10 @@ const VARIANTS: Record<
       'Compare H-1B filing history, entry-level signals, common roles, and verified career links before spending hours on an application.',
     href: '/dashboard/career/h1b-sponsors',
     cta: 'Search H-1B sponsors',
+    secondary: {
+      href: '/features/sponsors',
+      label: 'H-1B sponsor research features',
+    },
   },
   resume: {
     icon: FileText,
@@ -84,6 +183,22 @@ const VARIANTS: Record<
       'Build an ATS-friendly U.S. resume, tailor it to a job description, and keep your search organized alongside your OPT timeline.',
     href: '/dashboard/career/resume-generator',
     cta: 'Build my resume',
+    secondary: {
+      href: '/features/resume-ai',
+      label: 'resume and job-search features',
+    },
+  },
+  'job-tracker': {
+    icon: ClipboardList,
+    title: 'Keep your job search in one tracker',
+    description:
+      'Track applications, interviews and offers free, next to your OPT unemployment days.',
+    href: '/dashboard/career/job-tracker',
+    cta: 'Track my applications',
+    secondary: {
+      href: '/features/job-tracker',
+      label: 'job tracker features',
+    },
   },
   extension: {
     icon: Puzzle,
@@ -92,6 +207,43 @@ const VARIANTS: Record<
       'The free TrackMyOPT Chrome extension saves postings from LinkedIn, Indeed, and many ATS portals to your job tracker, flags explicit sponsorship wording, and never submits an application for you.',
     href: '/features/extension',
     cta: 'Get the extension',
+    secondary: CASE_STATUS_FEATURES,
+  },
+  tax: {
+    icon: Receipt,
+    title: 'File your F-1 taxes without guessing',
+    description:
+      'Free guide to the forms you need, including Form 8843 and Form 1040-NR, with deadlines and nonresident filing options.',
+    href: '/dashboard/tax-filing',
+    cta: 'Open tax guide',
+    secondary: {
+      href: '/features/tax-filing',
+      label: 'tax filing features',
+    },
+  },
+  'health-insurance': {
+    icon: HeartPulse,
+    title: 'Find health insurance for OPT',
+    description:
+      'Check the plans open to you by state in the free Health Insurance Finder. No SSN needed.',
+    href: '/dashboard/opt-health-insurance-finder',
+    cta: 'Check my options',
+    secondary: {
+      href: '/features/health-insurance',
+      label: 'health insurance features',
+    },
+  },
+  documents: {
+    icon: FolderLock,
+    title: 'Keep your immigration documents in one place',
+    description:
+      'Store your I-20, EAD and USCIS notices in the Document Vault, with a passcode lock and expiry reminders. Included in Pro.',
+    href: '/dashboard/documents',
+    cta: 'Open Document Vault',
+    secondary: {
+      href: '/features/compliance',
+      label: 'OPT deadline and compliance features',
+    },
   },
   community: {
     icon: Users,
@@ -100,6 +252,22 @@ const VARIANTS: Record<
       'Compare anonymized OPT milestones, record your own case, and keep official USCIS status separate from community planning estimates.',
     href: '/tools/opt-decision-window',
     cta: 'Explore community data',
+    secondary: {
+      href: '/features/community',
+      label: 'community timeline methodology',
+    },
+  },
+  dashboard: {
+    icon: LayoutDashboard,
+    title: 'Your OPT dates, deadlines and case in one place',
+    description:
+      'A free account gives you an OPT timeline, an unemployment-day count, USCIS case status and a job tracker.',
+    href: '/login',
+    cta: 'Start free',
+    secondary: {
+      href: '/features',
+      label: 'everything TrackMyOPT does',
+    },
   },
 };
 
@@ -107,16 +275,23 @@ type BlogProductCTAProps = {
   variant: BlogProductCtaVariant;
   /** Page path for PostHog, e.g. /blog/opt-processing-time-2026 */
   sourcePage: string;
+  /** Where on the page this box sits, for PostHog. */
+  placement?: 'top' | 'bottom';
 };
 
-export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
+export function BlogProductCTA({
+  variant,
+  sourcePage,
+  placement,
+}: BlogProductCTAProps) {
   const config = VARIANTS[variant];
   const Icon = config.icon;
 
-  const handleClick = () => {
+  const capture = (clicked: string) => {
     captureClientEvent('blog_product_cta_clicked', {
-      variant,
+      variant: clicked,
       source_page: sourcePage,
+      ...(placement ? { placement } : {}),
     });
   };
 
@@ -136,37 +311,17 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
           <p className="mt-2 text-xs text-ink-muted">
             Also see{' '}
             <Link
-              href={
-                variant === 'sponsors'
-                  ? '/features/sponsors'
-                  : variant === 'resume'
-                    ? '/features/resume-ai'
-                    : variant === 'community'
-                      ? '/features/community'
-                      : variant === 'case-status'
-                        ? '/tools/opt-decision-window'
-                        : '/features/case-status'
-              }
+              href={config.secondary.href}
               className="text-blue-300 hover:text-blue-200 hover:underline font-medium"
               onClick={() =>
-                captureClientEvent('blog_product_cta_clicked', {
-                  variant:
-                    variant === 'case-status'
-                      ? 'decision-window-link'
-                      : 'features-link',
-                  source_page: sourcePage,
-                })
+                capture(
+                  variant === 'case-status'
+                    ? 'decision-window-link'
+                    : 'features-link'
+                )
               }
             >
-              {variant === 'sponsors'
-                ? 'H-1B sponsor research features'
-                : variant === 'resume'
-                  ? 'resume and job-search features'
-                  : variant === 'community'
-                    ? 'community timeline methodology'
-                    : variant === 'case-status'
-                      ? 'a free decision-window estimate (no account needed)'
-                      : 'USCIS case status tracker features'}
+              {config.secondary.label}
             </Link>
           </p>
           {variant === 'case-status' && (
@@ -184,7 +339,7 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
         </div>
         <Link
           href={config.href}
-          onClick={handleClick}
+          onClick={() => capture(variant)}
           className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-button transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
         >
           {config.cta}

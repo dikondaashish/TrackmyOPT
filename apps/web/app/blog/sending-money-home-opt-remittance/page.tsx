@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "How to Send Money Home from the US on OPT: Cheapest Options (2026) | TrackMyOPT",
@@ -43,6 +44,8 @@ export default function SendingMoneyHomePage() {
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">When you start earning in US dollars on OPT, one of the first things you will want to do is send money back to support your family, repay education loans, or simply save in your home currency. Traditional bank wire transfers can cost $25-50 per transaction <strong>plus</strong> a 3-5% exchange rate markup. Here are much better options.</p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/sending-money-home-opt-remittance" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Top Remittance Services Compared</h2>
                 <div className="overflow-x-auto my-8 surface-card [&>table]:border-hidden [&>table]:my-0">
@@ -88,13 +91,7 @@ export default function SendingMoneyHomePage() {
                 </ul>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Focus on Your Finances, Not Your Status</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Let TrackMyOPT handle the immigration compliance while you handle the money. Automated unemployment tracking, SEVIS deadline alerts, and document storage—all in one place.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/sending-money-home-opt-remittance" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

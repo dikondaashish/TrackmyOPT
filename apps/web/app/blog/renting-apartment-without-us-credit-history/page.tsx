@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "How to Rent an Apartment Without US Credit History (2026) | TrackMyOPT",
@@ -70,6 +71,8 @@ export default function RentingWithoutCreditPage() {
                     In the United States, landlords rely heavily on credit scores to determine if a tenant is reliable. For new F-1 international students or those just starting their OPT without an established financial footprint, this is a massive roadblock. Fortunately, property managers in college towns and major tech hubs are very familiar with international renters. Here are the 5 best strategies to secure an apartment without a US credit score.
                 </p>
 
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/renting-apartment-without-us-credit-history" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">Strategy 1: Use an Institutional Guarantor Service</h2>
                 <p>
                     A guarantor (or co-signer) is someone who legally agrees to pay your rent if you default. If you don't have wealthy family members living in the US with excellent credit, you can pay a company to act as your guarantor.
@@ -128,6 +131,8 @@ export default function RentingWithoutCreditPage() {
                 </p>
 
             </div>
+
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/renting-apartment-without-us-credit-history" placement="bottom" />
 
             <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">

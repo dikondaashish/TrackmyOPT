@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { ArrowRight, Clock, AlertTriangle } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
@@ -228,11 +228,7 @@ export default function OptUnemploymentClockStartArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("when-does-opt-unemployment-clock-start")} />
             <AuthorBio />
 
-      <div className="not-prose mt-12 rounded-xl p-8 text-center text-ink-foreground bg-ink border border-ink-border shadow-elevated">
-        <h2 className="mb-3 text-2xl font-bold">Know your remaining OPT buffer</h2>
-        <p className="mx-auto mb-6 max-w-lg text-ink-muted">Track unemployment days, USCIS updates, job applications, and reminders in one place.</p>
-        <Link href="/login" className="inline-flex items-center gap-2 rounded-lg px-6 py-3 font-semibold bg-blue-600 text-white hover:bg-blue-500 shadow-button transition-colors">Start tracking free <ArrowRight className="h-4 w-4" /></Link>
-      </div>
+      <BlogProductCTA variant="unemployment" sourcePage="/blog/when-does-opt-unemployment-clock-start" placement="bottom" />
 
       <p className="mt-8 flex items-start gap-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />This article is educational information, not legal advice. Immigration rules and individual records vary. Confirm important decisions with your DSO or a licensed immigration attorney.</p>
     </article>

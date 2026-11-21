@@ -427,6 +427,8 @@ export default function EadCardLostStolenPage() {
         </div>
       </div>
 
+      <BlogProductCTA variant="case-status" sourcePage="/blog/ead-card-lost-stolen-incorrect-never-delivered" placement="bottom" />
+
       <AuthorBio />
     </article>
   );

@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Dealing with OPT Anxiety: Mental Health Resources for International Students | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function OPTAnxietyPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">No one warns you about the emotional toll of the US immigration system. The moment you graduate, a literal countdown clock begins. You have 90 days to find a job in a brutal market, all while answering to family expectations back home and facing the looming uncertainty of a random H-1B lottery. It is entirely normal to feel overwhelmed.</p>
 
+                <BlogProductCTA variant="case-status" sourcePage="/blog/opt-anxiety-mental-health-international-students" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Unique Stressors of F-1 Status</h2>
                 <p>Domestic students stress about finding a <strong>good</strong> job. International students stress about finding a job that will prevent their deportation. The mental health burden includes:</p>
                 <ul>
@@ -84,13 +87,7 @@ export default function OPTAnxietyPage() {
                 </div>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Regain Control of Your OPT</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Don't let compliance anxiety rule your life. TrackMyOPT provides the exact calculations and automated reminders you need to sleep soundly at night.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="case-status" sourcePage="/blog/opt-anxiety-mental-health-international-students" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

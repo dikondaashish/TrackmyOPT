@@ -5,6 +5,7 @@ import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "STEM OPT Employer Requirements 2026: E-Verify, I-983 & Compliance Checklist",
     description: "Complete guide to STEM OPT employer requirements in 2026. E-Verify enrollment, Form I-983 obligations, wage rules, reporting deadlines, and a full compliance checklist for employers hiring STEM OPT workers.",
@@ -82,6 +83,8 @@ export default function STEMOPTEmployerRequirementsArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="e-verify" sourcePage="/blog/stem-opt-employer-requirements" placement="top" />
 
                 <section id="overview" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Employers Must Know About STEM OPT</h2>
@@ -341,6 +344,8 @@ export default function STEMOPTEmployerRequirementsArticle() {
                     </div>
                 </section>
             </div>
+
+            <BlogProductCTA variant="e-verify" sourcePage="/blog/stem-opt-employer-requirements" placement="bottom" />
 
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>

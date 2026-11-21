@@ -17,7 +17,7 @@ export const checkEmployerEVerifyStemOptOfferArticle = platformGap({
     'STEM OPT offer',
   ],
   readTime: '7 min read',
-  cta: 'opt-timeline',
+  cta: 'e-verify',
   imageAlt:
     'Illustration of a graduate comparing an offer letter with a laptop showing a shield and check mark',
   imageCaption: 'Conceptual illustration for educational context.',

@@ -15,6 +15,7 @@ import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { formatUsd, OFFERS_CATALOG_TOTAL_SAVINGS_USD } from "@/lib/offers/catalog-savings";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const savingsLabel = formatUsd(OFFERS_CATALOG_TOTAL_SAVINGS_USD);
 const canonical = "https://www.trackmyopt.com/blog/trackmyopt-student-deals-guide";
@@ -136,6 +137,8 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                     <strong>{savingsLabel}</strong> in documented first-year savings across health, AI, banking, career,
                     and lifestyle partners.
                 </p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/trackmyopt-student-deals-guide" placement="top" />
 
                 <h2>How to access TrackMyOPT deals (3 steps)</h2>
                 <ol>

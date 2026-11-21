@@ -13,6 +13,7 @@ import {
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/laid-off-on-stem-opt";
 
@@ -118,6 +119,8 @@ export default function LaidOffOnStemOptPage() {
             </div>
           ))}
         </div>
+
+        <BlogProductCTA variant="stem-unemployment" sourcePage="/blog/laid-off-on-stem-opt" placement="top" />
 
         <h2>Why STEM OPT Layoffs Are Different</h2>
         <p>
@@ -525,6 +528,8 @@ export default function LaidOffOnStemOptPage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="stem-unemployment" sourcePage="/blog/laid-off-on-stem-opt" placement="bottom" />
 
       <AuthorBio />
     </article>

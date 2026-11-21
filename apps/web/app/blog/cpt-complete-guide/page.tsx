@@ -5,6 +5,7 @@ import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, BookOpen, Gra
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const PAGE_TITLE = "CPT Rules 2026: F-1 Eligibility, Limits and Risks";
 const PAGE_DESCRIPTION = "CPT rules for F-1 students in 2026: eligibility, the full-time CPT limit for OPT, SEVP's August guidance, the October lawsuit, and Day 1 CPT risks.";
@@ -162,6 +163,8 @@ export default function CPTCompleteGuide() {
 
             {/* Content */}
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="opt-apply" sourcePage="/blog/cpt-complete-guide" placement="top" />
 
                 <section id="what-is-cpt" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -647,15 +650,7 @@ export default function CPTCompleteGuide() {
             <AuthorBio />
 
             {/* Bottom CTA */}
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Planning Your OPT After CPT?</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Join 3,500+ people who have signed up for TrackMyOPT. Use it to track deadlines, monitor unemployment days, and research H-1B sponsors.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Start Tracking Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="opt-apply" sourcePage="/blog/cpt-complete-guide" placement="bottom" />
         </article>
     );
 }

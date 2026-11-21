@@ -1,21 +1,13 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  Eye,
-  ShieldCheck,
-  Smartphone,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, ExternalLink, Eye, ShieldCheck, Smartphone } from 'lucide-react';
 import { AuthorBio } from '@/components/blog/AuthorBio';
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
+import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 
 const CANONICAL =
   'https://www.trackmyopt.com/blog/f1-visa-social-media-screening-2026';
@@ -210,6 +202,8 @@ export default function F1VisaSocialMediaScreeningPage() {
       </nav>
 
       <div className="prose prose-lg prose-longform dark:prose-invert max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400">
+        <BlogProductCTA variant="dashboard" sourcePage="/blog/f1-visa-social-media-screening-2026" placement="top" />
+
         <section id="confirmed" className="scroll-mt-24">
           <h2>
             What Is Officially Confirmed About F-1 Social Media Screening?
@@ -542,27 +536,7 @@ export default function F1VisaSocialMediaScreeningPage() {
           </p>
         </section>
 
-        <section className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
-          <div className="flex items-start gap-4">
-            <ShieldCheck className="w-9 h-9 text-ink-muted flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-3 mt-0">
-                Keep the Immigration Record Consistent
-              </h2>
-              <p className="text-ink-muted mb-6 text-lg">
-                TrackMyOPT helps students track employment dates, unemployment
-                days, reporting obligations, and documents—the facts that should
-                match a visa application and public professional history.
-              </p>
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-              >
-                Create Your Free Account <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <BlogProductCTA variant="dashboard" sourcePage="/blog/f1-visa-social-media-screening-2026" placement="bottom" />
 
         <section className="text-sm">
           <h2>Official Sources</h2>

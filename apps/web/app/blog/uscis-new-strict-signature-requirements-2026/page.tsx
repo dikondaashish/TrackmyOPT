@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, XCircle, CheckCircle2 } from "lucide-react";
+import { Clock, AlertTriangle, XCircle, CheckCircle2 } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "USCIS Strict Signature Requirements 2026: Avoid Rejection | TrackMyOPT",
@@ -108,6 +109,8 @@ export default function USCISSignaturePage() {
                     </p>
                 </div>
 
+                <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/uscis-new-strict-signature-requirements-2026" placement="top" />
+
                 <h2>What Are the New Signature Rules?</h2>
                 <p>
                     USCIS requires a valid signature on all applications, petitions, and requests. A valid signature must meet these criteria:
@@ -151,15 +154,7 @@ export default function USCISSignaturePage() {
                     <li><strong>Form I-983 (STEM OPT only):</strong> The Training Plan must be signed in wet ink or using a compliant e-signature software by both you and your employer.</li>
                 </ol>
 
-                <div className="not-prose rounded-xl p-8 text-ink-foreground my-12 bg-ink border border-ink-border shadow-elevated">
-                    <h3 className="text-2xl font-bold text-white mb-4 mt-0">Prepare for Your OPT Successfully</h3>
-                    <p className="text-ink-muted mb-6 text-lg">
-                        Use TrackMyOPT to track your application status, manage deadlines, and stay on top of the latest USCIS rules.
-                    </p>
-                    <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                        Create Your Free Account <ArrowRight className="w-5 h-5" />
-                    </Link>
-                </div>
+                <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/uscis-new-strict-signature-requirements-2026" placement="bottom" />
 
                 <section className="mb-12 mt-12 not-prose">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>

@@ -1,19 +1,19 @@
 .guide {
-  --ink: oklch(0.3 0.04 260);
+  --guide-ink: oklch(0.3 0.04 260);
   --muted: oklch(0.48 0.025 260);
   --paper: oklch(0.98 0.005 260);
   --line: oklch(0.86 0.025 260);
   --blue: oklch(0.47 0.2 264);
   --mint: oklch(0.95 0.035 175);
   --amber: oklch(0.95 0.055 90);
-  color: var(--ink);
+  color: var(--guide-ink);
   max-width: 1080px;
   margin: auto;
   padding: 3rem 1.25rem 5rem;
   line-height: 1.75;
 }
 :global(.dark) .guide {
-  --ink: oklch(0.94 0.012 260);
+  --guide-ink: oklch(0.94 0.012 260);
   --muted: oklch(0.78 0.02 260);
   --paper: oklch(0.23 0.012 260);
   --line: oklch(0.42 0.03 260);
@@ -44,10 +44,11 @@
   font-weight: 700;
   font-size: 1.1rem;
 }
-.guide p {
+/* The shared product box (.productBox) keeps the site's own text and link styles. */
+.guide p:not(.productBox *) {
   margin: 1rem 0;
 }
-.guide a {
+.guide a:not(.productBox *) {
   color: var(--blue);
   text-decoration: underline;
   text-underline-offset: 3px;

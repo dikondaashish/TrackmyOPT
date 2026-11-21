@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, Briefcase, MapPin } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "TN Visa Guide for Canadian & Mexican Students on OPT | TrackMyOPT",
@@ -85,6 +86,8 @@ export default function TnVisaPage() {
                         <li><strong>Cheaper for Employers:</strong> Filing a TN visa costs a fraction of what an H-1B costs, making you highly employable.</li>
                     </ul>
                 </div>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/tn-visa-canadian-mexican-students-opt" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Do You Qualify for a TN Visa?</h2>
                 <p>
@@ -173,22 +176,7 @@ export default function TnVisaPage() {
 
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Track Your Visa Transitions
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Transitioning from OPT to TN requires precise timing so you don't accidentally work a day out of status. Use TrackMyOPT to map out your employment timeline and get alerts before your OPT EAD card expires.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/tn-visa-canadian-mexican-students-opt" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

@@ -22,7 +22,7 @@ export const tnScreeningArticle = defineArticle({
     'Mexican Canadian professionals',
   ],
   readTime: '7 min read',
-  cta: 'opt-timeline',
+  cta: 'dashboard',
   image: '/blog/october-policy-2026/tn-screening.webp',
   imageAlt:
     'Fictional Mexican professional organizing a passport, travel folder and online profiles for a TN visa application',

@@ -65,9 +65,16 @@ test('I-140 guide has consistent metadata and a generic case-tracking action', a
     'href',
     'https://www.trackmyopt.com/blog/i-140-case-status-tracking'
   );
-  await expect(
-    page.getByRole('link', { name: 'Save my case', exact: true })
-  ).toHaveAttribute('href', '/dashboard/case-status');
+  // The box appears after the direct answer and again at the end.
+  const caseTrackingLinks = page.getByRole('link', {
+    name: 'Track my case free',
+    exact: true,
+  });
+  await expect(caseTrackingLinks).toHaveCount(2);
+  await expect(caseTrackingLinks.first()).toHaveAttribute(
+    'href',
+    '/dashboard/case-status'
+  );
   const schemas = await page
     .locator('script[type="application/ld+json"]')
     .allTextContents();

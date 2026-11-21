@@ -37,7 +37,7 @@ export const permSuspensionArticle = defineArticle({
     'H-1B green card sponsorship',
   ],
   readTime: '8 min read',
-  cta: 'uscis-tracking',
+  cta: 'green-card',
   image: '/blog/october-policy-2026/perm-pause.webp',
   imageAlt:
     'Fictional tech worker and attorney reviewing a paused PERM stage and later green-card document stages',

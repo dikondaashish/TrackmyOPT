@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "ATS Resume for International Students 2026: Beat the Bots & Get Interviews",
@@ -132,6 +133,8 @@ export default function ATSResumeArticle() {
 
             {/* Content */}
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="resume" sourcePage="/blog/ats-resume-international-students-2026" placement="top" />
 
                 <section id="what-is-ats" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -437,15 +440,7 @@ Relevant Coursework: Algorithms, Database Systems, Cloud Computing, Machine Lear
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Optimize Your Resume with TrackMyOPT Resume AI</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    Get AI-powered resume feedback and ATS optimization scores to boost your H-1B sponsorship chances.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Optimize Your Resume <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="resume" sourcePage="/blog/ats-resume-international-students-2026" placement="bottom" />
 
 
         </article>

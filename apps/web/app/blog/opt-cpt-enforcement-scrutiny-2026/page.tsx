@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldAlert, Eye, CheckCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Increased Scrutiny on OPT and CPT: What International Students Need to Know (2026)",
@@ -93,6 +94,8 @@ export default function OPTCPTScrutinyArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/opt-cpt-enforcement-scrutiny-2026" placement="top" />
+
                 <section id="current-landscape" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <ShieldAlert className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -190,6 +193,8 @@ export default function OPTCPTScrutinyArticle() {
                     </p>
                 </section>
             </div>
+
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/opt-cpt-enforcement-scrutiny-2026" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

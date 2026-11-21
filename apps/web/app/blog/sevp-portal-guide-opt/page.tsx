@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, Key, Info, Laptop, User } from "lucide-react";
+import { Clock, AlertTriangle, Key, Info, User } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "SEVP Portal Login & Guide: Unemployment Counter, Updates, Unlock (2026)",
@@ -132,6 +133,8 @@ export default function SEVPortalGuide() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/sevp-portal-guide-opt" placement="top" />
+
                 <section id="how-it-works" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         How the SEVP Portal Works
@@ -246,25 +249,7 @@ export default function SEVPortalGuide() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="not-prose rounded-xl p-8 my-12 text-ink-foreground relative overflow-hidden bg-ink border border-ink-border shadow-elevated">
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-600 rounded-lg">
-                                <Laptop className="w-6 h-6 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-bold">Simplify Your OPT Compliance</h3>
-                        </div>
-                        <p className="text-ink-muted mb-6 text-lg max-w-2xl">
-                            TrackMyOPT helps you log and verify your employment records so you never fall out of status. Get reminders when it&apos;s time to report changes.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button"
-                        >
-                            Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
-                        </Link>
-                    </div>
-                </div>
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/sevp-portal-guide-opt" placement="bottom" />
 
                 <section id="faq" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">

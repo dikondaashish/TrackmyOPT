@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization",
     description: "How to extend OPT in 2026. STEM OPT extension eligibility, cap-gap extension, 180-day auto extension, and what to do when your OPT is about to expire.",
@@ -59,6 +60,8 @@ export default function OPTExtensionGuideArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="stem-opt" sourcePage="/blog/opt-extension-guide" placement="top" />
+
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">3 Ways to Extend OPT in 2026</h2>
                     <div className="space-y-6">
@@ -140,11 +143,7 @@ export default function OPTExtensionGuideArticle() {
 
             <AuthorBio />
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Never Miss an OPT Deadline</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">TrackMyOPT sends alerts 90, 60, and 30 days before your OPT expires. Stay ahead of every deadline.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
-            </div>
+            <BlogProductCTA variant="stem-opt" sourcePage="/blog/opt-extension-guide" placement="bottom" />
         </article>
     );
 }

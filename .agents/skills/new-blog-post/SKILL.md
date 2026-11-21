@@ -132,7 +132,7 @@ IndexNow does **not** ping Google. After deploy, remind user:
 1. **Always run** `pnpm submit:indexnow:url -- --slug {slug}` after user confirms deploy (or if URL returns 200 live).
 2. **Never** print or commit `CRON_SECRET` — use env var only.
 3. **Never** add redirect-only slugs to sitemap or blog index without 301 consolidation plan.
-4. For USCIS/product posts, include `BlogProductCTA` where relevant (see existing top posts).
+4. Every post shows `BlogProductCTA` with the variant that matches its topic (tax, health-insurance, stem-opt, sponsors, case-status, ...; the list is in `components/blog/BlogProductCTA.tsx`). Hand-written posts place it twice: after the intro with `placement="top"` and at the end with `placement="bottom"`. Structured posts set `cta` and the template places both.
 5. Report IndexNow result + remind about GSC for Google.
 
 ---

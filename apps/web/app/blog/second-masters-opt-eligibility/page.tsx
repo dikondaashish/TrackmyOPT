@@ -7,6 +7,7 @@ import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Can I Apply for OPT Again After a Second Master's Degree? (2026 Guide)",
@@ -134,6 +135,8 @@ export default function BlogPost() {
                     <p>
                         Our legal team sees this specific question from international students almost every day. The short answer is <strong>no, you are not eligible for another round of Optional Practical Training (OPT)</strong> if the new program is also a Master's degree. 
                     </p>
+
+                    <BlogProductCTA variant="opt-apply" sourcePage="/blog/second-masters-opt-eligibility" placement="top" />
 
                     <section id="once-per-level-rule" className="mb-12">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
@@ -266,6 +269,8 @@ export default function BlogPost() {
             <RelatedPosts posts={getRelatedPostsForSlug("second-masters-opt-eligibility")} />
             <AuthorBio />
                 </div>
+
+                <BlogProductCTA variant="opt-apply" sourcePage="/blog/second-masters-opt-eligibility" placement="bottom" />
             </div>
         </article>
     );

@@ -215,6 +215,15 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </p>
       </div>
 
+      {/* The box copy is English only, so other languages keep one box. */}
+      {lang === 'en' && (
+        <BlogProductCTA
+          variant={article.cta}
+          sourcePage={`/blog/${article.slug}`}
+          placement="top"
+        />
+      )}
+
       <AdSenseInArticle />
 
       {article.showContents && (
@@ -377,6 +386,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
       <BlogProductCTA
         variant={article.cta}
         sourcePage={`/blog/${article.slug}`}
+        placement="bottom"
       />
 
       <div

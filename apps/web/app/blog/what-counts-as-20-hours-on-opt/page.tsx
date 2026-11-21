@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/what-counts-as-20-hours-on-opt";
 
@@ -79,6 +80,8 @@ export default function WhatCountsAs20HoursPage() {
       </div>
 
       <div className="prose prose-lg dark:prose-invert max-w-none">
+
+        <BlogProductCTA variant="unemployment" sourcePage="/blog/what-counts-as-20-hours-on-opt" placement="top" />
 
         <h2>Why 20 Hours Is the Threshold</h2>
         <p>
@@ -395,6 +398,8 @@ export default function WhatCountsAs20HoursPage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="unemployment" sourcePage="/blog/what-counts-as-20-hours-on-opt" placement="bottom" />
 
       <AuthorBio />
     </article>

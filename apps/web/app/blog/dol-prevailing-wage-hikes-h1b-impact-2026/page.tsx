@@ -7,6 +7,7 @@ import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "DOL Proposes Massive Prevailing Wage Hikes for H-1B: What It Means (2026)",
@@ -94,6 +95,8 @@ export default function PrevailingWageArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/dol-prevailing-wage-hikes-h1b-impact-2026" placement="top" />
+
                 <section id="the-proposal" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         The DOL Wage Hike Proposal
@@ -189,6 +192,8 @@ export default function PrevailingWageArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("dol-prevailing-wage-hikes-h1b-impact-2026")} />
             <AuthorBio />
             </div>
+
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/dol-prevailing-wage-hikes-h1b-impact-2026" placement="bottom" />
         </article>
     );
 }

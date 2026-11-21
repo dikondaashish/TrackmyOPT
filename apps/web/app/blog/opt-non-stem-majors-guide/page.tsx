@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "OPT for Non-STEM Majors: Maximizing Your 12 Months (Business, Arts, Humanities) | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function NonStemOPTPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Let's address the elephant in the room: being a non-STEM international student in the US is playing the game on "Hard Mode." While your engineering peers get 3 years (36 months) of work authorization and 3 chances at the H-1B lottery, you get exactly 12 months. One year. One lottery chance. Here is how you survive and thrive.</p>
 
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/opt-non-stem-majors-guide" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">1. The Timeline is Everything</h2>
                 <p>Because you only have one shot at the H-1B lottery (which takes place in March), your OPT start date is the most strategic decision you will make.</p>
                 <ul>
@@ -80,13 +83,7 @@ export default function NonStemOPTPage() {
                 <p>If you are a Business or Finance major and your US employer fails to secure your H-1B in the lottery, ask about the L-1 Visa strategy. If you work for a multinational company, they can transfer you to their London, Toronto, or Singapore office for 1 year, and then bring you back to the US on an L-1 intra-company transfer visa (which has no lottery).</p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Make Your 12 Months Count</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Non-STEM majors have to be strategic. Use TrackMyOPT to effortlessly manage your SEVIS reporting and unemployment clock, so you can spend 100% of your energy networking for sponsorship.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/opt-non-stem-majors-guide" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

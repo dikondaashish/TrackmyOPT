@@ -11,7 +11,7 @@ export const immigrationDocumentsToKeepOnOptArticle = platformGap({
   category: 'Compliance',
   tags: ['OPT documents', 'immigration records', 'EAD card', 'I-20 copies'],
   readTime: '8 min read',
-  cta: 'opt-timeline',
+  cta: 'documents',
   imageAlt:
     'Illustration of a person filing documents into folders beside a laptop showing a padlock',
   imageCaption: 'Conceptual illustration for educational context.',

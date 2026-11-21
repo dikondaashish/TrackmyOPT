@@ -760,7 +760,7 @@ export const trackingGuides: ResearchArticle[] = [
         href: '/answers/what-is-uscis-receipt-number',
       },
     ],
-    cta: 'uscis-tracking',
+    cta: 'green-card',
   }),
   guide({
     slug: 'uscis-myprogress-taking-longer-than-expected-opt',

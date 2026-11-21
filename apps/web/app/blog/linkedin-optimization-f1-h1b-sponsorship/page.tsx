@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "LinkedIn Profile Optimization for F-1 Students Seeking H-1B Sponsorship | TrackMyOPT",
@@ -43,6 +44,8 @@ export default function LinkedInOptimizationPage() {
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Most international students make a fatal mistake on LinkedIn: they try to look exactly like domestic applicants. But recruiters using LinkedIn Recruiter have filters specifically for work authorization. If you don't optimize your profile correctly, you will waste time interviewing with companies that have a strict "no sponsorship" policy.</p>
+
+                <BlogProductCTA variant="resume" sourcePage="/blog/linkedin-optimization-f1-h1b-sponsorship" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">The "Open to Work" Settings</h2>
                 <p>When you turn on "Open to Work" (either the green photo badge or the recruiters-only setting), LinkedIn asks you several questions. Here is how an F-1 student should answer them:</p>
@@ -86,13 +89,7 @@ export default function LinkedInOptimizationPage() {
                 <p>Recruiters use LinkedIn's backend (LinkedIn Recruiter) to search for candidates based on skills. Make sure your top 3 pinned skills perfectly align with the job description of the roles you want. If you are applying for Data Science roles, your top skills should be Python, SQL, and Machine Learning—not "Teamwork" or "Microsoft Word."</p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Focus on Networking, We'll Handle Compliance</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">Job hunting on OPT is stressful enough. Let TrackMyOPT handle your unemployment counter and SEVIS reporting deadlines so you can focus 100% on securing that H-1B offer.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="resume" sourcePage="/blog/linkedin-optimization-f1-h1b-sponsorship" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

@@ -28,7 +28,7 @@ export const i983SampleAnswersGuide: ResearchArticle = defineArticle({
   publishedDate: PLANNING_GUIDE_DATE,
   modifiedDate: PLANNING_GUIDE_DATE,
   showContents: true,
-  cta: 'extension',
+  cta: 'stem-opt',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: Form I-983 sample answers for the four Section 5 boxes and two evaluations.',

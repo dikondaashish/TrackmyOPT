@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle, ShieldCheck, XCircle } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle, ShieldCheck, XCircle } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Form I-9 Complete Guide: What It Is, Who Needs It & How to Fill It Out (2026)",
@@ -110,6 +111,8 @@ export default function FormI9GuidePage() {
             </div>
 
             {/* Section 1 */}
+            <BlogProductCTA variant="e-verify" sourcePage="/blog/form-i9-complete-guide" placement="top" />
+
             <section id="what-is-i9" className="mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">1. What Is Form I-9?</h2>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -373,15 +376,7 @@ export default function FormI9GuidePage() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="not-prose rounded-xl p-8 text-ink-foreground text-center bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Track Your OPT Compliance Deadlines Automatically</h2>
-                <p className="text-ink-muted mb-6 max-w-2xl mx-auto">
-                    Never miss an I-9 re-verification deadline again. TrackMyOPT automatically alerts you when your EAD is expiring, when you need a STEM OPT extension, and when your employer needs to complete Section 3.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Get Free OPT Alerts <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="e-verify" sourcePage="/blog/form-i9-complete-guide" placement="bottom" />
 
             {/* Official Sources */}
             <div className="border mt-12 p-6 border-border rounded-xl bg-surface">

@@ -81,6 +81,8 @@ export default function StartWorkBeforeEadPage() {
 
       <div className="prose prose-lg dark:prose-invert max-w-none">
 
+        <BlogProductCTA variant="case-status" sourcePage="/blog/can-you-start-work-before-opt-ead-arrives" placement="top" />
+
         <h2>Three Dates That Are Not the Same</h2>
         <p>
           Understanding this article requires keeping three separate dates clear in your mind.

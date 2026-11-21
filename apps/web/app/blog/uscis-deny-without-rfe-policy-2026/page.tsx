@@ -220,6 +220,8 @@ export default function USCISDenyWithoutRFEPolicyPage() {
       </nav>
 
       <div className="prose prose-lg prose-longform dark:prose-invert max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400">
+        <BlogProductCTA variant="case-status" sourcePage="/blog/uscis-deny-without-rfe-policy-2026" placement="top" />
+
         <section id="what-changed" className="scroll-mt-24">
           <h2>What Changed in the August 5, 2026 USCIS RFE Policy?</h2>
           <p>

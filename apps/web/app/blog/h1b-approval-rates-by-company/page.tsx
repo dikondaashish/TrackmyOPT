@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 export const metadata: Metadata = {
     title: "H-1B Approval Rates by Company 2026: Data Analysis & Top Sponsors",
     description: "H-1B approval rates by company in 2026. See which employers have the highest (and lowest) approval rates, average processing times, and sponsorship trends based on USCIS data.",
@@ -80,6 +81,8 @@ export default function H1BApprovalRatesArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-approval-rates-by-company" placement="top" />
 
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -202,6 +205,8 @@ export default function H1BApprovalRatesArticle() {
                     </div>
                 </section>
             </div>
+
+            <BlogProductCTA variant="sponsors" sourcePage="/blog/h1b-approval-rates-by-company" placement="bottom" />
 
             {/* Related Guides */}
             <div className="border rounded-xl border-border p-6 mt-10 bg-surface">

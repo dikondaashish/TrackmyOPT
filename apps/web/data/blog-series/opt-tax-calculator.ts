@@ -118,7 +118,7 @@ export const optTaxGuide: ResearchArticle = defineArticle({
   modifiedDate: '2026-11-09',
   showContents: true,
   hub: 'money-and-life',
-  cta: 'opt-timeline',
+  cta: 'tax',
   image: `/blog/${SLUG}.png`,
   imageAlt:
     'TrackMyOPT cover: estimating OPT tax percentage and take-home pay with the 2026 federal brackets and the F-1 FICA exemption.',

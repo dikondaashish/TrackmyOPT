@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Can You Freelance or Do Gig Work (Uber, DoorDash) on OPT? | TrackMyOPT",
@@ -43,6 +44,8 @@ export default function FreelanceGigWorkPage() {
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Earning extra cash through side hustles is a huge part of American culture. But as an F-1 international student, strict rules govern how and where you can work. Let's break down exactly what is allowed regarding freelancing, 1099 independent contracting, and gig economy work.</p>
+
+                <BlogProductCTA variant="unemployment" sourcePage="/blog/freelance-gig-work-uber-doordash-opt" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Golden Rule of OPT: The "Directly Related" Test</h2>
                 <p>No matter what type of work you do on OPT—W-2 employee, 1099 contractor, or self-employed—it <strong>must be directly related to your major area of study</strong>. This single rule dictates whether gig work is legal for you.</p>
@@ -86,13 +89,7 @@ export default function FreelanceGigWorkPage() {
                 <p>Similar to freelancing, you can start a business on standard OPT, provided you have the necessary licenses and it relates to your degree. However, once you transition to STEM OPT, you cannot be self-employed. You would have to show a bona fide employer-employee relationship (e.g., your company has a Board of Directors that can fire you), which is highly scrutinized by USCIS.</p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Freelance Safely</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">If you are doing 1099 contractor work on your 12-month OPT, you need bulletproof documentation. TrackMyOPT provides secure cloud storage for your invoices, contracts, and proof of degree relevance, so you are always ready for an RFE.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT Work</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="unemployment" sourcePage="/blog/freelance-gig-work-uber-doordash-opt" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

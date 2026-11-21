@@ -7,6 +7,7 @@ import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "How to Start a Company on an F-1 Student Visa (Without Violating Your Status)",
@@ -96,6 +97,8 @@ export default function F1StartupArticle() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/start-company-f1-student-visa" placement="top" />
+
                 <section id="incorporation" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <Lightbulb className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -195,6 +198,8 @@ export default function F1StartupArticle() {
                     </p>
                 </section>
             </div>
+
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/start-company-f1-student-visa" placement="bottom" />
             
             
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-student-visa")} />

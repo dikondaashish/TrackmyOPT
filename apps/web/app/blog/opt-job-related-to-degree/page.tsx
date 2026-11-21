@@ -5,6 +5,7 @@ import { ArrowRight, Clock, ExternalLink, ShieldCheck, Lightbulb } from "lucide-
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/opt-job-related-to-degree";
 
@@ -78,6 +79,8 @@ export default function OptJobRelatedToDegreePage() {
       </div>
 
       <div className="prose prose-lg dark:prose-invert max-w-none">
+
+        <BlogProductCTA variant="opt-timeline" sourcePage="/blog/opt-job-related-to-degree" placement="top" />
 
         <h2>What to Write in the SEVP Portal &quot;Relation to Field of Study&quot; Field</h2>
         <p>
@@ -400,6 +403,8 @@ export default function OptJobRelatedToDegreePage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="opt-timeline" sourcePage="/blog/opt-job-related-to-degree" placement="bottom" />
 
       <AuthorBio />
     </article>

@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "What Happens If You Fall Out of F-1 Status? | TrackMyOPT",
@@ -79,6 +80,8 @@ export default function FallOutOfStatusPage() {
                         If your SEVIS record is terminated, any work authorization you have (including CPT, OPT, or on-campus employment) is immediately void. Continuing to work while out of status is a severe violation that can result in permanent bans from the US. <strong>Contact your DSO immediately.</strong>
                     </p>
                 </div>
+
+                <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/fall-out-of-f1-status-options" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">How Do Students Fall Out of Status?</h2>
                 <p>The most common reasons for a SEVIS termination include:</p>
@@ -163,22 +166,7 @@ export default function FallOutOfStatusPage() {
             </div>
 
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Prevent Status Violations with TrackMyOPT
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    90% of status violations happen because students miss a reporting deadline or lose track of their unemployment days. TrackMyOPT sends you automated SMS and email alerts before deadlines hit, keeping your SEVIS record safe.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Create Free Account
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="uscis-tracking" sourcePage="/blog/fall-out-of-f1-status-options" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

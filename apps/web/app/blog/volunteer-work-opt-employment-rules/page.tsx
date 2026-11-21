@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Volunteer Work on OPT: Does Unpaid Work Stop the Unemployment Clock? | TrackMyOPT",
@@ -44,6 +45,8 @@ export default function VolunteerWorkPage() {
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You are 60 days into your 90-day unemployment allowance, and you still haven't found a paid job. Panic is setting in. Before your SEVIS record is terminated, there is a legal lifeline: <strong>Unpaid volunteer work or unpaid internships count as employment on standard OPT.</strong> But you cannot just volunteer anywhere.</p>
 
+                <BlogProductCTA variant="unemployment" sourcePage="/blog/volunteer-work-opt-employment-rules" placement="top" />
+
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Rules for Volunteering on Standard OPT</h2>
                 <p>During your first 12 months of OPT, unpaid work perfectly satisfies the employment requirement and stops your 90-day unemployment clock, provided it meets these three criteria:</p>
                 
@@ -79,13 +82,7 @@ export default function VolunteerWorkPage() {
                 <p>Once you secure a volunteer position, you must report it in the SEVP Portal (or via your DSO) within 10 days of starting. You will list the organization as your employer, enter the address, and clearly state in the job description that it is an unpaid volunteer/internship position related to your major.</p>
             </div>
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Stop Stressing About the Clock</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">TrackMyOPT's precision unemployment calculator ensures you always know exactly how many days you have left. Store your volunteer documentation securely and never miss a reporting deadline.</p>
-                <div className="flex flex-wrap gap-4">
-                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button">Start Tracking Your OPT Days</Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="unemployment" sourcePage="/blog/volunteer-work-opt-employment-rules" placement="bottom" />
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">

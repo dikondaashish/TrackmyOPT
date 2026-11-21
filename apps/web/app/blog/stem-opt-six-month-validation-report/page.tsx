@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/stem-opt-six-month-validation-report";
 
@@ -95,6 +96,8 @@ export default function StemOptValidationReportPage() {
             </div>
           ))}
         </div>
+
+        <BlogProductCTA variant="stem-opt" sourcePage="/blog/stem-opt-six-month-validation-report" placement="top" />
 
         <h2>Type 1: Six-Month Validation Reports</h2>
         <p>
@@ -379,6 +382,8 @@ export default function StemOptValidationReportPage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="stem-opt" sourcePage="/blog/stem-opt-six-month-validation-report" placement="bottom" />
 
       <AuthorBio />
     </article>

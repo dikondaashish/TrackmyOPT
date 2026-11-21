@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/change-employers-stem-opt";
 
@@ -108,6 +109,8 @@ export default function ChangeStemOptEmployerPage() {
             </tbody>
           </table>
         </div>
+
+        <BlogProductCTA variant="stem-opt" sourcePage="/blog/change-employers-stem-opt" placement="top" />
 
         <h2>Before You Give Notice: Due Diligence on the New Employer</h2>
         <p>
@@ -359,6 +362,8 @@ export default function ChangeStemOptEmployerPage() {
           </div>
         </div>
       </div>
+
+      <BlogProductCTA variant="stem-opt" sourcePage="/blog/change-employers-stem-opt" placement="bottom" />
 
       <AuthorBio />
     </article>

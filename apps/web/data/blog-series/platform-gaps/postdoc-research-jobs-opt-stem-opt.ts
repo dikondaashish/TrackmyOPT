@@ -16,7 +16,7 @@ export const postdocResearchJobsOptStemOptArticle = platformGap({
     'STEM OPT university',
   ],
   readTime: '9 min read',
-  cta: 'opt-timeline',
+  cta: 'stem-opt',
   imageAlt:
     'Illustration of a researcher taking notes at a lab bench with flasks and a microscope',
   imageCaption: 'Conceptual illustration for educational context.',

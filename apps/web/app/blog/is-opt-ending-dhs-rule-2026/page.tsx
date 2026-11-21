@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Is OPT Really Ending in 2026? What the DHS Rule and Policy Threats Actually Mean for F-1 Students",
@@ -161,6 +162,8 @@ export default function IsOptEndingBlogPage() {
             </div>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+
+                <BlogProductCTA variant="opt-timeline" sourcePage="/blog/is-opt-ending-dhs-rule-2026" placement="top" />
 
                 <section id="what-dhs-confirmed" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -445,15 +448,7 @@ export default function IsOptEndingBlogPage() {
 
             <AuthorBio />
 
-            <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
-                <h2 className="text-2xl font-bold mb-3">Stay Ahead of OPT Deadlines While Policy Shifts</h2>
-                <p className="text-ink-muted mb-6 max-w-lg mx-auto">
-                    In an uncertain environment, perfect compliance is your strongest protection. TrackMyOPT keeps your unemployment days, employer updates, and filing deadlines organized so you are never caught off guard.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-500 shadow-button">
-                    Track Your OPT Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA variant="opt-timeline" sourcePage="/blog/is-opt-ending-dhs-rule-2026" placement="bottom" />
         </article>
     );
 }

@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "F-2 Dependent Visa Rules: What Your Spouse and Kids Can (and Cannot) Do | TrackMyOPT",
@@ -69,6 +70,8 @@ export default function F2DependentPage() {
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">
                     If you are an F-1 international student or OPT holder, you can bring your spouse and unmarried children under 21 to the United States on an <strong>F-2 dependent visa.</strong> While this lets your family live with you, the F-2 visa comes with significant restrictions that many families are unprepared for.
                 </p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/f2-dependent-visa-rules-opt-students" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Quick Reference: What F-2 Dependents Can and Cannot Do</h2>
 
@@ -155,22 +158,7 @@ export default function F2DependentPage() {
             </div>
 
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Keep Your Family's Status Secure
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Your F-2 dependents' legal status depends entirely on your OPT compliance. TrackMyOPT monitors your unemployment days, alerts you to SEVIS deadlines, and organizes your family's immigration documents in one secure place.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Protect Your Family's Status
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/f2-dependent-visa-rules-opt-students" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>

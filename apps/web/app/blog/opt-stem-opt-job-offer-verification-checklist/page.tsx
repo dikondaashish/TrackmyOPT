@@ -5,6 +5,7 @@ import { Clock, AlertTriangle, CheckCircle2, ArrowRight, Building2, FileCheck, M
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
   title: "OPT & STEM OPT Job Offer Verification Checklist (Before You Accept)",
@@ -134,6 +135,8 @@ export default function OPTSTEMOfferChecklistPage() {
       </div>
 
       <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
+        <BlogProductCTA variant="e-verify" sourcePage="/blog/opt-stem-opt-job-offer-verification-checklist" placement="top" />
+
         <section className="mb-10" id="employer-verification">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Building2 className="w-7 h-7 text-blue-600 dark:text-blue-400" />
@@ -216,6 +219,8 @@ export default function OPTSTEMOfferChecklistPage() {
           </div>
         </section>
       </div>
+
+      <BlogProductCTA variant="e-verify" sourcePage="/blog/opt-stem-opt-job-offer-verification-checklist" placement="bottom" />
 
       <div className="not-prose rounded-xl p-8 text-center text-ink-foreground mt-12 bg-ink border border-ink-border shadow-elevated">
         <h2 className="text-2xl font-bold mb-3">Track Compliance Before It Becomes a Problem</h2>

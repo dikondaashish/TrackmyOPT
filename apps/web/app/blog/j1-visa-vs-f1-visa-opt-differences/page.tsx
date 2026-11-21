@@ -3,6 +3,7 @@ import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "F-1 vs J-1 Visa: Which is Better for International Students? | TrackMyOPT",
@@ -72,6 +73,8 @@ export default function J1vsF1Page() {
                 <p>
                     While both allow you to study full-time in the US, the rules regarding post-graduation work and dependents are vastly different. Choosing the wrong visa can permanently derail your US career plans.
                 </p>
+
+                <BlogProductCTA variant="dashboard" sourcePage="/blog/j1-visa-vs-f1-visa-opt-differences" placement="top" />
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Post-Graduation Work: OPT vs. AT</h2>
                 <p>
@@ -159,22 +162,7 @@ export default function J1vsF1Page() {
             </div>
 
 
-            <div className="rounded-xl p-8 mt-12 mb-12 border border-primary-muted bg-primary-soft">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Organize Your Visa History
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    F-1 and J-1 students generate a lot of paperwork. Use TrackMyOPT's Document Safe to securely store your passports, visa stamps, I-20s, DS-2019s, and EAD cards. Stop worrying about losing a piece of paper that dictates your future.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-primary-hover transition-colors shadow-button"
-                    >
-                        Access the Document Safe
-                    </Link>
-                </div>
-            </div>
+            <BlogProductCTA variant="dashboard" sourcePage="/blog/j1-visa-vs-f1-visa-opt-differences" placement="bottom" />
 
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
