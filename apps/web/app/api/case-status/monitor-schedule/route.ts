@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { getUserId } from '@/lib/auth/get-user-id';
+import { isFinalCaseStatus } from '@/lib/case-status/final-status';
 export const dynamic = 'force-dynamic';
 async function handleGET(req: NextRequest) {
   const userId = await getUserId(req);
@@ -24,7 +25,7 @@ async function handleGET(req: NextRequest) {
   );
   const owned = await db
     .from('case_status')
-    .select('id')
+    .select('id, current_status')
     .eq('id', id)
     .eq('user_id', userId)
     .maybeSingle();
@@ -52,7 +53,12 @@ async function handleGET(req: NextRequest) {
   ]);
   if (next.error || attempt.error)
     return reply({ error: 'Schedule unavailable' }, 503);
-  return reply({ next: next.data, attempt: attempt.data });
+  return reply({
+    next: next.data,
+    attempt: attempt.data,
+    // Daily checks stop once USCIS reports a final status.
+    final: isFinalCaseStatus(owned.data.current_status),
+  });
 }
 
 export const GET = withSentryApiErrors(

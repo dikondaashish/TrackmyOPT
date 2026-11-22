@@ -6,6 +6,7 @@ import {
   withSentryApiErrors,
 } from '@/lib/sentry/api-errors';
 import { recordObservation } from '@/lib/opt-forecast/service';
+import { isFinalCaseStatus } from '@/lib/case-status/final-status';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -182,13 +183,13 @@ async function handlePOST(req: NextRequest) {
       source: analyticsSource,
     });
 
-    // SMART POLLING: Check if case is in a final state before calling external API
-    // Only apply this optimization for automated checks (Cron), not manual user refreshes
+    // SMART POLLING: Skip cases in a final state before calling USCIS. Daily
+    // worker checks honour this too; only a user's manual refresh rechecks.
     const forceRefresh = req.headers.get('X-Force-Refresh') === 'true';
     const isDailyWorker = req.headers.get('X-Check-Trigger') === 'daily';
     const isManualRefresh = forceRefresh && !isDailyWorker;
 
-    if (!forceRefresh) {
+    if (!isManualRefresh) {
       const { data: existingCase } = await supabase
         .from('case_status')
         .select('current_status, last_checked_at')
@@ -197,18 +198,7 @@ async function handlePOST(req: NextRequest) {
         .single();
 
       if (existingCase?.current_status) {
-        const FINAL_STATUS_KEYWORDS = [
-          'Card Was Delivered',
-          'Case Was Denied',
-          'Withdrawal Acknowledged',
-          'Notice Explaining USCIS Actions Was Mailed',
-          'Termination Notice Sent',
-          'Refund Of An Unused Fee',
-        ];
-
-        const isFinalState = FINAL_STATUS_KEYWORDS.some((keyword) =>
-          existingCase.current_status!.includes(keyword)
-        );
+        const isFinalState = isFinalCaseStatus(existingCase.current_status);
 
         if (isFinalState) {
           secureLog.log(

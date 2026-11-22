@@ -51,6 +51,7 @@ it('returns only owned scheduling metadata, without job IDs or receipt numbers',
   });
   const body = await (await GET(req())).json();
   expect(body.next.state).toBe('queued');
+  expect(body.final).toBe(false);
   expect(next.eq).toHaveBeenCalledWith('user_id', 'owner');
   expect(next.select).not.toHaveBeenCalledWith(
     expect.stringContaining('receipt_number')
@@ -61,4 +62,22 @@ it('withholds monitoring details from free users', async () => {
   m.plan.mockResolvedValue('free');
   expect((await GET(req())).status).toBe(403);
   expect(m.create).not.toHaveBeenCalled();
+});
+
+it('marks a delivered case as final so the panel says daily checks stopped', async () => {
+  m.create.mockReturnValue({
+    from: vi
+      .fn()
+      .mockReturnValueOnce(
+        query({
+          id: 'case',
+          current_status: 'Card Was Delivered To Me By The Post Office',
+        })
+      )
+      .mockReturnValueOnce(query(null))
+      .mockReturnValueOnce(query(null)),
+  });
+  const body = await (await GET(req())).json();
+  expect(body.final).toBe(true);
+  expect(JSON.stringify(body)).not.toContain('Card Was Delivered');
 });

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { formatCheckedAt } from '@/lib/case-status/safe-dates';
 type Schedule = {
+  final?: boolean;
   next?: { scheduled_for: string; state: string } | null;
   attempt?: {
     attempted_at: string;
@@ -39,6 +40,13 @@ export function CheckSchedule({ caseId }: { caseId: string }) {
     };
   }, [caseId]);
   const next = state?.next;
+  if (state?.final && !next)
+    return (
+      <div>
+        <div className="font-medium text-foreground">Daily checks stopped</div>
+        <div className="mt-1">Case is complete. Refresh to check again.</div>
+      </div>
+    );
   const delayed =
     next?.state !== 'running' &&
     now &&

@@ -4,6 +4,7 @@ import { InjectQueue } from '@nestjs/bull';
 import * as Bull from 'bull';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { dailyCheckDay, nextDailyCheck } from './check-schedule';
+import { isFinalCaseStatus } from './final-status';
 
 export type CaseSyncOutcome = {
   status?: string;
@@ -28,7 +29,8 @@ export class UscisService {
   }
 
   /**
-   * Queue every currently enrolled case, regardless of tier or last status.
+   * Queue every enrolled case, regardless of tier, except cases in a final
+   * USCIS status (for example Card Was Delivered). Manual refresh still checks.
    */
   async queueAllActiveCases(dryRun = false) {
     // PostgREST caps each response. Stable ordering and explicit ranges keep
@@ -58,18 +60,32 @@ export class UscisService {
     }
     // Daily cron also disposes of legacy Redis payloads for removed cases.
     if (!dryRun) await this.purgeUnenrolledJobs(cases);
-    if (!cases || cases.length === 0) {
+    // Purge uses every enrolled case above; finished cases are only left out
+    // of new daily checks.
+    const activeCases = cases.filter(
+      (c) => !isFinalCaseStatus(c.current_status),
+    );
+    const skippedFinal = cases.length - activeCases.length;
+    if (activeCases.length === 0) {
       this.logger.log('No cases found to check');
-      return { count: 0, skippedFree: 0, queued: 0 };
+      return { count: 0, skippedFree: 0, skippedFinal, queued: 0 };
     }
 
     if (dryRun)
-      return { count: cases.length, skippedFree: 0, dryRun: true, queued: 0 };
-    this.logger.log(`Queueing ${cases.length} enrolled cases for daily sync`);
+      return {
+        count: activeCases.length,
+        skippedFree: 0,
+        skippedFinal,
+        dryRun: true,
+        queued: 0,
+      };
+    this.logger.log(
+      `Queueing ${activeCases.length} enrolled cases for daily sync (${skippedFinal} final skipped)`,
+    );
     // Staggering spreads queue work; the shared provider gate enforces the limit.
     const now = new Date();
     const next = nextDailyCheck(now);
-    const scheduledCases = cases.flatMap((c, index) => [
+    const scheduledCases = activeCases.flatMap((c, index) => [
       {
         c,
         scheduled: new Date(now.getTime() + index * 1000),
@@ -112,7 +128,12 @@ export class UscisService {
     }
     const pendingJobs = jobs.filter((j) => !completed.has(j.opts.jobId));
     if (!pendingJobs.length)
-      return { count: cases.length, skippedFree: 0, queued: 0 };
+      return {
+        count: activeCases.length,
+        skippedFree: 0,
+        skippedFinal,
+        queued: 0,
+      };
     const scheduleRows = scheduledCases
       .filter(({ c, day }) => !completed.has(`daily-${c.id}-${day}`))
       .map(({ c, scheduled, day }) => ({
@@ -151,7 +172,12 @@ export class UscisService {
         .in('state', ['scheduling', 'failed', 'cancelled']);
       if (error) throw new Error('Could not confirm check schedule');
     }
-    return { count: cases.length, skippedFree: 0, queued: pendingJobs.length };
+    return {
+      count: activeCases.length,
+      skippedFree: 0,
+      skippedFinal,
+      queued: pendingJobs.length,
+    };
   }
 
   /** Bounded sweep of inactive legacy jobs; active jobs finish under the live
