@@ -15,6 +15,8 @@ import {
   checkPartnerCase,
   deliverStatusChange,
   MAX_NOTIFY_ATTEMPTS,
+  NEVER,
+  partnerCaseView,
   parseReceipt,
   parseUserRef,
   signWebhook,
@@ -40,6 +42,7 @@ const row = (over: Partial<PartnerCaseRow> = {}): PartnerCaseRow => ({
   notify_previous_status: null,
   notify_attempts: 0,
   created_at: '2026-11-22T00:00:00.000Z',
+  updated_at: '2026-11-22T00:00:00.000Z',
   ...over,
 });
 
@@ -162,6 +165,46 @@ describe('checkPartnerCase', () => {
     const { db, updates } = fakeDb();
     expect((await checkPartnerCase(db, row(), now)).kind).toBe('failed');
     expect(updates[0].next_check_at).toBe('2026-11-23T12:00:00.000Z');
+  });
+
+  it('backs off a receipt USCIS never knew after 1, 3 and 7 days, then stops', async () => {
+    m.fetchPartner.mockResolvedValue({ success: false, error: { code: 404, message: '', userMessage: '' } });
+    const unknown = (failures: number) =>
+      row({ current_status: null, consecutive_failures: failures, last_error_code: failures ? 404 : null });
+    const expected = ['2026-11-23T12:00:00.000Z', '2026-11-25T12:00:00.000Z', '2026-11-29T12:00:00.000Z', NEVER, NEVER];
+    for (const [failures, next] of expected.entries()) {
+      const { db, updates } = fakeDb();
+      await checkPartnerCase(db, unknown(failures), now);
+      expect(updates[0]).toMatchObject({ consecutive_failures: failures + 1, last_error_code: 404, next_check_at: next });
+    }
+  });
+
+  it('starts the not-found streak fresh after other errors', async () => {
+    m.fetchPartner.mockResolvedValue({ success: false, error: { code: 404, message: '', userMessage: '' } });
+    const { db, updates } = fakeDb();
+    await checkPartnerCase(db, row({ current_status: null, consecutive_failures: 5, last_error_code: 500 }), now);
+    expect(updates[0]).toMatchObject({ consecutive_failures: 1, next_check_at: '2026-11-23T12:00:00.000Z' });
+  });
+
+  it('tells the partner when a not-found receipt finally has a status', async () => {
+    m.fetchPartner.mockResolvedValue(ok('Case Was Received'));
+    const { db, updates } = fakeDb();
+    const outcome = await checkPartnerCase(db, row({ current_status: null, consecutive_failures: 2, last_error_code: 404 }), now);
+    expect(outcome).toMatchObject({ kind: 'checked', changed: true });
+    expect(updates[0]).toMatchObject({ notify_pending: true, notify_previous_status: null, consecutive_failures: 0, last_error_code: null });
+  });
+
+  it('reports not-found and stopped cases to the partner', () => {
+    expect(partnerCaseView(row())).toMatchObject({ notFound: false, checksStopped: false });
+    expect(partnerCaseView(row({ current_status: null, last_error_code: 404, consecutive_failures: 2 }))).toMatchObject({
+      notFound: true,
+      checksStopped: false,
+    });
+    expect(partnerCaseView(row({ current_status: null, last_error_code: 404, consecutive_failures: 4 }))).toMatchObject({
+      notFound: true,
+      checksStopped: true,
+    });
+    expect(partnerCaseView(row({ last_error_code: 404, consecutive_failures: 4 }))).toMatchObject({ notFound: false });
   });
 
   it('treats a removed enrollment as removed, not an error', async () => {

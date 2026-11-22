@@ -3,6 +3,8 @@
  *
  *   GET    ?userRef=…                     → that user's cases
  *   POST   { userRef, receiptNumber }     → enroll (idempotent) and check once now
+ *   POST   { …, recheck: true }           → also look up a not-found case again now
+ *                                            (at most hourly; reports rechecked: false otherwise)
  *   DELETE ?userRef=…&receiptNumber=…     → remove one case
  *   DELETE ?userRef=…                     → remove all of that user's cases (account deleted)
  *
@@ -13,12 +15,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import {
   checkPartnerCase,
+  isNotFound,
   MAX_CASES_PER_USER,
   PARTNER_CASE_COLUMNS,
   PARTNER_SOURCE,
   parseReceipt,
   parseUserRef,
   partnerCaseView,
+  RECHECK_MIN_MS,
   verifyPartnerAuth,
   type PartnerCaseRow,
 } from '@/lib/partner-cases/service';
@@ -66,7 +70,19 @@ async function handlePOST(req: NextRequest) {
     .returns<PartnerCaseRow[]>();
   if (readError) return bad('Could not read cases', 500);
   const same = existing?.find((c) => c.receipt_number === receipt);
-  if (same) return NextResponse.json({ ok: true, created: false, case: partnerCaseView(same) }, { headers: noStore });
+  if (same) {
+    // "Check again" for a receipt USCIS didn't know: one lookup, never more than hourly.
+    const recheck =
+      body?.recheck === true &&
+      isNotFound(same) &&
+      Date.now() - new Date(same.updated_at).getTime() >= RECHECK_MIN_MS;
+    if (!recheck) {
+      return NextResponse.json({ ok: true, created: false, rechecked: false, case: partnerCaseView(same) }, { headers: noStore });
+    }
+    const outcome = await checkPartnerCase(supabase, same);
+    const row = outcome.kind === 'checked' || outcome.kind === 'failed' ? outcome.row : same;
+    return NextResponse.json({ ok: true, created: false, rechecked: true, case: partnerCaseView(row) }, { headers: noStore });
+  }
   if ((existing?.length ?? 0) >= MAX_CASES_PER_USER) return bad('Case limit reached', 409);
 
   const { data: inserted, error: insertError } = await supabase

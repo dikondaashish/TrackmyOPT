@@ -24,9 +24,19 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 /** Hourly retries for two days, then one grouped Sentry warning. */
 export const MAX_NOTIFY_ATTEMPTS = 48;
+/**
+ * A receipt USCIS doesn't know (404/422) is usually a typo, but a brand-new filing can take
+ * days to appear. Retry after 1, 3 and 7 days, then stop: four lookups in total instead of
+ * one a day forever, so mistyped numbers never look like scanning other people's cases.
+ */
+export const NOT_FOUND_RETRY_DAYS = [1, 3, 7] as const;
+/** next_check_at for a case we stopped checking; the cron never reaches it. */
+export const NEVER = '9999-12-31T00:00:00.000Z';
+/** A partner may ask for one extra lookup of a not-found case at most this often. */
+export const RECHECK_MIN_MS = HOUR_MS;
 
 export const PARTNER_CASE_COLUMNS =
-  'id, partner_user_ref, receipt_number, form_type, current_status, status_description, received_date, status_history, status_changed_at, last_checked_at, next_check_at, consecutive_failures, last_error_code, notify_pending, notify_previous_status, notify_attempts, created_at';
+  'id, partner_user_ref, receipt_number, form_type, current_status, status_description, received_date, status_history, status_changed_at, last_checked_at, next_check_at, consecutive_failures, last_error_code, notify_pending, notify_previous_status, notify_attempts, created_at, updated_at';
 
 export type PartnerCaseRow = {
   id: string;
@@ -46,7 +56,18 @@ export type PartnerCaseRow = {
   notify_previous_status: string | null;
   notify_attempts: number;
   created_at: string;
+  updated_at: string;
 };
+
+const isNotFoundCode = (code: number | null) => code === 404 || code === 422;
+
+/** USCIS has never returned a status for this receipt and says it doesn't know it. */
+export const isNotFound = (row: Pick<PartnerCaseRow, 'current_status' | 'last_error_code'>) =>
+  row.current_status === null && isNotFoundCode(row.last_error_code);
+
+/** A not-found case we no longer check on a schedule. */
+export const checksStopped = (row: Pick<PartnerCaseRow, 'current_status' | 'last_error_code' | 'consecutive_failures'>) =>
+  isNotFound(row) && row.consecutive_failures > NOT_FOUND_RETRY_DAYS.length;
 
 /** What the partner receives about a case. No TrackMyOPT internals. */
 export function partnerCaseView(row: PartnerCaseRow) {
@@ -62,6 +83,8 @@ export function partnerCaseView(row: PartnerCaseRow) {
     statusChangedAt: row.status_changed_at,
     lastCheckedAt: row.last_checked_at,
     lastErrorCode: row.last_error_code,
+    notFound: isNotFound(row),
+    checksStopped: checksStopped(row),
   };
 }
 export type PartnerCaseView = ReturnType<typeof partnerCaseView>;
@@ -137,17 +160,24 @@ export async function checkPartnerCase(
   if (!result.success) {
     const { code } = result.error;
     const pause = code === 429 || result.error.upstreamUnavailable;
-    const retryMs = pause
-      ? Math.max(HOUR_MS, (result.error.retryAfter ?? 0) * 1000)
-      : code === 404 || code === 422
-        ? DAY_MS
-        : 6 * HOUR_MS;
+    const failures = row.consecutive_failures + 1;
+    let next: string;
+    if (pause) {
+      next = new Date(now.getTime() + Math.max(HOUR_MS, (result.error.retryAfter ?? 0) * 1000)).toISOString();
+    } else if (isNotFoundCode(code) && row.current_status === null) {
+      // Count only the not-found streak, so earlier outages don't shorten it.
+      const streak = isNotFoundCode(row.last_error_code) ? failures : 1;
+      const days = NOT_FOUND_RETRY_DAYS[streak - 1];
+      next = days === undefined ? NEVER : new Date(now.getTime() + days * DAY_MS).toISOString();
+    } else {
+      next = new Date(now.getTime() + (isNotFoundCode(code) ? DAY_MS : 6 * HOUR_MS)).toISOString();
+    }
     const { data, error } = await db
       .from('partner_cases')
       .update({
-        consecutive_failures: row.consecutive_failures + 1,
+        consecutive_failures: isNotFoundCode(code) && !isNotFoundCode(row.last_error_code) ? 1 : failures,
         last_error_code: code,
-        next_check_at: new Date(now.getTime() + retryMs).toISOString(),
+        next_check_at: next,
       })
       .eq('id', row.id)
       .select(PARTNER_CASE_COLUMNS)
@@ -158,7 +188,11 @@ export async function checkPartnerCase(
   }
 
   const status = result.data;
-  const changed = row.current_status !== null && row.current_status !== status.status;
+  // A first status after "not found" (a new filing that just reached USCIS's system) is
+  // news for the partner too, even though nothing was shown before.
+  const changed =
+    (row.current_status !== null && row.current_status !== status.status) ||
+    (row.current_status === null && isNotFound(row));
   const update: Record<string, unknown> = {
     form_type: status.caseType || row.form_type,
     current_status: status.status,
