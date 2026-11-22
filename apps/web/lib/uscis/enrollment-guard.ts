@@ -130,3 +130,44 @@ export async function assertReceiptEnrolledByUser(
 
   return decision.normalizedReceipt;
 }
+
+/** Partner products whose signed-in users may enroll receipts (see partner_cases). */
+export type PartnerSource = "partner1";
+
+/**
+ * Same rule as assertReceiptEnrolledByUser, for a receipt a partner product's signed-in
+ * user enrolled. The audit row has no TrackMyOPT user and call site "partner:<source>";
+ * the guard_uscis_audit_retention trigger re-checks the enrollment in partner_cases.
+ */
+export async function assertReceiptEnrolledByPartner(
+  supabase: SupabaseClient,
+  input: { source: PartnerSource; receiptNumber: string }
+): Promise<string> {
+  const callSite = `partner:${input.source}`;
+  const { data, error } = await supabase
+    .from("partner_cases")
+    .select("id")
+    .eq("source", input.source)
+    .eq("receipt_number", normalizeReceiptNumber(input.receiptNumber))
+    .limit(1)
+    .maybeSingle();
+
+  const decision = evaluateEnrollmentGuard({
+    userId: callSite,
+    receiptNumber: input.receiptNumber,
+    enrolled: !error && Boolean(data),
+  });
+  await writeAuditLog(
+    supabase,
+    error ? { ...decision, reason: "enrollment_lookup_failed" } : decision,
+    null,
+    callSite
+  );
+  if (error) {
+    throw new UnauthorizedReceiptLookupError(
+      "Could not verify receipt enrollment; USCIS lookup blocked."
+    );
+  }
+  if (!decision.allowed) throw new UnauthorizedReceiptLookupError();
+  return decision.normalizedReceipt;
+}

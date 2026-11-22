@@ -1,7 +1,11 @@
 /** Sole USCIS HTTP entry point: enrollment, shared pacing/quota, timeouts and safe errors. */
 import * as Sentry from '@sentry/nextjs';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { assertReceiptEnrolledByUser } from '@/lib/uscis/enrollment-guard';
+import {
+  assertReceiptEnrolledByPartner,
+  assertReceiptEnrolledByUser,
+  type PartnerSource,
+} from '@/lib/uscis/enrollment-guard';
 import { UnauthorizedReceiptLookupError } from '@/lib/uscis/errors';
 import type { USCISResult, USCISStatus } from '@/lib/immigration/uscis-checker';
 import {
@@ -171,21 +175,45 @@ export function parseUSCISResponse(
     modifiedDate: modified,
   };
 }
-export async function fetchCaseStatus(
-  input: FetchCaseStatusInput
-): Promise<USCISResult> {
-  const db =
-    input.supabase ??
+function serviceClient(supabase?: SupabaseClient) {
+  return (
+    supabase ??
     createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    )
+  );
+}
+export async function fetchCaseStatus(
+  input: FetchCaseStatusInput
+): Promise<USCISResult> {
+  const db = serviceClient(input.supabase);
   // Authorization failure propagates to callers; credentials remain untouched.
   const receipt = await assertReceiptEnrolledByUser(db, {
     userId: input.userId,
     receiptNumber: input.receiptNumber,
     callSite: input.callSite,
   });
+  return requestEnrolledCaseStatus(db, receipt);
+}
+/** A receipt enrolled by a signed-in user of a partner product (partner_cases). */
+export async function fetchPartnerCaseStatus(input: {
+  receiptNumber: string;
+  source: PartnerSource;
+  supabase?: SupabaseClient;
+}): Promise<USCISResult> {
+  const db = serviceClient(input.supabase);
+  const receipt = await assertReceiptEnrolledByPartner(db, {
+    source: input.source,
+    receiptNumber: input.receiptNumber,
+  });
+  return requestEnrolledCaseStatus(db, receipt);
+}
+/** Only call after an enrollment guard has passed for this receipt. */
+async function requestEnrolledCaseStatus(
+  db: SupabaseClient,
+  receipt: string
+): Promise<USCISResult> {
   try {
     const baseUrl = approvedEndpoint(
       process.env.USCIS_API_BASE_URL || 'https://api.uscis.gov/case-status'

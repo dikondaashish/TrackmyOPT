@@ -162,6 +162,10 @@ const serverEnvSchema = clientEnvSchema.extend({
   USCIS_TOKEN_URL: z.string().url().optional(),
   USCIS_API_BASE_URL: z.string().url().optional(),
   USCIS_MOCK: z.enum(['true', 'false']).optional(),
+  /** Partner cases: inbound bearer key; webhook URL and signing secret. */
+  PARTNER_API_KEY: z.string().min(32).optional(),
+  PARTNER_WEBHOOK_URL: z.string().url().optional(),
+  PARTNER_WEBHOOK_SECRET: z.string().min(32).optional(),
 
   // Upstash Redis (rate limiting). Vercel Marketplace injects the KV names.
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
