@@ -10,6 +10,7 @@ describe('daily USCIS queue pagination', () => {
   function setup(
     failPage = false,
     outcomes: { job_id: string; state: string }[] = [],
+    statusFor: (index: number) => string | undefined = () => undefined,
   ) {
     const ranges: Array<[string, number]> = [];
     const upserts: number[] = [];
@@ -35,6 +36,7 @@ describe('daily USCIS queue pagination', () => {
               id: `case-${start + i}`,
               user_id: `user-${start + i}`,
               receipt_number: `receipt-${start + i}`,
+              current_status: statusFor(start + i),
             }),
           );
           return Promise.resolve({
@@ -64,11 +66,40 @@ describe('daily USCIS queue pagination', () => {
     await expect(service.queueAllActiveCases()).resolves.toEqual({
       count: 1681,
       skippedFree: 0,
+      skippedFinal: 0,
       queued: 3362,
     });
     expect(ranges).toContainEqual(['case_status', 1000]);
     expect(ranges.some(([table]) => table === 'profiles')).toBe(false);
     expect(addBulk.mock.calls[0][0]).toHaveLength(3362);
+  });
+
+  it('does not queue cases in a final status such as Card Was Delivered', async () => {
+    const { service, addBulk } = setup(false, [], (i) =>
+      i === 0
+        ? 'Card Was Delivered To Me By The Post Office'
+        : i === 1
+          ? 'Case Was Denied'
+          : i === 2
+            ? 'Case Was Approved'
+            : undefined,
+    );
+    await expect(service.queueAllActiveCases()).resolves.toEqual({
+      count: 1679,
+      skippedFree: 0,
+      skippedFinal: 2,
+      queued: 3358,
+    });
+    const jobs = addBulk.mock.calls[0][0] as { opts: { jobId: string } }[];
+    expect(jobs.some((j) => j.opts.jobId.startsWith('daily-case-0-'))).toBe(
+      false,
+    );
+    expect(jobs.some((j) => j.opts.jobId.startsWith('daily-case-1-'))).toBe(
+      false,
+    );
+    expect(jobs.some((j) => j.opts.jobId.startsWith('daily-case-2-'))).toBe(
+      true,
+    );
   });
 
   it('persists the schedule in bounded batches', async () => {
@@ -101,6 +132,7 @@ describe('daily USCIS queue pagination', () => {
     expect(await service.queueAllActiveCases(true)).toEqual({
       count: 1681,
       skippedFree: 0,
+      skippedFinal: 0,
       dryRun: true,
       queued: 0,
     });
