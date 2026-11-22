@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
 const m = vi.hoisted(() => ({
   enrollment: vi.fn(),
+  partnerEnrollment: vi.fn(),
   acquire: vi.fn(),
   defer: vi.fn(),
   fetch: vi.fn(),
@@ -15,13 +16,14 @@ vi.mock('@sentry/nextjs', () => ({
 }));
 vi.mock('@/lib/uscis/enrollment-guard', () => ({
   assertReceiptEnrolledByUser: m.enrollment,
+  assertReceiptEnrolledByPartner: m.partnerEnrollment,
 }));
 vi.mock('./request-governor', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./request-governor')>()),
   acquireUSCISRequest: m.acquire,
   deferUSCISRequests: m.defer,
 }));
-import { fetchCaseStatus, parseUSCISResponse } from './client';
+import { fetchCaseStatus, fetchPartnerCaseStatus, parseUSCISResponse } from './client';
 import { UnauthorizedReceiptLookupError } from './errors';
 const input = {
   receiptNumber: 'IOE0000000001',
@@ -146,4 +148,22 @@ it('still reports rejected credentials as an error', async () => {
   expect(m.capture).not.toHaveBeenCalled();
   expect(consoleError).toHaveBeenCalledWith('[USCIS] Case status request failed (403)');
   consoleError.mockRestore();
+});
+
+it('verifies partner enrollment before accessing tokens or an allowance', async () => {
+  m.partnerEnrollment.mockRejectedValue(new UnauthorizedReceiptLookupError());
+  await expect(
+    fetchPartnerCaseStatus({
+      receiptNumber: input.receiptNumber,
+      source: 'partner1',
+      supabase: input.supabase,
+    })
+  ).rejects.toThrow(UnauthorizedReceiptLookupError);
+  expect(m.partnerEnrollment).toHaveBeenCalledWith(input.supabase, {
+    source: 'partner1',
+    receiptNumber: input.receiptNumber,
+  });
+  expect(m.enrollment).not.toHaveBeenCalled();
+  expect(m.acquire).not.toHaveBeenCalled();
+  expect(m.fetch).not.toHaveBeenCalled();
 });

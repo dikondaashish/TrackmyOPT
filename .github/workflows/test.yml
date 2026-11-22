@@ -72,6 +72,9 @@ jobs:
       - name: Pending case email PostgreSQL regression tests
         run: node scripts/operations/test-pending-case-email-sequence.mjs
 
+      - name: Partner cases PostgreSQL regression tests
+        run: node scripts/operations/test-partner-cases.mjs
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

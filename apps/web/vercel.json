@@ -40,6 +40,10 @@
       "schedule": "0 14 * * *"
     },
     {
+      "path": "/api/cron/check-partner-cases",
+      "schedule": "25 * * * *"
+    },
+    {
       "path": "/api/cron/ingest-community-opt",
       "schedule": "30 15 * * *"
     },
