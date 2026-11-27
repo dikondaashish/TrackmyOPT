@@ -20,6 +20,7 @@ import {
   isInjectedPageScriptEvent,
   isOriginReachable,
   isThirdPartyScriptEvent,
+  isObfuscatedInjectedScriptEvent,
   networkFailureOrigin,
   resetNetworkFailureReporting,
   sentryOptions,
@@ -295,6 +296,55 @@ describe('Sentry ad and third-party script filtering', () => {
     ).toBe(false);
     expect(isThirdPartyScriptEvent(withFrames(sdk))).toBe(false);
     expect(isThirdPartyScriptEvent(withFrames('app:///_next/executors/200.js.map'))).toBe(false);
+  });
+});
+
+describe('Sentry AdSense loader and obfuscated injected script', () => {
+  const listener = 'auto.browser.browserapierrors.addEventListener';
+  const sdk =
+    'node_modules/.pnpm/@sentry+browser@11.6.0/node_modules/@sentry/browser/src/helpers.ts';
+  const event = (frames: { filename: string; function?: string }[], value = 'x'): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'SyntaxError',
+          value,
+          mechanism: { type: listener, handled: false },
+          stacktrace: { frames },
+        },
+      ],
+    },
+  });
+
+  it('drops AdSense ca-pub and ads-contributor frames, ignoring native calls (TRACKMYOPT-3H, 3J)', () => {
+    const caPub = 'app:///i/ca-pub-4262248775973692';
+    const boq =
+      '/_/mss/boq-content-ads-contributor/_/js/k=boq-content-ads-contributor.ContributorServingResponseClientJs.en_US.x.es5.O/d=1/m=kernel_loader';
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    const caPubEvent = event([{ filename: sdk }, { filename: caPub }, { filename: caPub }, { filename: '[native code]' }]);
+    expect(isThirdPartyScriptEvent(caPubEvent)).toBe(true);
+    expect(beforeSend?.(caPubEvent, {})).toBeNull();
+    expect(isThirdPartyScriptEvent(event([{ filename: sdk }, { filename: boq }]))).toBe(true);
+    expect(isThirdPartyScriptEvent(event([{ filename: '[native code]' }]))).toBe(false);
+    expect(
+      isThirdPartyScriptEvent(
+        event([{ filename: caPub }, { filename: 'https://www.trackmyopt.com/_next/static/chunks/a.js' }])
+      )
+    ).toBe(false);
+  });
+
+  it('drops obfuscated anonymous script but keeps other anonymous errors (TRACKMYOPT-3G)', () => {
+    const anon = (fn?: string) => ({ filename: '<anonymous>', function: fn });
+    const obfuscated = event([anon(), anon('_0x36684d')], '_0x19cafa is not defined');
+    expect(isObfuscatedInjectedScriptEvent(obfuscated)).toBe(true);
+    expect(sentryOptions('https://key@example.test/1')?.beforeSend?.(obfuscated, {})).toBeNull();
+    expect(isObfuscatedInjectedScriptEvent(event([anon('render')], 'x is not defined'))).toBe(false);
+    expect(
+      isObfuscatedInjectedScriptEvent(
+        event([anon('_0x36684d'), { filename: 'https://www.trackmyopt.com/_next/static/chunks/a.js' }])
+      )
+    ).toBe(false);
   });
 });
 

@@ -59,7 +59,8 @@ async function upstreamFetch(
   db: SupabaseClient,
   environment: string,
   url: string,
-  init: RequestInit
+  init: RequestInit,
+  { retryWithNewToken = false } = {}
 ) {
   await acquireUSCISRequest(db, environment);
   const response = await fetch(url, {
@@ -69,6 +70,10 @@ async function upstreamFetch(
   });
   if (!response.ok) {
     if (response.status === 401) cachedToken = null;
+    // A cached token USCIS revoked early: the caller retries once with a new
+    // one instead of pausing every lookup for five minutes (TRACKMYOPT-20).
+    if (response.status === 401 && retryWithNewToken)
+      throw new ProviderError(401);
     const seconds = providerRetryAfter(
       response,
       response.status === 401 || response.status === 403 ? 300 : 60
@@ -224,19 +229,31 @@ async function requestEnrolledCaseStatus(
     if (new URL(baseUrl).hostname !== new URL(tokenUrl).hostname)
       throw new Error('USCIS endpoint environments differ');
     const environment = uscisEnvironment(baseUrl);
-    const token = await accessToken(db, environment, tokenUrl);
-    const response = await upstreamFetch(
-      db,
-      environment,
-      `${baseUrl}/${receipt}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
+    const lookup = async (retryWithNewToken: boolean) =>
+      upstreamFetch(
+        db,
+        environment,
+        `${baseUrl}/${receipt}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${await accessToken(db, environment, tokenUrl)}`,
+            Accept: 'application/json',
+          },
         },
-      }
+        { retryWithNewToken }
+      );
+    const tokenWasCached = Boolean(
+      cachedToken && cachedToken.expiresAt > Date.now()
     );
+    let response: Response;
+    try {
+      response = await lookup(tokenWasCached);
+    } catch (error) {
+      if (!(tokenWasCached && error instanceof ProviderError && error.code === 401))
+        throw error;
+      response = await lookup(false);
+    }
     return {
       success: true,
       data: parseUSCISResponse(await response.json(), receipt),

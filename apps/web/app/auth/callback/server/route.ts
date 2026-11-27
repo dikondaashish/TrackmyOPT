@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
-import { isMissingPkceVerifier, MISSING_VERIFIER_LOGIN_ERROR } from '@/lib/auth/pkce-callback';
+import {
+  isMissingPkceVerifier,
+  isStaleAuthLink,
+  MISSING_VERIFIER_LOGIN_ERROR,
+  STALE_LINK_LOGIN_ERROR,
+} from '@/lib/auth/pkce-callback';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
@@ -61,6 +66,14 @@ export async function GET(req: NextRequest) {
       secureLog.warn('Code exchange skipped: PKCE verifier cookie missing');
       const login = new URL('/login', req.url);
       login.searchParams.set('error', MISSING_VERIFIER_LOGIN_ERROR);
+      return NextResponse.redirect(login);
+    }
+
+    if (exchangeError && isStaleAuthLink(exchangeError)) {
+      // Link already used, or opened after its flow state expired.
+      secureLog.warn('Code exchange skipped: sign-in link already used or expired');
+      const login = new URL('/login', req.url);
+      login.searchParams.set('error', STALE_LINK_LOGIN_ERROR);
       return NextResponse.redirect(login);
     }
 

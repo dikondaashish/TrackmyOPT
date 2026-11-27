@@ -150,6 +150,60 @@ it('still reports rejected credentials as an error', async () => {
   consoleError.mockRestore();
 });
 
+it('retries once with a new token when USCIS rejects a cached one (TRACKMYOPT-20)', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+  // Prime the token cache with a successful lookup.
+  m.fetch.mockImplementation(async (url: string) =>
+    url.includes('/oauth/')
+      ? Response.json({ access_token: 'synthetic-token', expires_in: 3600 })
+      : Response.json({
+          case_status: {
+            receiptNumber: input.receiptNumber,
+            formType: 'I-765',
+            current_case_status_text_en: 'Case Was Received',
+          },
+        })
+  );
+  await fetchCaseStatus(input);
+  vi.clearAllMocks();
+  m.enrollment.mockResolvedValue(input.receiptNumber);
+  m.acquire.mockResolvedValue(undefined);
+  let caseCalls = 0;
+  m.fetch.mockImplementation(async (url: string) => {
+    if (url.includes('/oauth/'))
+      return Response.json({ access_token: 'fresh-token', expires_in: 3600 });
+    caseCalls++;
+    return caseCalls === 1
+      ? new Response(null, { status: 401 })
+      : Response.json({
+          case_status: {
+            receiptNumber: input.receiptNumber,
+            formType: 'I-765',
+            current_case_status_text_en: 'Case Was Received',
+          },
+        });
+  });
+  const result = await fetchCaseStatus(input);
+  expect(result.success).toBe(true);
+  expect(caseCalls).toBe(2);
+  expect(m.fetch).toHaveBeenCalledWith(
+    expect.stringContaining('/oauth/'),
+    expect.anything()
+  );
+  expect(m.defer).not.toHaveBeenCalled();
+  expect(consoleError).not.toHaveBeenCalled();
+  consoleError.mockRestore();
+});
+
+it('pauses lookups when a freshly issued token is rejected too', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+  upstreamReturns(401);
+  const first = await fetchCaseStatus(input); // may use a cached token, then a new one
+  expect(first).toMatchObject({ success: false, error: { code: 401 } });
+  expect(m.defer).toHaveBeenCalledWith(input.supabase, 'production', 300);
+  consoleError.mockRestore();
+});
+
 it('verifies partner enrollment before accessing tokens or an allowance', async () => {
   m.partnerEnrollment.mockRejectedValue(new UnauthorizedReceiptLookupError());
   await expect(
