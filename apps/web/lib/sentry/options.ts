@@ -170,8 +170,12 @@ export function isForeignScriptEvent(event: ErrorEvent): boolean {
 // their own inside our pages, and an `executors/<n>.js` script that is not one
 // of our files (TrackMyOPT bundles are served from /_next/). Sentry's global
 // handlers wrap them, so the SDK's own frames appear beside theirs; ignore those.
+// AdSense frames can also be reported as `app:///i/ca-pub-<id>` (TRACKMYOPT-3H)
+// or Google's `boq-content-ads-contributor` loader (TRACKMYOPT-3J).
 const THIRD_PARTY_SCRIPT =
-  /\/pagead\/|googlesyndication\.com|doubleclick\.net|adtrafficquality\.google|\/executors\/\d+\.js(?:[?#]|$)/i;
+  /\/pagead\/|googlesyndication\.com|doubleclick\.net|adtrafficquality\.google|\/executors\/\d+\.js(?:[?#]|$)|^app:\/\/\/i\/ca-pub-\d+$|\/boq-content-ads-contributor\//i;
+// Browser built-ins the ad script calls (e.g. postMessage) have no script URL.
+const NATIVE_FRAME = '[native code]';
 const SENTRY_SDK_FRAME = /[/+]@?sentry[+/]|\/@sentry\//i;
 const BUNDLE_FRAME = /\/_next\//i;
 // In the browser the SDK is part of our minified bundle, so its frames are
@@ -210,7 +214,25 @@ export function isThirdPartyScriptEvent(event: ErrorEvent): boolean {
   ) {
     files = files.slice(1);
   }
+  files = files.filter((file) => file !== NATIVE_FRAME);
   return files.length > 0 && files.every((file) => THIRD_PARTY_SCRIPT.test(file));
+}
+
+// Obfuscator output (`_0x1a2b3c` identifiers) evaluated as `<anonymous>` script
+// is injected by an extension or host app; TrackMyOPT ships no such code and
+// its bundles always have a /_next/ URL (TRACKMYOPT-3G).
+const OBFUSCATED_NAME = /\b_0x[0-9a-f]{4,}\b/;
+
+/** True when every frame is `<anonymous>` and the error names obfuscated code. */
+export function isObfuscatedInjectedScriptEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  const frames = values.flatMap((v) => v.stacktrace?.frames ?? []);
+  return (
+    frames.length > 0 &&
+    frames.every((f) => (f.filename ?? f.abs_path) === '<anonymous>') &&
+    (values.some((v) => OBFUSCATED_NAME.test(v.value ?? '')) ||
+      frames.some((f) => OBFUSCATED_NAME.test(f.function ?? '')))
+  );
 }
 
 // Chrome's built-in page translator runs as script evaluated in the page
@@ -678,6 +700,7 @@ export function sentryOptions(
       if (
         isForeignScriptEvent(event) ||
         isThirdPartyScriptEvent(event) ||
+        isObfuscatedInjectedScriptEvent(event) ||
         isBrowserFeatureConsoleEvent(event) ||
         isNodeRuntimeNoticeEvent(event) ||
         isInjectedPageScriptEvent(event) ||

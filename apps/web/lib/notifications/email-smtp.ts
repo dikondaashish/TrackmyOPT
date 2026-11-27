@@ -52,6 +52,13 @@ const getTransporter = () => {
   return transporter;
 };
 
+/** nodemailer marks rejected logins with code EAUTH (SMTP 535/534). */
+export function isSmtpAuthError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const { code, responseCode } = error as { code?: unknown; responseCode?: unknown };
+  return code === "EAUTH" || responseCode === 535 || responseCode === 534;
+}
+
 export async function sendMailWithRetry(
   mailOptions: nodemailer.SendMailOptions,
   maxRetries: number = 3
@@ -65,7 +72,14 @@ export async function sendMailWithRetry(
       return info;
     } catch (error) {
       lastError = error as Error;
-      console.error(`Email attempt ${attempt}/${maxRetries} failed:`, (error as Error).message);
+      // Rejected SMTP credentials fail every retry the same way; stop at once
+      // and report one error that names the cause (TRACKMYOPT-3K).
+      if (isSmtpAuthError(error)) {
+        console.error("Email send failed: SMTP login rejected; check SMTP_USER/SMTP_PASS");
+        throw lastError;
+      }
+      const log = attempt < maxRetries ? console.warn : console.error;
+      log(`Email attempt ${attempt}/${maxRetries} failed:`, (error as Error).message);
 
       if (
         (error as Error).message?.includes("timeout") ||
