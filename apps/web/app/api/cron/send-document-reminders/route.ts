@@ -20,7 +20,7 @@ import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { buildDocumentExpiryReminderEmail } from '@/lib/notifications/document-expiry-email';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 
-// Create SMTP transporter for Hostinger
+// Create SMTP transporter (ZeptoMail, configured via SMTP_* env)
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '465'),

@@ -266,7 +266,7 @@ export default function TermsPage() {
               <ul>
                 <li><strong>Supabase</strong>: Database and authentication</li>
                 <li><strong>Google OAuth</strong>: Sign-in option</li>
-                <li><strong>Hostinger SMTP</strong>: Email notifications via our own domain (emails sent from @trackmyopt.com)</li>
+                <li><strong>Zoho ZeptoMail</strong>: Transactional email delivery (emails sent from @trackmyopt.com)</li>
                 <li><strong>USCIS Case Status Online</strong>: We query the public USCIS case status system (egov.uscis.gov) on your behalf to retrieve your case status. We do not store or share any data with USCIS.</li>
               </ul>
               <p>

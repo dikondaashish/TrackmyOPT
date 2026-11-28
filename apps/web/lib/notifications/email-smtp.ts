@@ -1,5 +1,5 @@
 /**
- * Shared SMTP transporter + send with retry (Resend SMTP, Hostinger, etc.).
+ * Shared SMTP transporter + send with retry (ZeptoMail via SMTP_* env).
  * Used by email-service and transactional-email-queue.
  *
  * SMTP_USER is the SMTP login (e.g. "resend"), NOT the From address.

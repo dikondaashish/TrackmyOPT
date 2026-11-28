@@ -1,5 +1,5 @@
 /**
- * Email Service - Handles all email sending via SMTP (Hostinger)
+ * Email Service - Handles all email sending via SMTP (ZeptoMail)
  *
  * Features:
  * - Daily reminder emails
