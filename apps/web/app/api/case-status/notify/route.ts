@@ -21,7 +21,7 @@ const corsHeaders = {
   'Cache-Control': 'no-store',
 };
 
-// Create SMTP transporter for Hostinger
+// Create SMTP transporter (ZeptoMail, configured via SMTP_* env)
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '465'),
